@@ -295,7 +295,7 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {currentVendor.categories.map((category) => (
-                      <Badge key={category} variant="secondary">
+                      <Badge key={category} variant="info">
                         {category}
                       </Badge>
                     ))}

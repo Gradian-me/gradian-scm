@@ -48,9 +48,9 @@ export function Header({
           <HydratedDropdown
             fallback={
               <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  SC
-                </span>
+                <Avatar className="h-6 w-6">
+                  <AvatarFallback className="text-xs">SC</AvatarFallback>
+                </Avatar>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             }
@@ -58,9 +58,9 @@ export function Header({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                  <span className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                    SC
-                  </span>
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="text-xs">SC</AvatarFallback>
+                  </Avatar>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
