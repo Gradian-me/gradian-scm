@@ -34,8 +34,6 @@ export function KPICard({
       className="group"
     >
       <Card className="relative overflow-hidden border-0 bg-white hover:shadow-lg transition-all duration-300">
-        <div className="absolute top-0 right-0 w-20 h-20 bg-violet-50 rounded-full -translate-y-10 translate-x-10"></div>
-        
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-violet-700 transition-colors">
             {title}
