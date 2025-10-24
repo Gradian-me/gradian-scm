@@ -179,7 +179,7 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
 
   return (
     <MainLayout title="Vendor Details">
-      <div className="space-y-6">
+      <div className="space-y-6 pb-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

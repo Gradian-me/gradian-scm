@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, User, ChevronDown, Plus } from 'lucide-react';
+import { Bell, User, ChevronDown, Plus, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,13 +33,13 @@ export function Header({
   const [notificationCount] = useState(3);
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-8 py-6">
       <div className="flex items-center justify-between">
         <motion.h1
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="text-2xl font-bold text-gray-900"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-2xl font-semibold text-gray-900"
         >
           {title}
         </motion.h1>
@@ -64,12 +65,12 @@ export function Header({
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Departments</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="rounded-xl border border-gray-200 shadow-lg">
+                <DropdownMenuLabel className="text-sm font-semibold text-gray-900">Departments</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Supply Chain</DropdownMenuItem>
-                <DropdownMenuItem>Finance</DropdownMenuItem>
-                <DropdownMenuItem>Operations</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50">Supply Chain</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50">Finance</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50">Operations</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </HydratedDropdown>
@@ -104,27 +105,94 @@ export function Header({
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">New Quotation Received</p>
-                    <p className="text-xs text-gray-500">Transfarma submitted a quotation for HPLC Columns</p>
+              <DropdownMenuContent align="end" className="w-80 rounded-xl border border-gray-200 shadow-lg p-0">
+                <div className="p-4 border-b border-gray-100">
+                  <DropdownMenuLabel className="text-sm font-semibold text-gray-900 flex items-center justify-between">
+                    Notifications
+                    <Badge variant="default" className="text-xs">3</Badge>
+                  </DropdownMenuLabel>
+                </div>
+                <ScrollArea className="h-80">
+                  <div className="p-2 space-y-1">
+                    <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="text-sm font-medium">New Quotation Received</p>
+                            <Badge variant="success" className="text-xs">New</Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">Transfarma submitted a quotation for HPLC Columns</p>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-400">2 minutes ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="text-sm font-medium">Purchase Order Approved</p>
+                            <Badge variant="info" className="text-xs">Approved</Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">PO-2024-001 has been approved</p>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-400">1 hour ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <AlertTriangle className="h-5 w-5 text-amber-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="text-sm font-medium">Shipment Delayed</p>
+                            <Badge variant="warning" className="text-xs">Urgent</Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">SH-2024-001 is experiencing delays</p>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-400">3 hours ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="flex-shrink-0">
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="text-sm font-medium">Vendor Registration Complete</p>
+                            <Badge variant="success" className="text-xs">Complete</Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">New vendor Merck has been registered</p>
+                          <div className="flex items-center space-x-1 mt-1">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-400">1 day ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
                   </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">Purchase Order Approved</p>
-                    <p className="text-xs text-gray-500">PO-2024-001 has been approved</p>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">Shipment Delayed</p>
-                    <p className="text-xs text-gray-500">SH-2024-001 is experiencing delays</p>
-                  </div>
-                </DropdownMenuItem>
+                </ScrollArea>
+                <div className="p-3 border-t border-gray-100">
+                  <Button variant="ghost" size="sm" className="w-full text-xs">
+                    View All Notifications
+                  </Button>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </HydratedDropdown>
@@ -153,13 +221,13 @@ export function Header({
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="rounded-xl border border-gray-200 shadow-lg">
+                <DropdownMenuLabel className="text-sm font-semibold text-gray-900">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50">Profile</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50">Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem className="rounded-lg hover:bg-red-50 focus:bg-red-50 text-red-600">Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </HydratedDropdown>

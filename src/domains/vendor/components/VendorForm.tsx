@@ -9,7 +9,8 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CollapsibleCardHeader } from '../../../components/ui/card';
+import { FormMessage } from '../../../components/ui/form-message';
 import { RepeatingSection, useRepeatingSection } from '../../../shared/components/repeating-section';
 import { Plus, X } from 'lucide-react';
 import { COUNTRIES } from '../../../shared/constants';
@@ -25,6 +26,13 @@ interface VendorFormProps {
 export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData, isEditMode = false }: VendorFormProps) {
   const [categories, setCategories] = useState<string[]>(initialData?.categories || []);
   const [newCategory, setNewCategory] = useState('');
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    basic: false,
+    contact: false,
+    categories: false,
+    performance: false,
+  });
+  const [formMessage, setFormMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info'; message: string } | null>(null);
 
   const {
     register,
@@ -93,22 +101,65 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
     }
   };
 
+  const toggleSection = (section: string) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const handleFormSubmit = (data: CreateVendorInput) => {
-    // Ensure at least one contact is marked as primary
-    if (data.contacts.length > 0 && !data.contacts.some(contact => contact.isPrimary)) {
-      data.contacts[0].isPrimary = true;
+    try {
+      // Ensure at least one contact is marked as primary
+      if (data.contacts.length > 0 && !data.contacts.some(contact => contact.isPrimary)) {
+        data.contacts[0].isPrimary = true;
+      }
+      onSubmit(data);
+      setFormMessage({ type: 'success', message: 'Vendor saved successfully!' });
+    } catch (error) {
+      setFormMessage({ type: 'error', message: 'Failed to save vendor. Please try again.' });
     }
-    onSubmit(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="space-y-6">
+      {/* Form Messages */}
+      {formMessage && (
+        <FormMessage type={formMessage.type} message={formMessage.message} />
+      )}
+
+      {/* Sticky Form Actions */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 -mx-6 mb-4">
+        <div className="flex justify-end space-x-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
+            {isLoading ? 'Saving...' : (isEditMode ? 'Update Vendor' : 'Create Vendor')}
+          </Button>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
+        {/* Basic Information */}
+        <Card className="bg-white border-gray-200">
+          <CollapsibleCardHeader
+            title="Basic Information"
+            description="Company details and basic information"
+            isCollapsed={collapsedSections.basic}
+            onToggle={() => toggleSection('basic')}
+          />
+          {!collapsedSections.basic && (
+            <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">Company Name *</Label>
@@ -181,16 +232,21 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 </SelectContent>
               </Select>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+          )}
+        </Card>
 
-      {/* Address Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Address Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        {/* Address Information */}
+        <Card>
+          <CollapsibleCardHeader
+            title="Address Information"
+            description="Company address and location details"
+            isCollapsed={collapsedSections.contact}
+            onToggle={() => toggleSection('contact')}
+          />
+          {!collapsedSections.contact && (
+            <CardContent className="space-y-4">
           <div>
             <Label htmlFor="address">Address *</Label>
             <Textarea
@@ -237,16 +293,21 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 <p className="text-sm text-red-600 mt-1">{errors.zipCode.message}</p>
               )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+          )}
+        </Card>
 
-      {/* Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Categories</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        {/* Categories */}
+        <Card className="bg-gray-50/50 border-gray-200">
+          <CollapsibleCardHeader
+            title="Categories"
+            description="Product and service categories"
+            isCollapsed={collapsedSections.categories}
+            onToggle={() => toggleSection('categories')}
+          />
+          {!collapsedSections.categories && (
+            <CardContent className="space-y-4">
           <div className="flex space-x-2">
             <Input
               value={newCategory}
@@ -279,11 +340,12 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
           )}
           {errors.categories && (
             <p className="text-sm text-red-600">{errors.categories.message}</p>
+            )}
+          </CardContent>
           )}
-        </CardContent>
-      </Card>
+        </Card>
 
-      {/* Contacts */}
+        {/* Contacts */}
       <RepeatingSection
         title="Contacts"
         items={fields}
@@ -356,15 +418,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
         )}
       />
 
-      {/* Form Actions */}
-      <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Vendor' : 'Create Vendor')}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

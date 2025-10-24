@@ -72,7 +72,7 @@ export function RepeatingSection({
                   transition={{ duration: 0.2 }}
                   className="relative"
                 >
-                  <div className="border rounded-lg p-4 bg-gray-50">
+                  <div className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-2">
                         {onMove && (

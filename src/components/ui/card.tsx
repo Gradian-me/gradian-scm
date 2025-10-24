@@ -1,5 +1,5 @@
 import * as React from "react"
-
+import { ChevronDown, ChevronUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      "rounded-xl border border-gray-200 bg-white text-card-foreground shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200",
       className
     )}
     {...props}
@@ -23,7 +23,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn("flex flex-col space-y-2 p-6 pb-4 border-b border-gray-100", className)}
     {...props}
   />
 ))
@@ -36,7 +36,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "text-lg font-semibold leading-tight text-gray-900",
       className
     )}
     {...props}
@@ -50,7 +50,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-gray-600 leading-relaxed", className)}
     {...props}
   />
 ))
@@ -60,7 +60,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  <div ref={ref} className={cn("p-6 pt-4", className)} {...props} />
 ))
 CardContent.displayName = "CardContent"
 
@@ -70,10 +70,46 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
+    className={cn("flex items-center p-6 pt-4", className)}
     {...props}
   />
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+interface CollapsibleCardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  title: string;
+  description?: string;
+  isCollapsed: boolean;
+  onToggle: () => void;
+}
+
+const CollapsibleCardHeader = React.forwardRef<
+  HTMLDivElement,
+  CollapsibleCardHeaderProps
+>(({ className, title, description, isCollapsed, onToggle, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center justify-between p-6 pb-4 border-b border-gray-100 bg-gray-50/50", className)}
+    {...props}
+  >
+    <div className="flex-1">
+      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      {description && (
+        <p className="text-sm text-gray-600 mt-1">{description}</p>
+      )}
+    </div>
+    <button
+      onClick={onToggle}
+      className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+    >
+      {isCollapsed ? (
+        <ChevronDown className="h-5 w-5 text-gray-600" />
+      ) : (
+        <ChevronUp className="h-5 w-5 text-gray-600" />
+      )}
+    </button>
+  </div>
+))
+CollapsibleCardHeader.displayName = "CollapsibleCardHeader"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, CollapsibleCardHeader }

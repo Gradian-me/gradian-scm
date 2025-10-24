@@ -72,15 +72,28 @@ export function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-8"
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mb-12"
         >
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, Mahyar.
-          </h2>
-          <p className="text-gray-600">
-            Here's what's happening with your supply chain today.
-          </p>
+          <div className="bg-white rounded-2xl p-8 shadow-modern border border-gray-200">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+              Welcome back, Mahyar! 👋
+            </h2>
+            <p className="text-lg text-gray-600 mb-6">
+              Here's what's happening with your supply chain today.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Badge variant="secondary" className="text-sm px-3 py-1">
+                🚀 3 New Vendors This Week
+              </Badge>
+              <Badge variant="secondary" className="text-sm px-3 py-1">
+                📈 15% Cost Savings
+              </Badge>
+              <Badge variant="secondary" className="text-sm px-3 py-1">
+                ⚡ 98% On-Time Delivery
+              </Badge>
+            </div>
+          </div>
         </motion.div>
 
         {/* Error Display */}

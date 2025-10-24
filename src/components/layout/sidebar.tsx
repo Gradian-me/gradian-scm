@@ -16,10 +16,12 @@ import {
   Database, 
   Settings,
   X,
-  ChevronLeft
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -87,10 +89,10 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     <motion.div
       initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
-      className="relative h-full bg-slate-900 text-white flex flex-col"
+      className="relative h-full bg-gray-900 text-white flex flex-col border-r border-gray-800"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700">
+      <div className="flex items-center justify-between p-6 border-b border-gray-700">
         <AnimatePresence mode="wait">
           {!isCollapsed && (
             <motion.div
@@ -98,15 +100,15 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.2 }}
-              className="flex items-center space-x-2"
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="flex items-center space-x-3"
             >
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">G</span>
+              <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">G</span>
               </div>
               <div>
-                <h1 className="font-bold text-lg">Gradian</h1>
-                <p className="text-xs text-slate-400">Supply Chain</p>
+                <h1 className="font-bold text-xl text-white">Gradian</h1>
+                <p className="text-xs text-gray-400">Supply Chain Management</p>
               </div>
             </motion.div>
           )}
@@ -116,14 +118,14 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           variant="ghost"
           size="icon"
           onClick={onToggle}
-          className="text-slate-400 hover:text-white hover:bg-slate-800"
+          className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
         >
-          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <X className="h-4 w-4" />}
+          {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </Button>
       </div>
 
       {/* Department Badge */}
-      <div className="p-4">
+      <div className="p-6">
         <AnimatePresence mode="wait">
           {!isCollapsed ? (
             <motion.div
@@ -131,9 +133,9 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="w-full bg-gray-800 hover:bg-gray-700 text-white">
                 Supply Chain Dept.
               </Button>
             </motion.div>
@@ -143,11 +145,11 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex justify-center"
             >
-              <Button size="icon" className="bg-blue-600 hover:bg-blue-700 text-white">
-                <span className="text-xs font-bold">SC</span>
+              <Button size="icon" className="bg-gray-800 hover:bg-gray-700 text-white">
+                <span className="text-sm font-bold">SC</span>
               </Button>
             </motion.div>
           )}
@@ -155,8 +157,9 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-2">
-        {navigationItems.map((item) => {
+      <ScrollArea className="flex-1 px-4">
+        <nav className="space-y-3">
+          {navigationItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
           
@@ -165,10 +168,10 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <motion.div
                 whileHover={{ x: 4 }}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                  "flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200",
                   isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -178,8 +181,8 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-sm font-medium"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="text-xs font-medium"
                     >
                       {item.name}
                     </motion.span>
@@ -188,11 +191,12 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               </motion.div>
             </Link>
           );
-        })}
-      </nav>
+          })}
+        </nav>
+      </ScrollArea>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-slate-700">
+      <div className="p-4 border-t border-gray-700">
         <AnimatePresence mode="wait">
           {!isCollapsed ? (
             <motion.div
@@ -200,7 +204,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex items-center space-x-3"
             >
               <Avatar className="h-10 w-10">
@@ -211,7 +215,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                 <p className="text-sm font-medium text-white truncate">
                   Mahyar Abidi
                 </p>
-                <p className="text-xs text-slate-400 truncate">
+                <p className="text-xs text-gray-400 truncate">
                   Supply Chain Manager
                 </p>
               </div>
@@ -222,7 +226,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="flex justify-center"
             >
               <Avatar className="h-10 w-10">

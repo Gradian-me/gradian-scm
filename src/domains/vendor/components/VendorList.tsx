@@ -82,7 +82,7 @@ export function VendorList({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row gap-4"
+        className="flex items-center gap-2"
       >
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -93,22 +93,19 @@ export function VendorList({
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
-          <select
-            value={filterStatus}
-            onChange={(e) => onFilter({ status: e.target.value })}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Status</option>
-            <option value={VENDOR_STATUS.ACTIVE}>Active</option>
-            <option value={VENDOR_STATUS.INACTIVE}>Inactive</option>
-            <option value={VENDOR_STATUS.PENDING}>Pending</option>
-          </select>
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
-        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => onFilter({ status: e.target.value })}
+          className="px-2 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
+        >
+          <option value="all">All Status</option>
+          <option value={VENDOR_STATUS.ACTIVE}>Active</option>
+          <option value={VENDOR_STATUS.INACTIVE}>Inactive</option>
+          <option value={VENDOR_STATUS.PENDING}>Pending</option>
+        </select>
+        <Button variant="outline" size="sm" className="px-2">
+          <Filter className="h-4 w-4" />
+        </Button>
       </motion.div>
 
       {/* Vendors Grid */}
@@ -120,7 +117,7 @@ export function VendorList({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-shadow duration-200">
+            <Card className="hover:shadow-lg transition-shadow duration-200 h-full flex flex-col">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
@@ -146,9 +143,10 @@ export function VendorList({
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Contact Info */}
-                <div className="space-y-2">
+              <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+                <div className="space-y-4">
+                  {/* Contact Info */}
+                  <div className="space-y-2">
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Mail className="h-4 w-4" />
                     <span className="truncate">{vendor.email || 'N/A'}</span>
@@ -211,6 +209,7 @@ export function VendorList({
                       </span>
                     </div>
                   </div>
+                </div>
                 </div>
 
                 {/* Actions */}
