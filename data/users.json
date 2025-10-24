@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "email": "admin@gradian.com",
+    "name": "Admin User",
+    "role": "admin",
+    "department": "IT",
+    "avatar": "/avatars/admin.jpg",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "email": "mahyar.abidi@gradian.com",
+    "name": "Mahyar Abidi",
+    "role": "procurement",
+    "department": "Supply Chain",
+    "avatar": "/avatars/mahyar.jpg",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

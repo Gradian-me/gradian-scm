@@ -1,0 +1,135 @@
+[
+  {
+    "id": "1",
+    "name": "Transfarma Updated",
+    "email": "updated@transfarma.me",
+    "phone": "+1-555-0123",
+    "address": "123 Pharma Street",
+    "city": "Boston",
+    "state": "MA",
+    "zipCode": "02101",
+    "country": "USA",
+    "registrationNumber": "TF-2019-001",
+    "taxId": "US-TAX-001",
+    "status": "ACTIVE",
+    "rating": 4.8,
+    "categories": [
+      "Pharmaceuticals",
+      "Laboratory Equipment"
+    ],
+    "joinedDate": "2019-03-15T00:00:00.000Z",
+    "createdAt": "2019-03-15T00:00:00.000Z",
+    "updatedAt": "2025-10-24T20:11:34.659Z",
+    "primaryContact": {
+      "id": "1",
+      "name": "Sarah Johnson",
+      "email": "sarah.johnson@transfarma.com",
+      "phone": "+1-555-0124",
+      "position": "Sales Manager",
+      "isPrimary": true,
+      "vendorId": "1"
+    },
+    "contacts": [
+      {
+        "name": "Sarah Johnson",
+        "email": "sarah.johnson@transfarma.com",
+        "phone": "+1-555-0124",
+        "position": "Sales Manager",
+        "isPrimary": false
+      },
+      {
+        "name": "Mahyar Abidi",
+        "email": "abidi.mahyar@gmail.com",
+        "phone": "09126184264",
+        "position": "CAO",
+        "isPrimary": true
+      }
+    ],
+    "certifications": [
+      {
+        "id": "1",
+        "name": "ISO 9001:2015",
+        "issuer": "ISO",
+        "issueDate": "2023-01-01T00:00:00.000Z",
+        "expiryDate": "2026-01-01T00:00:00.000Z",
+        "status": "ACTIVE",
+        "documentUrl": "/certificates/iso-9001.pdf",
+        "vendorId": "1"
+      }
+    ],
+    "performanceMetrics": {
+      "onTimeDelivery": 98,
+      "qualityScore": 95,
+      "totalOrders": 150,
+      "totalValue": 2500000,
+      "averageOrderValue": 16666.67,
+      "priceCompetitiveness": 92,
+      "responsiveness": 88,
+      "complianceScore": 96
+    }
+  },
+  {
+    "id": "2",
+    "name": "MediLab Solutions",
+    "email": "info@medilab.com",
+    "phone": "+1-555-0125",
+    "address": "456 Medical Drive",
+    "city": "San Francisco",
+    "state": "CA",
+    "zipCode": "94102",
+    "country": "USA",
+    "registrationNumber": "ML-2020-002",
+    "taxId": "US-TAX-002",
+    "status": "ACTIVE",
+    "rating": 4.6,
+    "categories": [
+      "Medical Devices",
+      "Diagnostic Equipment"
+    ],
+    "joinedDate": "2020-06-10T00:00:00.000Z",
+    "createdAt": "2020-06-10T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "primaryContact": {
+      "id": "2",
+      "name": "Michael Chen",
+      "email": "michael.chen@medilab.com",
+      "phone": "+1-555-0126",
+      "position": "Business Development Manager",
+      "isPrimary": true,
+      "vendorId": "2"
+    },
+    "contacts": [
+      {
+        "id": "2",
+        "name": "Michael Chen",
+        "email": "michael.chen@medilab.com",
+        "phone": "+1-555-0126",
+        "position": "Business Development Manager",
+        "isPrimary": true,
+        "vendorId": "2"
+      }
+    ],
+    "certifications": [
+      {
+        "id": "2",
+        "name": "FDA 21 CFR Part 820",
+        "issuer": "FDA",
+        "issueDate": "2023-03-15T00:00:00.000Z",
+        "expiryDate": "2026-03-15T00:00:00.000Z",
+        "status": "ACTIVE",
+        "documentUrl": "/certificates/fda-820.pdf",
+        "vendorId": "2"
+      }
+    ],
+    "performanceMetrics": {
+      "onTimeDelivery": 95,
+      "qualityScore": 92,
+      "totalOrders": 89,
+      "totalValue": 1800000,
+      "averageOrderValue": 20224.72,
+      "priceCompetitiveness": 88,
+      "responsiveness": 85,
+      "complianceScore": 94
+    }
+  }
+]

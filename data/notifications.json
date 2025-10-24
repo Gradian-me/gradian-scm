@@ -1,0 +1,11 @@
+[
+  {
+    "id": "1",
+    "title": "New Vendor Registration",
+    "message": "Transfarma has registered as a new vendor",
+    "type": "info",
+    "isRead": false,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
