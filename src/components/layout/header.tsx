@@ -189,7 +189,12 @@ export function Header({
                   </div>
                 </ScrollArea>
                 <div className="p-3 border-t border-gray-100">
-                  <Button variant="ghost" size="sm" className="w-full text-xs">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full text-xs"
+                    onClick={() => window.location.href = '/notifications'}
+                  >
                     View All Notifications
                   </Button>
                 </div>

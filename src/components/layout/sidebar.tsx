@@ -15,6 +15,7 @@ import {
   BarChart3, 
   Database, 
   Settings,
+  Bell,
   X,
   ChevronLeft,
   ChevronRight
@@ -69,6 +70,11 @@ const navigationItems = [
     name: 'Analytics',
     href: '/analytics',
     icon: BarChart3,
+  },
+  {
+    name: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
   },
   {
     name: 'ERP Integration',
