@@ -24,7 +24,7 @@ export interface FormField {
     max?: number;
     custom?: (value: any) => { isValid: boolean; error?: string };
   };
-  options?: Array<{ label: string; value: string; disabled?: boolean }>;
+  options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
   defaultValue?: any;
   layout?: {
     width?: string;

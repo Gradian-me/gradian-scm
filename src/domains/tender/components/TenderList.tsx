@@ -25,6 +25,8 @@ import {
 import { motion } from 'framer-motion';
 import { Tender } from '../types';
 import { TENDER_STATUS } from '../../../shared/constants';
+import { getStatusColor as getVendorStatusColor } from '../../../gradian-ui/data-display/utils/status-utils';
+import { IconRenderer } from '../../../shared/utils/icon-renderer';
 
 interface TenderListProps {
   tenders: Tender[];

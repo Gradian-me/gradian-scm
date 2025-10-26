@@ -8,7 +8,9 @@ import { Badge } from '../../../components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
 import { CardMetadata, FormSchema } from '../../form-builder/types/form-schema';
 import { cn } from '../../shared/utils';
-import { getValueByRole, resolveFieldById, getInitials, getStatusColor, getStatusIcon } from '../utils';
+import { getValueByRole, resolveFieldById, getInitials, getStatusColor, getStatusIcon, getBadgeConfig } from '../utils';
+import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import type { BadgeOption } from '../utils/badge-utils';
 
 interface DynamicCardProps {
   data: any;
@@ -55,9 +57,25 @@ export const DynamicCard: React.FC<DynamicCardProps> = ({
     };
   };
 
+  // Find status field options from schema
+  const findStatusFieldOptions = (): BadgeOption[] | undefined => {
+    if (!formSchema || !formSchema.sections) return undefined;
+    
+    for (const section of formSchema.sections) {
+      for (const field of section.fields) {
+        if (field.role === 'status' && field.options) {
+          return field.options as BadgeOption[];
+        }
+      }
+    }
+    return undefined;
+  };
+  
+  const statusOptions = findStatusFieldOptions();
+  
   // Get status color with metadata colorMap support
   const getStatusColorLocal = (status: string): "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info" => {
-    const color = metadata.status?.colorMap?.[status] || getStatusColor(status);
+    const color = metadata.status?.colorMap?.[status] || getStatusColor(status, statusOptions);
     return color as "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
   };
 
@@ -307,11 +325,16 @@ export const DynamicCard: React.FC<DynamicCardProps> = ({
               )}
             </div>
           </div>
-          {metadata.status && (
-            <Badge variant={getStatusColorLocal(getValueByRole(formSchema || {} as any, data, 'status') || 'PENDING')}>
-              {getValueByRole(formSchema || {} as any, data, 'status') || 'PENDING'}
-            </Badge>
-          )}
+          {metadata.status && (() => {
+            const statusValue = getValueByRole(formSchema || {} as any, data, 'status') || 'PENDING';
+            const badgeConfig = getBadgeConfig(statusValue, statusOptions);
+            return (
+              <Badge variant={badgeConfig.color} className="flex items-center gap-1">
+                {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                {badgeConfig.label}
+              </Badge>
+            );
+          })()}
         </div>
 
         {/* Content Sections */}

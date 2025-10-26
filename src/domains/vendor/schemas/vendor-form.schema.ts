@@ -590,9 +590,9 @@ export const vendorFormSchema: FormSchema = {
           required: true,
           role: 'status',
           options: [
-            { label: 'Active', value: 'ACTIVE' },
-            { label: 'Pending', value: 'PENDING' },
-            { label: 'Inactive', value: 'INACTIVE' },
+            { label: 'Active', value: 'ACTIVE', icon: 'CheckCircle', color: 'success' },
+            { label: 'Pending', value: 'PENDING', icon: 'Clock', color: 'warning' },
+            { label: 'Inactive', value: 'INACTIVE', icon: 'XCircle', color: 'destructive' },
           ],
           validation: {
             required: true,

@@ -10,7 +10,7 @@ import { FormSchema } from '../../form-builder/types/form-schema';
 import { Rating } from '../../form-builder/form-elements';
 import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { getValueByRole, getSingleValueByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection } from '../utils';
+import { getValueByRole, getSingleValueByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -36,13 +36,30 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || {} as any;
   
+  // Find status field options from schema
+  const findStatusFieldOptions = () => {
+    if (!schema || !schema.sections) return undefined;
+    
+    for (const section of schema.sections) {
+      for (const field of section.fields) {
+        if (field.role === 'status' && field.options) {
+          return field.options;
+        }
+      }
+    }
+    return undefined;
+  };
+  
+  const statusOptions = findStatusFieldOptions();
+  
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
     subtitle: getSingleValueByRole(schema, data, 'subtitle', data.email) || data.email || 'No description',
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
-    sections: (cardMetadata as any)?.sections || []
+    sections: (cardMetadata as any)?.sections || [],
+    statusOptions
   };
 
 
@@ -121,10 +138,15 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
-                          <span className="text-xs">{getStatusIcon(cardConfig.statusField)}</span>
-                          <span className="text-xs">{cardConfig.statusField}</span>
-                        </Badge>
+                        {(() => {
+                          const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
+                          return (
+                            <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                              {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                              <span className="text-xs">{badgeConfig.label}</span>
+                            </Badge>
+                          );
+                        })()}
                       </motion.div>
                     </div>
                   </div>
@@ -187,10 +209,15 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
-                        <span className="text-xs">{getStatusIcon(cardConfig.statusField)}</span>
-                        <span className="text-xs">{cardConfig.statusField}</span>
-                      </Badge>
+                      {(() => {
+                        const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
+                        return (
+                          <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                            {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                            <span className="text-xs">{badgeConfig.label}</span>
+                          </Badge>
+                        );
+                      })()}
                     </motion.div>
                   </div>
                   

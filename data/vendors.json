@@ -153,13 +153,20 @@
         "email": "abidi.mahyar@gmail.com",
         "phone": "09126184264",
         "position": "Sales Manager",
+        "isPrimary": false
+      },
+      {
+        "name": "hhh",
+        "email": "abidi.mahyar@gmail.com",
+        "phone": "09126184264",
+        "position": "xxx",
         "isPrimary": true
       }
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-26T13:10:16.489Z",
-    "status": "INACTIVE",
+    "updatedAt": "2025-10-26T13:51:09.802Z",
+    "status": "PENDING",
     "rating": 3.1
   }
 ]

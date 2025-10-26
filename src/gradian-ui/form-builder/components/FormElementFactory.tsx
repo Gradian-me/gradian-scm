@@ -5,8 +5,8 @@ import { FormField } from '../types/form-schema';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { cn } from '../../shared/utils';
+import { Select as EnhancedSelect, SelectOption } from '../form-elements/components/Select';
 
 interface FormElementFactoryProps {
   field: FormField;
@@ -73,27 +73,24 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
         );
 
       case 'select':
+        // Convert options to SelectOption[] format if they have icon/color
+        const selectOptions: SelectOption[] | undefined = options?.map(opt => ({
+          value: opt.value,
+          label: opt.label,
+          disabled: opt.disabled,
+          icon: 'icon' in opt ? (opt as any).icon : undefined,
+          color: 'color' in opt ? (opt as any).color : undefined,
+        }));
+        
         return (
-          <Select
+          <EnhancedSelect
             value={value || ''}
             onValueChange={onChange}
             disabled={disabled}
-          >
-            <SelectTrigger className={fieldClasses}>
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {options?.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            options={selectOptions}
+            variant="default"
+            size={styling?.size || 'md'}
+          />
         );
 
       case 'checkbox':

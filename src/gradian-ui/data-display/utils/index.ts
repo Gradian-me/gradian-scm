@@ -7,11 +7,19 @@ export {
   getFieldValue,
 } from './field-resolver';
 
-// Status utilities
+// Badge utilities
 export {
+  findBadgeOption,
+  getBadgeColor,
+  getBadgeIcon,
+  getBadgeLabel,
+  getBadgeMetadata,
+  getBadgeConfig,
   getStatusColor,
   getStatusIcon,
-} from './status-utils';
+  getStatusMetadata,
+} from './badge-utils';
+export type { BadgeOption, BadgeMetadata, BadgeColor, BadgeConfig } from './badge-utils';
 
 // Avatar utilities
 export {

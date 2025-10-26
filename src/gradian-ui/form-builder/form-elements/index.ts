@@ -2,7 +2,6 @@
 
 export * from './types';
 export * from './components/TextInput';
-export * from './components/SelectInput';
 export * from './components/Textarea';
 export * from './components/Checkbox';
 export * from './components/RadioGroup';

@@ -30,7 +30,7 @@ export interface NumberInputProps extends FormElementProps {
 }
 
 export interface SelectInputProps extends FormElementProps {
-  options: Array<{ label: string; value: any; disabled?: boolean }>;
+  options: Array<{ label: string; value: any; disabled?: boolean; icon?: string; color?: string }>;
   multiple?: boolean;
   searchable?: boolean;
   clearable?: boolean;
@@ -147,5 +147,5 @@ export interface SelectProps extends BaseComponentProps {
   value?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }

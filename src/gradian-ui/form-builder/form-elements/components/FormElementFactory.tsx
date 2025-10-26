@@ -3,10 +3,10 @@
 import React from 'react';
 import { FormElementConfig, FormElementProps } from '../types';
 import { TextInput } from './TextInput';
-import { SelectInput } from './SelectInput';
 import { Textarea } from './Textarea';
 import { Checkbox } from './Checkbox';
 import { RadioGroup } from './RadioGroup';
+import { Select } from './Select';
 
 export interface FormElementFactoryProps extends FormElementProps {}
 
@@ -31,7 +31,24 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       return <TextInput config={config} {...restProps} />;
     
     case 'select':
-      return <SelectInput config={config} options={config.options || []} {...restProps} />;
+      // Convert options to SelectOption[] format if they have icon/color
+      const selectOptions = config.options?.map((opt: any) => ({
+        value: opt.value,
+        label: opt.label,
+        disabled: opt.disabled,
+        icon: opt.icon,
+        color: opt.color,
+      }));
+      
+      return (
+        <Select
+          value={restProps.value}
+          onValueChange={restProps.onChange}
+          disabled={restProps.disabled}
+          options={selectOptions}
+          className={restProps.className}
+        />
+      );
     
     case 'textarea':
       return <Textarea config={config} {...restProps} />;
