@@ -27,6 +27,8 @@ export const useVendorUI = () => {
     taxId: '',
     categories: [],
     contacts: [],
+    status: 'ACTIVE',
+    rating: 5,
   }, {
     name: { required: true, minLength: 2 },
     email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
@@ -68,7 +70,8 @@ export const useVendorUI = () => {
   const openEditModal = useCallback((vendor: Vendor) => {
     setSelectedVendor(vendor);
     setIsEditModalOpen(true);
-    // Populate form with vendor data
+    
+    // Populate form with vendor data - set all values at once
     vendorFormState.setValue('name', vendor.name);
     vendorFormState.setValue('email', vendor.email);
     vendorFormState.setValue('phone', vendor.phone);
@@ -81,6 +84,8 @@ export const useVendorUI = () => {
     vendorFormState.setValue('taxId', vendor.taxId);
     vendorFormState.setValue('categories', vendor.categories);
     vendorFormState.setValue('contacts', vendor.contacts || []);
+    vendorFormState.setValue('status', vendor.status || 'ACTIVE');
+    vendorFormState.setValue('rating', vendor.rating || 5);
   }, [vendorFormState]);
 
   const closeEditModal = useCallback(() => {

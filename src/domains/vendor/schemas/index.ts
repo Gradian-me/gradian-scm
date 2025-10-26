@@ -31,8 +31,8 @@ export const createVendorSchema = createValidationSchema(
     taxId: z.string().min(1, 'Tax ID is required'),
     categories: z.array(z.string()).min(1, 'At least one category is required'),
     contacts: z.array(vendorContactSchema).min(1, 'At least one contact is required'),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING']).optional(),
-    rating: z.number().min(1).max(5).optional(),
+    status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING']).default('ACTIVE'),
+    rating: z.number().min(1).max(5).default(5),
     website: z.string().optional(),
     establishedYear: z.number().optional(),
     employeeCount: z.number().optional(),
@@ -41,8 +41,25 @@ export const createVendorSchema = createValidationSchema(
 );
 
 export const updateVendorSchema = createValidationSchema(
-  createVendorSchema.partial().extend({
+  z.object({
+    name: z.string().min(1, 'Company name is required').optional(),
+    email: z.string().email('Invalid email address').optional(),
+    phone: z.string().min(1, 'Phone number is required').optional(),
+    address: z.string().min(1, 'Address is required').optional(),
+    city: z.string().min(1, 'City is required').optional(),
+    state: z.string().min(1, 'State is required').optional(),
+    zipCode: z.string().min(1, 'ZIP code is required').optional(),
+    country: z.string().min(1, 'Country is required').optional(),
+    registrationNumber: z.string().min(1, 'Registration number is required').optional(),
+    taxId: z.string().min(1, 'Tax ID is required').optional(),
+    categories: z.array(z.string()).min(1, 'At least one category is required').optional(),
+    contacts: z.array(vendorContactSchema).min(1, 'At least one contact is required').optional(),
     status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING']).optional(),
+    rating: z.number().min(1).max(5).optional(),
+    website: z.string().optional(),
+    establishedYear: z.number().optional(),
+    employeeCount: z.number().optional(),
+    description: z.string().optional(),
   })
 );
 

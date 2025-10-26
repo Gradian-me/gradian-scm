@@ -37,10 +37,14 @@ class JsonDataAccess<T> {
   }
 
   async getAll(): Promise<T[]> {
+    // Reload data to ensure we have the latest from file
+    this.loadData();
     return [...this.data];
   }
 
   async getById(id: string): Promise<T | null> {
+    // Reload data to ensure we have the latest from file
+    this.loadData();
     return this.data.find((item: any) => item.id === id) || null;
   }
 

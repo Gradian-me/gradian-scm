@@ -173,6 +173,26 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
           </div>
         );
 
+      case 'number':
+        return (
+          <Input
+            id={fieldId}
+            type="number"
+            value={value || ''}
+            onChange={(e) => {
+              const numValue = e.target.value === '' ? '' : Number(e.target.value);
+              onChange(numValue);
+            }}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={fieldClasses}
+            min={field.validation?.min}
+            max={field.validation?.max}
+          />
+        );
+
       default:
         return (
           <Input

@@ -27,6 +27,7 @@ export function VendorPage() {
     error,
     fetchVendors,
     createVendor,
+    updateVendor,
     deleteVendor,
     setFilters,
     clearError,
@@ -36,6 +37,7 @@ export function VendorPage() {
     searchTerm,
     filterStatus,
     filterCategory,
+    selectedVendor,
     isCreateModalOpen,
     isEditModalOpen,
     isModalOpen,
@@ -85,12 +87,15 @@ export function VendorPage() {
           position: data.primaryContactPosition || 'Primary Contact',
           isPrimary: true,
         }],
+        status: data.status || 'ACTIVE',
+        rating: data.rating ? Number(data.rating) : 5,
       };
       
       const result = await createVendor(transformedData);
       if (result.success) {
         closeCreateModal();
-        fetchVendors();
+        // Don't reload - the Zustand store already added the vendor to the list
+        // fetchVendors();
       } else {
         console.error('Failed to create vendor:', result.error);
       }
@@ -101,10 +106,35 @@ export function VendorPage() {
 
   const handleUpdateVendor = async (data: any) => {
     try {
-      // TODO: Implement update vendor functionality
-      console.log('Update vendor:', data);
-      closeEditModal();
-      fetchVendors();
+      if (!selectedVendor?.id) {
+        console.error('No vendor selected for update');
+        return;
+      }
+
+      // Transform form data to match the expected schema
+      const transformedData = {
+        ...data,
+        categories: data.categories || ['general'], // Default category if not provided
+        contacts: data.contacts || [{
+          name: data.primaryContactName || data.name,
+          email: data.primaryContactEmail || data.email,
+          phone: data.primaryContactPhone || data.phone,
+          position: data.primaryContactPosition || 'Primary Contact',
+          isPrimary: true,
+        }],
+        status: data.status || 'ACTIVE',
+        rating: data.rating ? Number(data.rating) : 5,
+      };
+      
+      const result = await updateVendor(selectedVendor.id, transformedData);
+      
+      if (result.success) {
+        closeEditModal();
+        // Don't reload the entire list - the Zustand store already updated the vendor
+        // fetchVendors(); // Removed this line
+      } else {
+        console.error('Failed to update vendor:', result.error);
+      }
     } catch (error) {
       console.error('Error updating vendor:', error);
     }
@@ -117,13 +147,6 @@ export function VendorPage() {
     return matchesSearch;
   }) || [];
 
-  // Debug: Log vendors and error
-  useEffect(() => {
-    console.log('Vendors:', vendors);
-    console.log('Vendor count:', vendors?.length);
-    console.log('Filtered vendors:', filteredVendors);
-    console.log('Error:', error);
-  }, [vendors, filteredVendors, error]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -262,7 +285,22 @@ export function VendorPage() {
           schema={vendorFormSchema}
           onSubmit={isCreateModalOpen ? handleCreateVendor : handleUpdateVendor}
           onReset={() => vendorFormState.reset()}
-          initialValues={vendorFormState.values}
+          initialValues={isCreateModalOpen ? vendorFormState.values : (selectedVendor ? {
+            name: selectedVendor.name,
+            email: selectedVendor.email,
+            phone: selectedVendor.phone,
+            address: selectedVendor.address,
+            city: selectedVendor.city,
+            state: selectedVendor.state,
+            zipCode: selectedVendor.zipCode,
+            country: selectedVendor.country,
+            registrationNumber: selectedVendor.registrationNumber,
+            taxId: selectedVendor.taxId,
+            categories: selectedVendor.categories,
+            contacts: selectedVendor.contacts || [],
+            status: selectedVendor.status || 'ACTIVE',
+            rating: selectedVendor.rating || 5,
+          } : vendorFormState.values)}
           onFieldChange={(fieldName, value) => vendorFormState.setValue(fieldName as any, value)}
         />
       </Modal>

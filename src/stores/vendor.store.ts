@@ -122,7 +122,7 @@ export const useVendorStore = create<VendorState & VendorActions>()(
       },
 
       createVendor: async (data: any) => {
-        set({ isLoading: true, error: null });
+        set({ error: null });
         
         try {
           const vendor = await vendorService.createVendor(data);
@@ -134,7 +134,6 @@ export const useVendorStore = create<VendorState & VendorActions>()(
             
             return {
               vendors: [vendor, ...currentVendors],
-              isLoading: false,
             };
           });
           
@@ -142,14 +141,13 @@ export const useVendorStore = create<VendorState & VendorActions>()(
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Failed to create vendor',
-            isLoading: false,
           });
           throw error;
         }
       },
 
       updateVendor: async (id: string, data: any) => {
-        set({ isLoading: true, error: null });
+        set({ error: null });
         
         try {
           const vendor = await vendorService.updateVendor(id, data);
@@ -158,14 +156,12 @@ export const useVendorStore = create<VendorState & VendorActions>()(
           set((state) => ({
             vendors: state.vendors.map(v => v.id === id ? vendor : v),
             currentVendor: state.currentVendor?.id === id ? vendor : state.currentVendor,
-            isLoading: false,
           }));
           
           return vendor;
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Failed to update vendor',
-            isLoading: false,
           });
           throw error;
         }

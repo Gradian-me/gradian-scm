@@ -184,10 +184,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     </motion.div>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      <Badge variant={getStatusColor(cardConfig.statusField)} className="text-xs">
-                        {cardConfig.statusField}
+                      <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center space-x-1 shadow-sm text-xs">
+                        <span>{getStatusIcon(cardConfig.statusField)}</span>
+                        <span>{cardConfig.statusField}</span>
                       </Badge>
                     </motion.div>
                   </div>

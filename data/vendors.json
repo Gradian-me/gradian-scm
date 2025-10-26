@@ -19,7 +19,7 @@
     ],
     "joinedDate": "2019-03-15T00:00:00.000Z",
     "createdAt": "2019-03-15T00:00:00.000Z",
-    "updatedAt": "2025-10-25T14:59:34.255Z",
+    "updatedAt": "2025-10-26T12:15:47.206Z",
     "primaryContact": {
       "id": "1",
       "name": "Sarah Johnson",
@@ -71,7 +71,7 @@
   {
     "id": "2",
     "name": "MediLab Solutions",
-    "email": "info@medilab.com",
+    "email": "info@medilab.me",
     "phone": "+1-555-0125",
     "address": "456 Medical Drive",
     "city": "San Francisco",
@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2025-10-26T12:02:13.312Z",
+    "updatedAt": "2025-10-26T12:23:21.298Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -131,20 +131,21 @@
     }
   },
   {
-    "name": "Test",
+    "name": "Testxxxxx",
     "email": "abidi.mahyar@gmail.com",
     "phone": "09126184264",
     "address": "تهران میرداماد رودبار شرقی کوچه بشردوست پلاک ۸ واحد ۱",
     "city": "تهران",
     "state": "تهران",
     "zipCode": "1546653611",
-    "country": "JP",
+    "country": "FR",
     "registrationNumber": "TF-2019-001",
-    "taxId": "US-TAX-001",
+    "taxId": "US-TAX-0012",
     "categories": [
-      "education",
-      "healthcare",
-      "manufacturing"
+      "manufacturing",
+      "technology",
+      "logistics",
+      "services"
     ],
     "contacts": [
       {
@@ -157,6 +158,8 @@
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-26T11:41:54.601Z"
+    "updatedAt": "2025-10-26T13:10:16.489Z",
+    "status": "INACTIVE",
+    "rating": 3.1
   }
 ]

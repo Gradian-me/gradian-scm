@@ -85,6 +85,22 @@ export const useFormState = <T extends Record<string, any>>(
       return false;
     }
 
+    if (value && rule.min !== undefined) {
+      const numValue = Number(value);
+      if (isNaN(numValue) || numValue < rule.min) {
+        setErrors(prev => ({ ...prev, [field]: `Minimum value is ${rule.min}` }));
+        return false;
+      }
+    }
+
+    if (value && rule.max !== undefined) {
+      const numValue = Number(value);
+      if (isNaN(numValue) || numValue > rule.max) {
+        setErrors(prev => ({ ...prev, [field]: `Maximum value is ${rule.max}` }));
+        return false;
+      }
+    }
+
     if (value && rule.pattern && !rule.pattern.test(value.toString())) {
       setErrors(prev => ({ ...prev, [field]: 'Invalid format' }));
       return false;

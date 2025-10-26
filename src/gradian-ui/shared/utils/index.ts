@@ -1,6 +1,6 @@
 // Shared Utilities for Gradian UI Components
 
-import { ComponentConfig, ValidationRule, ChartDataPoint } from './types';
+import { ComponentConfig, ValidationRule, ChartDataPoint } from '../types';
 
 /**
  * Generates a unique ID for components
@@ -30,6 +30,20 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
 
   if (value && rules.maxLength && value.toString().length > rules.maxLength) {
     return { isValid: false, error: `Maximum length is ${rules.maxLength}` };
+  }
+
+  if (value && rules.min !== undefined) {
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue < rules.min) {
+      return { isValid: false, error: `Minimum value is ${rules.min}` };
+    }
+  }
+
+  if (value && rules.max !== undefined) {
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue > rules.max) {
+      return { isValid: false, error: `Maximum value is ${rules.max}` };
+    }
   }
 
   if (value && rules.pattern && !rules.pattern.test(value.toString())) {
