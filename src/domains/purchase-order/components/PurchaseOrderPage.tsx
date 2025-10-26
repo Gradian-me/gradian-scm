@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Modal } from '@/components/ui/modal';
+import { Modal } from '@/gradian-ui/data-display';
 import { PurchaseOrderForm } from '@/components/forms/purchase-order-form';
 import { 
   Plus, 

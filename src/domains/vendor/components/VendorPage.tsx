@@ -117,6 +117,14 @@ export function VendorPage() {
     return matchesSearch;
   }) || [];
 
+  // Debug: Log vendors and error
+  useEffect(() => {
+    console.log('Vendors:', vendors);
+    console.log('Vendor count:', vendors?.length);
+    console.log('Filtered vendors:', filteredVendors);
+    console.log('Error:', error);
+  }, [vendors, filteredVendors, error]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case VENDOR_STATUS.ACTIVE: return 'success';
@@ -149,10 +157,7 @@ export function VendorPage() {
   if (isLoading) {
     return (
       <MainLayout 
-        title="Vendor Management" 
-        showCreateButton 
-        createButtonText="Add Vendor"
-        onCreateClick={openCreateModal}
+        title="Vendor Management"
       >
         <LoadingState size="lg" text="Loading vendors..." />
       </MainLayout>
@@ -161,10 +166,7 @@ export function VendorPage() {
 
   return (
     <MainLayout 
-      title="Vendor Management" 
-      showCreateButton 
-      createButtonText="Add Vendor"
-      onCreateClick={openCreateModal}
+      title="Vendor Management"
     >
       <div className="space-y-6">
         {/* Search and Filters */}
@@ -187,11 +189,22 @@ export function VendorPage() {
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
-            <ViewSwitcher
-              currentView={viewMode}
-              onViewChange={setViewMode}
+            <div className="border border-gray-300 rounded-md h-10 flex items-center">
+              <ViewSwitcher
+                currentView={viewMode}
+                onViewChange={setViewMode}
+                className="h-full"
+              />
+            </div>
+            <Button 
+              variant="default" 
+              size="sm" 
               className="h-10"
-            />
+              onClick={openCreateModal}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Vendor
+            </Button>
           </div>
         </motion.div>
 

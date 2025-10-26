@@ -46,6 +46,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
   const renderFields = (fieldsToRender: typeof fields, itemIndex?: number) => {
     return fieldsToRender.map((field) => {
+      if (!field) return null;
+      
       const fieldName = itemIndex !== undefined ? `${field.name}[${itemIndex}]` : field.name;
       const fieldValue = itemIndex !== undefined 
         ? values[field.name]?.[itemIndex] 
@@ -71,7 +73,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           style={{ order: field.layout?.order }}
         >
           <FormElementFactory
-            field={field}
+            field={field as any}
             value={fieldValue}
             error={fieldError}
             touched={fieldTouched}
@@ -105,7 +107,6 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 variant="ghost"
                 size="sm"
                 className="p-1 h-6 w-6 hover:bg-gray-200"
-                onClick={(e) => e.stopPropagation()}
               >
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4" />
@@ -205,7 +206,6 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             variant="ghost"
             size="sm"
             className="p-1 h-6 w-6 hover:bg-gray-200"
-            onClick={(e) => e.stopPropagation()}
           >
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />

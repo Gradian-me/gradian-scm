@@ -62,34 +62,45 @@ export const TextInput = forwardRef<FormElementRef, TextInputProps>(
       className
     );
 
+    const fieldName = (config as any).name || 'unknown';
+    const fieldLabel = (config as any).label;
+    const fieldPlaceholder = (config as any).placeholder;
+    
+    console.log(`TextInput ${fieldName}:`, { value, error, touched: props.touched });
+    
+    if (!config) {
+      console.error('TextInput: config is required');
+      return null;
+    }
+
     return (
       <div className="w-full">
-        {config.label && (
+        {fieldLabel && (
           <label
-            htmlFor={config.name}
+            htmlFor={fieldName}
             className={cn(
               'block text-sm font-medium mb-1',
               error ? 'text-red-700' : 'text-gray-700',
               required && 'after:content-["*"] after:ml-1 after:text-red-500'
             )}
           >
-            {config.label}
+            {fieldLabel}
           </label>
         )}
         <input
           ref={inputRef}
-          id={config.name}
-          name={config.name}
-          type={config.type}
+          id={fieldName}
+          name={fieldName}
+          type={(config as any).type || 'text'}
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
-          placeholder={placeholder || config.placeholder}
-          maxLength={maxLength || config.validation?.maxLength}
-          minLength={minLength || config.validation?.minLength}
+          placeholder={placeholder || fieldPlaceholder}
+          maxLength={maxLength || (config as any).validation?.maxLength}
+          minLength={minLength || (config as any).validation?.minLength}
           pattern={pattern}
-          required={required || config.validation?.required}
+          required={required || (config as any).validation?.required}
           disabled={disabled}
           className={inputClasses}
           {...props}

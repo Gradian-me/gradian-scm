@@ -31,6 +31,12 @@ export const createVendorSchema = createValidationSchema(
     taxId: z.string().min(1, 'Tax ID is required'),
     categories: z.array(z.string()).min(1, 'At least one category is required'),
     contacts: z.array(vendorContactSchema).min(1, 'At least one contact is required'),
+    status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING']).optional(),
+    rating: z.number().min(1).max(5).optional(),
+    website: z.string().optional(),
+    establishedYear: z.number().optional(),
+    employeeCount: z.number().optional(),
+    description: z.string().optional(),
   })
 );
 

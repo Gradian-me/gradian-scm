@@ -14,6 +14,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   size = 'md',
   showCloseButton = true,
+  closeOnOutsideClick = false,
   className,
   ...props
 }) => {
@@ -26,29 +27,38 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const modalClasses = cn(
-    'bg-white shadow-xl overflow-y-auto',
+    'bg-white shadow-xl overflow-hidden',
     'rounded-none sm:rounded-2xl', // No rounded corners on mobile, rounded on desktop
     'h-screen w-screen sm:h-auto sm:w-auto', // Full screen on mobile, auto on desktop
     'mx-0 sm:mx-4', // No margin on mobile, margin on desktop
     'max-h-screen sm:max-h-[90vh]', // Full height on mobile, constrained on desktop
+    'flex flex-col', // Add flex column layout
     sizeClasses[size],
     className
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={modalClasses} {...props}>
+      <DialogContent 
+        className={modalClasses} 
+        onInteractOutside={(e) => {
+          if (!closeOnOutsideClick) {
+            e.preventDefault();
+          }
+        }}
+        {...props}
+      >
         {(title || description) && (
-          <DialogHeader>
+          <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
             {title && <DialogTitle>{title}</DialogTitle>}
             {description && <DialogDescription>{description}</DialogDescription>}
           </DialogHeader>
         )}
-        <div className="mt-4">
+        <div className="flex-1 px-6 pb-6 overflow-y-auto">
           {children}
         </div>
         {showCloseButton && (
-          <div className="flex justify-end mt-6 pt-4 border-t">
+          <div className="flex justify-end px-6 pb-6 pt-4 border-t shrink-0">
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>

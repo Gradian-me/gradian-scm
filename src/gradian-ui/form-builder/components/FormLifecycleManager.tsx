@@ -15,7 +15,7 @@ import { AccordionFormSection } from './AccordionFormSection';
 import { RepeatingSection } from './RepeatingSection';
 import { FormElementFactory } from './FormElementFactory';
 import { Button } from '../../../components/ui/button';
-import { cn, validateField } from '../../shared/utils';
+import { cn, validateField as validateFieldUtil } from '../../shared/utils';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -84,7 +84,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       
       if (!field?.validation) return state;
       
-      const result = validateField(state.values[action.fieldName], field.validation);
+      const result = validateFieldUtil(state.values[action.fieldName], field.validation);
       return {
         ...state,
         errors: {
@@ -101,7 +101,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       action.schema.sections.forEach(section => {
         section.fields.forEach(field => {
           if (field.validation) {
-            const result = validateField(state.values[field.name], field.validation);
+            const result = validateFieldUtil(state.values[field.name], field.validation);
             if (!result.isValid) {
               newErrors[field.name] = result.error || 'Invalid value';
               isValid = false;
@@ -157,6 +157,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   disabled = false,
   className,
   children,
+  onMount,
+  hideActions = false,
   ...props
 }) => {
   const [state, dispatch] = useReducer(formReducer, {
@@ -168,9 +170,17 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     isSubmitting: false,
   });
 
+  // Deep comparison to avoid unnecessary resets
+  const prevInitialValuesRef = React.useRef<string>(JSON.stringify(initialValues));
+  
   // Update form state when initialValues change (for editing scenarios)
+  // Only reset if the actual content has changed
   useEffect(() => {
-    dispatch({ type: 'RESET', initialValues });
+    const currentInitialValues = JSON.stringify(initialValues);
+    if (prevInitialValuesRef.current !== currentInitialValues) {
+      prevInitialValuesRef.current = currentInitialValues;
+      dispatch({ type: 'RESET', initialValues });
+    }
   }, [initialValues]);
 
   const setValue = useCallback((fieldName: string, value: any) => {
@@ -200,9 +210,37 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   }, [schema, state.errors]);
 
   const validateForm = useCallback(() => {
-    dispatch({ type: 'VALIDATE_FORM', schema });
-    return state.isValid;
-  }, [schema, state.isValid]);
+    // Validate synchronously and update state
+    let isValid = true;
+    const newErrors: FormErrors = {};
+    
+    schema.sections.forEach(section => {
+      section.fields.forEach(field => {
+        if (field.validation) {
+          const result = validateFieldUtil(state.values[field.name], field.validation);
+          if (!result.isValid) {
+            newErrors[field.name] = result.error || 'Invalid value';
+            isValid = false;
+          }
+        }
+      });
+    });
+    
+    // Update errors in state immediately and mark fields as touched
+    Object.entries(newErrors).forEach(([fieldName, error]) => {
+      dispatch({ type: 'SET_ERROR', fieldName, error });
+      dispatch({ type: 'SET_TOUCHED', fieldName, touched: true });
+    });
+    
+    // Clear errors for fields that are now valid
+    Object.keys(state.errors).forEach(fieldName => {
+      if (!newErrors[fieldName] && state.errors[fieldName]) {
+        dispatch({ type: 'SET_ERROR', fieldName, error: '' });
+      }
+    });
+    
+    return isValid;
+  }, [schema, state.values, state.errors]);
 
   const reset = useCallback(() => {
     dispatch({ type: 'RESET', initialValues });
@@ -229,7 +267,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
     
+    // Validate synchronously
     const isValid = validateForm();
+    
     if (isValid && onSubmit) {
       try {
         await onSubmit(state.values);
@@ -257,12 +297,21 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     schema,
   };
 
+  // Call onMount with submit function if provided
+  useEffect(() => {
+    onMount?.(submit);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submit]);
+
   const formClasses = cn(
-    'w-full space-y-6 p-4',
-    'rounded-2xl', // More rounded corners
+    'w-full space-y-6',
     schema.styling?.className,
     className
   );
+
+  // If this is rendered inside a form (FormDialog), don't create another form element
+  const isInsideForm = typeof window !== 'undefined' && 
+    document.getElementById('form-dialog-form')?.closest('form');
 
   const renderSections = () => {
     return schema.sections.map((section) => {
@@ -279,6 +328,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {section.fields.map((field) => {
+                    if (!field) return null;
+                    
                     const fieldName = `${field.name}[${index}]`;
                     const fieldValue = item[field.name];
                     const fieldError = state.errors[fieldName];
@@ -287,11 +338,22 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                     return (
                       <div key={field.id} className="space-y-2">
                         <FormElementFactory
-                          field={field}
+                          field={field as any}
                           value={fieldValue}
                           error={fieldError}
                           touched={fieldTouched}
-                          onChange={(value) => setValue(fieldName, value)}
+                          onChange={(value) => {
+                            // Update the nested value in the array
+                            const currentArray = state.values[section.id] || [];
+                            const updatedArray = [...currentArray];
+                            updatedArray[index] = {
+                              ...updatedArray[index],
+                              [field.name]: value
+                            };
+                            
+                            // Update the section's array in the form values
+                            setValue(section.id, updatedArray);
+                          }}
                           onBlur={() => setTouched(fieldName, true)}
                           onFocus={() => setTouched(fieldName, true)}
                           disabled={disabled || field.disabled}
@@ -333,68 +395,80 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     });
   };
 
-  return (
-    <FormContext.Provider value={contextValue}>
-      <form
-        className={formClasses}
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
-        {...props}
-      >
-        {children || (
-          <>
-            <div className="space-y-2 pb-4">
-              <h2 className="text-xl font-semibold text-gray-900">{schema.title}</h2>
-              {schema.description && (
-                <p className="text-gray-600 text-sm">{schema.description}</p>
+  const formContent = (
+    <>
+      {children || (
+        <>
+          {schema.actions && !hideActions && (
+            <div className="flex justify-end space-x-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white">
+              {schema.actions.cancel && (
+                <Button
+                  type="button"
+                  variant={schema.actions.cancel?.variant || 'outline'}
+                  onClick={reset}
+                  disabled={disabled}
+                >
+                  {schema.actions.cancel?.label}
+                </Button>
+              )}
+              {schema.actions.reset && (
+                <Button
+                  type="button"
+                  variant={schema.actions.reset?.variant || 'outline'}
+                  onClick={reset}
+                  disabled={disabled}
+                >
+                  {schema.actions.reset?.label}
+                </Button>
+              )}
+              {schema.actions.submit && (
+                <Button
+                  type="button"
+                  variant={schema.actions.submit?.variant || 'default'}
+                  disabled={disabled || state.isSubmitting}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    submit();
+                  }}
+                >
+                  {state.isSubmitting 
+                    ? schema.actions.submit?.loading || 'Submitting...'
+                    : schema.actions.submit?.label
+                  }
+                </Button>
               )}
             </div>
+          )}
+          
+          <div className="space-y-4">
+            {renderSections()}
+          </div>
+        </>
+      )}
+    </>
+  );
 
-            <div className="space-y-4">
-              {renderSections()}
-            </div>
-
-            {schema.actions && (
-              <div className="flex justify-end space-x-3 pt-6 pb-2 border-t border-gray-200">
-                {schema.actions.cancel && (
-                  <Button
-                    type="button"
-                    variant={schema.actions.cancel.variant || 'outline'}
-                    onClick={reset}
-                    disabled={disabled}
-                  >
-                    {schema.actions.cancel.label}
-                  </Button>
-                )}
-                {schema.actions.reset && (
-                  <Button
-                    type="button"
-                    variant={schema.actions.reset.variant || 'outline'}
-                    onClick={reset}
-                    disabled={disabled}
-                  >
-                    {schema.actions.reset.label}
-                  </Button>
-                )}
-                {schema.actions.submit && (
-                  <Button
-                    type="submit"
-                    variant={schema.actions.submit.variant || 'default'}
-                    disabled={disabled || state.isSubmitting}
-                  >
-                    {state.isSubmitting 
-                      ? schema.actions.submit.loading || 'Submitting...'
-                      : schema.actions.submit.label
-                    }
-                  </Button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </form>
+  return (
+    <FormContext.Provider value={contextValue}>
+      {typeof window !== 'undefined' && document.getElementById('form-dialog-form') ? (
+        <div
+          className={formClasses}
+          {...props}
+        >
+          {formContent}
+        </div>
+      ) : (
+        <form
+          className={formClasses}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+          {...props}
+        >
+          {formContent}
+        </form>
+      )}
     </FormContext.Provider>
   );
 };

@@ -7,10 +7,14 @@ export interface FormField {
   type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   placeholder?: string;
+  icon?: string;
+  displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
+  truncate?: boolean;
   description?: string;
   required?: boolean;
   disabled?: boolean;
   readonly?: boolean;
+  role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel';
   validation?: {
     required?: boolean;
     minLength?: number;
@@ -36,6 +40,18 @@ export interface FormField {
   conditional?: {
     dependsOn: string;
     condition: (value: any) => boolean;
+  };
+  // Display options for cards and lists
+  display?: {
+    icon?: string;
+    type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
+    source?: string;
+    compute?: (data: any) => any;
+    displayType?: 'badges' | 'list' | 'grid';
+    maxDisplay?: number;
+    showMore?: boolean;
+    truncate?: boolean;
+    format?: string;
   };
 }
 
@@ -82,12 +98,92 @@ export interface CardConfig {
   }>;
 }
 
+export interface CardMetadata {
+  id: string;
+  name: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  avatar?: {
+    field?: string;
+    fallback?: string;
+    imagePath?: string;
+  };
+  status?: {
+    field?: string;
+    colorMap?: Record<string, string>;
+  };
+  rating?: {
+    field?: string;
+    maxRating?: number;
+    showValue?: boolean;
+  };
+  sections: Array<{
+    id: string;
+    title: string;
+    width?: string; // Width percentage, defaults to '100%'
+    colSpan?: number; // Number of columns to span in grid (1 or 2)
+    fieldIds: string[]; // References to form field IDs
+    // Section-level layout (overrides individual field displayType if needed)
+    layout?: 'grid' | 'list';
+    columns?: number;
+  }>;
+  styling?: {
+    variant?: 'default' | 'minimal' | 'elevated' | 'outlined' | 'filled';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    rounded?: boolean;
+    shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  };
+  behavior?: {
+    clickable?: boolean;
+    hoverable?: boolean;
+  };
+  animations?: {
+    stagger?: boolean;
+    duration?: number;
+    delay?: number;
+  };
+}
+
+export interface ListMetadata {
+  id: string;
+  name: string;
+  layout: {
+    type: 'grid' | 'list';
+    columns?: {
+      default: number;
+      sm?: number;
+      md?: number;
+      lg?: number;
+      xl?: number;
+    };
+    gap?: number;
+  };
+  emptyState?: {
+    icon: string;
+    title: string;
+    description: string;
+    searchDescription?: string;
+  };
+  loadingState?: {
+    skeleton?: boolean;
+    count?: number;
+  };
+  animations?: {
+    stagger?: boolean;
+    duration?: number;
+    delay?: number;
+  };
+}
+
 export interface FormSchema {
   id: string;
   name: string;
   title: string;
   description?: string;
   cardConfig?: CardConfig;
+  cardMetadata?: CardMetadata;
+  listMetadata?: ListMetadata;
   sections: FormSection[];
   layout?: {
     direction?: 'column' | 'row';
@@ -119,6 +215,7 @@ export interface FormSchema {
       variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
     };
   };
+  showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
 }
 
 export interface FormData {
@@ -170,6 +267,8 @@ export interface FormWrapperProps {
   disabled?: boolean;
   className?: string;
   children?: React.ReactNode;
+  onMount?: (submitFn: () => void) => void;
+  hideActions?: boolean;
 }
 
 export interface FormSectionProps {

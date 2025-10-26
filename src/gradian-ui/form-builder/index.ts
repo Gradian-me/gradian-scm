@@ -6,4 +6,5 @@ export * from './types/form-schema';
 export * from './components/FormSection';
 export * from './components/AccordionFormSection';
 export * from './components/RepeatingSection';
-export * from './components/SchemaFormWrapper';
+export * from './components/FormLifecycleManager';
+export * from './components/FormDialog';

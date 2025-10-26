@@ -27,5 +27,7 @@ export { Modal } from './components/Modal';
 export { DataTable } from './components/DataTable';
 export { DynamicCardRenderer } from './components/DynamicCardRenderer';
 export { ViewSwitcher } from './components/ViewSwitcher';
+export { DynamicCard } from './components/DynamicCard';
+export { DynamicList } from './components/DynamicList';
 
 export * from './types';

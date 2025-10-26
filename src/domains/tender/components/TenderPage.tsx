@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
-import { Modal } from '../../../components/ui/modal';
+import { Modal } from '../../../gradian-ui/data-display';
 import { TenderForm } from './TenderForm';
 import { TenderList } from './TenderList';
 import { useTender } from '../hooks/useTender';

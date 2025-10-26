@@ -20,12 +20,12 @@ export const FormContent: React.FC<FormContentProps> = ({
 }) => {
   const contentClasses = cn(
     'space-y-6',
-    layout?.columns && layout.columns > 1 && 'grid gap-6',
-    layout?.columns === 2 && 'grid-cols-1 md:grid-cols-2',
-    layout?.columns === 3 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    layout?.columns === 4 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-    layout?.gap && `gap-${layout.gap}`,
-    layout?.direction === 'row' && 'flex flex-wrap gap-6',
+    layout?.columns && layout.columns > 1 ? 'grid gap-6' : '',
+    layout?.columns === 2 ? 'grid-cols-1 md:grid-cols-2' : '',
+    layout?.columns === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : '',
+    layout?.columns === 4 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' : '',
+    layout?.gap ? `gap-${layout.gap}` : '',
+    layout?.direction === 'row' ? 'flex flex-wrap gap-6' : '',
     className
   );
 
@@ -35,8 +35,8 @@ export const FormContent: React.FC<FormContentProps> = ({
         <div
           key={field.name}
           className={cn(
-            layout?.columns && layout.columns > 1 && 'space-y-3',
-            field.layout?.hidden && 'hidden'
+            layout?.columns && layout.columns > 1 ? 'space-y-3' : '',
+            field.layout?.hidden ? 'hidden' : ''
           )}
           style={{
             order: field.layout?.order,

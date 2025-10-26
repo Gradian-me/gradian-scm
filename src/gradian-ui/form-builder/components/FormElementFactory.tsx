@@ -29,6 +29,11 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
   onFocus,
   disabled = false,
 }) => {
+  if (!field) {
+    console.error('FormElementFactory: field is required', { field, value, error, touched });
+    return null;
+  }
+
   const {
     name,
     label,
@@ -97,35 +102,29 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
           // Multi-select checkbox group
           const currentValues = Array.isArray(value) ? value : [];
           return (
-            <div className="space-y-3">
-              <Label className="block text-sm font-medium text-gray-700">
-                {label}
-                {isRequired && <span className="text-red-500 ml-1">*</span>}
-              </Label>
-              <div className="grid grid-cols-2 gap-3">
-                {options.map((option) => (
-                  <div key={option.value} className="flex items-center space-x-2">
-                    <input
-                      id={`${fieldId}-${option.value}`}
-                      type="checkbox"
-                      checked={currentValues.includes(option.value)}
-                      onChange={(e) => {
-                        const newValues = e.target.checked
-                          ? [...currentValues, option.value]
-                          : currentValues.filter(v => v !== option.value);
-                        onChange(newValues);
-                      }}
-                      onBlur={onBlur}
-                      onFocus={onFocus}
-                      disabled={disabled || option.disabled}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <Label htmlFor={`${fieldId}-${option.value}`} className="text-sm font-medium text-gray-700">
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 gap-3">
+              {options.map((option) => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <input
+                    id={`${fieldId}-${option.value}`}
+                    type="checkbox"
+                    checked={currentValues.includes(option.value)}
+                    onChange={(e) => {
+                      const newValues = e.target.checked
+                        ? [...currentValues, option.value]
+                        : currentValues.filter(v => v !== option.value);
+                      onChange(newValues);
+                    }}
+                    onBlur={onBlur}
+                    onFocus={onFocus}
+                    disabled={disabled || option.disabled}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <Label htmlFor={`${fieldId}-${option.value}`} className="text-sm font-medium text-gray-700">
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
             </div>
           );
         } else {

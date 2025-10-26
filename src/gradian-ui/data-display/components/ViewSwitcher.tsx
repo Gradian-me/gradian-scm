@@ -24,7 +24,7 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         size="sm"
         onClick={() => onViewChange('grid')}
         className={cn(
-          'h-full w-10 p-0',
+          'h-full w-10 p-0 rounded-md',
           currentView === 'grid' 
             ? 'bg-slate-600 hover:bg-slate-700 text-white' 
             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
@@ -37,7 +37,7 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         size="sm"
         onClick={() => onViewChange('list')}
         className={cn(
-          'h-full w-10 p-0',
+          'h-full w-10 p-0 rounded-md',
           currentView === 'list' 
             ? 'bg-slate-600 hover:bg-slate-700 text-white' 
             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'

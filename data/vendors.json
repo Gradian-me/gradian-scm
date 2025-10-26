@@ -79,7 +79,7 @@
     "zipCode": "94102",
     "country": "USA",
     "registrationNumber": "ML-2020-002",
-    "taxId": "US-TAX-002",
+    "taxId": "US-TAX-0022",
     "status": "ACTIVE",
     "rating": 4.6,
     "categories": [
@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-10-26T12:02:13.312Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -100,13 +100,11 @@
     },
     "contacts": [
       {
-        "id": "2",
         "name": "Michael Chen",
         "email": "michael.chen@medilab.com",
         "phone": "+1-555-0126",
         "position": "Business Development Manager",
-        "isPrimary": true,
-        "vendorId": "2"
+        "isPrimary": true
       }
     ],
     "certifications": [
@@ -131,5 +129,34 @@
       "responsiveness": 85,
       "complianceScore": 94
     }
+  },
+  {
+    "name": "Test",
+    "email": "abidi.mahyar@gmail.com",
+    "phone": "09126184264",
+    "address": "تهران میرداماد رودبار شرقی کوچه بشردوست پلاک ۸ واحد ۱",
+    "city": "تهران",
+    "state": "تهران",
+    "zipCode": "1546653611",
+    "country": "JP",
+    "registrationNumber": "TF-2019-001",
+    "taxId": "US-TAX-001",
+    "categories": [
+      "education",
+      "healthcare",
+      "manufacturing"
+    ],
+    "contacts": [
+      {
+        "name": "مهیار عبیدی",
+        "email": "abidi.mahyar@gmail.com",
+        "phone": "09126184264",
+        "position": "Sales Manager",
+        "isPrimary": true
+      }
+    ],
+    "id": "1761478914600",
+    "createdAt": "2025-10-26T11:41:54.601Z",
+    "updatedAt": "2025-10-26T11:41:54.601Z"
   }
 ]

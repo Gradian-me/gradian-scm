@@ -2,10 +2,11 @@
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 import { FormWrapperProps, FormState, FormContextType, FormConfig } from '../types';
+
+import { cn, validateField } from '../../../shared/utils';
 import { FormHeader } from './FormHeader';
 import { FormContent } from './FormContent';
 import { FormFooter } from './FormFooter';
-import { cn, validateField } from '../../../shared/utils';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -223,7 +224,7 @@ export const FormWrapper: React.FC<FormWrapperProps> = ({
               values={state.values}
               errors={state.errors}
               onChange={setValue}
-              onBlur={setTouched}
+              onBlur={(fieldName: string) => setTouched(fieldName, true)}
               onFocus={() => {}}
               disabled={disabled}
               layout={config.layout}

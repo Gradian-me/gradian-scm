@@ -2,15 +2,17 @@
 
 import { BaseComponentProps, FormFieldConfig, ValidationRule } from '../../../shared/types';
 
-export interface FormElementProps extends BaseComponentProps {
-  config: FormFieldConfig;
+export interface FormElementProps {
+  config: any;
   value?: any;
   onChange?: (value: any) => void;
   onBlur?: () => void;
   onFocus?: () => void;
   error?: string;
+  touched?: boolean;
   disabled?: boolean;
   required?: boolean;
+  className?: string;
 }
 
 export interface TextInputProps extends FormElementProps {

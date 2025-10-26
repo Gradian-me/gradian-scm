@@ -7,45 +7,50 @@ export const vendorFormSchema: FormSchema = {
   name: 'Vendor Form',
   title: 'Create New Vendor',
   description: 'Add a new vendor to your supply chain management system',
-  cardConfig: {
-    title: 'name',
-    subtitle: 'email',
-    avatar: 'name',
-    status: 'status',
-    rating: 'rating',
+  cardMetadata: {
+    id: 'vendor-card',
+    name: 'Vendor Card',
     sections: [
       {
-        id: 'contact',
-        title: 'Contact',
-        fields: [
-          { name: 'email', type: 'email', label: 'Email' },
-          { name: 'phone', type: 'tel', label: 'Phone' }
-        ]
+        id: 'contact-info',
+        title: 'Contact Information',
+        colSpan: 2,
+        fieldIds: ['email-address', 'phone-number', 'tax-id']
       },
       {
         id: 'location',
         title: 'Location',
-        fields: [
-          { name: 'city', type: 'text', label: 'City' },
-          { name: 'state', type: 'text', label: 'State' },
-          { name: 'country', type: 'select', label: 'Country' }
-        ]
+        colSpan: 2,
+        fieldIds: ['country', 'state', 'city']
       },
       {
         id: 'categories',
         title: 'Categories',
-        fields: [
-          { name: 'categories', type: 'checkbox', label: 'Business Categories' }
-        ]
+        colSpan: 2,
+        fieldIds: ['categories']
       },
       {
         id: 'performance',
         title: 'Performance',
-        fields: [
-          { name: 'performanceMetrics', type: 'object', label: 'Metrics' }
-        ]
+        colSpan: 2,
+        fieldIds: ['performanceMetrics']
       }
-    ]
+    ],
+    styling: {
+      variant: 'default',
+      size: 'md',
+      rounded: true,
+      shadow: 'md'
+    },
+    behavior: {
+      clickable: true,
+      hoverable: true
+    },
+    animations: {
+      stagger: true,
+      duration: 0.3,
+      delay: 0.1
+    }
   },
   sections: [
     {
@@ -62,6 +67,7 @@ export const vendorFormSchema: FormSchema = {
           component: 'text',
           placeholder: 'Enter company name',
           required: true,
+          role: 'title',
           validation: {
             required: true,
             minLength: 2,
@@ -82,7 +88,11 @@ export const vendorFormSchema: FormSchema = {
           type: 'email',
           component: 'email',
           placeholder: 'Enter email address',
+          icon: 'Home',
+          displayType: 'text',
+          truncate: true,
           required: true,
+          role: 'subtitle',
           validation: {
             required: true,
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -103,10 +113,12 @@ export const vendorFormSchema: FormSchema = {
           type: 'tel',
           component: 'text',
           placeholder: 'Enter phone number',
+          icon: 'Phone',
+          displayType: 'text',
           required: true,
+          role: 'tel',
           validation: {
-            required: true,
-            pattern: /^[\+]?[1-9][\d]{0,15}$/,
+            required: true
           },
           layout: {
             width: '50%',
@@ -165,6 +177,7 @@ export const vendorFormSchema: FormSchema = {
           component: 'select',
           placeholder: 'Select country',
           required: true,
+          role: 'location',
           options: [
             { label: 'United States', value: 'USA' },
             { label: 'Canada', value: 'CAN' },
@@ -356,8 +369,7 @@ export const vendorFormSchema: FormSchema = {
           placeholder: 'Enter phone number',
           required: true,
           validation: {
-            required: true,
-            pattern: /^[\+]?[1-9][\d]{0,15}$/,
+            required: true
           },
           layout: {
             width: '50%',
@@ -377,7 +389,6 @@ export const vendorFormSchema: FormSchema = {
           placeholder: 'Enter position/title',
           required: true,
           validation: {
-            required: true,
           },
           layout: {
             width: '50%',
@@ -483,6 +494,12 @@ export const vendorFormSchema: FormSchema = {
             variant: 'outlined',
             size: 'md',
           },
+          display: {
+            type: 'array',
+            displayType: 'badges',
+            maxDisplay: 3,
+            showMore: true
+          }
         },
         {
           id: 'website',
@@ -553,9 +570,58 @@ export const vendorFormSchema: FormSchema = {
           component: 'textarea',
           placeholder: 'Enter company description',
           required: false,
+          role: 'description',
           layout: {
             width: '100%',
             order: 5,
+          },
+          styling: {
+            variant: 'outlined',
+            size: 'md',
+          },
+        },
+        {
+          id: 'status',
+          name: 'status',
+          label: 'Status',
+          type: 'select',
+          component: 'select',
+          placeholder: 'Select status',
+          required: true,
+          role: 'status',
+          options: [
+            { label: 'Active', value: 'ACTIVE' },
+            { label: 'Pending', value: 'PENDING' },
+            { label: 'Inactive', value: 'INACTIVE' },
+          ],
+          validation: {
+            required: true,
+          },
+          layout: {
+            width: '50%',
+            order: 6,
+          },
+          styling: {
+            variant: 'outlined',
+            size: 'md',
+          },
+        },
+        {
+          id: 'rating',
+          name: 'rating',
+          label: 'Rating',
+          type: 'number',
+          component: 'number',
+          placeholder: 'Enter rating (1-5)',
+          required: false,
+          role: 'rating',
+          validation: {
+            min: 1,
+            max: 5,
+          },
+          layout: {
+            width: '50%',
+            order: 7,
           },
           styling: {
             variant: 'outlined',

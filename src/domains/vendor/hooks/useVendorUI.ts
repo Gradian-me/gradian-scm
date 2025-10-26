@@ -7,7 +7,7 @@ import { Vendor, VendorFilters } from '../types';
 
 export const useVendorUI = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'ACTIVE' | 'INACTIVE' | 'PENDING'>('all');
   const [filterCategory, setFilterCategory] = useState('all');
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

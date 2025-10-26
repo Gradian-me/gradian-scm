@@ -75,7 +75,7 @@ export interface UpdateVendorRequest extends Partial<CreateVendorRequest> {
 }
 
 export interface VendorFilters extends PaginationParams {
-  status?: Vendor['status'];
+  status?: 'all' | Vendor['status'];
   category?: string;
   rating?: number;
   search?: string;
