@@ -13,7 +13,7 @@ export const DataDisplayViewSwitch: React.FC<DataDisplayViewSwitchProps> = ({
   className,
   ...props
 }) => {
-  const { layout = {} } = config;
+  const layout = config?.layout;
 
   const handleViewChange = useCallback((view: any) => {
     onViewChange(view);
@@ -36,7 +36,7 @@ export const DataDisplayViewSwitch: React.FC<DataDisplayViewSwitchProps> = ({
   };
 
   const getAlignmentClasses = () => {
-    switch (layout.viewSwitch?.alignment) {
+    switch (layout?.viewSwitch?.alignment) {
       case 'start':
         return 'justify-start';
       case 'center':
@@ -49,7 +49,7 @@ export const DataDisplayViewSwitch: React.FC<DataDisplayViewSwitchProps> = ({
   };
 
   const getPositionClasses = () => {
-    switch (layout.viewSwitch?.position) {
+    switch (layout?.viewSwitch?.position) {
       case 'top':
         return 'mb-4';
       case 'bottom':

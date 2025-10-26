@@ -132,3 +132,19 @@ export const getStatusMetadata = (status: string, options?: BadgeOption[]): Badg
   return getBadgeMetadata(status, options);
 };
 
+/**
+ * Find status field options from form schema
+ */
+export const findStatusFieldOptions = (formSchema: any): BadgeOption[] | undefined => {
+  if (!formSchema || !formSchema.sections) return undefined;
+  
+  for (const section of formSchema.sections) {
+    for (const field of section.fields) {
+      if (field.role === 'status' && field.options) {
+        return field.options as BadgeOption[];
+      }
+    }
+  }
+  return undefined;
+};
+

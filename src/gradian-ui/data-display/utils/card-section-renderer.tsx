@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FormSchema } from '../../form-builder/types/form-schema';
 import { cn } from '../../shared/utils';
-import { resolveFieldById } from './field-resolver';
+import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { renderFieldValue } from './card-field-renderer';
 
 interface RenderSectionProps {

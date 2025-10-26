@@ -1,4 +1,4 @@
-import { FormSchema } from '../../form-builder/types/form-schema';
+import { FormSchema } from '../../../form-builder/types/form-schema';
 
 /**
  * Get all fields from the schema that have a specific role

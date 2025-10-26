@@ -5,7 +5,7 @@ export {
   getSingleValueByRole,
   resolveFieldById,
   getFieldValue,
-} from './field-resolver';
+} from '../../form-builder/form-elements/utils/field-resolver';
 
 // Badge utilities
 export {
@@ -18,13 +18,15 @@ export {
   getStatusColor,
   getStatusIcon,
   getStatusMetadata,
-} from './badge-utils';
-export type { BadgeOption, BadgeMetadata, BadgeColor, BadgeConfig } from './badge-utils';
+  findStatusFieldOptions,
+} from '../../form-builder/form-elements/utils/badge-utils';
+export type { BadgeOption, BadgeMetadata, BadgeColor, BadgeConfig } from '../../form-builder/form-elements/utils/badge-utils';
 
 // Avatar utilities
 export {
   getInitials,
-} from './avatar-utils';
+  getAvatarContent,
+} from '../../form-builder/form-elements/utils/avatar-utils';
 
 // Card renderers
 export {
@@ -34,4 +36,13 @@ export {
 export {
   renderFieldValue,
 } from './card-field-renderer';
+
+export {
+  renderCardSection as renderSection,
+} from './card-renderer';
+
+// Rating utilities
+export {
+  renderRatingStars,
+} from '../../form-builder/form-elements/utils/rating-utils';
 
