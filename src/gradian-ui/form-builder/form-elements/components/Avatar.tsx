@@ -1,7 +1,7 @@
 // Avatar Component
 
 import React from 'react';
-import { Avatar as RadixAvatar, AvatarImage, AvatarFallback } from '../../../../components/ui/avatar';
+import { Avatar as RadixAvatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { AvatarProps } from '../types';
 import { cn } from '../../../shared/utils';
 
@@ -24,11 +24,11 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   const variantClasses = {
     default: 'bg-gray-300 text-gray-700',
-    primary: 'bg-blue-500 text-white',
-    secondary: 'bg-gray-500 text-white',
-    success: 'bg-green-500 text-white',
-    warning: 'bg-yellow-500 text-white',
-    danger: 'bg-red-500 text-white',
+    primary: 'bg-violet-200 text-violet-800',
+    secondary: 'bg-gray-200 text-gray-800',
+    success: 'bg-emerald-200 text-emerald-800',
+    warning: 'bg-amber-200 text-amber-800',
+    danger: 'bg-red-200 text-red-800',
   };
 
   const avatarClasses = cn(
@@ -51,3 +51,4 @@ export const Avatar: React.FC<AvatarProps> = ({
 export { AvatarImage, AvatarFallback };
 
 Avatar.displayName = 'Avatar';
+

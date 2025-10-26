@@ -15,9 +15,6 @@ export * from './card';
 // List Components
 export * from './list';
 
-// Avatar Components
-export * from './avatar';
-
 // New Components
 export { EmptyState } from './components/EmptyState';
 export { LoadingState } from './components/LoadingState';

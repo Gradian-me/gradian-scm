@@ -7,7 +7,7 @@ import { CardContent } from '../card/components/CardContent';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { FormSchema } from '../../form-builder/types/form-schema';
-import { Rating } from '../../form-builder/form-elements';
+import { Rating, Avatar } from '../../form-builder/form-elements';
 import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getValueByRole, getSingleValueByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
@@ -112,15 +112,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               {/* Avatar and Status Header */}
               <div className="flex items-start space-x-3 mb-4 shrink-0">
                     <motion.div 
-                      className="h-12 w-12 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-sm font-medium text-white shadow-lg"
                       whileHover={{ scale: 1.05, rotate: 2 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      {getInitials(cardConfig.avatarField)}
+                      <Avatar
+                        fallback={getInitials(cardConfig.avatarField)}
+                        size="lg"
+                        variant="primary"
+                        className="shadow-lg"
+                      >
+                        {getInitials(cardConfig.avatarField)}
+                      </Avatar>
                     </motion.div>
                     <div className="flex-1">
                       <motion.h3 
-                        className="text-lg font-semibold group-hover:text-blue-700 transition-colors duration-200"
+                        className="text-lg font-semibold group-hover:text-violet-700 transition-colors duration-200"
                         whileHover={{ x: 2 }}
                       >
                         {cardConfig.title}
@@ -171,15 +177,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 // List view layout
                 <div className="flex items-center space-x-4">
                   <motion.div 
-                    className="h-10 w-10 rounded-full bg-linear-to-br from-blue-400 to-blue-600 flex items-center justify-center text-sm font-medium text-white shadow-lg"
                     whileHover={{ scale: 1.05, rotate: 2 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
-                    {getInitials(cardConfig.avatarField)}
+                    <Avatar
+                      fallback={getInitials(cardConfig.avatarField)}
+                      size="md"
+                      variant="primary"
+                      className="shadow-lg"
+                    >
+                      {getInitials(cardConfig.avatarField)}
+                    </Avatar>
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <motion.h3 
-                      className="text-base font-semibold group-hover:text-blue-700 transition-colors duration-200 truncate"
+                      className="text-base font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
                       whileHover={{ x: 2 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
@@ -225,7 +237,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   <div className="flex items-center space-x-2">
                     {onView && (
                       <motion.div
-                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       >
@@ -233,7 +245,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                           variant="outline" 
                           size="sm" 
                           onClick={() => onView(data)}
-                          className="h-8 w-8 p-0 group-hover:bg-blue-50 group-hover:border-blue-300 group-hover:text-blue-700 transition-all duration-200"
+                          className="h-8 w-8 p-0 group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200"
                         >
                           <IconRenderer iconName="Eye" className="h-4 w-4" />
                         </Button>
@@ -241,7 +253,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     )}
                     {onEdit && (
                       <motion.div
-                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       >
@@ -249,7 +261,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                           variant="outline" 
                           size="sm" 
                           onClick={() => onEdit(data)}
-                          className="h-8 w-8 p-0 group-hover:bg-green-50 group-hover:border-green-300 group-hover:text-green-700 transition-all duration-200"
+                          className="h-8 w-8 p-0 group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200"
                         >
                           <IconRenderer iconName="Edit" className="h-4 w-4" />
                         </Button>
@@ -257,7 +269,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     )}
                     {onDelete && (
                       <motion.div
-                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       >
@@ -265,7 +277,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                           variant="outline" 
                           size="sm" 
                           onClick={() => onDelete(data)}
-                          className="h-8 w-8 p-0 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200"
+                            className="h-8 w-8 p-0 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200"
                         >
                           <IconRenderer iconName="Trash2" className="h-4 w-4" />
                         </Button>
@@ -294,7 +306,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       variant="outline" 
                       size="sm" 
                       onClick={() => onView(data)}
-                      className="w-full group-hover:bg-blue-50 group-hover:border-blue-300 group-hover:text-blue-700 transition-all duration-200"
+                      className="w-full group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200"
                     >
                       <IconRenderer iconName="Eye" className="h-4 w-4 mr-2" />
                       View
@@ -311,7 +323,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       variant="outline" 
                       size="sm" 
                       onClick={() => onEdit(data)}
-                      className="w-full group-hover:bg-green-50 group-hover:border-green-300 group-hover:text-green-700 transition-all duration-200"
+                      className="w-full group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200"
                     >
                       <IconRenderer iconName="Edit" className="h-4 w-4 mr-2" />
                       Edit
