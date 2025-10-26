@@ -57,10 +57,12 @@ export const validateFormData = <T>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string> = {};
-      error.errors.forEach((err) => {
-        const path = err.path.join('.');
-        errors[path] = err.message;
-      });
+      if (error.errors && Array.isArray(error.errors)) {
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          errors[path] = err.message;
+        });
+      }
       return { success: false, errors };
     }
     return { success: false, errors: { general: 'Validation failed' } };

@@ -227,7 +227,7 @@ export function TenderList({
       </motion.div>
 
       {/* Tenders List */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tenders?.map((tender, index) => (
           <motion.div
             key={tender.id}
@@ -235,9 +235,9 @@ export function TenderList({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-shadow duration-200">
+            <Card className="hover:shadow-lg transition-shadow duration-200 hover:scale-[1.005] transition-transform duration-200">
               <CardContent className="p-6">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold">{tender.title}</h3>
@@ -291,34 +291,36 @@ export function TenderList({
                     </div>
                   </div>
                   
-                  <div className="flex flex-col items-end space-y-2 ml-4">
-                    <Badge variant={getStatusColor(tender.status)} className="flex items-center space-x-1">
-                      {getStatusIcon(tender.status)}
-                      <span>{tender.status}</span>
-                    </Badge>
-                    {tender.awardedTo && (
-                      <Badge variant="warning" className="flex items-center space-x-1">
-                        <Trophy className="h-3 w-3" />
-                        <span>{tender.awardedTo}</span>
+                  <div className="flex flex-col items-stretch lg:items-end space-y-2 lg:ml-4 w-full lg:w-auto">
+                    <div className="flex flex-col lg:items-end space-y-2">
+                      <Badge variant={getStatusColor(tender.status)} className="flex items-center space-x-1 w-fit">
+                        {getStatusIcon(tender.status)}
+                        <span>{tender.status}</span>
                       </Badge>
-                    )}
-                    <div className="flex space-x-1">
-                      <Button variant="outline" size="sm" onClick={() => onView(tender)}>
+                      {tender.awardedTo && (
+                        <Badge variant="warning" className="flex items-center space-x-1 w-fit">
+                          <Trophy className="h-3 w-3" />
+                          <span>{tender.awardedTo}</span>
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                      <Button variant="outline" size="sm" onClick={() => onView(tender)} className="w-full md:w-auto">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => onEdit(tender)}>
+                      <Button variant="outline" size="sm" onClick={() => onEdit(tender)} className="w-full md:w-auto">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => onDelete(tender)}>
+                      <Button variant="outline" size="sm" onClick={() => onDelete(tender)} className="w-full md:w-auto">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                       {tender.status === TENDER_STATUS.DRAFT && (
-                        <Button variant="outline" size="sm" onClick={() => onPublish(tender)}>
+                        <Button variant="outline" size="sm" onClick={() => onPublish(tender)} className="w-full md:w-auto">
                           <Play className="h-4 w-4" />
                         </Button>
                       )}
                       {tender.status === TENDER_STATUS.PUBLISHED && (
-                        <Button variant="outline" size="sm" onClick={() => onClose(tender)}>
+                        <Button variant="outline" size="sm" onClick={() => onClose(tender)} className="w-full md:w-auto">
                           <Square className="h-4 w-4" />
                         </Button>
                       )}

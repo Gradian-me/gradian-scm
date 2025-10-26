@@ -57,6 +57,10 @@ html {
   scroll-behavior: smooth;
 }
 
+button {
+  cursor: pointer;
+}
+
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));

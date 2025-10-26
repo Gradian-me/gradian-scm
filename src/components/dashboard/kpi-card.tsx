@@ -30,7 +30,7 @@ export function KPICard({
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, delay, ease: "easeOut" }}
-      whileHover={{ y: -4, scale: 1.02 }}
+      whileHover={{ y: -2, scale: 1.005 }}
       className="group"
     >
       <Card className="relative overflow-hidden border-0 bg-white hover:shadow-lg transition-all duration-300">

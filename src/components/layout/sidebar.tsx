@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
 const navigationItems = [
@@ -88,19 +89,22 @@ const navigationItems = [
   },
 ];
 
-export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export function Sidebar({ isCollapsed, onToggle, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <motion.div
       initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
-      className="relative h-full bg-gray-900 text-white flex flex-col border-r border-gray-800"
+      animate={{ width: isMobile ? 320 : (isCollapsed ? 80 : 280) }}
+      className={cn(
+        "relative h-full bg-gray-900 text-white flex flex-col",
+        !isMobile && "border-r border-gray-800"
+      )}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-700">
         <AnimatePresence mode="wait">
-          {!isCollapsed && (
+          {(!isCollapsed || isMobile) && (
             <motion.div
               key="expanded"
               initial={{ opacity: 0, x: -20 }}
@@ -126,14 +130,14 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           onClick={onToggle}
           className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
         >
-          {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          {isMobile ? <X className="h-5 w-5" /> : (isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />)}
         </Button>
       </div>
 
       {/* Department Badge */}
       <div className="p-6">
         <AnimatePresence mode="wait">
-          {!isCollapsed ? (
+          {(!isCollapsed || isMobile) ? (
             <motion.div
               key="expanded"
               initial={{ opacity: 0, y: -10 }}
@@ -182,7 +186,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               >
                 <Icon className="h-5 w-5 shrink-0" />
                 <AnimatePresence>
-                  {!isCollapsed && (
+                  {(!isCollapsed || isMobile) && (
                     <motion.span
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -204,7 +208,7 @@ export function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* User Profile */}
       <div className="p-4 border-t border-gray-700">
         <AnimatePresence mode="wait">
-          {!isCollapsed ? (
+          {(!isCollapsed || isMobile) ? (
             <motion.div
               key="expanded"
               initial={{ opacity: 0, y: 10 }}

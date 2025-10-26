@@ -1,28 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
-import { 
-  Search, 
-  Filter, 
-  Star, 
-  MapPin, 
-  Phone, 
-  Mail, 
+import { motion } from 'framer-motion';
+import {
   Building,
-  BarChart3,
-  ShoppingCart,
-  Eye,
   Edit,
+  Eye,
+  Mail,
+  MapPin,
+  Phone,
+  Star,
   Trash2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Vendor } from '../types';
+import { GridBuilder } from '../../../gradian-ui';
+import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
+import { Badge } from '../../../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { VENDOR_STATUS } from '../../../shared/constants';
+import { vendorPageConfig } from '../configs/vendor-page.config';
+import { Vendor } from '../types';
 
 interface VendorListProps {
   vendors: Vendor[];
@@ -77,39 +72,14 @@ export function VendorList({
 
   return (
     <div className="space-y-6">
-      {/* Search and Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-center gap-2"
-      >
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Search vendors..."
-            value={searchTerm}
-            onChange={(e) => onSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <select
-          value={filterStatus}
-          onChange={(e) => onFilter({ status: e.target.value })}
-          className="px-2 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
-        >
-          <option value="all">All Status</option>
-          <option value={VENDOR_STATUS.ACTIVE}>Active</option>
-          <option value={VENDOR_STATUS.INACTIVE}>Inactive</option>
-          <option value={VENDOR_STATUS.PENDING}>Pending</option>
-        </select>
-        <Button variant="outline" size="sm" className="px-2">
-          <Filter className="h-4 w-4" />
-        </Button>
-      </motion.div>
-
-      {/* Vendors Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Vendors Grid using Gradian UI GridBuilder */}
+      <GridBuilder config={{
+        id: 'vendor-grid',
+        name: 'Vendor Grid',
+        columns: vendorPageConfig.vendorList.layout.columns,
+        gap: vendorPageConfig.vendorList.layout.gap,
+        responsive: true
+      }}>
         {vendors?.filter(vendor => vendor && vendor.id).map((vendor, index) => (
           <motion.div
             key={vendor.id}
@@ -117,36 +87,45 @@ export function VendorList({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-shadow duration-200 h-full flex flex-col">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={`/avatars/${(vendor.name || 'vendor').toLowerCase().replace(/\s+/g, '-')}.jpg`} />
-                      <AvatarFallback>
-                        {(vendor.name || 'V').split(' ').map(n => n[0]).join('').toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-lg">{vendor.name || 'Unknown Vendor'}</CardTitle>
-                      <div className="flex items-center space-x-1 mt-1">
-                        {getRatingStars(vendor.rating || 0)}
-                        <span className="text-sm text-gray-500 ml-1">
-                          {(vendor.rating || 0).toFixed(1)}
-                        </span>
-                      </div>
+            <Card 
+              className="bg-white hover:shadow-lg transition-all duration-200 h-full flex flex-col justify-between cursor-pointer hover:scale-[1.01]"
+              onClick={() => onView(vendor)}
+            >
+              {/* Top Section - Header */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-12 w-12">
+                    <img
+                      src={`/avatars/${(vendor.name || 'vendor').toLowerCase().replace(/\s+/g, '-')}.jpg`}
+                      alt={vendor.name || 'Vendor'}
+                      className="h-12 w-12 rounded-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                    <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
+                      {(vendor.name || 'V').split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">{vendor.name || 'Unknown Vendor'}</h3>
+                    <div className="flex items-center space-x-1 mt-1">
+                      {getRatingStars(vendor.rating || 0)}
+                      <span className="text-sm text-gray-500 ml-1">
+                        {(vendor.rating || 0).toFixed(1)}
+                      </span>
                     </div>
                   </div>
-                  <Badge variant={getStatusColor(vendor.status || 'PENDING')}>
-                    {vendor.status || 'PENDING'}
-                  </Badge>
                 </div>
-              </CardHeader>
+                <Badge variant={getStatusColor(vendor.status || 'PENDING')}>
+                  {vendor.status || 'PENDING'}
+                </Badge>
+              </div>
 
-              <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
-                <div className="space-y-4">
-                  {/* Contact Info */}
-                  <div className="space-y-2">
+              {/* Main Content Section */}
+              <div className="flex-1 space-y-4">
+                {/* Contact Info */}
+                <div className="space-y-2">
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Mail className="h-4 w-4" />
                     <span className="truncate">{vendor.email || 'N/A'}</span>
@@ -181,8 +160,8 @@ export function VendorList({
                 </div>
 
                 {/* Performance Metrics */}
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-700">Performance</p>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Performance</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">On-time Delivery</span>
@@ -210,42 +189,11 @@ export function VendorList({
                     </div>
                   </div>
                 </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex space-x-2 pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => onView(vendor)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    View
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => onEdit(vendor)}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => onDelete(vendor)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
+              </div>
             </Card>
           </motion.div>
         ))}
-      </div>
+      </GridBuilder>
 
       {vendors?.length === 0 && (
         <motion.div
