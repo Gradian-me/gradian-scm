@@ -121,9 +121,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center space-x-1 shadow-sm text-xs">
-                          <span>{getStatusIcon(cardConfig.statusField)}</span>
-                          <span>{cardConfig.statusField}</span>
+                        <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                          <span className="text-xs">{getStatusIcon(cardConfig.statusField)}</span>
+                          <span className="text-xs">{cardConfig.statusField}</span>
                         </Badge>
                       </motion.div>
                     </div>
@@ -187,9 +187,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                      <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center space-x-1 shadow-sm text-xs">
-                        <span>{getStatusIcon(cardConfig.statusField)}</span>
-                        <span>{cardConfig.statusField}</span>
+                      <Badge variant={getStatusColor(cardConfig.statusField)} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                        <span className="text-xs">{getStatusIcon(cardConfig.statusField)}</span>
+                        <span className="text-xs">{cardConfig.statusField}</span>
                       </Badge>
                     </motion.div>
                   </div>
