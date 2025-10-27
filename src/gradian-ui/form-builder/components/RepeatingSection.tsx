@@ -33,11 +33,21 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
 
   const canAdd = !maxItems || items.length < maxItems;
   const canRemove = items.length > minItems;
+  
+  // Get section-level error
+  const sectionError = errors?.[section.id];
 
   return (
     <div className="space-y-3">
       <div>
-        <h3 className="text-base font-medium text-gray-900">{title}</h3>
+        <div className="flex items-start gap-2">
+          <h3 className="text-base font-medium text-gray-900">{title}</h3>
+          {sectionError && (
+            <span className="text-sm text-red-600 mt-0.5" role="alert">
+              • {sectionError}
+            </span>
+          )}
+        </div>
         {section.description && (
           <p className="text-xs text-gray-600 mt-1">{section.description}</p>
         )}

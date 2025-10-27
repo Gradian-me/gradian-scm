@@ -15,6 +15,7 @@ import { AccordionFormSection } from './AccordionFormSection';
 import { RepeatingSection } from './RepeatingSection';
 import { FormElementFactory } from './FormElementFactory';
 import { Button } from '../../../components/ui/button';
+import { FormAlert } from '../../../components/ui/form-alert';
 import { cn, validateField as validateFieldUtil } from '../../shared/utils';
 
 // Form Context
@@ -159,6 +160,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   children,
   onMount,
   hideActions = false,
+  error,
+  onErrorDismiss,
   ...props
 }) => {
   const [state, dispatch] = useReducer(formReducer, {
@@ -215,6 +218,25 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     const newErrors: FormErrors = {};
     
     schema.sections.forEach(section => {
+      // Check repeating section constraints
+      if (section.isRepeatingSection && section.repeatingConfig) {
+        const items = state.values[section.id] || [];
+        const { minItems, maxItems } = section.repeatingConfig;
+        
+        if (minItems !== undefined && items.length < minItems) {
+          const errorMessage = `At least ${minItems} item(s) are required`;
+          newErrors[section.id] = errorMessage;
+          isValid = false;
+        }
+        
+        if (maxItems !== undefined && items.length > maxItems) {
+          const errorMessage = `Maximum ${maxItems} item(s) allowed`;
+          newErrors[section.id] = errorMessage;
+          isValid = false;
+        }
+      }
+      
+      // Validate individual fields
       section.fields.forEach(field => {
         if (field.validation) {
           const result = validateFieldUtil(state.values[field.name], field.validation);
@@ -397,48 +419,79 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     });
   };
 
+  // Get first validation error for display (prioritize section-level errors)
+  const firstValidationError = useMemo(() => {
+    const sectionErrors = Object.entries(state.errors).filter(([key, value]) => {
+      const section = schema.sections.find(s => s.id === key);
+      return section?.isRepeatingSection && value;
+    });
+    
+    if (sectionErrors.length > 0) {
+      const [sectionId, errorMessage] = sectionErrors[0];
+      const section = schema.sections.find(s => s.id === sectionId);
+      // Add section title for FormAlert display
+      return section ? `${section.title}: ${errorMessage}` : errorMessage;
+    }
+    
+    return Object.values(state.errors).find(err => err) || '';
+  }, [state.errors, schema.sections]);
+
   const formContent = (
     <>
       {children || (
         <>
+          {/* Error Alert - always shown when there are errors */}
+          {(error || firstValidationError) && (
+            <div className="mb-4">
+              <FormAlert 
+                type="error" 
+                message={error || firstValidationError} 
+                onDismiss={error ? onErrorDismiss : undefined}
+                dismissible={!!error}
+              />
+            </div>
+          )}
+          
           {schema.actions && !hideActions && (
-            <div className="flex justify-end space-x-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white">
-              {schema.actions.cancel && (
-                <Button
-                  type="button"
-                  variant={schema.actions.cancel?.variant || 'outline'}
-                  onClick={reset}
-                  disabled={disabled}
-                >
-                  {schema.actions.cancel?.label}
-                </Button>
-              )}
-              {schema.actions.reset && (
-                <Button
-                  type="button"
-                  variant={schema.actions.reset?.variant || 'outline'}
-                  onClick={reset}
-                  disabled={disabled}
-                >
-                  {schema.actions.reset?.label}
-                </Button>
-              )}
-              {schema.actions.submit && (
-                <Button
-                  type="button"
-                  variant={schema.actions.submit?.variant || 'default'}
-                  disabled={disabled || state.isSubmitting}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    submit();
-                  }}
-                >
-                  {state.isSubmitting 
-                    ? schema.actions.submit?.loading || 'Submitting...'
-                    : schema.actions.submit?.label
-                  }
-                </Button>
-              )}
+            <div className="space-y-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white z-10">
+              <div className="flex justify-end space-x-3">
+                {schema.actions.cancel && (
+                  <Button
+                    type="button"
+                    variant={schema.actions.cancel?.variant || 'outline'}
+                    onClick={reset}
+                    disabled={disabled}
+                  >
+                    {schema.actions.cancel?.label}
+                  </Button>
+                )}
+                {schema.actions.reset && (
+                  <Button
+                    type="button"
+                    variant={schema.actions.reset?.variant || 'outline'}
+                    onClick={reset}
+                    disabled={disabled}
+                  >
+                    {schema.actions.reset?.label}
+                  </Button>
+                )}
+                {schema.actions.submit && (
+                  <Button
+                    type="button"
+                    variant={schema.actions.submit?.variant || 'default'}
+                    disabled={disabled || state.isSubmitting}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      submit();
+                    }}
+                  >
+                    {state.isSubmitting 
+                      ? schema.actions.submit?.loading || 'Submitting...'
+                      : schema.actions.submit?.label
+                    }
+                  </Button>
+                )}
+              </div>
             </div>
           )}
           

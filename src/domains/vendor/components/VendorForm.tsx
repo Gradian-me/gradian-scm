@@ -10,7 +10,7 @@ import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CollapsibleCardHeader } from '../../../components/ui/card';
-import { FormMessage } from '../../../components/ui/form-message';
+import { FormAlert } from '../../../components/ui/form-alert';
 import { RepeatingSection, useRepeatingSection } from '../../../shared/components/repeating-section';
 import { Plus, X } from 'lucide-react';
 import { COUNTRIES } from '../../../shared/constants';
@@ -21,9 +21,11 @@ interface VendorFormProps {
   isLoading?: boolean;
   initialData?: Partial<CreateVendorInput>;
   isEditMode?: boolean;
+  error?: string | null;
+  onErrorDismiss?: () => void;
 }
 
-export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData, isEditMode = false }: VendorFormProps) {
+export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData, isEditMode = false, error = null, onErrorDismiss }: VendorFormProps) {
   const [categories, setCategories] = useState<string[]>(initialData?.categories || []);
   const [newCategory, setNewCategory] = useState('');
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
@@ -123,11 +125,6 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
 
   return (
     <div className="space-y-6">
-      {/* Form Messages */}
-      {formMessage && (
-        <FormMessage type={formMessage.type} message={formMessage.message} />
-      )}
-
       {/* Sticky Form Actions */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-3 -mx-6 mb-4">
         <div className="flex justify-end space-x-3">
@@ -148,6 +145,26 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
           </Button>
         </div>
       </div>
+
+      {/* Error Alert - Display server errors */}
+      {error && (
+        <FormAlert 
+          type="error" 
+          message={error} 
+          onDismiss={onErrorDismiss}
+          dismissible={true}
+        />
+      )}
+
+      {/* Success Message */}
+      {formMessage && formMessage.type === 'success' && (
+        <FormAlert 
+          type={formMessage.type} 
+          message={formMessage.message}
+          onDismiss={() => setFormMessage(null)}
+          dismissible={true}
+        />
+      )}
 
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
         {/* Basic Information */}

@@ -79,16 +79,16 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   };
 
   const sizeClasses = {
-    sm: 'max-w-2xl',
-    md: 'max-w-4xl',
-    lg: 'max-w-6xl',
-    xl: 'max-w-7xl',
-    '2xl': 'max-w-7xl',
+    sm: '!max-w-2xl',
+    md: '!max-w-4xl',
+    lg: '!max-w-6xl',
+    xl: '!max-w-7xl',
+    '2xl': '!max-w-7xl',
   };
 
   const dialogClasses = cn(
     sizeClasses[size],
-    'max-h-[95vh] w-[95vw] sm:w-full flex flex-col',
+    '!max-h-[95vh] !w-[95vw] sm:w-full flex flex-col',
     className
   );
 

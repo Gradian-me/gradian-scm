@@ -19,7 +19,7 @@
     ],
     "joinedDate": "2019-03-15T00:00:00.000Z",
     "createdAt": "2019-03-15T00:00:00.000Z",
-    "updatedAt": "2025-10-27T04:57:25.251Z",
+    "updatedAt": "2025-10-27T07:12:34.673Z",
     "primaryContact": {
       "id": "1",
       "name": "Sarah Johnson",
@@ -71,7 +71,7 @@
   {
     "id": "2",
     "name": "MediLab Solutions",
-    "email": "info@medilab.me",
+    "email": "abidi.mahyar@gmail.com",
     "phone": "+1-555-0125",
     "address": "456 Medical Drive",
     "city": "San Francisco",
@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2025-10-27T04:57:29.344Z",
+    "updatedAt": "2025-10-27T05:15:40.657Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -132,7 +132,7 @@
   },
   {
     "name": "Testxxxxx",
-    "email": "abidi.mahyar@gmail.comxx",
+    "email": "abidi.mahyar@gmail.comxxxx",
     "phone": "09126184264",
     "address": "تهران میرداماد رودبار شرقی کوچه بشردوست پلاک ۸ واحد ۱",
     "city": "تهران",
@@ -165,7 +165,7 @@
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-27T04:57:46.268Z",
+    "updatedAt": "2025-10-27T05:15:26.735Z",
     "status": "PENDING",
     "rating": 3.1
   },
@@ -193,10 +193,43 @@
         "isPrimary": true
       }
     ],
-    "status": "PENDING",
+    "status": "INACTIVE",
     "rating": 1,
     "id": "1761541140817",
     "createdAt": "2025-10-27T04:59:00.817Z",
-    "updatedAt": "2025-10-27T04:59:00.817Z"
+    "updatedAt": "2025-10-27T05:01:24.710Z"
+  },
+  {
+    "name": "سیناژن",
+    "email": "abidi.mahyar@gmail.comxxxxx",
+    "phone": "09126184264",
+    "address": "تهران شهرک غرب بلوار فرحزادی خیابان سپهر پلاک 34\nتحویل نگهبانی گردد - مهیار عبیدی",
+    "city": "تهران",
+    "state": "تهران",
+    "zipCode": "1468943381",
+    "country": "USA",
+    "registrationNumber": "TF-2019-001",
+    "taxId": "US-TAX-0012",
+    "categories": [
+      "services",
+      "education",
+      "healthcare",
+      "logistics",
+      "finance"
+    ],
+    "contacts": [
+      {
+        "name": "مهیار عبیدی",
+        "email": "abidi.mahyar@gmail.com",
+        "phone": "09126184264",
+        "position": "Sales Manager",
+        "isPrimary": true
+      }
+    ],
+    "status": "PENDING",
+    "rating": 5,
+    "id": "1761542569935",
+    "createdAt": "2025-10-27T05:22:49.935Z",
+    "updatedAt": "2025-10-27T05:22:49.935Z"
   }
 ]

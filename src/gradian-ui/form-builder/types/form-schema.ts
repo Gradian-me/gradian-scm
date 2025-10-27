@@ -269,6 +269,8 @@ export interface FormWrapperProps {
   children?: React.ReactNode;
   onMount?: (submitFn: () => void) => void;
   hideActions?: boolean;
+  error?: string | null;
+  onErrorDismiss?: () => void;
 }
 
 export interface FormSectionProps {

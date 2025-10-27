@@ -20,6 +20,7 @@ import { vendorFormSchema } from '../schemas/vendor-form.schema';
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [formError, setFormError] = useState<string | null>(null);
   
   const {
     vendors,
@@ -75,6 +76,8 @@ export function VendorPage() {
   }, [currentFilters, setFilters, fetchVendors]);
 
   const handleCreateVendor = async (data: any) => {
+    setFormError(null); // Clear any previous error
+    
     try {
       // Transform form data to match the expected schema
       const transformedData = {
@@ -98,13 +101,17 @@ export function VendorPage() {
         // fetchVendors();
       } else {
         console.error('Failed to create vendor:', result.error);
+        setFormError(result.error || 'Failed to create vendor. Please try again.');
       }
     } catch (error) {
       console.error('Error creating vendor:', error);
+      setFormError(error instanceof Error ? error.message : 'Failed to create vendor. Please try again.');
     }
   };
 
   const handleUpdateVendor = async (data: any) => {
+    setFormError(null); // Clear any previous error
+    
     try {
       if (!selectedVendor?.id) {
         console.error('No vendor selected for update');
@@ -134,9 +141,11 @@ export function VendorPage() {
         // fetchVendors(); // Removed this line
       } else {
         console.error('Failed to update vendor:', result.error);
+        setFormError(result.error || 'Failed to update vendor. Please try again.');
       }
     } catch (error) {
       console.error('Error updating vendor:', error);
+      setFormError(error instanceof Error ? error.message : 'Failed to update vendor. Please try again.');
     }
   };
 
@@ -302,6 +311,8 @@ export function VendorPage() {
             rating: selectedVendor.rating || 5,
           } : vendorFormState.values)}
           onFieldChange={(fieldName, value) => vendorFormState.setValue(fieldName as any, value)}
+          error={formError}
+          onErrorDismiss={() => setFormError(null)}
         />
       </Modal>
     </MainLayout>

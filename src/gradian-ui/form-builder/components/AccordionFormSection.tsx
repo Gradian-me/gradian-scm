@@ -24,6 +24,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 }) => {
   const { title, description, fields, layout, styling, isRepeatingSection } = section;
   const [isExpanded, setIsExpanded] = useState(initialState === 'expanded');
+  
+  // Get section-level error
+  const sectionError = errors?.[section.id];
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -105,8 +108,15 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             onClick={toggleExpanded}
           >
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+                  {sectionError && (
+                    <span className="text-sm text-red-600 mt-0.5" role="alert">
+                      • {sectionError}
+                    </span>
+                  )}
+                </div>
                 {description && (
                   <p className="text-xs text-gray-600 mt-1">{description}</p>
                 )}
@@ -204,8 +214,15 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         onClick={toggleExpanded}
       >
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+              {sectionError && (
+                <span className="text-sm text-red-600 mt-0.5" role="alert">
+                  • {sectionError}
+                </span>
+              )}
+            </div>
             {description && (
               <p className="text-xs text-gray-600 mt-1">{description}</p>
             )}
