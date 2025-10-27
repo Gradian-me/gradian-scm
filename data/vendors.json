@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2025-10-27T15:11:01.411Z",
+    "updatedAt": "2025-10-27T16:12:52.280Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -104,7 +104,9 @@
         "email": "michael.chen@medilab.com",
         "phone": "+1-555-0126",
         "position": "Business Development Manager",
-        "isPrimary": true
+        "department": "",
+        "isPrimary": true,
+        "notes": ""
       }
     ],
     "certifications": [
@@ -132,14 +134,14 @@
   },
   {
     "name": "Testxxxxx",
-    "email": "abidi.mahyar@gmail.comxxxx",
+    "email": "abidi.mahyar@gmail.comxxxxxx",
     "phone": "09126184264",
     "address": "تهران میرداماد رودبار شرقی کوچه بشردوست پلاک ۸ واحد ۱",
     "city": "تهران",
     "state": "تهران",
     "zipCode": "1546653611",
     "country": "FR",
-    "registrationNumber": "TF-2019-001",
+    "registrationNumber": "TF-2019-0012",
     "taxId": "US-TAX-0012",
     "categories": [
       "manufacturing",
@@ -150,22 +152,26 @@
     "contacts": [
       {
         "name": "مهیار عبیدی",
-        "email": "abidi.mahyar@gmail.com",
+        "email": "abidi.mahyar@gmail.comxxx",
         "phone": "09126184264",
-        "position": "Sales Manager",
-        "isPrimary": false
+        "position": "Sales Managers",
+        "department": "",
+        "isPrimary": false,
+        "notes": ""
       },
       {
         "name": "hhh",
-        "email": "abidi.mahyar@gmail.com",
+        "email": "abidi.mahyar@gmail.comx",
         "phone": "09126184264",
         "position": "xxx",
-        "isPrimary": true
+        "department": "",
+        "isPrimary": true,
+        "notes": ""
       }
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-27T14:21:37.222Z",
+    "updatedAt": "2025-10-27T15:52:10.519Z",
     "status": "INACTIVE",
     "rating": 3.1
   },

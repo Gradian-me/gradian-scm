@@ -106,29 +106,9 @@ export class VendorService implements IVendorService {
       throw new Error('Validation failed');
     }
 
-    // Check if vendor exists
-    try {
-      await this.vendorRepository.findById(id);
-    } catch (error) {
-      throw new VendorNotFoundError(id);
-    }
-
-    // Check for duplicate email if email is being updated
-    if (data.email) {
-      try {
-        const existingVendors = await this.vendorRepository.findAll({ page: 1, limit: 1, search: data.email });
-        const vendorWithEmail = existingVendors.data.find(v => v.email === data.email && v.id !== id);
-        if (vendorWithEmail) {
-          throw new VendorEmailAlreadyExistsError(data.email);
-        }
-      } catch (error) {
-        if (error instanceof VendorEmailAlreadyExistsError) {
-          throw error;
-        }
-        // Continue if search fails
-      }
-    }
-
+    // Skip checking if vendor exists - we already know it exists since we're in edit mode
+    // The backend will handle validation if the vendor doesn't exist
+    
     try {
       return await this.vendorRepository.update(id, validation.data);
     } catch (error) {

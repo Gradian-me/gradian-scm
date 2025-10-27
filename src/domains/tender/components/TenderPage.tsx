@@ -12,9 +12,11 @@ import { Plus } from 'lucide-react';
 export function TenderPage() {
   const {
     tenders,
+    currentTender,
     isLoading,
     error,
     fetchTenders,
+    fetchTenderById,
     createTender,
     deleteTender,
     publishTender,
@@ -82,9 +84,15 @@ export function TenderPage() {
     window.location.href = `/tenders/${tender.id}`;
   };
 
-  const handleEditTender = (tender: Tender) => {
-    // TODO: Implement edit tender functionality
-    console.log('Edit tender:', tender);
+  const handleEditTender = async (tender: Tender) => {
+    try {
+      // Fetch the latest data from API
+      await fetchTenderById(tender.id);
+      // Navigate to detail page which will use the fresh currentTender data
+      window.location.href = `/tenders/${tender.id}`;
+    } catch (error) {
+      console.error('Failed to fetch tender data:', error);
+    }
   };
 
   const handleDeleteTender = async (tender: Tender) => {

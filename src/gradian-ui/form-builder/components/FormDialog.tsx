@@ -6,6 +6,7 @@ import { ScrollArea } from '../../../components/ui/scroll-area';
 import { Button } from '../../../components/ui/button';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { cn } from '../../shared/utils';
+import { loggingCustom } from '../../../shared/utils';
 import type { FormSchema } from '../types/form-schema';
 
 export interface FormDialogProps {
@@ -47,34 +48,42 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   const [submitForm, setSubmitForm] = useState<(() => void) | null>(null);
 
   const handleSubmit = async (data: Record<string, any>) => {
+    // Log form submission
+    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM DIALOG SUBMISSION STARTED ===');
+    loggingCustom('LOG_FORM_DATA', 'info', `Dialog Title: ${title || 'Untitled'}`);
+    loggingCustom('LOG_FORM_DATA', 'info', `Form Data Being Submitted: ${JSON.stringify(data, null, 2)}`);
+    
     try {
       await onSubmit?.(data);
+      loggingCustom('LOG_FORM_DATA', 'info', 'Form dialog submitted successfully');
       onClose();
     } catch (error) {
-      console.error('Form submission error:', error);
+      loggingCustom('LOG_FORM_DATA', 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
     }
+    
+    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM DIALOG SUBMISSION ENDED ===');
   };
 
   const handleCancel = (e?: React.MouseEvent) => {
     e?.preventDefault();
-    console.log('Cancel clicked');
+    loggingCustom('LOG_FORM_DATA', 'info', 'Cancel button clicked');
     onReset?.();
     onClose();
   };
 
   const handleResetClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log('Reset clicked');
+    loggingCustom('LOG_FORM_DATA', 'info', 'Reset button clicked');
     onReset?.();
   };
 
   const handleFormSubmitClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log('Submit clicked, submitForm:', !!submitForm);
+    loggingCustom('LOG_FORM_DATA', 'info', `Submit button clicked, submitForm available: ${!!submitForm}`);
     if (submitForm) {
       await submitForm();
     } else {
-      console.warn('submitForm not available');
+      loggingCustom('LOG_FORM_DATA', 'warn', 'submitForm not available');
     }
   };
 

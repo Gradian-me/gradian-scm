@@ -17,6 +17,7 @@ import { FormElementFactory } from './FormElementFactory';
 import { Button } from '../../../components/ui/button';
 import { FormAlert } from '../../../components/ui/form-alert';
 import { cn, validateField as validateFieldUtil } from '../../shared/utils';
+import { loggingCustom } from '../../../shared/utils';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -289,19 +290,74 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
     
+    // Log form data before validation
+    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM SUBMISSION STARTED ===');
+    loggingCustom('LOG_FORM_DATA', 'info', `Form Values: ${JSON.stringify(state.values, null, 2)}`);
+    
     // Validate synchronously
     const isValid = validateForm();
+    
+    // Log validation results
+    loggingCustom('LOG_FORM_DATA', isValid ? 'info' : 'warn', `Form Validation Status: ${isValid ? 'VALID' : 'INVALID'}`);
+    
+    // Log errors for each field
+    Object.entries(state.errors).forEach(([fieldName, error]) => {
+      if (error) {
+        loggingCustom('LOG_FORM_DATA', 'error', `Field "${fieldName}": ${error}`);
+      }
+    });
+    
+    // Log section-level validation
+    schema.sections.forEach(section => {
+      let sectionValid = true;
+      let sectionErrors: string[] = [];
+      
+      if (section.isRepeatingSection && section.repeatingConfig) {
+        const items = state.values[section.id] || [];
+        const { minItems, maxItems } = section.repeatingConfig;
+        
+        if (minItems !== undefined && items.length < minItems) {
+          sectionValid = false;
+          sectionErrors.push(`At least ${minItems} item(s) required, found ${items.length}`);
+        }
+        
+        if (maxItems !== undefined && items.length > maxItems) {
+          sectionValid = false;
+          sectionErrors.push(`Maximum ${maxItems} item(s) allowed, found ${items.length}`);
+        }
+      }
+      
+      section.fields.forEach(field => {
+        if (state.errors[field.name]) {
+          sectionValid = false;
+          sectionErrors.push(`${field.name}: ${state.errors[field.name]}`);
+        }
+      });
+      
+      loggingCustom('LOG_FORM_DATA', sectionValid ? 'info' : 'warn', 
+        `Section "${section.title || section.id}": ${sectionValid ? 'VALID' : 'INVALID'}${sectionErrors.length > 0 ? ` - ${sectionErrors.join(', ')}` : ''}`
+      );
+    });
+    
+    // Log overall validation summary
+    const totalErrors = Object.values(state.errors).filter(err => err).length;
+    loggingCustom('LOG_FORM_DATA', 'info', `Validation Summary: ${totalErrors} error(s) found`);
     
     if (isValid && onSubmit) {
       try {
         await onSubmit(state.values);
+        loggingCustom('LOG_FORM_DATA', 'info', 'Form submitted successfully');
       } catch (error) {
-        console.error('Form submission error:', error);
+        loggingCustom('LOG_FORM_DATA', 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
       }
+    } else {
+      loggingCustom('LOG_FORM_DATA', 'warn', 'Form submission blocked due to validation errors');
     }
     
+    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM SUBMISSION ENDED ===');
+    
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
-  }, [disabled, validateForm, onSubmit, state.values]);
+  }, [disabled, validateForm, onSubmit, state.values, state.errors, schema]);
 
   const contextValue: FormContextType = {
     state,

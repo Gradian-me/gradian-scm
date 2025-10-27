@@ -99,3 +99,5 @@ export const DELIVERY_TERMS = [
   { value: 'CIF', label: 'CIF (Cost, Insurance, Freight)' },
   { value: 'EXW', label: 'EXW (Ex Works)' },
 ] as const;
+
+export * from './application-variables';

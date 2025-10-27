@@ -7,35 +7,44 @@ import {
   CheckCircle,
   Clock,
   Filter,
+  Loader2,
   Plus,
   Star
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { Button, DynamicCardRenderer, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
+import { Spinner } from '../../../components/ui/spinner';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
 import { useEntity } from '../../../gradian-ui/schema-manager';
 import { vendorFormSchema } from '../schemas/vendor-form.schema';
 import { Vendor } from '../types';
+import { vendorService } from '../services/vendor.service';
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [formError, setFormError] = useState<string | null>(null);
+  const [isEditLoading, setIsEditLoading] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
     vendors,
+    currentVendor,
     isLoading,
     error,
     fetchVendors,
+    fetchVendorById,
     createVendor,
     updateVendor,
     deleteVendor,
     setFilters,
+    setCurrentVendor,
     clearError,
   } = useVendor();
 
   // Use entity hook directly - auto-generates everything from schema
+  const entityHook = useEntity<Vendor>('Vendor', vendorFormSchema);
   const {
     searchTerm,
     filterStatus,
@@ -54,9 +63,9 @@ export function VendorPage() {
     openEditModal,
     closeEditModal,
     handleViewVendor,
-    handleEditVendor,
+    handleEditVendor: defaultHandleEditVendor,
     handleDeleteVendor,
-  } = useEntity<Vendor>('Vendor', vendorFormSchema);
+  } = entityHook;
 
   const [searchTermLocal, setSearchTermLocal] = useState('');
 
@@ -65,26 +74,69 @@ export function VendorPage() {
   }, []);
 
   useEffect(() => {
-    if (currentFilters.search || currentFilters.status || currentFilters.category) {
+    // Only fetch if we have actual filter changes from the UI (not from store updates)
+    const hasActiveFilters = currentFilters.search || currentFilters.status || currentFilters.category;
+    
+    // Skip if this is just initial render or filters haven't actually changed
+    if (hasActiveFilters && Object.keys(currentFilters).length > 0) {
       const vendorFilters = {
         search: currentFilters.search,
         status: currentFilters.status as 'ACTIVE' | 'INACTIVE' | 'PENDING' | undefined,
         category: currentFilters.category,
       };
+      
+      // Only update if filters are actually different
       setFilters(vendorFilters);
-      fetchVendors(vendorFilters);
+      
+      // Only fetch if we have search/filter criteria from user input
+      if (vendorFilters.search || vendorFilters.status || vendorFilters.category) {
+        fetchVendors(vendorFilters);
+      }
     }
-  }, [currentFilters, setFilters, fetchVendors]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentFilters.search, currentFilters.status, currentFilters.category]);
 
   const handleCreateVendor = async (data: any) => {
     setFormError(null); // Clear any previous error
+    setIsSubmitting(true); // Set form submission loading state
     
     try {
+      // Email validation function
+      const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      };
+
+      // Validate primary email
+      if (data.email && !isValidEmail(data.email)) {
+        setFormError(`Invalid email format: ${data.email}`);
+        return;
+      }
+
+      // Validate emails in contacts
+      if (data.contacts && Array.isArray(data.contacts)) {
+        for (const contact of data.contacts) {
+          if (contact.email && !isValidEmail(contact.email)) {
+            setFormError(`Invalid email format: ${contact.email}`);
+            return;
+          }
+        }
+      }
+
       // Transform form data to match the expected schema
       const transformedData = {
         ...data,
         categories: data.categories || ['general'], // Default category if not provided
-        contacts: data.contacts || [{
+        contacts: data.contacts ? data.contacts.map((contact: any) => ({
+          ...contact,
+          // Ensure isPrimary is always a boolean
+          isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+          // Trim email to remove any trailing characters
+          email: contact.email ? contact.email.trim() : contact.email,
+          // Ensure required fields are not empty
+          department: contact.department || "",
+          notes: contact.notes || ""
+        })) : [{
           name: data.primaryContactName || data.name,
           email: data.primaryContactEmail || data.email,
           phone: data.primaryContactPhone || data.phone,
@@ -104,14 +156,51 @@ export function VendorPage() {
         console.error('Failed to create vendor:', result.error);
         setFormError(result.error || 'Failed to create vendor. Please try again.');
       }
+      
+      // Clear submission loading state
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error creating vendor:', error);
       setFormError(error instanceof Error ? error.message : 'Failed to create vendor. Please try again.');
+      
+      // Clear submission loading state
+      setIsSubmitting(false);
+    }
+  };
+
+  // Custom handleEditVendor that fetches fresh data from API directly
+  const handleEditVendor = async (vendor: Vendor) => {
+    try {
+      // Set loading state for this specific vendor
+      setIsEditLoading(prev => ({ ...prev, [vendor.id]: true }));
+      
+      // Fetch the latest data from API directly using the service
+      // This bypasses the store's fetchVendorById which sets global loading state
+      const freshVendor = await vendorService.getVendorById(vendor.id);
+      
+      // Update only the current vendor in the store without affecting the list
+      setCurrentVendor(freshVendor);
+      
+      // Clear loading state
+      setIsEditLoading(prev => ({ ...prev, [vendor.id]: false }));
+      
+      // Now open the modal with the fresh data
+      openEditModal(freshVendor);
+    } catch (error) {
+      console.error('Failed to fetch vendor data:', error);
+      
+      // Clear loading state
+      setIsEditLoading(prev => ({ ...prev, [vendor.id]: false }));
+      
+      // Fallback to using cached data if fetch fails
+      setCurrentVendor(vendor);
+      openEditModal(vendor);
     }
   };
 
   const handleUpdateVendor = async (data: any) => {
     setFormError(null); // Clear any previous error
+    setIsSubmitting(true); // Set form submission loading state
     
     try {
       if (!selectedVendor?.id) {
@@ -119,11 +208,47 @@ export function VendorPage() {
         return;
       }
 
+      // Email validation function
+      const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      };
+
+      // Validate primary email
+      if (data.email && !isValidEmail(data.email)) {
+        setFormError(`Invalid email format: ${data.email}`);
+        return;
+      }
+
+      // Validate emails in contacts
+      if (data.contacts && Array.isArray(data.contacts)) {
+        for (const contact of data.contacts) {
+          if (contact.email && !isValidEmail(contact.email)) {
+            setFormError(`Invalid email format: ${contact.email}`);
+            return;
+          }
+        }
+      }
+      
+      // Clean up emails before submission to prevent validation issues
+      if (data.email) {
+        data.email = data.email.trim();
+      }
+
       // Transform form data to match the expected schema
       const transformedData = {
         ...data,
         categories: data.categories || ['general'], // Default category if not provided
-        contacts: data.contacts || [{
+        contacts: data.contacts ? data.contacts.map((contact: any) => ({
+          ...contact,
+          // Ensure isPrimary is always a boolean
+          isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+          // Trim email to remove any trailing characters
+          email: contact.email ? contact.email.trim() : contact.email,
+          // Ensure required fields are not empty
+          department: contact.department || "",
+          notes: contact.notes || ""
+        })) : [{
           name: data.primaryContactName || data.name,
           email: data.primaryContactEmail || data.email,
           phone: data.primaryContactPhone || data.phone,
@@ -144,39 +269,47 @@ export function VendorPage() {
         console.error('Failed to update vendor:', result.error);
         setFormError(result.error || 'Failed to update vendor. Please try again.');
       }
+      
+      // Clear submission loading state
+      setIsSubmitting(false);
     } catch (error) {
       console.error('Error updating vendor:', error);
       setFormError(error instanceof Error ? error.message : 'Failed to update vendor. Please try again.');
+      
+      // Clear submission loading state
+      setIsSubmitting(false);
     }
   };
 
-  const filteredVendors = vendors?.filter(vendor => {
-    const matchesSearch = vendor.name?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
-                         vendor.email?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
-                         vendor.phone?.toLowerCase().includes(searchTermLocal.toLowerCase());
-    return matchesSearch;
-  }) || [];
+  const filteredVendors = useMemo(() => {
+    return vendors?.filter(vendor => {
+      const matchesSearch = vendor.name?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
+                           vendor.email?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
+                           vendor.phone?.toLowerCase().includes(searchTermLocal.toLowerCase());
+      return matchesSearch;
+    }) || [];
+  }, [vendors, searchTermLocal]);
 
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case VENDOR_STATUS.ACTIVE: return 'success';
       case VENDOR_STATUS.INACTIVE: return 'danger';
       case VENDOR_STATUS.PENDING: return 'warning';
       default: return 'default';
     }
-  };
+  }, []);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = useCallback((status: string) => {
     switch (status) {
       case VENDOR_STATUS.ACTIVE: return <CheckCircle className="h-4 w-4" />;
       case VENDOR_STATUS.INACTIVE: return <AlertCircle className="h-4 w-4" />;
       case VENDOR_STATUS.PENDING: return <Clock className="h-4 w-4" />;
       default: return <Clock className="h-4 w-4" />;
     }
-  };
+  }, []);
 
-  const getRatingStars = (rating: number) => {
+  const getRatingStars = useCallback((rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
@@ -185,7 +318,7 @@ export function VendorPage() {
         }`}
       />
     ));
-  };
+  }, []);
 
   if (isLoading) {
     return (
@@ -201,6 +334,14 @@ export function VendorPage() {
     <MainLayout 
       title="Vendor Management"
     >
+      {/* Individual vendor loading indicator (hidden by default) */}
+      <div 
+        id="vendor-loading-indicator" 
+        className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-md shadow-md z-50"
+        style={{ display: 'none' }}
+      >
+        Loading vendor data...
+      </div>
       <div className="space-y-6">
         {/* Search and Filters */}
         <motion.div
@@ -244,16 +385,32 @@ export function VendorPage() {
         {/* Vendors List */}
         <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
           {filteredVendors.map((vendor, index) => (
-            <DynamicCardRenderer
-              key={vendor.id}
-              schema={vendorFormSchema}
-              data={vendor}
-              index={index}
-              viewMode={viewMode}
-              onView={handleViewVendor}
-              onEdit={handleEditVendor}
-              onDelete={handleDeleteVendor}
-            />
+            <div key={vendor.id} className="relative">
+              {isEditLoading[vendor.id] && (
+                <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Spinner size="lg" variant="primary" />
+                    <span className="text-sm font-medium text-blue-600">Loading...</span>
+                  </div>
+                </div>
+              )}
+              <DynamicCardRenderer
+                key={vendor.id}
+                schema={vendorFormSchema}
+                data={vendor}
+                index={index}
+                viewMode={viewMode}
+                onView={handleViewVendor}
+                onEdit={(v) => {
+                  // Only allow edit if not already loading
+                  if (!isEditLoading[v.id]) {
+                    handleEditVendor(v);
+                  }
+                }}
+                onDelete={handleDeleteVendor}
+                className={isEditLoading[vendor.id] ? "opacity-70" : ""}
+              />
+            </div>
           ))}
         </div>
 
@@ -288,32 +445,46 @@ export function VendorPage() {
         isOpen={isModalOpen}
         onClose={isCreateModalOpen ? closeCreateModal : closeEditModal}
         title={modalTitle}
+        description={isCreateModalOpen ? 'Add a new vendor to your system' : 'Edit vendor information'}
         size="lg"
         showCloseButton={false}
       >
+        {/* Loading indicator for form submission */}
+        {isSubmitting && (
+          <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-50 rounded-lg">
+            <div className="flex flex-col items-center space-y-3 bg-white p-6 rounded-xl shadow-lg border border-blue-100">
+              <Spinner size="lg" variant="primary" />
+              <span className="text-lg font-medium text-blue-700">
+                {isCreateModalOpen ? 'Creating vendor...' : 'Updating vendor...'}
+              </span>
+            </div>
+          </div>
+        )}
         <SchemaFormWrapper
+          key={isCreateModalOpen ? 'create' : `edit-${currentVendor?.id || 'none'}`}
           schema={vendorFormSchema}
           onSubmit={isCreateModalOpen ? handleCreateVendor : handleUpdateVendor}
           onReset={() => vendorFormState.reset()}
-          initialValues={isCreateModalOpen ? vendorFormState.values : (selectedVendor ? {
-            name: selectedVendor.name,
-            email: selectedVendor.email,
-            phone: selectedVendor.phone,
-            address: selectedVendor.address,
-            city: selectedVendor.city,
-            state: selectedVendor.state,
-            zipCode: selectedVendor.zipCode,
-            country: selectedVendor.country,
-            registrationNumber: selectedVendor.registrationNumber,
-            taxId: selectedVendor.taxId,
-            categories: selectedVendor.categories,
-            contacts: selectedVendor.contacts || [],
-            status: selectedVendor.status || 'ACTIVE',
-            rating: selectedVendor.rating || 5,
+          initialValues={isCreateModalOpen ? vendorFormState.values : (currentVendor ? {
+            name: currentVendor.name,
+            email: currentVendor.email,
+            phone: currentVendor.phone,
+            address: currentVendor.address,
+            city: currentVendor.city,
+            state: currentVendor.state,
+            zipCode: currentVendor.zipCode,
+            country: currentVendor.country,
+            registrationNumber: currentVendor.registrationNumber,
+            taxId: currentVendor.taxId,
+            categories: currentVendor.categories,
+            contacts: currentVendor.contacts || [],
+            status: currentVendor.status || 'ACTIVE',
+            rating: currentVendor.rating || 5,
           } : vendorFormState.values)}
           onFieldChange={(fieldName, value) => vendorFormState.setValue(fieldName as any, value)}
           error={formError}
           onErrorDismiss={() => setFormError(null)}
+          disabled={isSubmitting}
         />
       </Modal>
     </MainLayout>
