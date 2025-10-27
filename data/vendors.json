@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2025-10-27T12:32:07.152Z",
+    "updatedAt": "2025-10-27T15:11:01.411Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -165,8 +165,8 @@
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-27T05:15:26.735Z",
-    "status": "PENDING",
+    "updatedAt": "2025-10-27T14:21:37.222Z",
+    "status": "INACTIVE",
     "rating": 3.1
   },
   {
