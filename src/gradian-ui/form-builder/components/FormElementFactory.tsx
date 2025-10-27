@@ -12,7 +12,7 @@ interface FormElementFactoryProps {
   field: FormField;
   value: any;
   error?: string;
-  touched?: boolean;
+  touched?: boolean | boolean[];
   onChange: (value: any) => void;
   onBlur: () => void;
   onFocus: () => void;
@@ -23,12 +23,14 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
   field,
   value,
   error,
-  touched,
+  touched: touchedProp,
   onChange,
   onBlur,
   onFocus,
   disabled = false,
 }) => {
+  // Normalize touched prop to boolean
+  const touched = Array.isArray(touchedProp) ? touchedProp.some(Boolean) : Boolean(touchedProp);
   if (!field) {
     console.error('FormElementFactory: field is required', { field, value, error, touched });
     return null;

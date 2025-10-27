@@ -1,16 +1,22 @@
 // Grid Builder Types
 
-import { BaseComponentProps, LayoutConfig } from '../../../shared/types';
+import { BaseComponentProps } from '../../../shared/types';
 
 export interface GridBuilderProps extends BaseComponentProps {
   config: GridConfig;
   children: React.ReactNode;
 }
 
-export interface GridConfig extends LayoutConfig {
+export interface GridConfig {
   id: string;
   name: string;
-  columns: number;
+  columns: number | {
+    default: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+    xl?: number;
+  };
   gap: number;
   padding?: number;
   margin?: number;

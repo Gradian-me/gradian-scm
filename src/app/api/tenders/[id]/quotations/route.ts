@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tenderDataAccess, vendorDataAccess } from '@/lib/data-access';
+import { tenderDataAccess, vendorDataAccess, quotationDataAccess } from '@/lib/data-access';
 import { createQuotationSchema } from '@/lib/validations';
 
 export async function GET(
@@ -8,17 +8,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const tender = mockTenders.find(t => t.id === id);
     
-    if (!tender) {
-      return NextResponse.json(
-        { success: false, error: 'Tender not found' },
-        { status: 404 }
-      );
-    }
-
     // Get quotations for this tender
-    const quotations = mockQuotations.filter(q => q.tenderId === id);
+    const quotations = await quotationDataAccess.getAll(id);
 
     return NextResponse.json({
       success: true,
@@ -42,7 +34,7 @@ export async function POST(
     const validatedData = createQuotationSchema.parse(body);
 
     // Check if tender exists
-    const tender = mockTenders.find(t => t.id === id);
+    const tender = await tenderDataAccess.getById(id);
     if (!tender) {
       return NextResponse.json(
         { success: false, error: 'Tender not found' },
@@ -51,7 +43,7 @@ export async function POST(
     }
 
     // Check if vendor exists
-    const vendor = mockVendors.find(v => v.id === validatedData.vendorId);
+    const vendor = await vendorDataAccess.getById(validatedData.vendorId);
     if (!vendor) {
       return NextResponse.json(
         { success: false, error: 'Vendor not found' },
@@ -59,27 +51,28 @@ export async function POST(
       );
     }
 
-    // Generate new quotation ID
-    const newQuotation = {
-      id: (mockQuotations.length + 1).toString(),
-      ...validatedData,
-      tenderId: id,
-      vendor,
-      submittedDate: new Date(),
-      status: 'submitted' as const,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
     // Calculate total price for items
-    newQuotation.items = newQuotation.items.map(item => ({
+    const items = validatedData.items.map((item, index: number) => ({
       ...item,
-      id: (newQuotation.items.indexOf(item) + 1).toString(),
-      totalPrice: item.unitPrice * (tender.items.find(ti => ti.id === item.tenderItemId)?.quantity || 1),
+      id: (index + 1).toString(),
+      totalPrice: item.unitPrice * ((tender as any).items?.find((ti: any) => ti.id === item.tenderItemId)?.quantity || 1),
     }));
 
-    // In a real app, you would save to database here
-    mockQuotations.push(newQuotation);
+    const newQuotation = await quotationDataAccess.create({
+      vendorId: validatedData.vendorId,
+      tenderId: id,
+      totalAmount: validatedData.totalAmount,
+      currency: validatedData.currency,
+      validityDays: validatedData.validityDays,
+      paymentTerms: validatedData.paymentTerms,
+      deliveryTerms: validatedData.deliveryTerms,
+      deliveryTime: validatedData.deliveryTime,
+      notes: validatedData.notes,
+      items,
+      submittedDate: new Date(),
+      status: 'submitted',
+      vendor,
+    });
 
     return NextResponse.json({
       success: true,

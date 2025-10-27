@@ -30,8 +30,7 @@ interface PurchaseOrderDetailPageProps {
 
 export function PurchaseOrderDetailPage({ purchaseOrderId }: PurchaseOrderDetailPageProps) {
   const router = useRouter();
-  const { getPurchaseOrderById, updatePurchaseOrder, deletePurchaseOrder, approvePurchaseOrder } = usePurchaseOrder();
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder | null>(null);
+  const { fetchPurchaseOrderById, currentPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, approvePurchaseOrder } = usePurchaseOrder();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,8 +38,7 @@ export function PurchaseOrderDetailPage({ purchaseOrderId }: PurchaseOrderDetail
     const fetchPurchaseOrder = async () => {
       try {
         setIsLoading(true);
-        const poData = await getPurchaseOrderById(purchaseOrderId);
-        setPurchaseOrder(poData);
+        await fetchPurchaseOrderById(purchaseOrderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch purchase order');
       } finally {
@@ -51,7 +49,9 @@ export function PurchaseOrderDetailPage({ purchaseOrderId }: PurchaseOrderDetail
     if (purchaseOrderId) {
       fetchPurchaseOrder();
     }
-  }, [purchaseOrderId, getPurchaseOrderById]);
+  }, [purchaseOrderId, fetchPurchaseOrderById]);
+
+  const purchaseOrder = currentPurchaseOrder;
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -99,8 +99,7 @@ export function PurchaseOrderDetailPage({ purchaseOrderId }: PurchaseOrderDetail
       try {
         await approvePurchaseOrder(purchaseOrder.id, 'current-user');
         // Refresh the purchase order data
-        const updatedPO = await getPurchaseOrderById(purchaseOrderId);
-        setPurchaseOrder(updatedPO);
+        await fetchPurchaseOrderById(purchaseOrderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to approve purchase order');
       }

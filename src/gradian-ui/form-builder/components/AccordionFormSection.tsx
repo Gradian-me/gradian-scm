@@ -40,7 +40,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     layout?.columns === 2 && 'grid-cols-1 md:grid-cols-2',
     layout?.columns === 3 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     layout?.columns === 4 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-    layout?.gap && `gap-${layout.gap}`,
+    layout?.gap !== undefined && layout?.gap !== null && layout.gap !== 0 && `gap-${layout.gap}`,
     layout?.direction === 'column' && 'flex flex-col'
   );
 
@@ -55,9 +55,18 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       const fieldError = itemIndex !== undefined 
         ? errors[`${field.name}[${itemIndex}]`] || errors[field.name]?.[itemIndex]
         : errors[field.name];
-      const fieldTouched = itemIndex !== undefined 
-        ? touched[`${field.name}[${itemIndex}]`] || touched[field.name]?.[itemIndex]
-        : touched[field.name];
+      let fieldTouched: boolean;
+      if (itemIndex !== undefined) {
+        const touchedValue = touched[field.name];
+        if (Array.isArray(touchedValue)) {
+          fieldTouched = touchedValue[itemIndex] || false;
+        } else {
+          fieldTouched = Boolean(touched[`${field.name}[${itemIndex}]`]);
+        }
+      } else {
+        const touchedValue = touched[field.name];
+        fieldTouched = typeof touchedValue === 'boolean' ? touchedValue : false;
+      }
 
       return (
         <div

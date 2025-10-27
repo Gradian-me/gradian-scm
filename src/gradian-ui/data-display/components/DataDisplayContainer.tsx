@@ -1,12 +1,13 @@
 // Data Display Container Component
 
 import React, { useCallback, useMemo } from 'react';
-import { DataDisplayContainerProps } from '../types';
-import { Card, GridBuilder, List as ListComponent } from '../../index';
+import { DataDisplayContainerProps, DataDisplayActionConfig } from '../types';
+import { Card, GridBuilder } from '../../index';
 import { cn } from '../../shared/utils';
 import { DataDisplayEmptyState } from './DataDisplayEmptyState';
-import { DataDisplayLoadingState } from './DataDisplayLoadingState';
 import { DataDisplayErrorState } from './DataDisplayErrorState';
+import { DataDisplayLoadingState } from './DataDisplayLoadingState';
+import { GridConfig } from '../../layout/grid-builder/types';
 
 export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   data,
@@ -20,7 +21,7 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   className,
   ...props
 }) => {
-  const { layout = {} } = config;
+  const { layout } = config;
 
   const handleItemClick = useCallback((item: any) => {
     onItemClick?.(item);
@@ -33,7 +34,7 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   // Render different view types
   const renderView = () => {
     if (loading) {
-      return <DataDisplayLoadingState config={config} />;
+      return <DataDisplayLoadingState />;
     }
 
     if (error) {
@@ -41,7 +42,7 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
     }
 
     if (data.length === 0) {
-      return <DataDisplayEmptyState config={config} />;
+      return <DataDisplayEmptyState />;
     }
 
     switch (view.component) {
@@ -60,11 +61,17 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   };
 
   const renderCardView = () => {
-    const gridConfig = {
-      columns: view.config.columns || 3,
-      gap: view.config.gap || 4,
-      responsive: view.config.responsive !== false,
+    const viewProps = (view.config as any).props || {};
+    const gridConfig: GridConfig = {
+      id: view.id,
+      name: view.name,
+      columns: viewProps.columns || 3,
+      gap: viewProps.gap || 4,
+      responsive: viewProps.responsive !== false,
     };
+
+    const actions = viewProps.actions as DataDisplayActionConfig[] || [];
+    const renderItem = viewProps.renderItem;
 
     return (
       <GridBuilder config={gridConfig}>
@@ -80,17 +87,17 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
                 alt: item.name || item.title || 'Item',
                 position: 'top' as const,
               } : undefined,
-              actions: view.config.actions?.map(action => ({
+              actions: actions.map(action => ({
                 ...action,
                 onClick: () => handleItemAction(action.id, item),
-              })) || [],
+              })),
             }}
             onClick={() => handleItemClick(item)}
             className="hover:shadow-lg transition-shadow duration-200"
           >
             {/* Custom card content */}
-            {view.config.renderItem ? (
-              view.config.renderItem(item, index)
+            {renderItem ? (
+              renderItem(item, index)
             ) : (
               <div className="space-y-2">
                 {Object.entries(item)
@@ -115,32 +122,58 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   };
 
   const renderListView = () => {
-    const listConfig = {
-      items: data.map((item, index) => ({
-        id: item.id || index,
-        title: item.name || item.title || 'Untitled',
-        subtitle: item.description || item.subtitle,
-        image: item.image,
-        metadata: Object.entries(item)
-          .filter(([key]) => !['id', 'name', 'title', 'description', 'image'].includes(key))
-          .slice(0, 3)
-          .map(([key, value]) => ({
-            label: key.replace(/([A-Z])/g, ' $1').trim(),
-            value: typeof value === 'object' ? JSON.stringify(value) : String(value),
-          })),
-        actions: view.config.actions?.map(action => ({
-          ...action,
-          onClick: () => handleItemAction(action.id, item),
-        })) || [],
-      })),
-      onItemClick: handleItemClick,
-    };
-
-    return <ListComponent config={listConfig} />;
+    const viewProps = (view.config as any).props || {};
+    const actions = viewProps.actions as DataDisplayActionConfig[] || [];
+    
+    return (
+      <div className="space-y-4">
+        {data.map((item, index) => (
+          <div
+            key={item.id || index}
+            className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => handleItemClick(item)}
+          >
+            {item.image && (
+              <img
+                src={item.image}
+                alt={item.name || item.title || 'Item'}
+                className="w-16 h-16 object-cover rounded"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-medium text-gray-900">
+                {item.name || item.title || 'Untitled'}
+              </h3>
+              {item.description && (
+                <p className="mt-1 text-sm text-gray-600">{item.description}</p>
+              )}
+              {actions.length > 0 && (
+                <div className="mt-2 flex space-x-2">
+                  {actions.map((action) => (
+                    <button
+                      key={action.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleItemAction(action.id, item);
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-900"
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderTableView = () => {
-    const columns = view.config.columns || Object.keys(data[0] || {}).slice(0, 5);
+    const viewProps = (view.config as any).props || {};
+    const columns = viewProps.columns || Object.keys(data[0] || {}).slice(0, 5);
+    const actions = viewProps.actions as DataDisplayActionConfig[] || [];
     
     return (
       <div className="overflow-x-auto">
@@ -155,7 +188,7 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
                   {column.replace(/([A-Z])/g, ' $1').trim()}
                 </th>
               ))}
-              {view.config.actions && view.config.actions.length > 0 && (
+              {actions.length > 0 && (
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -177,10 +210,10 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
                     }
                   </td>
                 ))}
-                {view.config.actions && view.config.actions.length > 0 && (
+                {actions.length > 0 && (
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      {view.config.actions.map((action) => (
+                      {actions.map((action) => (
                         <button
                           key={action.id}
                           onClick={(e) => {
@@ -207,6 +240,9 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
   };
 
   const renderTimelineView = () => {
+    const viewProps = (view.config as any).props || {};
+    const actions = viewProps.actions as DataDisplayActionConfig[] || [];
+    
     return (
       <div className="space-y-4">
         {data.map((item, index) => (
@@ -215,7 +251,7 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
             className="flex items-start space-x-4 p-4 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => handleItemClick(item)}
           >
-            <div className="flex-shrink-0 w-3 h-3 bg-blue-600 rounded-full mt-2"></div>
+            <div className="shrink-0 w-3 h-3 bg-blue-600 rounded-full mt-2"></div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">
@@ -228,9 +264,9 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
               {item.description && (
                 <p className="mt-1 text-sm text-gray-600">{item.description}</p>
               )}
-              {view.config.actions && view.config.actions.length > 0 && (
+              {actions.length > 0 && (
                 <div className="mt-2 flex space-x-2">
-                  {view.config.actions.map((action) => (
+                  {actions.map((action) => (
                     <button
                       key={action.id}
                       onClick={(e) => {
@@ -253,8 +289,8 @@ export const DataDisplayContainer: React.FC<DataDisplayContainerProps> = ({
 
   const containerClasses = cn(
     'data-display-container',
-    layout.content?.padding && `p-${layout.content.padding}`,
-    layout.content?.gap && `gap-${layout.content.gap}`,
+    layout?.content?.padding !== undefined && layout.content.padding !== null && `p-${layout.content.padding}`,
+    layout?.content?.gap !== undefined && layout.content.gap !== null && `gap-${layout.content.gap}`,
     className
   );
 

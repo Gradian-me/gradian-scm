@@ -333,7 +333,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                     const fieldName = `${field.name}[${index}]`;
                     const fieldValue = item[field.name];
                     const fieldError = state.errors[fieldName];
-                    const fieldTouched = state.touched[fieldName];
+                    const fieldTouched = typeof state.touched[fieldName] === 'boolean' 
+                      ? state.touched[fieldName] 
+                      : false;
 
                     return (
                       <div key={field.id} className="space-y-2">
@@ -341,7 +343,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                           field={field as any}
                           value={fieldValue}
                           error={fieldError}
-                          touched={fieldTouched}
+                          touched={fieldTouched as boolean}
                           onChange={(value) => {
                             // Update the nested value in the array
                             const currentArray = state.values[section.id] || [];

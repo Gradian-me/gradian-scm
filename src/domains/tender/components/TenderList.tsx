@@ -1,32 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Badge } from '../../../components/ui/badge';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  DollarSign, 
-  Users, 
-  Clock, 
-  Trophy,
+import { motion } from 'framer-motion';
+import {
+  Clock,
+  DollarSign,
+  Edit,
   Eye,
   FileText,
-  TrendingUp,
-  X,
-  Edit,
-  Trash2,
+  Filter,
   Play,
-  Square
+  Search,
+  Square,
+  Trash2,
+  Trophy,
+  Users,
+  X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Tender } from '../types';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
 import { TENDER_STATUS } from '../../../shared/constants';
-import { getStatusColor as getVendorStatusColor } from '../../../gradian-ui/data-display/utils/status-utils';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { Tender } from '../types';
 
 interface TenderListProps {
   tenders: Tender[];
@@ -237,7 +232,7 @@ export function TenderList({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
           >
-            <Card className="hover:shadow-lg transition-shadow duration-200 hover:scale-[1.005] transition-transform duration-200">
+            <Card className="hover:shadow-lg transition-all duration-200 hover:scale-[1.005]">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div className="flex-1">

@@ -99,6 +99,7 @@ export const jsonPurchaseOrderDataAccess = new JsonDataAccess('purchaseOrders');
 export const jsonShipmentDataAccess = new JsonDataAccess('shipments');
 export const jsonInvoiceDataAccess = new JsonDataAccess('invoices');
 export const jsonNotificationDataAccess = new JsonDataAccess('notifications');
+export const jsonQuotationDataAccess = new JsonDataAccess('quotations');
 
 // Export a function to check if we should use JSON data
 export function shouldUseJsonData(): boolean {

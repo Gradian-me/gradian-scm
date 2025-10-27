@@ -7,16 +7,20 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId') || '2'; // Default to current user
     const isRead = searchParams.get('isRead');
 
-    // Filter notifications by user
-    let filteredNotifications = mockNotifications.filter(n => n.userId === userId);
+    // Get all notifications for user
+    let filteredNotifications = await notificationDataAccess.getAll(userId);
 
     if (isRead !== null) {
       const readStatus = isRead === 'true';
-      filteredNotifications = filteredNotifications.filter(n => n.isRead === readStatus);
+      filteredNotifications = filteredNotifications.filter((n: any) => n.isRead === readStatus);
     }
 
     // Sort by created date (newest first)
-    filteredNotifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    filteredNotifications.sort((a: any, b: any) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateB - dateA;
+    });
 
     return NextResponse.json({
       success: true,
@@ -35,19 +39,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, title, message, type, actionUrl } = body;
 
-    const newNotification = {
-      id: (mockNotifications.length + 1).toString(),
+    const newNotification = await notificationDataAccess.create({
       userId,
       title,
       message,
       type: type || 'info',
       isRead: false,
       actionUrl,
-      createdAt: new Date(),
-    };
-
-    // In a real app, you would save to database here
-    mockNotifications.push(newNotification);
+    });
 
     return NextResponse.json({
       success: true,

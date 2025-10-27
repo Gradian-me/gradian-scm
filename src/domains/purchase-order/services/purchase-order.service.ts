@@ -133,7 +133,7 @@ export class PurchaseOrderService implements IPurchaseOrderService {
         subtotal,
         tax,
         totalAmount,
-      };
+      } as any;
     }
 
     try {

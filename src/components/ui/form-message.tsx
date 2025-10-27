@@ -33,7 +33,7 @@ export function FormMessage({ type, message, className }: FormMessageProps) {
         className
       )}
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
+      <Icon className="h-4 w-4 shrink-0" />
       <span>{message}</span>
     </div>
   );

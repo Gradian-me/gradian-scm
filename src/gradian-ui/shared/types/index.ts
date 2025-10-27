@@ -19,6 +19,8 @@ export interface ComponentConfig {
     author?: string;
     lastModified?: string;
   };
+  // Allow arbitrary properties for view-specific configurations
+  [key: string]: any;
 }
 
 export interface ComponentHookData {
@@ -35,7 +37,7 @@ export interface ValidationRule {
   min?: number;
   max?: number;
   pattern?: RegExp;
-  custom?: (value: any) => boolean | string;
+  custom?: (value: any) => boolean | string | { isValid: boolean; error?: string };
 }
 
 export interface FormFieldConfig {
@@ -82,6 +84,7 @@ export interface LayoutConfig {
 }
 
 export interface NotificationConfig {
+  id?: string;
   type: 'info' | 'success' | 'warning' | 'error';
   title: string;
   message: string;

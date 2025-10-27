@@ -22,7 +22,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
     <div className={headerClasses} {...props}>
       <div className="flex items-start space-x-3 flex-1 min-w-0">
         {avatar && (
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {avatar}
           </div>
         )}
@@ -42,7 +42,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
       </div>
       
       {actions && (
-        <div className="flex-shrink-0 ml-4">
+        <div className="shrink-0 ml-4">
           {actions}
         </div>
       )}

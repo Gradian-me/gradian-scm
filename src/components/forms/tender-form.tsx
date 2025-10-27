@@ -34,7 +34,7 @@ export function TenderForm({ onSubmit, onCancel, isLoading = false }: TenderForm
       category: '',
       estimatedValue: 0,
       currency: 'USD',
-      closingDate: '',
+      closingDate: new Date(),
       evaluationCriteria: {
         price: 40,
         quality: 30,

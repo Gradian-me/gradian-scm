@@ -24,12 +24,15 @@ export const GridBuilder: React.FC<GridBuilderProps> = ({
     alignment,
   } = config;
 
+  const columnsValue = typeof columns === 'number' ? columns : columns.default;
+  const finalBreakpoints = typeof columns === 'object' ? columns : breakpoints;
+
   const gridClasses = cn(
     'grid',
     // Base grid template
     autoFit && minColumnWidth && `grid-cols-[repeat(auto-fit,minmax(${minColumnWidth}px,1fr))]`,
     autoFill && minColumnWidth && `grid-cols-[repeat(auto-fill,minmax(${minColumnWidth}px,1fr))]`,
-    !autoFit && !autoFill && `grid-cols-${columns}`,
+    !autoFit && !autoFill && `grid-cols-${columnsValue}`,
     // Gap
     `gap-${gap}`,
     // Padding
@@ -46,6 +49,10 @@ export const GridBuilder: React.FC<GridBuilderProps> = ({
     alignment?.vertical === 'end' && 'items-end',
     alignment?.vertical === 'stretch' && 'items-stretch',
     // Responsive breakpoints
+    responsive && typeof columns === 'object' && columns.sm && `sm:grid-cols-${columns.sm}`,
+    responsive && typeof columns === 'object' && columns.md && `md:grid-cols-${columns.md}`,
+    responsive && typeof columns === 'object' && columns.lg && `lg:grid-cols-${columns.lg}`,
+    responsive && typeof columns === 'object' && columns.xl && `xl:grid-cols-${columns.xl}`,
     responsive && breakpoints?.sm && `sm:grid-cols-${breakpoints.sm}`,
     responsive && breakpoints?.md && `md:grid-cols-${breakpoints.md}`,
     responsive && breakpoints?.lg && `lg:grid-cols-${breakpoints.lg}`,
@@ -55,10 +62,10 @@ export const GridBuilder: React.FC<GridBuilderProps> = ({
 
   const gridStyle = {
     ...(minColumnWidth && !autoFit && !autoFill && {
-      gridTemplateColumns: `repeat(${columns}, minmax(${minColumnWidth}px, 1fr))`,
+      gridTemplateColumns: `repeat(${columnsValue}, minmax(${minColumnWidth}px, 1fr))`,
     }),
     ...(maxColumnWidth && {
-      gridTemplateColumns: `repeat(${columns}, minmax(0, ${maxColumnWidth}px))`,
+      gridTemplateColumns: `repeat(${columnsValue}, minmax(0, ${maxColumnWidth}px))`,
     }),
   };
 

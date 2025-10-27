@@ -1,30 +1,29 @@
 // Profile List Component
 
 import React from 'react';
+import { ProfileListProps } from '../types';
 import { cn } from '../../../shared/utils';
-
-interface ProfileListProps {
-  profiles: any[];
-  onProfileSelect?: (profile: any) => void;
-  selectedProfile?: any;
-  className?: string;
-}
 
 export const ProfileList: React.FC<ProfileListProps> = ({
   profiles,
+  currentProfile,
   onProfileSelect,
-  selectedProfile,
+  onProfileCreate,
+  onProfileEdit,
+  onProfileDelete,
+  config,
   className,
+  ...props
 }) => {
   return (
-    <div className={cn('space-y-1', className)}>
+    <div className={cn('space-y-1', className)} {...props}>
       {profiles.map((profile) => (
         <div
           key={profile.id}
           onClick={() => onProfileSelect?.(profile)}
           className={cn(
             'flex items-center space-x-3 p-2 rounded-md cursor-pointer transition-colors',
-            selectedProfile?.id === profile.id
+            currentProfile?.id === profile.id
               ? 'bg-blue-100 border border-blue-300'
               : 'hover:bg-gray-100'
           )}

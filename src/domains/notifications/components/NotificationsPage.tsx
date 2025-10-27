@@ -46,6 +46,11 @@ export function NotificationsPage() {
     updateFilters({ [key]: value === 'all' ? undefined : value });
   };
 
+  const handleReadStatusChange = (value: string) => {
+    const boolValue = value === 'all' ? undefined : value === 'read';
+    updateFilters({ isRead: boolValue });
+  };
+
   const getFilterCounts = () => {
     const counts = {
       all: groupedNotifications.reduce((sum, group) => sum + group.notifications.length, 0),
@@ -206,10 +211,7 @@ export function NotificationsPage() {
                     <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
                     <select
                       value={filters.isRead === undefined ? 'all' : filters.isRead ? 'read' : 'unread'}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        handleFilterChange('isRead', value === 'all' ? undefined : value === 'read');
-                      }}
+                      onChange={(e) => handleReadStatusChange(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
                     >
                       <option value="all">All Status</option>

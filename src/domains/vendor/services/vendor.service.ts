@@ -48,7 +48,7 @@ export class VendorService implements IVendorService {
     try {
       return await this.vendorRepository.findById(id);
     } catch (error) {
-      if (error.message.includes('not found')) {
+      if (error instanceof Error && error.message.includes('not found')) {
         throw new VendorNotFoundError(id);
       }
       throw error;
@@ -164,7 +164,7 @@ export class VendorService implements IVendorService {
   }
 
   validateVendorData(data: CreateVendorRequest): { success: true; data: CreateVendorRequest } | { success: false; errors: Record<string, string> } {
-    return validateFormData(createVendorSchema, data);
+    return validateFormData(createVendorSchema, data) as any;
   }
 
   validateVendorUpdateData(data: UpdateVendorRequest): { success: true; data: UpdateVendorRequest } | { success: false; errors: Record<string, string> } {

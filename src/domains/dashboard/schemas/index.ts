@@ -35,7 +35,7 @@ export const activityItemSchema = createValidationSchema(
     timestamp: z.date(),
     userId: z.string(),
     userName: z.string(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
   })
 );
 

@@ -18,7 +18,7 @@ export const FormFooter: React.FC<FormFooterProps> = ({
   children,
   ...props
 }) => {
-  const defaultActions = [];
+  const defaultActions: any[] = [];
 
   if (onSubmit) {
     defaultActions.push({
@@ -52,14 +52,14 @@ export const FormFooter: React.FC<FormFooterProps> = ({
   }
 
   // Convert actions object to array format if it's an object
-  const convertActionsToArray = (actionsConfig: any) => {
+  const convertActionsToArray = (actionsConfig: any): any[] => {
     if (!actionsConfig) return defaultActions;
     
     // If it's already an array, return it
     if (Array.isArray(actionsConfig)) return actionsConfig;
     
     // If it's an object, convert it to array format
-    const actionsArray = [];
+    const actionsArray: any[] = [];
     
     if (actionsConfig.submit) {
       actionsArray.push({

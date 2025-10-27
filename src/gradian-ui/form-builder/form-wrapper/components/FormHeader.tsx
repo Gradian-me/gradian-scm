@@ -23,7 +23,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
           {icon && (
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {icon}
             </div>
           )}

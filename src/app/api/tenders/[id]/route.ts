@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const tender = mockTenders.find(t => t.id === id);
+    const tender = await tenderDataAccess.getById(id);
     
     if (!tender) {
       return NextResponse.json(
@@ -33,26 +33,21 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
-    const tenderIndex = mockTenders.findIndex(t => t.id === id);
     
-    if (tenderIndex === -1) {
+    const updatedTender = await tenderDataAccess.update(id, body);
+    
+    if (!updatedTender) {
       return NextResponse.json(
         { success: false, error: 'Tender not found' },
         { status: 404 }
       );
     }
 
-    // Update tender
-    mockTenders[tenderIndex] = {
-      ...mockTenders[tenderIndex],
-      ...body,
-      updatedAt: new Date(),
-    };
-
     return NextResponse.json({
       success: true,
-      data: mockTenders[tenderIndex],
+      data: updatedTender,
       message: 'Tender updated successfully',
     });
   } catch (error) {
@@ -68,18 +63,18 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const tenderIndex = mockTenders.findIndex(t => t.id === id);
+    const { id } = await params;
     
-    if (tenderIndex === -1) {
+    const updatedTender = await tenderDataAccess.update(id, {
+      status: 'cancelled',
+    });
+    
+    if (!updatedTender) {
       return NextResponse.json(
         { success: false, error: 'Tender not found' },
         { status: 404 }
       );
     }
-
-    // Soft delete - mark as cancelled
-    mockTenders[tenderIndex].status = 'cancelled';
-    mockTenders[tenderIndex].updatedAt = new Date();
 
     return NextResponse.json({
       success: true,

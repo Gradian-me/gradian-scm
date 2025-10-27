@@ -180,7 +180,7 @@ export const quotationSchema = z.object({
 });
 
 export const createQuotationSchema = z.object({
-  tenderId: z.string().uuid(),
+  vendorId: z.string().uuid(),
   totalAmount: z.number().min(0, "Total amount must be non-negative"),
   currency: z.string().min(1, "Currency is required"),
   validityDays: z.number().min(1, "Validity must be at least 1 day"),

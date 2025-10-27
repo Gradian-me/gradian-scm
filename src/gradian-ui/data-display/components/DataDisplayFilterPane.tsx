@@ -20,10 +20,10 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
     search = { enabled: true },
     filters: filterConfigs = [],
     actions = [],
-    layout = {},
+    layout,
   } = config;
 
-  const [isCollapsed, setIsCollapsed] = useState(layout.filterPane?.defaultCollapsed || false);
+  const [isCollapsed, setIsCollapsed] = useState(layout?.filterPane?.defaultCollapsed || false);
   const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,9 +54,9 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
   const filterPaneClasses = cn(
     'data-display-filter-pane',
     'bg-white border border-gray-200 rounded-lg',
-    layout.filterPane?.position === 'left' && 'w-64',
-    layout.filterPane?.position === 'right' && 'w-64',
-    layout.filterPane?.position === 'top' && 'w-full',
+    layout?.filterPane?.position === 'left' && 'w-64',
+    layout?.filterPane?.position === 'right' && 'w-64',
+    layout?.filterPane?.position === 'top' && 'w-full',
     className
   );
 
@@ -236,7 +236,7 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
           <Filter className="h-5 w-5 text-gray-500" />
           <h3 className="text-lg font-medium text-gray-900">Filters</h3>
         </div>
-        {layout.filterPane?.collapsible && (
+        {layout?.filterPane?.collapsible && (
           <button
             onClick={toggleCollapsed}
             className="p-1 text-gray-500 hover:text-gray-700 transition-colors"

@@ -32,8 +32,7 @@ interface TenderDetailPageProps {
 
 export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
   const router = useRouter();
-  const { getTenderById, updateTender, deleteTender, publishTender, closeTender, awardTender } = useTender();
-  const [tender, setTender] = useState<Tender | null>(null);
+  const { fetchTenderById, currentTender, updateTender, deleteTender, publishTender, closeTender, awardTender, isLoading: storeLoading, error: storeError } = useTender();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,8 +40,7 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
     const fetchTender = async () => {
       try {
         setIsLoading(true);
-        const tenderData = await getTenderById(tenderId);
-        setTender(tenderData);
+        await fetchTenderById(tenderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch tender');
       } finally {
@@ -53,7 +51,9 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
     if (tenderId) {
       fetchTender();
     }
-  }, [tenderId, getTenderById]);
+  }, [tenderId, fetchTenderById]);
+
+  const tender = currentTender;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -90,8 +90,7 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
       try {
         await publishTender(tender.id);
         // Refresh the tender data
-        const updatedTender = await getTenderById(tenderId);
-        setTender(updatedTender);
+        await fetchTenderById(tenderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to publish tender');
       }
@@ -103,8 +102,7 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
       try {
         await closeTender(tender.id);
         // Refresh the tender data
-        const updatedTender = await getTenderById(tenderId);
-        setTender(updatedTender);
+        await fetchTenderById(tenderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to close tender');
       }
@@ -117,8 +115,7 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
       try {
         await awardTender(tender.id, vendorId);
         // Refresh the tender data
-        const updatedTender = await getTenderById(tenderId);
-        setTender(updatedTender);
+        await fetchTenderById(tenderId);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to award tender');
       }
@@ -277,7 +274,7 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
                               ${item.estimatedUnitPrice.toFixed(2)} per {item.unit}
                             </p>
                             <p className="text-sm text-gray-600">
-                              Total: ${item.totalEstimatedPrice.toFixed(2)}
+                              Total: ${(item.estimatedUnitPrice * item.quantity).toFixed(2)}
                             </p>
                           </div>
                         </div>
@@ -305,8 +302,8 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
                         <div key={index} className="border rounded-lg p-4">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h4 className="font-medium">{quotation.vendorName}</h4>
-                              <p className="text-sm text-gray-600">{quotation.vendorEmail}</p>
+                              <h4 className="font-medium">{quotation.vendor?.name || 'Unknown Vendor'}</h4>
+                              <p className="text-sm text-gray-600">{quotation.vendor?.email || ''}</p>
                               <p className="text-sm text-gray-500">
                                 Submitted: {formatDate(quotation.submittedAt)}
                               </p>
@@ -367,10 +364,12 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
                       <p className="text-sm">{formatDate(tender.awardDate)}</p>
                     </div>
                   )}
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Created By</label>
-                    <p className="text-sm">{tender.createdBy}</p>
-                  </div>
+                  {(tender as any).createdBy && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Created By</label>
+                      <p className="text-sm">{(tender as any).createdBy}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -386,12 +385,22 @@ export function TenderDetailPage({ tenderId }: TenderDetailPageProps) {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {tender.evaluationCriteria.map((criteria, index) => (
-                      <div key={index} className="flex justify-between">
-                        <span className="text-sm">{criteria.name}</span>
-                        <span className="text-sm font-medium">{criteria.weight}%</span>
-                      </div>
-                    ))}
+                    <div className="flex justify-between">
+                      <span className="text-sm">Price</span>
+                      <span className="text-sm font-medium">{tender.evaluationCriteria.price}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Quality</span>
+                      <span className="text-sm font-medium">{tender.evaluationCriteria.quality}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Delivery</span>
+                      <span className="text-sm font-medium">{tender.evaluationCriteria.delivery}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Experience</span>
+                      <span className="text-sm font-medium">{tender.evaluationCriteria.experience}%</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

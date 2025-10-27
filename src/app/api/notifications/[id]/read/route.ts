@@ -7,21 +7,20 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const notificationIndex = mockNotifications.findIndex(n => n.id === id);
     
-    if (notificationIndex === -1) {
+    // Mark notification as read using data access
+    const notification = await notificationDataAccess.markAsRead(id);
+    
+    if (!notification) {
       return NextResponse.json(
         { success: false, error: 'Notification not found' },
         { status: 404 }
       );
     }
 
-    // Mark as read
-    mockNotifications[notificationIndex].isRead = true;
-
     return NextResponse.json({
       success: true,
-      data: mockNotifications[notificationIndex],
+      data: notification,
       message: 'Notification marked as read',
     });
   } catch (error) {

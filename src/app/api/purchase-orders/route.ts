@@ -54,8 +54,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createPurchaseOrderSchema.parse(body);
 
+    // Get existing POs to generate number
+    const existingPOs = await purchaseOrderDataAccess.getAll();
+    
     // Generate new PO number
-    const poNumber = `PO-2024-${String(mockPurchaseOrders.length + 1).padStart(3, '0')}`;
+    const poNumber = `PO-2024-${String(existingPOs.length + 1).padStart(3, '0')}`;
 
     // Calculate totals
     const subtotal = validatedData.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
@@ -63,23 +66,12 @@ export async function POST(request: NextRequest) {
     const tax = subtotal * taxRate / 100;
     const totalAmount = subtotal + tax;
 
-    // Find vendor for the purchase order
-    const vendor = mockVendors.find(v => v.id === validatedData.vendorId);
-    if (!vendor) {
-      return NextResponse.json(
-        { success: false, error: 'Vendor not found' },
-        { status: 404 }
-      );
-    }
-
-    const newPO = {
-      id: (mockPurchaseOrders.length + 1).toString(),
+    const newPO = await purchaseOrderDataAccess.create({
       poNumber,
       vendorId: validatedData.vendorId,
-      vendor,
       tenderId: validatedData.tenderId,
       quotationId: validatedData.quotationId,
-      status: 'draft' as const,
+      status: 'draft',
       paymentTerms: validatedData.paymentTerms,
       deliveryTerms: validatedData.deliveryTerms,
       expectedDeliveryDate: new Date(validatedData.expectedDeliveryDate),
@@ -89,18 +81,12 @@ export async function POST(request: NextRequest) {
       taxRate,
       currency: 'USD', // Default currency
       createdBy: '2', // In real app, get from auth context
-      notes: undefined, // Notes not in schema
       items: validatedData.items.map((item, index) => ({
         ...item,
         id: (index + 1).toString(),
         totalPrice: item.quantity * item.unitPrice,
       })),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    // In a real app, you would save to database here
-    mockPurchaseOrders.push(newPO);
+    });
 
     return NextResponse.json({
       success: true,

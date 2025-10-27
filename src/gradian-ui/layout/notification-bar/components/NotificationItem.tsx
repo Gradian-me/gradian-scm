@@ -118,7 +118,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       onMouseLeave={handleMouseLeave}
       {...props}
     >
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {getIcon(notification.type)}
       </div>
       
@@ -142,7 +142,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
         )}
       </div>
       
-      <div className="ml-4 flex-shrink-0">
+      <div className="ml-4 shrink-0">
         <button
           onClick={handleDismiss}
           className="text-gray-400 hover:text-gray-600"

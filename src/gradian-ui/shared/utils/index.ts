@@ -12,8 +12,8 @@ export const generateId = (prefix: string = 'gradian'): string => {
 /**
  * Merges class names with proper spacing
  */
-export const cn = (...classes: (string | undefined | null | false)[]): string => {
-  return classes.filter(Boolean).join(' ');
+export const cn = (...classes: (string | undefined | null | false | 0)[]): string => {
+  return classes.filter(c => c !== undefined && c !== null && c !== false && c !== 0).join(' ');
 };
 
 /**
@@ -52,6 +52,10 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
 
   if (value && rules.custom) {
     const result = rules.custom(value);
+    if (typeof result === 'object' && result !== null) {
+      // Handle object result with isValid and error
+      return result as { isValid: boolean; error?: string };
+    }
     if (typeof result === 'string') {
       return { isValid: false, error: result };
     }

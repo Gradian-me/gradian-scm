@@ -227,7 +227,7 @@ export interface FormErrors {
 }
 
 export interface FormTouched {
-  [key: string]: boolean;
+  [key: string]: boolean | boolean[];
 }
 
 export interface FormState {

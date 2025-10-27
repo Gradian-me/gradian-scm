@@ -6,7 +6,8 @@ import {
   jsonPurchaseOrderDataAccess,
   jsonShipmentDataAccess,
   jsonInvoiceDataAccess,
-  jsonNotificationDataAccess
+  jsonNotificationDataAccess,
+  jsonQuotationDataAccess
 } from './json-data-access';
 import { calculateDashboardMetrics, calculateSpendAnalysis, calculateMonthlyTrends } from './measures';
 import { prisma } from './prisma';
@@ -487,5 +488,71 @@ export const notificationDataAccess = {
       return await jsonNotificationDataAccess.delete(id);
     }
     return await prisma.notification.delete({ where: { id } });
+  },
+};
+
+// Quotation Data Access
+export const quotationDataAccess = {
+  async getAll(tenderId?: string) {
+    if (isMockData()) {
+      const quotations = await jsonQuotationDataAccess.getAll();
+      return tenderId ? quotations.filter((q: any) => q.tenderId === tenderId) : quotations;
+    }
+    
+    return await prisma.quotation.findMany({
+      where: tenderId ? { tenderId } : {},
+      include: {
+        vendor: true,
+        items: true,
+      },
+      orderBy: { submittedDate: 'desc' },
+    });
+  },
+
+  async getById(id: string) {
+    if (isMockData()) {
+      return await jsonQuotationDataAccess.getById(id);
+    }
+    return await prisma.quotation.findUnique({
+      where: { id },
+      include: {
+        vendor: true,
+        items: true,
+      },
+    });
+  },
+
+  async create(data: any) {
+    if (isMockData()) {
+      return await jsonQuotationDataAccess.create(data);
+    }
+    return await prisma.quotation.create({
+      data,
+      include: {
+        vendor: true,
+        items: true,
+      },
+    });
+  },
+
+  async update(id: string, data: any) {
+    if (isMockData()) {
+      return await jsonQuotationDataAccess.update(id, data);
+    }
+    return await prisma.quotation.update({
+      where: { id },
+      data,
+      include: {
+        vendor: true,
+        items: true,
+      },
+    });
+  },
+
+  async delete(id: string) {
+    if (isMockData()) {
+      return await jsonQuotationDataAccess.delete(id);
+    }
+    return await prisma.quotation.delete({ where: { id } });
   },
 };

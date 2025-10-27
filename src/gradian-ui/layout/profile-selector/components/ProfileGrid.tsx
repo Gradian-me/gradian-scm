@@ -1,30 +1,29 @@
 // Profile Grid Component
 
 import React from 'react';
+import { ProfileGridProps } from '../types';
 import { cn } from '../../../shared/utils';
-
-interface ProfileGridProps {
-  profiles: any[];
-  onProfileSelect?: (profile: any) => void;
-  selectedProfile?: any;
-  className?: string;
-}
 
 export const ProfileGrid: React.FC<ProfileGridProps> = ({
   profiles,
+  currentProfile,
   onProfileSelect,
-  selectedProfile,
+  onProfileCreate,
+  onProfileEdit,
+  onProfileDelete,
+  config,
   className,
+  ...props
 }) => {
   return (
-    <div className={cn('grid grid-cols-2 gap-2', className)}>
+    <div className={cn('grid grid-cols-2 gap-2', className)} {...props}>
       {profiles.map((profile) => (
         <div
           key={profile.id}
           onClick={() => onProfileSelect?.(profile)}
           className={cn(
             'p-2 rounded-md cursor-pointer transition-colors',
-            selectedProfile?.id === profile.id
+            currentProfile?.id === profile.id
               ? 'bg-blue-100 border border-blue-300'
               : 'hover:bg-gray-100'
           )}

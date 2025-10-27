@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const po = mockPurchaseOrders.find(p => p.id === id);
+    const po = await purchaseOrderDataAccess.getById(id);
     
     if (!po) {
       return NextResponse.json(
@@ -35,25 +35,19 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const poIndex = mockPurchaseOrders.findIndex(p => p.id === id);
     
-    if (poIndex === -1) {
+    const updatedPO = await purchaseOrderDataAccess.update(id, body);
+    
+    if (!updatedPO) {
       return NextResponse.json(
         { success: false, error: 'Purchase order not found' },
         { status: 404 }
       );
     }
 
-    // Update purchase order
-    mockPurchaseOrders[poIndex] = {
-      ...mockPurchaseOrders[poIndex],
-      ...body,
-      updatedAt: new Date(),
-    };
-
     return NextResponse.json({
       success: true,
-      data: mockPurchaseOrders[poIndex],
+      data: updatedPO,
       message: 'Purchase order updated successfully',
     });
   } catch (error) {
@@ -70,18 +64,17 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const poIndex = mockPurchaseOrders.findIndex(p => p.id === id);
     
-    if (poIndex === -1) {
+    const updatedPO = await purchaseOrderDataAccess.update(id, {
+      status: 'cancelled',
+    });
+    
+    if (!updatedPO) {
       return NextResponse.json(
         { success: false, error: 'Purchase order not found' },
         { status: 404 }
       );
     }
-
-    // Soft delete - mark as cancelled
-    mockPurchaseOrders[poIndex].status = 'cancelled';
-    mockPurchaseOrders[poIndex].updatedAt = new Date();
 
     return NextResponse.json({
       success: true,

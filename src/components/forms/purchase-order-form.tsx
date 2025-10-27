@@ -38,7 +38,7 @@ export function PurchaseOrderForm({ onSubmit, onCancel, isLoading = false, vendo
       quotationId: '',
       paymentTerms: 'Net 30 days',
       deliveryTerms: 'FOB Destination',
-      expectedDeliveryDate: '',
+      expectedDeliveryDate: new Date(),
       items: [
         {
           productName: '',

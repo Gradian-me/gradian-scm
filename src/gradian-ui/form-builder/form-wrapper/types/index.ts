@@ -1,6 +1,7 @@
 // Form Wrapper Types
 
-import { BaseComponentProps, FormElementConfig } from '../../../shared/types';
+import { BaseComponentProps, FormFieldConfig } from '../../../shared/types';
+import { FormElementConfig } from '../../form-elements/types';
 
 export interface FormWrapperProps extends BaseComponentProps {
   config: FormConfig;
@@ -113,7 +114,7 @@ export interface FormActionProps {
   icon?: React.ReactNode;
 }
 
-export interface FormActionsProps extends BaseComponentProps {
+export interface FormActionsProps extends BaseComponentProps, Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   actions: FormActionProps[];
   direction?: 'row' | 'column';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';

@@ -2,10 +2,18 @@ import { Notification, NotificationFilters, NotificationGroup } from '../types';
 import notificationsData from '../../../../data/notifications.json';
 
 // Convert JSON data to proper format
-const notifications: Notification[] = notificationsData.map(notification => ({
-  ...notification,
+const notifications: Notification[] = notificationsData.map((notification: any) => ({
+  id: notification.id,
+  title: notification.title,
+  message: notification.message,
+  type: notification.type as 'success' | 'info' | 'warning' | 'error',
+  category: notification.category as 'quotation' | 'purchase_order' | 'shipment' | 'vendor' | 'tender' | 'system',
+  priority: notification.priority as 'low' | 'medium' | 'high' | 'urgent',
+  isRead: notification.isRead,
   createdAt: new Date(notification.createdAt),
-  readAt: notification.readAt ? new Date(notification.readAt) : undefined
+  readAt: notification.readAt ? new Date(notification.readAt) : undefined,
+  actionUrl: notification.actionUrl,
+  metadata: notification.metadata
 }));
 
 export class NotificationService {

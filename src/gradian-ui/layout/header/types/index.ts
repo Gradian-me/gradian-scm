@@ -2,6 +2,9 @@
 
 import { BaseComponentProps, UserProfile, MenuItem } from '../../../shared/types';
 
+// Re-export types for use in components
+export type { MenuItem, UserProfile };
+
 export interface HeaderProps extends BaseComponentProps {
   config: HeaderConfig;
   user?: UserProfile;

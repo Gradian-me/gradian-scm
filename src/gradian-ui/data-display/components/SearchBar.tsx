@@ -22,7 +22,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && onSearch) {
-      onSearch(value);
+      onSearch(value || '');
     }
   };
 
@@ -31,7 +31,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <div className="relative flex-1">
         <Input
           placeholder={placeholder}
-          value={value}
+          value={value || ''}
           onChange={(e) => onChange?.(e.target.value)}
           onKeyPress={handleKeyPress}
           className="pl-10"
@@ -46,7 +46,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Button
           variant="primary"
           size="md"
-          onClick={() => onSearch?.(value)}
+          onClick={() => onSearch?.(value || '')}
           className="ml-2"
         >
           Search

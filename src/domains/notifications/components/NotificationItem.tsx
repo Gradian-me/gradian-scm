@@ -75,7 +75,7 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
       }`}>
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 mt-1">
+            <div className="shrink-0 mt-1">
               {getTypeIcon(notification.type)}
             </div>
             
@@ -93,7 +93,7 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
                 </div>
                 
                 {!notification.isRead && (
-                  <div className="w-2 h-2 bg-violet-500 rounded-full flex-shrink-0 mt-2"></div>
+                  <div className="w-2 h-2 bg-violet-500 rounded-full shrink-0 mt-2"></div>
                 )}
               </div>
               

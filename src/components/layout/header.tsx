@@ -116,7 +116,7 @@ export function Header({
                   <div className="p-2 space-y-1">
                     <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <CheckCircle className="h-5 w-5 text-green-500" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -134,7 +134,7 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <CheckCircle className="h-5 w-5 text-blue-500" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -152,7 +152,7 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <AlertTriangle className="h-5 w-5 text-amber-500" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export function Header({
                     </DropdownMenuItem>
                     <DropdownMenuItem className="rounded-lg hover:bg-violet-50 focus:bg-violet-50 p-3">
                       <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <CheckCircle className="h-5 w-5 text-green-500" />
                         </div>
                         <div className="flex-1 min-w-0">

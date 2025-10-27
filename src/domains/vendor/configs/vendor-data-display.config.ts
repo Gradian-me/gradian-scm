@@ -15,29 +15,34 @@ export const vendorDataDisplayConfig: DataDisplayConfig = {
       label: 'Cards',
       component: 'card',
       config: {
-        columns: 3,
-        gap: 6,
-        responsive: true,
-        actions: [
-          {
-            id: 'view',
-            label: 'View',
-            variant: 'primary',
-            onClick: () => {},
-          },
-          {
-            id: 'edit',
-            label: 'Edit',
-            variant: 'secondary',
-            onClick: () => {},
-          },
-          {
-            id: 'delete',
-            label: 'Delete',
-            variant: 'danger',
-            onClick: () => {},
-          },
-        ],
+        id: 'card-config',
+        name: 'Card Configuration',
+        type: 'card',
+        props: {
+          columns: 3,
+          gap: 6,
+          responsive: true,
+          actions: [
+            {
+              id: 'view',
+              label: 'View',
+              variant: 'primary',
+              onClick: () => {},
+            },
+            {
+              id: 'edit',
+              label: 'Edit',
+              variant: 'secondary',
+              onClick: () => {},
+            },
+            {
+              id: 'delete',
+              label: 'Delete',
+              variant: 'danger',
+              onClick: () => {},
+            },
+          ],
+        },
       },
     },
     {
@@ -46,26 +51,31 @@ export const vendorDataDisplayConfig: DataDisplayConfig = {
       label: 'List',
       component: 'list',
       config: {
-        actions: [
-          {
-            id: 'view',
-            label: 'View',
-            variant: 'primary',
-            onClick: () => {},
-          },
-          {
-            id: 'edit',
-            label: 'Edit',
-            variant: 'secondary',
-            onClick: () => {},
-          },
-          {
-            id: 'delete',
-            label: 'Delete',
-            variant: 'danger',
-            onClick: () => {},
-          },
-        ],
+        id: 'list-config',
+        name: 'List Configuration',
+        type: 'list',
+        props: {
+          actions: [
+            {
+              id: 'view',
+              label: 'View',
+              variant: 'primary',
+              onClick: () => {},
+            },
+            {
+              id: 'edit',
+              label: 'Edit',
+              variant: 'secondary',
+              onClick: () => {},
+            },
+            {
+              id: 'delete',
+              label: 'Delete',
+              variant: 'danger',
+              onClick: () => {},
+            },
+          ],
+        },
       },
     },
     {
@@ -74,27 +84,32 @@ export const vendorDataDisplayConfig: DataDisplayConfig = {
       label: 'Table',
       component: 'table',
       config: {
-        columns: ['name', 'email', 'phone', 'status', 'rating'],
-        actions: [
-          {
-            id: 'view',
-            label: 'View',
-            variant: 'primary',
-            onClick: () => {},
-          },
-          {
-            id: 'edit',
-            label: 'Edit',
-            variant: 'secondary',
-            onClick: () => {},
-          },
-          {
-            id: 'delete',
-            label: 'Delete',
-            variant: 'danger',
-            onClick: () => {},
-          },
-        ],
+        id: 'table-config',
+        name: 'Table Configuration',
+        type: 'table',
+        props: {
+          columns: ['name', 'email', 'phone', 'status', 'rating'],
+          actions: [
+            {
+              id: 'view',
+              label: 'View',
+              variant: 'primary',
+              onClick: () => {},
+            },
+            {
+              id: 'edit',
+              label: 'Edit',
+              variant: 'secondary',
+              onClick: () => {},
+            },
+            {
+              id: 'delete',
+              label: 'Delete',
+              variant: 'danger',
+              onClick: () => {},
+            },
+          ],
+        },
       },
     },
   ],

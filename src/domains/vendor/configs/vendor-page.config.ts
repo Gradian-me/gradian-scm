@@ -63,7 +63,7 @@ export const vendorPageConfig = {
       alignment: 'stretch' as const,
       spacing: 'normal' as const,
     },
-  } as CardConfig,
+  },
 
   vendorList: {
     id: 'vendor-list',

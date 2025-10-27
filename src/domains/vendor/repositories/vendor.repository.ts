@@ -25,7 +25,12 @@ export class VendorRepository implements IVendorRepository {
     // We need to return the full response structure
     const result: VendorListResponse = {
       data: response.data,
-      pagination: response.pagination
+      pagination: (response as any).pagination || {
+        page: 1,
+        limit: 10,
+        total: response.data?.length || 0,
+        totalPages: 1
+      }
     };
     
     return result;

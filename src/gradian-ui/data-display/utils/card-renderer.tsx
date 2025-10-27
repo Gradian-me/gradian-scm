@@ -7,6 +7,7 @@ import { IconRenderer } from '../../../shared/utils/icon-renderer';
 interface RenderFieldValueProps {
   field: any;
   value: any;
+  data?: any;
 }
 
 interface RenderSectionProps {
@@ -18,7 +19,7 @@ interface RenderSectionProps {
 /**
  * Render field value based on type
  */
-const renderValueByType = ({ field, value }: RenderFieldValueProps): React.ReactNode => {
+const renderValueByType = ({ field, value, data }: RenderFieldValueProps): React.ReactNode => {
   if (!value && value !== 0) return 'N/A';
 
   switch (field.type) {
@@ -121,7 +122,7 @@ export const renderCardSection = ({ section, formSchema, data }: RenderSectionPr
     return (
       <div key={field.id} className="flex items-center space-x-2 text-sm text-gray-600">
         {field.icon && <IconRenderer iconName={field.icon} className="h-4 w-4" />}
-        <span className="truncate">{renderValueByType({ field, value })}</span>
+        <span className="truncate">{renderValueByType({ field, value, data })}</span>
       </div>
     );
   });
@@ -144,7 +145,7 @@ export const renderCardSection = ({ section, formSchema, data }: RenderSectionPr
               <div key={field.id} className="flex items-center justify-between">
                 <span className="text-gray-600">{field.label}</span>
                 <span className="font-medium">
-                  {renderValueByType({ field, value })}
+                  {renderValueByType({ field, value, data })}
                 </span>
               </div>
             );

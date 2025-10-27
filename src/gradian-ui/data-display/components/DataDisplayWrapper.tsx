@@ -30,7 +30,7 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
     search = { enabled: true },
     actions = [],
     pagination = { enabled: false },
-    layout = {},
+    layout,
     styling = {},
     behavior = {},
   } = config;
@@ -219,7 +219,7 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
 
   // Render states
   if (loading && data.length === 0) {
-    return <DataDisplayLoadingState config={config} />;
+    return <DataDisplayLoadingState />;
   }
 
   if (error) {
@@ -244,24 +244,24 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
   return (
     <div className={wrapperClasses} {...props}>
       {/* Header */}
-      {layout.header?.show && (
+      {layout?.header?.show && (
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              {layout.header.title && (
+              {layout?.header?.title && (
                 <h2 className="text-2xl font-bold text-gray-900">
                   {layout.header.title}
                 </h2>
               )}
-              {layout.header.description && (
+              {layout?.header?.description && (
                 <p className="text-gray-600 mt-1">
                   {layout.header.description}
                 </p>
               )}
             </div>
-            {layout.header.actions && (
+            {layout?.header?.actions && (
               <div className="flex items-center space-x-2">
-                {layout.header.actions.map(actionId => {
+                {layout.header.actions.map((actionId: string) => {
                   const action = actions.find(a => a.id === actionId);
                   return action ? (
                     <button
@@ -289,7 +289,7 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
       )}
 
       {/* Filter Pane */}
-      {layout.filterPane?.show && (
+      {layout?.filterPane?.show && (
         <DataDisplayFilterPane
           config={config}
           filters={state.filters}
@@ -302,7 +302,7 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
       )}
 
       {/* View Switch */}
-      {layout.viewSwitch?.show && views.length > 1 && (
+      {layout?.viewSwitch?.show && views.length > 1 && (
         <DataDisplayViewSwitch
           views={views}
           currentView={state.currentView}
@@ -314,8 +314,8 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
       {/* Content */}
       <div className={cn(
         'data-display-content',
-        layout.content?.padding && `p-${layout.content.padding}`,
-        layout.content?.gap && `gap-${layout.content.gap}`
+        layout?.content?.padding && `p-${layout?.content?.padding}`,
+        layout?.content?.gap && `gap-${layout?.content?.gap}`
       )}>
         <DataDisplayContainer
           data={paginatedData}
