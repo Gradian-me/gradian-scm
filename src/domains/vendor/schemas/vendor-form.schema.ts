@@ -7,6 +7,27 @@ export const vendorFormSchema: FormSchema = {
   name: 'Vendor Form',
   title: 'Create New Vendor',
   description: 'Add a new vendor to your supply chain management system',
+  ui: {
+    entityName: 'Vendor',
+    createTitle: 'Create New Vendor',
+    editTitle: 'Edit Vendor',
+    basePath: 'vendors',
+    filters: {
+      status: {
+        type: 'all',
+        options: ['all', 'ACTIVE', 'INACTIVE', 'PENDING']
+      },
+      category: {
+        type: 'all',
+        options: ['all'] // Dynamic categories
+      }
+    },
+    actions: {
+      view: true,
+      edit: true,
+      delete: true
+    }
+  },
   cardMetadata: {
     id: 'vendor-card',
     name: 'Vendor Card',

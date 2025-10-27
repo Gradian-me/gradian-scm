@@ -1,3 +1,5 @@
+'use client';
+
 // Shared Hooks for Gradian UI Components
 
 import { useState, useEffect, useCallback, useRef } from 'react';

@@ -216,6 +216,30 @@ export interface FormSchema {
     };
   };
   showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
+  
+  // UI Configuration for CRUD operations
+  ui?: {
+    entityName: string; // e.g., "Vendor"
+    createTitle?: string; // Modal title for create
+    editTitle?: string; // Modal title for edit
+    basePath?: string; // Base path for routing (e.g., "vendors")
+    filters?: Record<string, {
+      type: 'all' | string;
+      options?: string[];
+    }>;
+    actions?: {
+      view?: boolean; // Show view button
+      edit?: boolean; // Show edit button
+      delete?: boolean; // Show delete button
+      custom?: Array<{
+        label: string;
+        icon?: string;
+        handler: (entity: any) => void;
+      }>;
+    };
+    onDelete?: (entity: any) => void;
+    onView?: (entity: any) => void;
+  };
 }
 
 export interface FormData {

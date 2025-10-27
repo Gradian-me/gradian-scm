@@ -15,8 +15,9 @@ import { MainLayout } from '../../../components/layout/main-layout';
 import { Button, DynamicCardRenderer, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
-import { useVendorUI } from '../hooks/useVendorUI';
+import { useEntity } from '../../../gradian-ui/schema-manager';
 import { vendorFormSchema } from '../schemas/vendor-form.schema';
+import { Vendor } from '../types';
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -34,6 +35,7 @@ export function VendorPage() {
     clearError,
   } = useVendor();
 
+  // Use entity hook directly - auto-generates everything from schema
   const {
     searchTerm,
     filterStatus,
@@ -54,8 +56,7 @@ export function VendorPage() {
     handleViewVendor,
     handleEditVendor,
     handleDeleteVendor,
-    // pageConfig, // No longer needed with schema-based forms
-  } = useVendorUI();
+  } = useEntity<Vendor>('Vendor', vendorFormSchema);
 
   const [searchTermLocal, setSearchTermLocal] = useState('');
 

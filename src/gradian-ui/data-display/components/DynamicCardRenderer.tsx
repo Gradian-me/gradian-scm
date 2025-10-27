@@ -36,6 +36,14 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || {} as any;
   
+  // Get actions configuration from schema
+  const actionsConfig = schema?.ui?.actions || { view: true, edit: true, delete: true };
+  
+  // Conditionally determine if actions should be shown
+  const showView = actionsConfig.view && onView;
+  const showEdit = actionsConfig.edit && onEdit;
+  const showDelete = actionsConfig.delete && onDelete;
+  
   // Find status field options from schema
   const findStatusFieldOptions = () => {
     if (!schema || !schema.sections) return undefined;
@@ -235,7 +243,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   
                   {/* Action Buttons for List View */}
                   <div className="flex items-center space-x-2">
-                    {onView && (
+                    {showView && (
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -251,7 +259,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         </Button>
                       </motion.div>
                     )}
-                    {onEdit && (
+                    {showEdit && (
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -267,7 +275,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         </Button>
                       </motion.div>
                     )}
-                    {onDelete && (
+                    {showDelete && (
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -296,7 +304,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                {onView && (
+                {showView && (
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -313,7 +321,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     </Button>
                   </motion.div>
                 )}
-                {onEdit && (
+                {showEdit && (
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -330,7 +338,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     </Button>
                   </motion.div>
                 )}
-                {onDelete && (
+                {showDelete && (
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

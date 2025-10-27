@@ -24,7 +24,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useVendor } from '../hooks/useVendor';
-import { useVendorUI } from '../hooks/useVendorUI';
+import { useEntity } from '../../../gradian-ui/schema-manager';
 import { Vendor } from '../types';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { vendorDetailConfig } from '../configs/vendor-page.config';
@@ -38,7 +38,7 @@ interface VendorDetailPageProps {
 export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
   const router = useRouter();
   const { fetchVendorById, updateVendor, deleteVendor, currentVendor } = useVendor();
-  const { vendorFormState, openEditModal, closeEditModal, isEditModalOpen } = useVendorUI();
+  const { vendorFormState, openEditModal, closeEditModal, isEditModalOpen } = useEntity<Vendor>('Vendor', vendorFormSchema);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
