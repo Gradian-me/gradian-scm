@@ -1,24 +1,14 @@
-import { LOG_FORM_DATA, LOG_REQUEST_BODY, LOG_REQUEST_RESPONSE } from '../constants/application-variables';
+import { LogType, LOG_CONFIG } from '../constants/application-variables';
 
 type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
-type LogType = 'LOG_FORM_DATA' | 'LOG_REQUEST_BODY' | 'LOG_REQUEST_RESPONSE';
 
 const getLogFlag = (logType: LogType): boolean => {
-  switch (logType) {
-    case 'LOG_FORM_DATA':
-      return LOG_FORM_DATA;
-    case 'LOG_REQUEST_BODY':
-      return LOG_REQUEST_BODY;
-    case 'LOG_REQUEST_RESPONSE':
-      return LOG_REQUEST_RESPONSE;
-    default:
-      return false;
-  }
+  return LOG_CONFIG[logType] ?? false;
 };
 
 /**
  * Custom logging function that checks if logging is enabled for the given log type
- * @param logType - The type of logging (LOG_FORM_DATA, LOG_REQUEST_BODY, LOG_REQUEST_RESPONSE)
+ * @param logType - The type of logging from LogType enum
  * @param level - The log level (log, info, warn, error, debug)
  * @param message - The message to log
  */

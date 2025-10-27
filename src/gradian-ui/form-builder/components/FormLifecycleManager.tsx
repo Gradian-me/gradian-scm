@@ -18,6 +18,7 @@ import { Button } from '../../../components/ui/button';
 import { FormAlert } from '../../../components/ui/form-alert';
 import { cn, validateField as validateFieldUtil } from '../../shared/utils';
 import { loggingCustom } from '../../../shared/utils';
+import { LogType } from '../../../shared/constants/application-variables';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -291,19 +292,19 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: true });
     
     // Log form data before validation
-    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM SUBMISSION STARTED ===');
-    loggingCustom('LOG_FORM_DATA', 'info', `Form Values: ${JSON.stringify(state.values, null, 2)}`);
+    loggingCustom(LogType.FORM_DATA, 'info', '=== FORM SUBMISSION STARTED ===');
+    loggingCustom(LogType.FORM_DATA, 'info', `Form Values: ${JSON.stringify(state.values, null, 2)}`);
     
     // Validate synchronously
     const isValid = validateForm();
     
     // Log validation results
-    loggingCustom('LOG_FORM_DATA', isValid ? 'info' : 'warn', `Form Validation Status: ${isValid ? 'VALID' : 'INVALID'}`);
+    loggingCustom(LogType.FORM_DATA, isValid ? 'info' : 'warn', `Form Validation Status: ${isValid ? 'VALID' : 'INVALID'}`);
     
     // Log errors for each field
     Object.entries(state.errors).forEach(([fieldName, error]) => {
       if (error) {
-        loggingCustom('LOG_FORM_DATA', 'error', `Field "${fieldName}": ${error}`);
+        loggingCustom(LogType.FORM_DATA, 'error', `Field "${fieldName}": ${error}`);
       }
     });
     
@@ -334,27 +335,27 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         }
       });
       
-      loggingCustom('LOG_FORM_DATA', sectionValid ? 'info' : 'warn', 
+      loggingCustom(LogType.FORM_DATA, sectionValid ? 'info' : 'warn', 
         `Section "${section.title || section.id}": ${sectionValid ? 'VALID' : 'INVALID'}${sectionErrors.length > 0 ? ` - ${sectionErrors.join(', ')}` : ''}`
       );
     });
     
     // Log overall validation summary
     const totalErrors = Object.values(state.errors).filter(err => err).length;
-    loggingCustom('LOG_FORM_DATA', 'info', `Validation Summary: ${totalErrors} error(s) found`);
+    loggingCustom(LogType.FORM_DATA, 'info', `Validation Summary: ${totalErrors} error(s) found`);
     
     if (isValid && onSubmit) {
       try {
         await onSubmit(state.values);
-        loggingCustom('LOG_FORM_DATA', 'info', 'Form submitted successfully');
+        loggingCustom(LogType.FORM_DATA, 'info', 'Form submitted successfully');
       } catch (error) {
-        loggingCustom('LOG_FORM_DATA', 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
+        loggingCustom(LogType.FORM_DATA, 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
       }
     } else {
-      loggingCustom('LOG_FORM_DATA', 'warn', 'Form submission blocked due to validation errors');
+      loggingCustom(LogType.FORM_DATA, 'warn', 'Form submission blocked due to validation errors');
     }
     
-    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM SUBMISSION ENDED ===');
+    loggingCustom(LogType.FORM_DATA, 'info', '=== FORM SUBMISSION ENDED ===');
     
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
   }, [disabled, validateForm, onSubmit, state.values, state.errors, schema]);

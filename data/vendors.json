@@ -79,7 +79,7 @@
     "zipCode": "94102",
     "country": "CAN",
     "registrationNumber": "ML-2020-002",
-    "taxId": "US-TAX-0022",
+    "taxId": "US-TAX-0022asd",
     "status": "ACTIVE",
     "rating": 4.2,
     "categories": [
@@ -88,7 +88,7 @@
     ],
     "joinedDate": "2020-06-10T00:00:00.000Z",
     "createdAt": "2020-06-10T00:00:00.000Z",
-    "updatedAt": "2025-10-27T16:12:52.280Z",
+    "updatedAt": "2025-10-27T16:17:42.581Z",
     "primaryContact": {
       "id": "2",
       "name": "Michael Chen",
@@ -140,9 +140,9 @@
     "city": "تهران",
     "state": "تهران",
     "zipCode": "1546653611",
-    "country": "FR",
-    "registrationNumber": "TF-2019-0012",
-    "taxId": "US-TAX-0012",
+    "country": "JP",
+    "registrationNumber": "TF-2019-00123",
+    "taxId": "US-TAX-00456",
     "categories": [
       "manufacturing",
       "technology",
@@ -171,9 +171,9 @@
     ],
     "id": "1761478914600",
     "createdAt": "2025-10-26T11:41:54.601Z",
-    "updatedAt": "2025-10-27T15:52:10.519Z",
-    "status": "INACTIVE",
-    "rating": 3.1
+    "updatedAt": "2025-10-27T16:39:49.422Z",
+    "status": "PENDING",
+    "rating": 4.2
   },
   {
     "name": "سیناژن",

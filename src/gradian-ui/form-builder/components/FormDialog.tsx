@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/button';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { cn } from '../../shared/utils';
 import { loggingCustom } from '../../../shared/utils';
+import { LogType } from '../../../shared/constants/application-variables';
 import type { FormSchema } from '../types/form-schema';
 
 export interface FormDialogProps {
@@ -49,41 +50,41 @@ export const FormDialog: React.FC<FormDialogProps> = ({
 
   const handleSubmit = async (data: Record<string, any>) => {
     // Log form submission
-    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM DIALOG SUBMISSION STARTED ===');
-    loggingCustom('LOG_FORM_DATA', 'info', `Dialog Title: ${title || 'Untitled'}`);
-    loggingCustom('LOG_FORM_DATA', 'info', `Form Data Being Submitted: ${JSON.stringify(data, null, 2)}`);
+    loggingCustom(LogType.FORM_DATA, 'info', '=== FORM DIALOG SUBMISSION STARTED ===');
+    loggingCustom(LogType.FORM_DATA, 'info', `Dialog Title: ${title || 'Untitled'}`);
+    loggingCustom(LogType.FORM_DATA, 'info', `Form Data Being Submitted: ${JSON.stringify(data, null, 2)}`);
     
     try {
       await onSubmit?.(data);
-      loggingCustom('LOG_FORM_DATA', 'info', 'Form dialog submitted successfully');
+      loggingCustom(LogType.FORM_DATA, 'info', 'Form dialog submitted successfully');
       onClose();
     } catch (error) {
-      loggingCustom('LOG_FORM_DATA', 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
+      loggingCustom(LogType.FORM_DATA, 'error', `Form submission error: ${error instanceof Error ? error.message : String(error)}`);
     }
     
-    loggingCustom('LOG_FORM_DATA', 'info', '=== FORM DIALOG SUBMISSION ENDED ===');
+    loggingCustom(LogType.FORM_DATA, 'info', '=== FORM DIALOG SUBMISSION ENDED ===');
   };
 
   const handleCancel = (e?: React.MouseEvent) => {
     e?.preventDefault();
-    loggingCustom('LOG_FORM_DATA', 'info', 'Cancel button clicked');
+    loggingCustom(LogType.FORM_DATA, 'info', 'Cancel button clicked');
     onReset?.();
     onClose();
   };
 
   const handleResetClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    loggingCustom('LOG_FORM_DATA', 'info', 'Reset button clicked');
+    loggingCustom(LogType.FORM_DATA, 'info', 'Reset button clicked');
     onReset?.();
   };
 
   const handleFormSubmitClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    loggingCustom('LOG_FORM_DATA', 'info', `Submit button clicked, submitForm available: ${!!submitForm}`);
+    loggingCustom(LogType.FORM_DATA, 'info', `Submit button clicked, submitForm available: ${!!submitForm}`);
     if (submitForm) {
       await submitForm();
     } else {
-      loggingCustom('LOG_FORM_DATA', 'warn', 'submitForm not available');
+      loggingCustom(LogType.FORM_DATA, 'warn', 'submitForm not available');
     }
   };
 
