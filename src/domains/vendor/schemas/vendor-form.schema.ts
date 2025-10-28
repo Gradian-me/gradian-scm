@@ -43,12 +43,6 @@ export const vendorFormSchema: FormSchema = {
         title: 'Location',
         colSpan: 1,
         fieldIds: ['country', 'state', 'city']
-      },
-      {
-        id: 'performance',
-        title: 'Performance',
-        colSpan: 2,
-        fieldIds: ['performanceMetrics']
       }
     ],
     styling: {
@@ -642,6 +636,30 @@ export const vendorFormSchema: FormSchema = {
           styling: {
             variant: 'outlined',
             size: 'md',
+          },
+        },
+        {
+          id: 'performanceMetrics',
+          name: 'performanceMetrics',
+          label: 'Performance Metrics',
+          type: 'text',
+          component: 'text',
+          required: false,
+          // Custom role for metrics display
+          role: 'badge',
+          // This is a hidden field for the card display only
+          styling: {
+            variant: 'outlined',
+            className: 'hidden',
+          },
+          display: {
+            type: 'array',
+            maxDisplay: 5,
+            showMore: true
+          },
+          layout: {
+            width: '100%',
+            order: 8,
           },
         },
       ],

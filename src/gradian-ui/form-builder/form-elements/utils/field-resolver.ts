@@ -87,3 +87,22 @@ export const getArrayValuesByRole = (schema: FormSchema, data: any, role: string
   return [];
 };
 
+/**
+ * Get metrics by role - specifically for performance metrics fields
+ */
+export const getMetricsByRole = (schema: FormSchema, data: any, role: string): any => {
+  const fields = getFieldsByRole(schema, role);
+  if (fields.length === 0) return null;
+  
+  // Get the first field with this role
+  const fieldName = fields[0].name;
+  const value = data[fieldName];
+  
+  // Return the object if it exists and is not an array
+  if (value !== undefined && value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return value;
+  }
+  
+  return null;
+};
+

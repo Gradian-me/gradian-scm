@@ -9,12 +9,13 @@ interface RenderSectionProps {
   section: any;
   schema: FormSchema;
   data: any;
+  maxMetrics?: number;
 }
 
 /**
  * Render a card section with its fields
  */
-export const renderCardSection = ({ section, schema, data }: RenderSectionProps): React.ReactNode | null => {
+export const renderCardSection = ({ section, schema, data, maxMetrics = 3 }: RenderSectionProps): React.ReactNode | null => {
   const fieldIds = section?.fieldIds || [];
   if (fieldIds.length === 0) return null;
 
@@ -34,7 +35,7 @@ export const renderCardSection = ({ section, schema, data }: RenderSectionProps)
           const value = data[field.name];
           return (
             <div key={fieldId}>
-              {renderFieldValue({ field, value })}
+              {renderFieldValue({ field, value, maxMetrics })}
             </div>
           );
         })}

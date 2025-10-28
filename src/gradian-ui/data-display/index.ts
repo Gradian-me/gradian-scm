@@ -27,5 +27,6 @@ export { ViewSwitcher } from './components/ViewSwitcher';
 export { DynamicCard } from './components/DynamicCard';
 export { DynamicList } from './components/DynamicList';
 export { DynamicBadgeRenderer } from './components/DynamicBadgeRenderer';
+export { DynamicMetricRenderer } from './components/DynamicMetricRenderer';
 
 export * from './types';

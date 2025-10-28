@@ -18,6 +18,7 @@
       "Laboratory Equipment"
     ],
     "joinedDate": "2019-03-15T00:00:00.000Z",
+   
     "createdAt": "2019-03-15T00:00:00.000Z",
     "updatedAt": "2025-10-27T07:12:34.673Z",
     "primaryContact": {
@@ -57,16 +58,64 @@
         "vendorId": "1"
       }
     ],
-    "performanceMetrics": {
-      "onTimeDelivery": 98,
-      "qualityScore": 95,
-      "totalOrders": 150,
-      "totalValue": 2500000,
-      "averageOrderValue": 16666.67,
-      "priceCompetitiveness": 92,
-      "responsiveness": 88,
-      "complianceScore": 96
-    }
+    "performanceMetrics": [
+      {
+        "id": "onTimeDelivery",
+        "label": "On Time Delivery",
+        "value": 98,
+        "unit": "%",
+        "trend": "up"
+      },
+      {
+        "id": "qualityScore",
+        "label": "Quality Score",
+        "value": 95,
+        "unit": "",
+        "trend": "same"
+      },
+      {
+        "id": "totalOrders",
+        "label": "Total Orders",
+        "value": 150,
+        "unit": "",
+        "trend": "down"
+      },
+      {
+        "id": "totalValue",
+        "label": "Total Value",
+        "value": 2500000,
+        "unit": "USD",
+        "trend": "up"
+      },
+      {
+        "id": "averageOrderValue",
+        "label": "Average Order Value",
+        "value": 16666.67,
+        "unit": "USD",
+        "trend": "same"
+      },
+      {
+        "id": "priceCompetitiveness",
+        "label": "Price Competitiveness",
+        "value": 92,
+        "unit": "%",
+        "trend": "up"
+      },
+      {
+        "id": "responsiveness",
+        "label": "Responsiveness",
+        "value": 88,
+        "unit": "%",
+        "trend": "down"
+      },
+      {
+        "id": "complianceScore",
+        "label": "Compliance Score",
+        "value": 96,
+        "unit": "",
+        "trend": "same"
+      }
+    ]
   },
   {
     "id": "2",
@@ -121,16 +170,64 @@
         "vendorId": "2"
       }
     ],
-    "performanceMetrics": {
-      "onTimeDelivery": 95,
-      "qualityScore": 92,
-      "totalOrders": 89,
-      "totalValue": 1800000,
-      "averageOrderValue": 20224.72,
-      "priceCompetitiveness": 88,
-      "responsiveness": 85,
-      "complianceScore": 94
-    }
+    "performanceMetrics": [
+      {
+        "id": "onTimeDelivery",
+        "label": "On Time Delivery",
+        "value": 95,
+        "unit": "%",
+        "trend": "up"
+      },
+      {
+        "id": "qualityScore",
+        "label": "Quality Score",
+        "value": 92,
+        "unit": "",
+        "trend": "same"
+      },
+      {
+        "id": "totalOrders",
+        "label": "Total Orders",
+        "value": 89,
+        "unit": "",
+        "trend": "up"
+      },
+      {
+        "id": "totalValue",
+        "label": "Total Value",
+        "value": 1800000,
+        "unit": "USD",
+        "trend": "up"
+      },
+      {
+        "id": "averageOrderValue",
+        "label": "Average Order Value",
+        "value": 20224.72,
+        "unit": "USD",
+        "trend": "up"
+      },
+      {
+        "id": "priceCompetitiveness",
+        "label": "Price Competitiveness",
+        "value": 88,
+        "unit": "%",
+        "trend": "down"
+      },
+      {
+        "id": "responsiveness",
+        "label": "Responsiveness",
+        "value": 85,
+        "unit": "%",
+        "trend": "same"
+      },
+      {
+        "id": "complianceScore",
+        "label": "Compliance Score",
+        "value": 94,
+        "unit": "",
+        "trend": "up"
+      }
+    ]
   },
   {
     "name": "Testxxxxx",
@@ -148,6 +245,46 @@
       "technology",
       "logistics",
       "services"
+    ],
+    "performanceMetrics": [
+      {
+        "id": "onTimeDelivery",
+        "label": "On Time Delivery",
+        "subLabel": "vs prev month",
+        "value": 87,
+        "unit": "%",
+        "trend": "down"
+      },
+      {
+        "id": "qualityScore",
+        "label": "Quality Score",
+        "value": 90,
+        "unit": "",
+        "trend": "same"
+      },
+      {
+        "id": "totalOrders",
+        "label": "Total Orders",
+        "subLabel": "YTD",
+        "value": 56,
+        "unit": "",
+        "trend": "up"
+      },
+      {
+        "id": "averageOrderValue",
+        "label": "Average Order Value",
+        "subLabel": "Q3",
+        "value": 15200.45,
+        "unit": "USD",
+        "trend": "down"
+      },
+      {
+        "id": "responsiveness",
+        "label": "Responsiveness",
+        "value": 82,
+        "unit": "%",
+        "trend": "same"
+      }
     ],
     "contacts": [
       {

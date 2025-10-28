@@ -1,38 +1,93 @@
 import React from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
 
 interface RenderFieldValueProps {
   field: any;
   value: any;
+  maxMetrics?: number;
 }
 
 /**
  * Render a field value based on its type
  */
-export const renderFieldValue = ({ field, value }: RenderFieldValueProps): React.ReactNode => {
+export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldValueProps): React.ReactNode => {
   if (!value) return 'N/A';
   
-  // Check if value is an object and handle it
+  // Handle performanceMetrics array
+  if (field.name === 'performanceMetrics') {
+    // If it's already an array of metric objects
+    if (Array.isArray(value)) {
+      return (
+        <DynamicMetricRenderer 
+          metrics={value}
+          maxMetrics={maxMetrics}
+          badgeVariant="outline"
+          className="mt-1"
+        />
+      );
+    }
+    // If it's an object, convert to array format
+    else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+      const metrics = Object.entries(value).map(([key, val]) => {
+        // Convert to Pascal Case with spaces
+        const pascalCaseLabel = key
+          .replace(/([A-Z])/g, ' $1')
+          .trim()
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+          
+        return {
+          id: key,
+          label: pascalCaseLabel,
+          value: typeof val === 'number' ? val : String(val),
+          unit: typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
+                typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%',
+          trend: 'none' as 'none'
+        };
+      });
+      
+      return (
+        <DynamicMetricRenderer 
+          metrics={metrics}
+          maxMetrics={maxMetrics}
+          badgeVariant="outline"
+          className="mt-1"
+        />
+      );
+    }
+  }
+  
+  // Handle other object types
   if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
+    const metrics = Object.entries(value).map(([key, val]) => {
+      // Convert to Pascal Case with spaces
+      const pascalCaseLabel = key
+        .replace(/([A-Z])/g, ' $1')
+        .trim()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+        
+      return {
+        id: key,
+        label: pascalCaseLabel,
+        value: typeof val === 'number' ? val : String(val),
+        unit: typeof val === 'number' && field?.units?.[key] ? field.units[key] : 
+              typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
+              typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%'
+      };
+    });
+    
     return (
-      <div className="space-y-1">
-        {Object.entries(value).slice(0, 3).map(([key, val]) => (
-          <div key={key} className="flex justify-between text-xs">
-            <span className="text-gray-500 capitalize">
-              {key.replace(/([A-Z])/g, ' $1').trim()}:
-            </span>
-            <span className="text-gray-700 font-medium">
-              {typeof val === 'number' ? val.toLocaleString() : String(val)}
-            </span>
-          </div>
-        ))}
-        {Object.keys(value).length > 3 && (
-          <div className="text-xs text-gray-400">
-            +{Object.keys(value).length - 3} more metrics
-          </div>
-        )}
-      </div>
+      <DynamicMetricRenderer 
+        metrics={metrics}
+        maxMetrics={maxMetrics}
+        badgeVariant="outline"
+        className="mt-1"
+      />
     );
   }
   

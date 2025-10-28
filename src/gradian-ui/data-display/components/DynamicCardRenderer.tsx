@@ -9,9 +9,10 @@ import { Badge } from '../../../components/ui/badge';
 import { FormSchema } from '../../form-builder/types/form-schema';
 import { Rating, Avatar } from '../../form-builder/form-elements';
 import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
+import { DynamicMetricRenderer } from './DynamicMetricRenderer';
 import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { getValueByRole, getSingleValueByRole, getArrayValuesByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
+import { getValueByRole, getSingleValueByRole, getArrayValuesByRole, getMetricsByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -23,6 +24,7 @@ export interface DynamicCardRendererProps {
   viewMode?: 'grid' | 'list';
   className?: string;
   maxBadges?: number;
+  maxMetrics?: number;
 }
 
 export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
@@ -34,7 +36,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   onDelete,
   viewMode = 'grid',
   className,
-  maxBadges = 2
+  maxBadges = 2,
+  maxMetrics = 3
 }) => {
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || {} as any;
@@ -63,6 +66,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const statusOptions = findStatusFieldOptions();
 
+  // Filter out performance section from cardMetadata
+  const filteredSections = (cardMetadata as any)?.sections?.filter((section: any) => 
+    section.id !== 'performance'
+  ) || [];
+
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
     subtitle: getSingleValueByRole(schema, data, 'subtitle', data.email) || data.email || 'No description',
@@ -70,7 +78,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
     badgeField: getArrayValuesByRole(schema, data, 'badge') || data.categories || [],
-    sections: (cardMetadata as any)?.sections || [],
+    metricsField: data.performanceMetrics || null,
+    sections: filteredSections,
     statusOptions
   };
 
@@ -194,6 +203,24 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   badgeVariant="outline"
                 />
               </div>
+              
+              {/* Performance Metrics */}
+              {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
+                <div className="w-full mb-3 border-t border-gray-100 pt-2 mt-2">
+                  <div className="text-xs text-gray-500 mb-1">Performance:</div>
+                  <DynamicMetricRenderer
+                    metrics={cardConfig.metricsField}
+                    maxMetrics={maxMetrics}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              
+              {/* Separator after metrics */}
+              {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
+                <div className="w-full border-t border-gray-100 mb-3"></div>
+              )}
+              
               {/* Content Sections */}
               <div className="flex-1">
                 <motion.div
@@ -210,7 +237,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         section?.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
                       )}
                     >
-                      {renderCardSection({ section, schema, data })}
+                      {renderCardSection({ section, schema, data, maxMetrics })}
                     </div>
                   ))}
                 </motion.div>
@@ -254,6 +281,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     className="mt-1"
                     badgeVariant="outline"
                   />
+                  
+                  {/* List view metrics */}
+                  {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
+                    <>
+                      <div className="mt-2 pt-1 border-t border-gray-100 w-full">
+                        <div className="text-xs text-gray-500 mb-1">Performance:</div>
+                        <DynamicMetricRenderer
+                          metrics={cardConfig.metricsField}
+                          maxMetrics={maxMetrics}
+                          className="w-full"
+                        />
+                      </div>
+                      <div className="w-full border-t border-gray-100 mt-2"></div>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
