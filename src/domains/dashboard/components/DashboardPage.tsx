@@ -1,29 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { MainLayout } from '@/components/layout/main-layout';
-import { KPICard } from '@/components/dashboard/kpi-card';
-import { SpendAnalysisChart } from '@/components/dashboard/charts/spend-analysis-chart';
 import { MonthlyTrendChart } from '@/components/dashboard/charts/monthly-trend-chart';
-import { VendorPerformanceChart } from '@/components/dashboard/charts/vendor-performance-chart';
 import { ProcurementEfficiencyChart } from '@/components/dashboard/charts/procurement-efficiency-chart';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SpendAnalysisChart } from '@/components/dashboard/charts/spend-analysis-chart';
+import { VendorPerformanceChart } from '@/components/dashboard/charts/vendor-performance-chart';
+import { KPICard } from '@/components/dashboard/kpi-card';
+import { MainLayout } from '@/components/layout/main-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  FileText, 
-  ShoppingCart, 
-  Receipt, 
-  DollarSign, 
-  TrendingUp, 
-  Shield, 
-  Clock,
-  Plus,
-  Eye,
-  CheckCircle
-} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import {
+  CheckCircle,
+  DollarSign,
+  FileText,
+  Shield,
+  ShoppingCart,
+  TrendingUp,
+  Users
+} from 'lucide-react';
+import { useEffect } from 'react';
 import { useDashboard } from '../hooks/useDashboard';
 
 export function DashboardPage() {

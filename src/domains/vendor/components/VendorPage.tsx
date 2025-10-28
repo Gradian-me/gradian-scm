@@ -1,26 +1,25 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { 
+import {
   AlertCircle,
-  Building, 
+  Building,
   CheckCircle,
   Clock,
   Filter,
-  Loader2,
   Plus,
   Star
 } from 'lucide-react';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
-import { Button, DynamicCardRenderer, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
 import { Spinner } from '../../../components/ui/spinner';
+import { Button, DynamicCardRenderer, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
+import { useEntity } from '../../../gradian-ui/schema-manager';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
-import { useEntity } from '../../../gradian-ui/schema-manager';
 import { vendorFormSchema } from '../schemas/vendor-form.schema';
-import { Vendor } from '../types';
 import { vendorService } from '../services/vendor.service';
+import { Vendor } from '../types';
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -373,7 +372,7 @@ export function VendorPage() {
             <Button 
               variant="default" 
               size="sm" 
-              className="h-10 whitespace-nowrap ml-auto sm:ml-0"
+              className="h-10 whitespace-nowrap ml-auto sm:ml-0 text-xs"
               onClick={openCreateModal}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -383,7 +382,7 @@ export function VendorPage() {
         </motion.div>
 
         {/* Vendors List */}
-        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6" : "space-y-4"}>
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6" : "space-y-4"}>
           {filteredVendors.map((vendor, index) => (
             <div key={vendor.id} className="relative">
               {isEditLoading[vendor.id] && (

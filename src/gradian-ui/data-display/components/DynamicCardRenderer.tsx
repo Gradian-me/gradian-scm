@@ -175,7 +175,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       return (
                         <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
                           {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                          <span className="text-xs">{badgeConfig.label}</span>
+                          <span className="text-[0.625rem]">{badgeConfig.label}</span>
                         </Badge>
                       );
                     })()}
@@ -201,44 +201,51 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             </>
           ) : (
             // List view layout
-            <div className="flex items-center space-x-4 w-full">
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 2 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              >
-                <Avatar
-                  fallback={getInitials(cardConfig.avatarField)}
-                  size="md"
-                  variant="primary"
-                  className="shadow-lg"
-                >
-                  {getInitials(cardConfig.avatarField)}
-                </Avatar>
-              </motion.div>
-              <div className="flex-1 min-w-0">
-                <motion.h3
-                  className="text-base font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
-                  whileHover={{ x: 2 }}
+            <div className="flex items-center space-x-4 w-full flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <motion.div
+                  whileHover={{ scale: 1.05, rotate: 2 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 >
-                  {cardConfig.title}
-                </motion.h3>
-                <motion.p
-                  className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-200 truncate"
-                  whileHover={{ x: 2 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                  {cardConfig.subtitle}
-                </motion.p>
-                <div className="hidden sm:flex space-x-2 mt-1">
-                  {data.categories && data.categories.slice(0, 2).map((category: string, idx: number) => (
-                    <Badge key={idx} variant="outline" className="text-xs px-2 py-0">
-                      {category}
-                    </Badge>
-                  ))}
-                  {data.categories && data.categories.length > 2 && (
-                    <Badge variant="outline" className="text-xs px-2 py-0">+{data.categories.length - 2}</Badge>
-                  )}
+                  <Avatar
+                    fallback={getInitials(cardConfig.avatarField)}
+                    size="md"
+                    variant="primary"
+                    className="shadow-lg"
+                  >
+                    {getInitials(cardConfig.avatarField)}
+                  </Avatar>
+                </motion.div>
+                <div className="flex-1 min-w-0">
+                  <motion.h3
+                    className="text-base font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
+                    whileHover={{ x: 2 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  >
+                    {cardConfig.title}
+                  </motion.h3>
+                  <motion.p
+                    className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors duration-200 truncate"
+                    whileHover={{ x: 2 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  >
+                    {cardConfig.subtitle}
+                  </motion.p>
+                  <div className="flex space-x-2 mt-1">
+                    {data.categories && data.categories.slice(0, 2).map((category: string, idx: number) => (
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      >
+                        <Badge key={idx} variant="outline" className="text-[0.625rem] px-2 py-0">
+                          {category}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                    {data.categories && data.categories.length > 2 && (
+                      <Badge variant="outline" className="text-[0.625rem] px-2 py-0 h-fit">+{data.categories.length - 2}</Badge>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
