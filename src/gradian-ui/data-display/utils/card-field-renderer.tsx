@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
+import { formatNumber } from '../../shared/utils/number-formatter';
 
 interface RenderFieldValueProps {
   field: any;
@@ -42,7 +43,7 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
         return {
           id: key,
           label: pascalCaseLabel,
-          value: typeof val === 'number' ? val : String(val),
+          value: typeof val === 'number' || typeof val === 'string' ? val : String(val), // Ensure value is string or number
           unit: typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
                 typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%',
           trend: 'none' as 'none'
@@ -74,7 +75,7 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       return {
         id: key,
         label: pascalCaseLabel,
-        value: typeof val === 'number' ? val : String(val),
+        value: typeof val === 'number' || typeof val === 'string' ? val : String(val), // Ensure value is string or number
         unit: typeof val === 'number' && field?.units?.[key] ? field.units[key] : 
               typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
               typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%'

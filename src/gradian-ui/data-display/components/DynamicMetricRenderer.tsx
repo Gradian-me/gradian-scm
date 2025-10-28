@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '../../../components/ui/badge';
 import { ArrowDown, ArrowUp, ArrowRight, Minus } from 'lucide-react';
+import { formatNumber } from '../../shared/utils/number-formatter';
 
 export interface MetricItem {
   id?: string;
@@ -64,8 +65,10 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
   }
 
   // Determine how many metrics to show
-  const visibleMetrics = metrics.slice(0, maxMetrics);
-  const hasMoreMetrics = metrics.length > maxMetrics;
+  // If maxMetrics is 0, show all metrics
+  const showAllMetrics = maxMetrics === 0;
+  const visibleMetrics = showAllMetrics ? metrics : metrics.slice(0, maxMetrics);
+  const hasMoreMetrics = !showAllMetrics && metrics.length > maxMetrics;
   const extraMetricsCount = metrics.length - maxMetrics;
 
   // Container classes - more minimal style
@@ -96,7 +99,7 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
         </div>
         <div className="flex items-center">
           <span className="text-xs font-medium text-gray-700">
-            {metric.value}
+            {formatNumber(metric.value)}
             {metric.unit && <span className="text-xs ml-0.5">{metric.unit}</span>}
           </span>
           {metric.trend && (

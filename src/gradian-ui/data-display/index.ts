@@ -28,5 +28,7 @@ export { DynamicCard } from './components/DynamicCard';
 export { DynamicList } from './components/DynamicList';
 export { DynamicBadgeRenderer } from './components/DynamicBadgeRenderer';
 export { DynamicMetricRenderer } from './components/DynamicMetricRenderer';
+export { DynamicCardDialog } from './components/DynamicCardDialog';
+export { DynamicCardActionButtons } from './components/DynamicCardActionButtons';
 
 export * from './types';

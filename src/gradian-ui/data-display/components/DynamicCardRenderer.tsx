@@ -10,6 +10,7 @@ import { FormSchema } from '../../form-builder/types/form-schema';
 import { Rating, Avatar } from '../../form-builder/form-elements';
 import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
+import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getValueByRole, getSingleValueByRole, getArrayValuesByRole, getMetricsByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
@@ -105,22 +106,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
         ease: [0.25, 0.46, 0.45, 0.94]
       }}
       whileHover={{
-        y: -2,
-        scale: 1.005,
-        boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.15)',
+        y: -1,
+        boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.1)',
         transition: {
-          duration: 0.2,
+          duration: 0.15,
           ease: "easeOut"
         }
       }}
       whileTap={{
-        scale: 0.98,
-        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+        scale: 0.99,
         transition: { duration: 0.1 }
       }}
       className={cardClasses}
       role="button"
       tabIndex={0}
+      onClick={() => onView && onView(data)}
       aria-label={`Vendor card for ${cardConfig.title}`}
     >
       <CardWrapper
@@ -130,7 +130,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           styling: { variant: 'default', size: 'md' },
           behavior: { hoverable: true, clickable: true }
         }}
-        className="h-full bg-white group-hover:shadow-xl group-hover:shadow-blue-500/10 transition-all duration-300 ease-out transform border border-gray-100 group-hover:border-blue-200 group-hover:bg-linear-to-br group-hover:from-white group-hover:to-blue-50/30 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400"
+        className="h-full bg-white transition-all duration-200 ease-out border border-gray-100 group-hover:border-blue-100 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400"
         onKeyDown={(e: KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -145,8 +145,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               <div className="flex items-start space-x-3 mb-4 flex-nowrap">
                 <div className="flex items-center gap-2 truncate">
                   <motion.div
-                    whileHover={{ scale: 1.05, rotate: 2 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   >
                     <Avatar
                       fallback={getInitials(cardConfig.avatarField)}
@@ -180,8 +180,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                   {/* Status */}
                   <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
                   >
                     {(() => {
                       const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
@@ -248,8 +247,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             <div className="flex items-center space-x-4 w-full flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <motion.div
-                  whileHover={{ scale: 1.05, rotate: 2 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Avatar
                     fallback={getInitials(cardConfig.avatarField)}
@@ -282,26 +281,13 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     badgeVariant="outline"
                   />
                   
-                  {/* List view metrics */}
-                  {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
-                    <>
-                      <div className="mt-2 pt-1 border-t border-gray-100 w-full">
-                        <div className="text-xs text-gray-500 mb-1">Performance:</div>
-                        <DynamicMetricRenderer
-                          metrics={cardConfig.metricsField}
-                          maxMetrics={maxMetrics}
-                          className="w-full"
-                        />
-                      </div>
-                      <div className="w-full border-t border-gray-100 mt-2"></div>
-                    </>
-                  )}
+                  {/* List view metrics removed */}
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Rating
                     value={Number(cardConfig.ratingField) || 0}
@@ -310,9 +296,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                 </motion.div>
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   {(() => {
                     const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
@@ -327,121 +312,29 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               </div>
 
               {/* Action Buttons for List View */}
-              <div className="flex items-center space-x-2">
-                {showView && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onView(data)}
-                      className="h-8 w-8 p-0 group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200"
-                    >
-                      <IconRenderer iconName="Eye" className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
-                )}
-                {showEdit && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(data)}
-                      className="h-8 w-8 p-0 group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200"
-                    >
-                      <IconRenderer iconName="Edit" className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
-                )}
-                {showDelete && (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDelete(data)}
-                      className="h-8 w-8 p-0 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200"
-                    >
-                      <IconRenderer iconName="Trash2" className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
-                )}
-              </div>
+              <DynamicCardActionButtons
+                viewMode="list"
+                showView={!!showView}
+                showEdit={!!showEdit}
+                showDelete={!!showDelete}
+                onView={onView ? () => onView(data) : undefined}
+                onEdit={onEdit ? () => onEdit(data) : undefined}
+                onDelete={onDelete ? () => onDelete(data) : undefined}
+              />
             </div>
           )}
 
-          {/* Action Buttons - Only for Grid View - Fixed */}
+          {/* Action Buttons - Only for Grid View */}
           {viewMode === 'grid' && (
-            <div className="flex mt-auto pt-4">
-              <motion.div
-                className="flex gap-2 flex-row w-full flex-wrap"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                {showView && (
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
-                    className="flex-1"
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onView(data)}
-                      className="w-full group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200 text-xs"
-                    >
-                      <IconRenderer iconName="Eye" className="h-4 w-4 mr-2" />
-                      View
-                    </Button>
-                  </motion.div>
-                )}
-                {showEdit && (
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
-                    className="flex-1"
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(data)}
-                      className="w-full group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200 text-xs"
-                    >
-                      <IconRenderer iconName="Edit" className="h-4 w-4 mr-2" />
-                      Edit
-                    </Button>
-                  </motion.div>
-                )}
-                {showDelete && (
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
-                    className="flex-1"
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDelete(data)}
-                      className="w-full group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200 text-xs"
-                    >
-                      <IconRenderer iconName="Trash2" className="h-4 w-4 mr-2" />
-                      Delete
-                    </Button>
-                  </motion.div>
-                )}
-              </motion.div>
-            </div>
+            <DynamicCardActionButtons
+              viewMode="grid"
+              showView={!!showView}
+              showEdit={!!showEdit}
+              showDelete={!!showDelete}
+              onView={onView ? () => onView(data) : undefined}
+              onEdit={onEdit ? () => onEdit(data) : undefined}
+              onDelete={onDelete ? () => onDelete(data) : undefined}
+            />
           )}
         </CardContent>
       </CardWrapper>

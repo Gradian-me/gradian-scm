@@ -13,7 +13,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { Spinner } from '../../../components/ui/spinner';
-import { Button, DynamicCardRenderer, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
+import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
 import { useEntity } from '../../../gradian-ui/schema-manager';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
@@ -26,6 +26,8 @@ export function VendorPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isEditLoading, setIsEditLoading] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [selectedVendorForDetail, setSelectedVendorForDetail] = useState<Vendor | null>(null);
   
   const {
     vendors,
@@ -61,10 +63,17 @@ export function VendorPage() {
     closeCreateModal,
     openEditModal,
     closeEditModal,
-    handleViewVendor,
     handleEditVendor: defaultHandleEditVendor,
     handleDeleteVendor,
   } = entityHook;
+  
+  // Custom handleViewVendor that opens the detail dialog
+  const handleViewVendor = (vendor: Vendor) => {
+    console.log('View vendor clicked:', vendor);
+    setSelectedVendorForDetail(vendor);
+    setIsDetailDialogOpen(true);
+    console.log('Dialog state:', { isDetailDialogOpen: true, vendor });
+  };
 
   const [searchTermLocal, setSearchTermLocal] = useState('');
 
@@ -440,6 +449,18 @@ export function VendorPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Detail Dialog */}
+      <DynamicCardDialog
+        isOpen={isDetailDialogOpen}
+        onClose={() => setIsDetailDialogOpen(false)}
+        schema={vendorFormSchema}
+        data={selectedVendorForDetail}
+        title={selectedVendorForDetail?.name || 'Vendor Details'}
+        onView={handleViewVendor}
+        onEdit={handleEditVendor}
+        onDelete={handleDeleteVendor}
+      />
 
       {/* Create/Edit Vendor Modal */}
       <Modal

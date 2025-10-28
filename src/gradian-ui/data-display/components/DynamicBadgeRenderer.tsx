@@ -54,8 +54,10 @@ export const DynamicBadgeRenderer: React.FC<DynamicBadgeRendererProps> = ({
   }
 
   // Determine how many badges to show
-  const visibleBadges = items.slice(0, maxBadges);
-  const hasMoreBadges = items.length > maxBadges;
+  // If maxBadges is 0, show all badges
+  const showAllBadges = maxBadges === 0;
+  const visibleBadges = showAllBadges ? items : items.slice(0, maxBadges);
+  const hasMoreBadges = !showAllBadges && items.length > maxBadges;
   const extraBadgesCount = items.length - maxBadges;
 
   // Container classes
