@@ -22,7 +22,16 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   onRemoveRepeatingItem,
   initialState = 'expanded', // New prop for initial state
 }) => {
-  const { title, description, fields, layout, styling, isRepeatingSection } = section;
+  const { 
+    title, 
+    description, 
+    fields, 
+    columns = 2, // Default to 2 columns if not specified
+    gap = 4, // Default gap
+    styling, 
+    isRepeatingSection 
+  } = section;
+  
   const [isExpanded, setIsExpanded] = useState(initialState === 'expanded');
   
   // Get section-level error
@@ -39,13 +48,42 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
   const gridClasses = cn(
     'grid gap-3',
-    layout?.columns === 1 && 'grid-cols-1',
-    layout?.columns === 2 && 'grid-cols-1 md:grid-cols-2',
-    layout?.columns === 3 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    layout?.columns === 4 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-    layout?.gap !== undefined && layout?.gap !== null && layout.gap !== 0 && `gap-${layout.gap}`,
-    layout?.direction === 'column' && 'flex flex-col'
+    columns === 1 && 'grid-cols-1',
+    columns === 2 && 'grid-cols-1 md:grid-cols-2',
+    columns === 3 && 'grid-cols-1 md:grid-cols-3',
+    columns === 4 && 'grid-cols-1 md:grid-cols-4',
+    columns === 6 && 'grid-cols-1 md:grid-cols-6',
+    columns === 12 && 'grid-cols-1 md:grid-cols-12',
+    gap !== undefined && gap !== null && gap !== 0 && `gap-${gap}`
   );
+
+  // Helper function to determine column span based on width
+  const getColSpan = (field: any): number => {
+    // First check for explicit colSpan
+    if (field.ui?.colSpan || field.layout?.colSpan) {
+      return field.ui?.colSpan || field.layout?.colSpan;
+    }
+
+    // Then check for width percentages and convert to colSpan
+    const width = field.ui?.width || field.layout?.width;
+    
+    if (width === '100%') {
+      return columns; // Full width spans all columns
+    } else if (width === '50%') {
+      return Math.ceil(columns / 2); // Half width
+    } else if (width === '33.33%' || width === '33.3%') {
+      return Math.ceil(columns / 3); // One third width
+    } else if (width === '25%') {
+      return Math.ceil(columns / 4); // One fourth width
+    } else if (width === '66.66%' || width === '66.6%') {
+      return Math.ceil((columns / 3) * 2); // Two thirds width
+    } else if (width === '75%') {
+      return Math.ceil((columns / 4) * 3); // Three fourths width
+    }
+    
+    // Default to 1 column if no width specified
+    return 1;
+  };
 
   const renderFields = (fieldsToRender: typeof fields, itemIndex?: number) => {
     return fieldsToRender.map((field) => {
@@ -71,15 +109,51 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         fieldTouched = typeof touchedValue === 'boolean' ? touchedValue : false;
       }
 
+      // Calculate column span for this field
+      const colSpan = getColSpan(field);
+      
+      // Generate the appropriate column span class
+      let colSpanClass = '';
+      if (colSpan === columns) {
+        colSpanClass = 'col-span-full';
+      } else {
+        // For responsive layouts
+        if (columns === 3) {
+          if (colSpan === 1) {
+            colSpanClass = 'col-span-1';
+          } else if (colSpan === 2) {
+            colSpanClass = 'col-span-2';
+          }
+        } else if (columns === 2) {
+          if (colSpan === 1) {
+            colSpanClass = 'col-span-1';
+          } else if (colSpan === 2) {
+            colSpanClass = 'col-span-2';
+          }
+        } else if (columns === 4) {
+          if (colSpan === 1) {
+            colSpanClass = 'col-span-1';
+          } else if (colSpan === 2) {
+            colSpanClass = 'col-span-2';
+          } else if (colSpan === 3) {
+            colSpanClass = 'col-span-3';
+          }
+        } else if (columns === 6) {
+          colSpanClass = `col-span-${colSpan}`;
+        } else if (columns === 12) {
+          colSpanClass = `col-span-${colSpan}`;
+        } else {
+          // Default for other column counts
+          colSpanClass = `col-span-${colSpan}`;
+        }
+      }
+
       return (
         <div
           key={field.id}
           className={cn(
             'space-y-2',
-            (field.ui?.width === '50%' || field.layout?.width === '50%') && 'md:col-span-1',
-            (field.ui?.width === '33.33%' || field.layout?.width === '33.33%') && 'md:col-span-1',
-            (field.ui?.width === '100%' || field.layout?.width === '100%') && 'col-span-full',
-            (field.ui?.colSpan || field.layout?.colSpan) && `col-span-${field.ui?.colSpan || field.layout?.colSpan}`,
+            colSpanClass,
             (field.ui?.rowSpan || field.layout?.rowSpan) && `row-span-${field.ui?.rowSpan || field.layout?.rowSpan}`
           )}
           style={{ order: field.ui?.order || field.layout?.order }}

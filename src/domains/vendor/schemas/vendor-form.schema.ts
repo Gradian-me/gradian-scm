@@ -1,8 +1,8 @@
-// Vendor Form Schema - Tender Style
+// Vendor Form Schema - Using unified schema
 
-import { ExtendedFormSchema } from '../types/extended-form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 
-export const vendorFormSchema: ExtendedFormSchema = {
+export const vendorFormSchema: FormSchema = {
   id: 'vendor-form',
   name: 'vendors',
   title: 'Create New Vendor',
@@ -29,6 +29,8 @@ export const vendorFormSchema: ExtendedFormSchema = {
       title: 'Vendor Information',
       description: 'Basic vendor details and contact information',
       initialState: 'expanded',
+      columns: 3,
+      gap: 4,
       fields: [
         {
           id: 'company-name',
@@ -44,7 +46,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             minLength: 2,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -58,8 +60,6 @@ export const vendorFormSchema: ExtendedFormSchema = {
           component: 'email',
           placeholder: 'Enter email address',
           icon: 'Home',
-          displayType: 'text',
-          truncate: true,
           required: true,
           role: 'subtitle',
           validation: {
@@ -67,11 +67,15 @@ export const vendorFormSchema: ExtendedFormSchema = {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 2,
             variant: 'outlined',
             size: 'md',
           },
+          display: {
+            type: 'text',
+            truncate: true,
+          }
         },
         {
           id: 'phone-number',
@@ -81,18 +85,20 @@ export const vendorFormSchema: ExtendedFormSchema = {
           component: 'text',
           placeholder: 'Enter phone number',
           icon: 'Phone',
-          displayType: 'text',
           required: true,
           role: 'tel',
           validation: {
             required: true
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 3,
             variant: 'outlined',
             size: 'md',
           },
+          display: {
+            type: 'text',
+          }
         },
         {
           id: 'registration-number',
@@ -106,7 +112,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -124,7 +130,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 5,
             variant: 'outlined',
             size: 'md',
@@ -153,22 +159,23 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 6,
             variant: 'outlined',
             size: 'md',
           },
         },
       ],
-      layout: {
-        columns: 2,
-        gap: 4,
-      },
     },
     {
       id: 'address-information',
       title: 'Address Information',
       description: 'Complete address details for the vendor',
+      columns: 3,
+      gap: 4,
+      styling: {
+        variant: 'card',
+      },
       fields: [
         {
           id: 'address',
@@ -182,7 +189,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '100%',
+            colSpan: 3,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -200,7 +207,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '33.33%',
+            colSpan: 1,
             order: 2,
             variant: 'outlined',
             size: 'md',
@@ -218,7 +225,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '33.33%',
+            colSpan: 1,
             order: 3,
             variant: 'outlined',
             size: 'md',
@@ -236,20 +243,13 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '33.33%',
+            colSpan: 1,
             order: 4,
             variant: 'outlined',
             size: 'md',
           },
         },
       ],
-      layout: {
-        columns: 3,
-        gap: 4,
-      },
-      styling: {
-        variant: 'card',
-      },
     },
     {
       id: 'contacts',
@@ -257,6 +257,8 @@ export const vendorFormSchema: ExtendedFormSchema = {
       description: 'Add contact persons for this vendor',
       isRepeatingSection: true,
       initialState: 'collapsed',
+      columns: 3,
+      gap: 4,
       repeatingConfig: {
         minItems: 1,
         maxItems: 5,
@@ -279,7 +281,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             minLength: 2,
           },
           ui: {
-            width: '50%',
+            colSpan: 2,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -298,7 +300,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 2,
             variant: 'outlined',
             size: 'md',
@@ -316,7 +318,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 3,
             variant: 'outlined',
             size: 'md',
@@ -333,7 +335,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
           validation: {
           },
           ui: {
-            width: '50%',
+            colSpan: 2,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -348,7 +350,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
           placeholder: 'Enter department',
           required: false,
           ui: {
-            width: '50%',
+            colSpan: 2,
             order: 5,
             variant: 'outlined',
             size: 'md',
@@ -363,7 +365,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
           placeholder: 'Mark as primary contact',
           required: false,
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 6,
             variant: 'outlined',
             size: 'md',
@@ -378,17 +380,13 @@ export const vendorFormSchema: ExtendedFormSchema = {
           placeholder: 'Additional notes about this contact',
           required: false,
           ui: {
-            width: '100%',
-            order: 6,
+            colSpan: 3,
+            order: 7,
             variant: 'outlined',
             size: 'md',
           },
         },
       ],
-      layout: {
-        columns: 2,
-        gap: 4,
-      },
     },
     {
       id: 'business-details',
@@ -419,7 +417,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '100%',
+            colSpan: 1,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -443,7 +441,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             pattern: /^https?:\/\/.+/,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 2,
             variant: 'outlined',
             size: 'md',
@@ -462,7 +460,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             max: new Date().getFullYear(),
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 3,
             variant: 'outlined',
             size: 'md',
@@ -480,7 +478,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             min: 1,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -496,7 +494,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
           required: false,
           role: 'description',
           ui: {
-            width: '100%',
+            colSpan: 1,
             order: 5,
             variant: 'outlined',
             size: 'md',
@@ -520,7 +518,7 @@ export const vendorFormSchema: ExtendedFormSchema = {
             required: true,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 6,
             variant: 'outlined',
             size: 'md',
@@ -540,39 +538,13 @@ export const vendorFormSchema: ExtendedFormSchema = {
             max: 5,
           },
           ui: {
-            width: '50%',
+            colSpan: 1,
             order: 7,
             variant: 'outlined',
             size: 'md',
           },
-        },
-        {
-          id: 'performanceMetrics',
-          name: 'performanceMetrics',
-          label: 'Performance Metrics',
-          type: 'text',
-          component: 'text',
-          required: false,
-          // Custom role for metrics display
-          role: 'badge',
-          // This is a hidden field for the card display only
-          ui: {
-            width: '100%',
-            order: 8,
-            variant: 'outlined',
-            className: 'hidden',
-          },
-          display: {
-            type: 'array',
-            maxDisplay: 5,
-            showMore: true
-          },
-        },
+        }
       ],
-      layout: {
-        columns: 2,
-        gap: 4,
-      },
     },
-  ],
+  ]
 };

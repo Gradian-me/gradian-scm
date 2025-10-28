@@ -75,6 +75,9 @@ export interface FormSection {
   title: string;
   description?: string;
   fields: FormField[];
+  columns?: number; // Default: 2 if not specified
+  gap?: number;
+  // Keep layout for backward compatibility
   layout?: {
     columns?: number;
     gap?: number;
