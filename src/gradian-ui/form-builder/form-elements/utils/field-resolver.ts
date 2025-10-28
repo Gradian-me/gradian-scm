@@ -68,3 +68,22 @@ export const getFieldValue = (fieldPath: string, data: any) => {
   return fieldPath.split('.').reduce((obj, key) => obj?.[key], data);
 };
 
+/**
+ * Get array values by role - specifically for badge/category fields
+ */
+export const getArrayValuesByRole = (schema: FormSchema, data: any, role: string): any[] => {
+  const fields = getFieldsByRole(schema, role);
+  if (fields.length === 0) return [];
+  
+  // Get the first field with this role
+  const fieldName = fields[0].name;
+  const value = data[fieldName];
+  
+  // Return as array if it exists and is an array
+  if (value !== undefined && value !== null && Array.isArray(value)) {
+    return value;
+  }
+  
+  return [];
+};
+

@@ -8,9 +8,10 @@ import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { FormSchema } from '../../form-builder/types/form-schema';
 import { Rating, Avatar } from '../../form-builder/form-elements';
+import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
 import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { getValueByRole, getSingleValueByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
+import { getValueByRole, getSingleValueByRole, getArrayValuesByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -21,6 +22,7 @@ export interface DynamicCardRendererProps {
   onDelete?: (data: any) => void;
   viewMode?: 'grid' | 'list';
   className?: string;
+  maxBadges?: number;
 }
 
 export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
@@ -31,7 +33,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   onEdit,
   onDelete,
   viewMode = 'grid',
-  className
+  className,
+  maxBadges = 2
 }) => {
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || {} as any;
@@ -66,6 +69,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
+    badgeField: getArrayValuesByRole(schema, data, 'badge') || data.categories || [],
     sections: (cardMetadata as any)?.sections || [],
     statusOptions
   };
@@ -182,7 +186,14 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   </motion.div>
                 </div>
               </div>
-
+              <div className="w-full items-center justify-start mb-2">
+                <DynamicBadgeRenderer
+                  items={Array.isArray(cardConfig.badgeField) ? cardConfig.badgeField : []}
+                  maxBadges={maxBadges}
+                  className="w-full"
+                  badgeVariant="outline"
+                />
+              </div>
               {/* Content Sections */}
               <div className="flex-1">
                 <motion.div
@@ -231,21 +242,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   >
                     {cardConfig.subtitle}
                   </motion.p>
-                  <div className="flex space-x-2 mt-1">
-                    {data.categories && data.categories.slice(0, 2).map((category: string, idx: number) => (
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                      >
-                        <Badge key={idx} variant="outline" className="text-[0.625rem] px-2 py-0">
-                          {category}
-                        </Badge>
-                      </motion.div>
-                    ))}
-                    {data.categories && data.categories.length > 2 && (
-                      <Badge variant="outline" className="text-[0.625rem] px-2 py-0 h-fit">+{data.categories.length - 2}</Badge>
-                    )}
-                  </div>
+                  <DynamicBadgeRenderer
+                    items={Array.isArray(cardConfig.badgeField) ? cardConfig.badgeField : []}
+                    maxBadges={maxBadges}
+                    className="mt-1"
+                    badgeVariant="outline"
+                  />
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">

@@ -399,6 +399,7 @@ export function VendorPage() {
                 data={vendor}
                 index={index}
                 viewMode={viewMode}
+                maxBadges={3}
                 onView={handleViewVendor}
                 onEdit={(v) => {
                   // Only allow edit if not already loading

@@ -5,6 +5,7 @@ export {
   getSingleValueByRole,
   resolveFieldById,
   getFieldValue,
+  getArrayValuesByRole,
 } from '../../form-builder/form-elements/utils/field-resolver';
 
 // Badge utilities

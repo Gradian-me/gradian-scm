@@ -35,20 +35,14 @@ export const vendorFormSchema: FormSchema = {
       {
         id: 'contact-info',
         title: 'Contact Information',
-        colSpan: 2,
+        colSpan: 1,
         fieldIds: ['email-address', 'phone-number', 'tax-id']
       },
       {
         id: 'location',
         title: 'Location',
-        colSpan: 2,
+        colSpan: 1,
         fieldIds: ['country', 'state', 'city']
-      },
-      {
-        id: 'categories',
-        title: 'Categories',
-        colSpan: 2,
-        fieldIds: ['categories']
       },
       {
         id: 'performance',
@@ -494,6 +488,7 @@ export const vendorFormSchema: FormSchema = {
           component: 'checkbox',
           placeholder: 'Select categories',
           required: true,
+          role: 'badge',
           options: [
             { label: 'Technology', value: 'technology' },
             { label: 'Manufacturing', value: 'manufacturing' },
