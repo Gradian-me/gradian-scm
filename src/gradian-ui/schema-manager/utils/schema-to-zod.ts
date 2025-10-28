@@ -2,7 +2,10 @@
 // Generates Zod validation schemas from FormSchema definitions
 
 import { z } from 'zod';
-import { FormSchema, FormField, ValidationRule } from '../../form-builder/types/form-schema';
+import { FormSchema, FormField } from '../../form-builder/types/form-schema';
+
+// Define ValidationRule type based on FormField validation property
+type ValidationRule = NonNullable<FormField['validation']>;
 
 /**
  * Converts a validation rule from form schema to Zod schema
@@ -56,12 +59,19 @@ const convertValidationToZod = (field: FormField): any => {
     const errorMessage = validation.custom ? undefined : getErrorMessage(field, validation);
     
     if (isRequired) {
-      zodType = zodType.min(1, errorMessage || `${field.label} is required`);
+      if (type === 'text' || type === 'textarea' || type === 'email' || type === 'url' || type === 'tel' || type === 'password') {
+        zodType = (zodType as z.ZodString).min(1, errorMessage || `${field.label} is required`);
+      } else if (type === 'number') {
+        // For number fields, we use refine instead of min for required validation
+        zodType = (zodType as z.ZodNumber).refine(val => val !== undefined && val !== null, {
+          message: errorMessage || `${field.label} is required`
+        });
+      }
     }
     
     // Min length for strings
     if (validation.minLength && (type === 'text' || type === 'textarea' || type === 'email' || type === 'url')) {
-      zodType = zodType.min(
+      zodType = (zodType as z.ZodString).min(
         validation.minLength, 
         errorMessage || `Minimum length is ${validation.minLength}`
       );
@@ -69,7 +79,7 @@ const convertValidationToZod = (field: FormField): any => {
     
     // Max length for strings
     if (validation.maxLength && (type === 'text' || type === 'textarea' || type === 'email' || type === 'url')) {
-      zodType = zodType.max(
+      zodType = (zodType as z.ZodString).max(
         validation.maxLength,
         errorMessage || `Maximum length is ${validation.maxLength}`
       );
@@ -77,7 +87,7 @@ const convertValidationToZod = (field: FormField): any => {
     
     // Min value for numbers
     if (validation.min !== undefined && type === 'number') {
-      zodType = zodType.min(
+      zodType = (zodType as z.ZodNumber).min(
         validation.min,
         errorMessage || `Minimum value is ${validation.min}`
       );
@@ -85,7 +95,7 @@ const convertValidationToZod = (field: FormField): any => {
     
     // Max value for numbers
     if (validation.max !== undefined && type === 'number') {
-      zodType = zodType.max(
+      zodType = (zodType as z.ZodNumber).max(
         validation.max,
         errorMessage || `Maximum value is ${validation.max}`
       );
@@ -95,16 +105,16 @@ const convertValidationToZod = (field: FormField): any => {
     if (validation.pattern) {
       const patternStr = validation.pattern.toString();
       const errorMsg = errorMessage || 'Invalid format';
-      zodType = zodType.regex(validation.pattern, errorMsg);
+      zodType = (zodType as z.ZodString).regex(validation.pattern, errorMsg);
     }
   } else if (required && type !== 'number') {
     // If just required without validation object
-    zodType = zodType.min(1, `${field.label} is required`);
+    zodType = (zodType as z.ZodString).min(1, `${field.label} is required`);
   }
   
   // Checkbox with options (multi-select)
   if (type === 'checkbox' && field.options && validation?.required) {
-    zodType = (zodType as z.ZodArray<any, any>).min(1, `At least one ${field.label} is required`);
+    zodType = (zodType as z.ZodArray<z.ZodString>).min(1, `At least one ${field.label} is required`);
   }
   
   // For non-required fields, make it optional

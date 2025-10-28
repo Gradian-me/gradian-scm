@@ -5,12 +5,48 @@ import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { GridBuilder } from '../../layout/grid-builder';
 import { DynamicCard } from './DynamicCard';
-import { ListMetadata, CardMetadata, FormSchema } from '../../form-builder/types/form-schema';
+import { ListMetadata, CardSection, FormSchema } from '../../form-builder/types/form-schema';
 import { cn } from '../../shared/utils';
 
 interface DynamicListProps {
   data: any[];
-  cardMetadata: CardMetadata;
+  cardMetadata: {
+    id: string;
+    name: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    avatar?: {
+      field?: string;
+      fallback?: string;
+      imagePath?: string;
+    };
+    status?: {
+      field?: string;
+      colorMap?: Record<string, string>;
+    };
+    rating?: {
+      field?: string;
+      maxRating?: number;
+      showValue?: boolean;
+    };
+    sections?: CardSection[];
+    styling?: {
+      variant?: 'default' | 'minimal' | 'elevated' | 'outlined' | 'filled';
+      size?: 'sm' | 'md' | 'lg' | 'xl';
+      rounded?: boolean;
+      shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+    };
+    behavior?: {
+      clickable?: boolean;
+      hoverable?: boolean;
+    };
+    animations?: {
+      stagger?: boolean;
+      duration?: number;
+      delay?: number;
+    };
+  };
   listMetadata: ListMetadata;
   formSchema?: FormSchema;
   isLoading?: boolean;

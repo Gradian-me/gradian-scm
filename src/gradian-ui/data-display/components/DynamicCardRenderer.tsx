@@ -6,7 +6,7 @@ import { CardWrapper } from '../card/components/CardWrapper';
 import { CardContent } from '../card/components/CardContent';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
-import { FormSchema } from '../../form-builder/types/form-schema';
+import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
 import { Rating, Avatar } from '../../form-builder/form-elements';
 import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
@@ -43,15 +43,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   disableAnimation = false
 }) => {
   // Get card metadata from schema
-  const cardMetadata = schema?.cardMetadata || {} as any;
+  const cardMetadata = schema?.cardMetadata || [] as CardSection[];
 
-  // Get actions configuration from schema
-  const actionsConfig = schema?.ui?.actions || { view: true, edit: true, delete: true };
-
-  // Conditionally determine if actions should be shown
-  const showView = actionsConfig.view && onView;
-  const showEdit = actionsConfig.edit && onEdit;
-  const showDelete = actionsConfig.delete && onDelete;
+  // Default actions configuration
+  const showView = !!onView;
+  const showEdit = !!onEdit;
+  const showDelete = !!onDelete;
 
   // Find status field options from schema
   const findStatusFieldOptions = () => {
@@ -70,7 +67,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   const statusOptions = findStatusFieldOptions();
 
   // Filter out performance section from cardMetadata
-  const filteredSections = (cardMetadata as any)?.sections?.filter((section: any) => 
+  const filteredSections = cardMetadata.filter(section => 
     section.id !== 'performance'
   ) || [];
 
@@ -235,12 +232,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
-                  {(cardConfig.sections || []).map((section: any) => (
+                  {filteredSections.map((section) => (
                     <div 
-                      key={section?.id || Math.random()} 
+                      key={section.id || Math.random()} 
                       className={cn(
                         "overflow-hidden", 
-                        section?.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
+                        section.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
                       )}
                     >
                       {renderCardSection({ section, schema, data, maxMetrics })}

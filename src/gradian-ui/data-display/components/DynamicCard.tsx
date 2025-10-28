@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../card';
 import { Badge } from '../../../components/ui/badge';
-import { CardMetadata, FormSchema } from '../../form-builder/types/form-schema';
+import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
 import { cn } from '../../shared/utils';
 import { 
   getValueByRole, 
@@ -21,7 +21,43 @@ import type { BadgeOption } from '../../form-builder/form-elements/utils/badge-u
 
 interface DynamicCardProps {
   data: any;
-  metadata: CardMetadata;
+  metadata: {
+    id: string;
+    name: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    avatar?: {
+      field?: string;
+      fallback?: string;
+      imagePath?: string;
+    };
+    status?: {
+      field?: string;
+      colorMap?: Record<string, string>;
+    };
+    rating?: {
+      field?: string;
+      maxRating?: number;
+      showValue?: boolean;
+    };
+    sections?: CardSection[];
+    styling?: {
+      variant?: 'default' | 'minimal' | 'elevated' | 'outlined' | 'filled';
+      size?: 'sm' | 'md' | 'lg' | 'xl';
+      rounded?: boolean;
+      shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+    };
+    behavior?: {
+      clickable?: boolean;
+      hoverable?: boolean;
+    };
+    animations?: {
+      stagger?: boolean;
+      duration?: number;
+      delay?: number;
+    };
+  };
   formSchema?: FormSchema;
   onClick?: (data: any) => void;
   onHover?: (isHovering: boolean) => void;
@@ -132,7 +168,7 @@ export const DynamicCard: React.FC<DynamicCardProps> = ({
 
         {/* Content Sections */}
         <div className="space-y-4 w-full">
-          {metadata.sections.map((section) => (
+          {metadata.sections?.map((section) => (
             <div key={section.id} className="w-full">
               {formSchema && renderSectionContent({ section, formSchema, data })}
             </div>

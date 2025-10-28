@@ -1,66 +1,28 @@
 // Vendor Form Schema - Tender Style
 
-import { FormSchema } from '../../../gradian-ui/form-builder/types/form-schema';
+import { ExtendedFormSchema } from '../types/extended-form-schema';
 
-export const vendorFormSchema: FormSchema = {
+export const vendorFormSchema: ExtendedFormSchema = {
   id: 'vendor-form',
-  name: 'Vendor Form',
+  name: 'vendors',
   title: 'Create New Vendor',
   description: 'Add a new vendor to your supply chain management system',
-  ui: {
-    entityName: 'Vendor',
-    createTitle: 'Create New Vendor',
-    editTitle: 'Edit Vendor',
-    basePath: 'vendors',
-    filters: {
-      status: {
-        type: 'all',
-        options: ['all', 'ACTIVE', 'INACTIVE', 'PENDING']
-      },
-      category: {
-        type: 'all',
-        options: ['all'] // Dynamic categories
-      }
+  singular_name: 'Vendor',
+  plural_name: 'Vendors',
+  cardMetadata: [
+    {
+      id: 'contact-info',
+      title: 'Contact Information',
+      colSpan: 1,
+      fieldIds: ['email-address', 'phone-number', 'tax-id']
     },
-    actions: {
-      view: true,
-      edit: true,
-      delete: true
+    {
+      id: 'location',
+      title: 'Location',
+      colSpan: 1,
+      fieldIds: ['country', 'state', 'city']
     }
-  },
-  cardMetadata: {
-    id: 'vendor-card',
-    name: 'Vendor Card',
-    sections: [
-      {
-        id: 'contact-info',
-        title: 'Contact Information',
-        colSpan: 1,
-        fieldIds: ['email-address', 'phone-number', 'tax-id']
-      },
-      {
-        id: 'location',
-        title: 'Location',
-        colSpan: 1,
-        fieldIds: ['country', 'state', 'city']
-      }
-    ],
-    styling: {
-      variant: 'default',
-      size: 'md',
-      rounded: true,
-      shadow: 'md'
-    },
-    behavior: {
-      clickable: true,
-      hoverable: true
-    },
-    animations: {
-      stagger: true,
-      duration: 0.3,
-      delay: 0.1
-    }
-  },
+  ],
   sections: [
     {
       id: 'basic-information',
@@ -81,11 +43,9 @@ export const vendorFormSchema: FormSchema = {
             required: true,
             minLength: 2,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 1,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -106,11 +66,9 @@ export const vendorFormSchema: FormSchema = {
             required: true,
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 2,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -129,11 +87,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 3,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -149,11 +105,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 4,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -169,11 +123,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 5,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -200,11 +152,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 6,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -213,9 +163,6 @@ export const vendorFormSchema: FormSchema = {
       layout: {
         columns: 2,
         gap: 4,
-      },
-      styling: {
-        variant: 'card',
       },
     },
     {
@@ -234,11 +181,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '100%',
             order: 1,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -254,11 +199,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '33.33%',
             order: 2,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -274,11 +217,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '33.33%',
             order: 3,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -294,11 +235,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '33.33%',
             order: 4,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -339,11 +278,9 @@ export const vendorFormSchema: FormSchema = {
             required: true,
             minLength: 2,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 1,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -360,11 +297,9 @@ export const vendorFormSchema: FormSchema = {
             required: true,
             pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 2,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -380,11 +315,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 3,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -399,11 +332,9 @@ export const vendorFormSchema: FormSchema = {
           required: true,
           validation: {
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 4,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -416,11 +347,9 @@ export const vendorFormSchema: FormSchema = {
           component: 'text',
           placeholder: 'Enter department',
           required: false,
-          layout: {
+          ui: {
             width: '50%',
             order: 5,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -433,11 +362,9 @@ export const vendorFormSchema: FormSchema = {
           component: 'checkbox',
           placeholder: 'Mark as primary contact',
           required: false,
-          layout: {
+          ui: {
             width: '50%',
             order: 6,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -450,11 +377,9 @@ export const vendorFormSchema: FormSchema = {
           component: 'textarea',
           placeholder: 'Additional notes about this contact',
           required: false,
-          layout: {
+          ui: {
             width: '100%',
             order: 6,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -463,9 +388,6 @@ export const vendorFormSchema: FormSchema = {
       layout: {
         columns: 2,
         gap: 4,
-      },
-      styling: {
-        variant: 'card',
       },
     },
     {
@@ -496,11 +418,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '100%',
             order: 1,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -522,11 +442,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             pattern: /^https?:\/\/.+/,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 2,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -543,11 +461,9 @@ export const vendorFormSchema: FormSchema = {
             min: 1800,
             max: new Date().getFullYear(),
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 3,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -563,11 +479,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             min: 1,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 4,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -581,11 +495,9 @@ export const vendorFormSchema: FormSchema = {
           placeholder: 'Enter company description',
           required: false,
           role: 'description',
-          layout: {
+          ui: {
             width: '100%',
             order: 5,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -607,11 +519,9 @@ export const vendorFormSchema: FormSchema = {
           validation: {
             required: true,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 6,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -629,11 +539,9 @@ export const vendorFormSchema: FormSchema = {
             min: 1,
             max: 5,
           },
-          layout: {
+          ui: {
             width: '50%',
             order: 7,
-          },
-          styling: {
             variant: 'outlined',
             size: 'md',
           },
@@ -648,7 +556,9 @@ export const vendorFormSchema: FormSchema = {
           // Custom role for metrics display
           role: 'badge',
           // This is a hidden field for the card display only
-          styling: {
+          ui: {
+            width: '100%',
+            order: 8,
             variant: 'outlined',
             className: 'hidden',
           },
@@ -657,48 +567,12 @@ export const vendorFormSchema: FormSchema = {
             maxDisplay: 5,
             showMore: true
           },
-          layout: {
-            width: '100%',
-            order: 8,
-          },
         },
       ],
       layout: {
         columns: 2,
         gap: 4,
       },
-      styling: {
-        variant: 'card',
-      },
     },
   ],
-  layout: {
-    direction: 'column',
-    gap: 6,
-    spacing: 'lg',
-  },
-  styling: {
-    variant: 'minimal',
-    size: 'lg',
-  },
-  validation: {
-    mode: 'onBlur',
-    showErrors: true,
-    showSuccess: true,
-  },
-  actions: {
-    submit: {
-      label: 'Create Vendor',
-      variant: 'default',
-      loading: 'Creating...',
-    },
-    reset: {
-      label: 'Reset',
-      variant: 'outline',
-    },
-    cancel: {
-      label: 'Cancel',
-      variant: 'ghost',
-    },
-  },
 };

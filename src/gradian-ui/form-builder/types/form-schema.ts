@@ -26,11 +26,26 @@ export interface FormField {
   };
   options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
   defaultValue?: any;
+  ui?: {
+    // Layout properties
+    width?: string;
+    order?: number;
+    colSpan?: number;
+    rowSpan?: number;
+    // Styling properties
+    variant?: 'default' | 'outlined' | 'filled' | 'underlined';
+    size?: 'sm' | 'md' | 'lg';
+    className?: string;
+  };
+  // Keep layout and styling for backward compatibility
   layout?: {
     width?: string;
     order?: number;
     colSpan?: number;
     rowSpan?: number;
+    variant?: 'default' | 'outlined' | 'filled' | 'underlined';
+    size?: 'sm' | 'md' | 'lg';
+    className?: string;
   };
   styling?: {
     variant?: 'default' | 'outlined' | 'filled' | 'underlined';
@@ -96,6 +111,13 @@ export interface CardConfig {
       label: string;
     }>;
   }>;
+}
+
+export interface CardSection {
+  id: string;
+  title: string;
+  colSpan?: number;
+  fieldIds: string[];
 }
 
 export interface CardMetadata {
@@ -182,7 +204,7 @@ export interface FormSchema {
   title: string;
   description?: string;
   cardConfig?: CardConfig;
-  cardMetadata?: CardMetadata;
+  cardMetadata?: CardSection[];
   listMetadata?: ListMetadata;
   sections: FormSection[];
   layout?: {
@@ -216,30 +238,6 @@ export interface FormSchema {
     };
   };
   showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
-  
-  // UI Configuration for CRUD operations
-  ui?: {
-    entityName: string; // e.g., "Vendor"
-    createTitle?: string; // Modal title for create
-    editTitle?: string; // Modal title for edit
-    basePath?: string; // Base path for routing (e.g., "vendors")
-    filters?: Record<string, {
-      type: 'all' | string;
-      options?: string[];
-    }>;
-    actions?: {
-      view?: boolean; // Show view button
-      edit?: boolean; // Show edit button
-      delete?: boolean; // Show delete button
-      custom?: Array<{
-        label: string;
-        icon?: string;
-        handler: (entity: any) => void;
-      }>;
-    };
-    onDelete?: (entity: any) => void;
-    onView?: (entity: any) => void;
-  };
 }
 
 export interface FormData {

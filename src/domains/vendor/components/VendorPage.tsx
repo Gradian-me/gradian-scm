@@ -14,12 +14,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { Spinner } from '../../../components/ui/spinner';
 import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
-import { useEntity } from '../../../gradian-ui/schema-manager';
+// import { useEntity } from '../../../gradian-ui/schema-manager';
+import { useEntity } from '../hooks/useEntity';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
 import { vendorFormSchema } from '../schemas/vendor-form.schema';
 import { vendorService } from '../services/vendor.service';
 import { Vendor } from '../types';
+import { asFormSchema } from '../utils/schema-utils';
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -404,7 +406,7 @@ export function VendorPage() {
               )}
               <DynamicCardRenderer
                 key={vendor.id}
-                schema={vendorFormSchema}
+                schema={asFormSchema(vendorFormSchema)}
                 data={vendor}
                 index={index}
                 viewMode={viewMode}
@@ -454,7 +456,7 @@ export function VendorPage() {
       <DynamicCardDialog
         isOpen={isDetailDialogOpen}
         onClose={() => setIsDetailDialogOpen(false)}
-        schema={vendorFormSchema}
+        schema={asFormSchema(vendorFormSchema)}
         data={selectedVendorForDetail}
         title={selectedVendorForDetail?.name || 'Vendor Details'}
         onView={handleViewVendor}
@@ -484,7 +486,7 @@ export function VendorPage() {
         )}
         <SchemaFormWrapper
           key={isCreateModalOpen ? 'create' : `edit-${currentVendor?.id || 'none'}`}
-          schema={vendorFormSchema}
+          schema={asFormSchema(vendorFormSchema)}
           onSubmit={isCreateModalOpen ? handleCreateVendor : handleUpdateVendor}
           onReset={() => vendorFormState.reset()}
           initialValues={isCreateModalOpen ? vendorFormState.values : (currentVendor ? {
