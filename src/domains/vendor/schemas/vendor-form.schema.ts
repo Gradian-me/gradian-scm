@@ -112,7 +112,7 @@ export const vendorFormSchema: FormSchema = {
             required: true,
           },
           ui: {
-            colSpan: 1,
+            colSpan: 2,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -159,7 +159,7 @@ export const vendorFormSchema: FormSchema = {
             required: true,
           },
           ui: {
-            colSpan: 1,
+            colSpan: 2,
             order: 6,
             variant: 'outlined',
             size: 'md',
@@ -393,6 +393,8 @@ export const vendorFormSchema: FormSchema = {
       title: 'Business Details',
       description: 'Additional business information and categories',
       initialState: 'expanded',
+      columns: 3,
+      gap: 4,
       fields: [
         {
           id: 'categories',
@@ -417,7 +419,7 @@ export const vendorFormSchema: FormSchema = {
             required: true,
           },
           ui: {
-            colSpan: 1,
+            colSpan: 3,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -494,7 +496,7 @@ export const vendorFormSchema: FormSchema = {
           required: false,
           role: 'description',
           ui: {
-            colSpan: 1,
+            colSpan: 3,
             order: 5,
             variant: 'outlined',
             size: 'md',

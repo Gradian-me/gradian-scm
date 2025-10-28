@@ -1,19 +1,18 @@
 // Dynamic Card Renderer Component
 
-import React, { KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
-import { CardWrapper } from '../card/components/CardWrapper';
-import { CardContent } from '../card/components/CardContent';
-import { Button } from '../../../components/ui/button';
+import React, { KeyboardEvent } from 'react';
 import { Badge } from '../../../components/ui/badge';
-import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
-import { Rating, Avatar } from '../../form-builder/form-elements';
-import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
-import { DynamicMetricRenderer } from './DynamicMetricRenderer';
-import { DynamicCardActionButtons } from './DynamicCardActionButtons';
-import { cn } from '../../shared/utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { getValueByRole, getSingleValueByRole, getArrayValuesByRole, getMetricsByRole, getInitials, getStatusColor, getStatusIcon, renderCardSection, getBadgeConfig } from '../utils';
+import { Avatar, Rating } from '../../form-builder/form-elements';
+import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
+import { cn } from '../../shared/utils';
+import { CardContent } from '../card/components/CardContent';
+import { CardWrapper } from '../card/components/CardWrapper';
+import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection } from '../utils';
+import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
+import { DynamicCardActionButtons } from './DynamicCardActionButtons';
+import { DynamicMetricRenderer } from './DynamicMetricRenderer';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;

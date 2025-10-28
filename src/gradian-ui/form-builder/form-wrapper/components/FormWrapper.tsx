@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 import { FormWrapperProps, FormState, FormContextType, FormConfig } from '../types';
+import { getDefaultConfig } from '../utils';
 
 import { cn, validateField } from '../../../shared/utils';
 import { FormHeader } from './FormHeader';
@@ -107,7 +108,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 };
 
 export const FormWrapper: React.FC<FormWrapperProps> = ({
-  config,
+  config: rawConfig,
   onSubmit,
   onReset,
   onFieldChange,
@@ -118,6 +119,12 @@ export const FormWrapper: React.FC<FormWrapperProps> = ({
   children,
   ...props
 }) => {
+  // Apply default configuration
+  const config = getDefaultConfig(rawConfig);
+
+  // Use the validation mode from config if provided
+  const effectiveValidationMode = config.validation?.mode || validationMode;
+
   const [state, dispatch] = useReducer(formReducer, {
     values: initialValues,
     errors: {},
@@ -131,10 +138,10 @@ export const FormWrapper: React.FC<FormWrapperProps> = ({
     dispatch({ type: 'SET_VALUE', fieldName, value });
     onFieldChange?.(fieldName, value);
     
-    if (validationMode === 'onChange') {
+    if (effectiveValidationMode === 'onChange') {
       dispatch({ type: 'VALIDATE_FIELD', fieldName, config });
     }
-  }, [onFieldChange, validationMode, config]);
+  }, [onFieldChange, effectiveValidationMode, config]);
 
   const setError = useCallback((fieldName: string, error: string) => {
     dispatch({ type: 'SET_ERROR', fieldName, error });
@@ -143,10 +150,10 @@ export const FormWrapper: React.FC<FormWrapperProps> = ({
   const setTouched = useCallback((fieldName: string, touched: boolean) => {
     dispatch({ type: 'SET_TOUCHED', fieldName, touched });
     
-    if (validationMode === 'onBlur') {
+    if (effectiveValidationMode === 'onBlur') {
       dispatch({ type: 'VALIDATE_FIELD', fieldName, config });
     }
-  }, [validationMode, config]);
+  }, [effectiveValidationMode, config]);
 
   const validateField = useCallback((fieldName: string) => {
     dispatch({ type: 'VALIDATE_FIELD', fieldName, config });
