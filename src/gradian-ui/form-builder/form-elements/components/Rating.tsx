@@ -33,7 +33,7 @@ export const Rating: React.FC<RatingProps> = ({
   const hasHalfStar = value % 1 >= 0.5;
 
   return (
-    <div className={cn("flex items-center gap-0.5", className)}>
+    <div className={cn("flex items-center gap-0.2", className)}>
       {Array.from({ length: maxValue }, (_, i) => {
         if (i < fullStars) {
           return (

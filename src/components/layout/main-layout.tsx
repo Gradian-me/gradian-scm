@@ -140,7 +140,7 @@ export function MainLayout({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-gray-50"
+          className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50"
         >
           <div className="max-w-7xl mx-auto w-full">
             {children}

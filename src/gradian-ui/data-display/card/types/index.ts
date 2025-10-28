@@ -1,6 +1,7 @@
 // Card Types
 
 import { BaseComponentProps } from '../../../shared/types';
+import { KeyboardEvent } from 'react';
 
 export interface CardProps extends BaseComponentProps {
   config: CardConfig;
@@ -80,4 +81,5 @@ export interface CardImageProps extends BaseComponentProps {
 export interface CardWrapperProps extends BaseComponentProps {
   config: CardConfig;
   children: React.ReactNode;
+  onKeyDown?: (e: KeyboardEvent) => void;
 }

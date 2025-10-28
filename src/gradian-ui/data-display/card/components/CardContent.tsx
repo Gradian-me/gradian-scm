@@ -12,7 +12,7 @@ export const CardContent: React.FC<CardContentProps> = ({
 }) => {
   const contentClasses = cn(
     'card-content',
-    padding && 'px-4 py-3',
+    padding && 'p-4 sm:p-5',
     className
   );
 

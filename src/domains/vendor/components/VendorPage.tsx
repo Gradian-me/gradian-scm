@@ -348,18 +348,18 @@ export function VendorPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4"
+          className="flex flex-col sm:flex-row gap-4 mb-6"
         >
-          <div className="flex-1 h-10">
+          <div className="flex-1">
             <SearchBar
               placeholder="Search vendors by name, email, or phone..."
               value={searchTermLocal}
               onChange={setSearchTermLocal}
-              className="h-full"
+              className="h-10 w-full"
             />
           </div>
-          <div className="flex gap-2 items-center h-10">
-            <Button variant="outline" size="sm" className="h-10">
+          <div className="flex flex-wrap gap-2 items-center">
+            <Button variant="outline" size="sm" className="h-10 whitespace-nowrap">
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
@@ -373,7 +373,7 @@ export function VendorPage() {
             <Button 
               variant="default" 
               size="sm" 
-              className="h-10"
+              className="h-10 whitespace-nowrap ml-auto sm:ml-0"
               onClick={openCreateModal}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -383,7 +383,7 @@ export function VendorPage() {
         </motion.div>
 
         {/* Vendors List */}
-        <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6" : "space-y-4"}>
           {filteredVendors.map((vendor, index) => (
             <div key={vendor.id} className="relative">
               {isEditLoading[vendor.id] && (
