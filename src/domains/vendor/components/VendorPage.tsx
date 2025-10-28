@@ -400,7 +400,7 @@ export function VendorPage() {
                 <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
                   <div className="flex flex-col items-center space-y-2">
                     <Spinner size="lg" variant="primary" />
-                    <span className="text-sm font-medium text-blue-600">Loading...</span>
+                    <span className="text-sm font-medium text-violet-600">Loading...</span>
                   </div>
                 </div>
               )}

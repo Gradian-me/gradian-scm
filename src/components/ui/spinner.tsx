@@ -20,7 +20,7 @@ export function Spinner({
 
   const variantClasses = {
     default: "border-gray-300 border-t-gray-600",
-    primary: "border-blue-200 border-t-blue-600",
+    primary: "border-violet-200 border-t-violet-600",
     secondary: "border-gray-200 border-t-gray-800",
   };
 

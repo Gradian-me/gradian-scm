@@ -23,7 +23,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   );
 
   const spinnerClasses = cn(
-    'animate-spin rounded-full border-b-2 border-blue-600',
+    'animate-spin rounded-full border-b-2 border-violet-600',
     sizeClasses[size]
   );
 
