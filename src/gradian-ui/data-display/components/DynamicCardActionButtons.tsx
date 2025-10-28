@@ -75,7 +75,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onView}
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
               className="h-8 w-8 p-0 group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200"
             >
               <IconRenderer iconName="Eye" className="h-4 w-4" />
@@ -91,7 +94,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onEdit}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
               className="h-8 w-8 p-0 group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200"
             >
               <IconRenderer iconName="Edit" className="h-4 w-4" />
@@ -107,7 +113,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
               className="h-8 w-8 p-0 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200"
             >
               <IconRenderer iconName="Trash2" className="h-4 w-4" />
@@ -136,7 +145,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onView}
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
               className="w-full group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200 text-xs"
             >
               <IconRenderer iconName="Eye" className="h-4 w-4 mr-2" />
@@ -153,7 +165,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onEdit}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
               className="w-full group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200 text-xs"
             >
               <IconRenderer iconName="Edit" className="h-4 w-4 mr-2" />
@@ -170,7 +185,10 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
             <Button
               variant="outline"
               size="sm"
-              onClick={onDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
               className="w-full group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200 text-xs"
             >
               <IconRenderer iconName="Trash2" className="h-4 w-4 mr-2" />

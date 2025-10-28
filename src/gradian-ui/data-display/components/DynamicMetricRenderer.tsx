@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Badge } from '../../../components/ui/badge';
 import { ArrowDown, ArrowUp, ArrowRight, Minus } from 'lucide-react';
 import { formatNumber } from '../../shared/utils/number-formatter';
+import { IconRenderer } from '../../../shared/utils/icon-renderer';
 
 export interface MetricItem {
   id?: string;
@@ -11,6 +12,7 @@ export interface MetricItem {
   value: string | number;
   unit?: string;
   trend?: 'up' | 'down' | 'same' | 'none';
+  icon?: string; // Lucide icon name
 }
 
 export interface DynamicMetricRendererProps {
@@ -88,6 +90,11 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col">
           <div className="flex items-center">
+            {metric.icon && (
+              <span className="mr-1 text-gray-500">
+                <IconRenderer iconName={metric.icon} className="h-3 w-3" />
+              </span>
+            )}
             <span className="text-xs text-gray-500">{pascalCaseLabel}</span>
             {metric.subLabel && (
               <span className="text-[0.6rem] text-gray-400 ml-1">

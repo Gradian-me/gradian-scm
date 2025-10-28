@@ -26,6 +26,7 @@ export interface DynamicCardRendererProps {
   className?: string;
   maxBadges?: number;
   maxMetrics?: number;
+  disableAnimation?: boolean;
 }
 
 export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
@@ -38,7 +39,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   viewMode = 'grid',
   className,
   maxBadges = 2,
-  maxMetrics = 3
+  maxMetrics = 3,
+  disableAnimation = false
 }) => {
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || {} as any;
@@ -98,14 +100,14 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{
+      initial={disableAnimation ? false : { opacity: 0, y: 30, scale: 0.95 }}
+      animate={disableAnimation ? false : { opacity: 1, y: 0, scale: 1 }}
+      transition={disableAnimation ? {} : {
         duration: 0.5,
         delay: index * 0.03,
         ease: [0.25, 0.46, 0.45, 0.94]
       }}
-      whileHover={{
+      whileHover={disableAnimation ? undefined : {
         y: -1,
         boxShadow: '0 4px 12px -2px rgba(59, 130, 246, 0.1)',
         transition: {
@@ -113,7 +115,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           ease: "easeOut"
         }
       }}
-      whileTap={{
+      whileTap={disableAnimation ? undefined : {
         scale: 0.99,
         transition: { duration: 0.1 }
       }}
@@ -128,9 +130,14 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           id: `dynamic-card-${data.id || index}`,
           name: `Dynamic Card ${cardConfig.title}`,
           styling: { variant: 'default', size: 'md' },
-          behavior: { hoverable: true, clickable: true }
+          behavior: { hoverable: !disableAnimation, clickable: true }
         }}
-        className="h-full bg-white transition-all duration-200 ease-out border border-gray-100 group-hover:border-blue-100 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-400"
+        className={cn(
+          "h-full bg-white rounded-xl overflow-hidden",
+          !className?.includes('border-none') && "border border-gray-100",
+          !disableAnimation && "transition-all duration-200 ease-out group-hover:border-blue-100",
+          className?.includes('border-none') ? "focus-within:ring-0" : "focus-within:ring-2 focus-within:ring-blue-400"
+        )}
         onKeyDown={(e: KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -142,17 +149,17 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           {viewMode === 'grid' ? (
             <>
               {/* Avatar and Status Header */}
-              <div className="flex items-start space-x-3 mb-4 flex-nowrap">
+              <div className="flex justify-between space-x-3 mb-4 flex-nowrap w-full">
                 <div className="flex items-center gap-2 truncate">
                   <motion.div
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   >
                     <Avatar
                       fallback={getInitials(cardConfig.avatarField)}
                       size="lg"
                       variant="primary"
-                      className="shadow-lg ring-2 ring-white"
+                      className="border border-gray-100"
                     >
                       {getInitials(cardConfig.avatarField)}
                     </Avatar>
@@ -180,7 +187,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                   {/* Status */}
                   <motion.div
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                   >
                     {(() => {
                       const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
@@ -247,29 +254,35 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             <div className="flex items-center space-x-4 w-full flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Avatar
                     fallback={getInitials(cardConfig.avatarField)}
                     size="md"
                     variant="primary"
-                    className="shadow-lg"
+                    className="border border-gray-100"
                   >
                     {getInitials(cardConfig.avatarField)}
                   </Avatar>
                 </motion.div>
                 <div className="flex-1 min-w-0">
                   <motion.h3
-                    className="text-base font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
-                    whileHover={{ x: 2 }}
+                    className={cn(
+                      "text-base font-semibold truncate",
+                      !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
+                    )}
+                    whileHover={disableAnimation ? undefined : { x: 2 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
                     {cardConfig.title}
                   </motion.h3>
                   <motion.p
-                    className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors duration-200 truncate"
-                    whileHover={{ x: 2 }}
+                    className={cn(
+                      "text-xs text-gray-500 truncate",
+                      !disableAnimation && "group-hover:text-gray-700 transition-colors duration-200"
+                    )}
+                    whileHover={disableAnimation ? undefined : { x: 2 }}
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   >
                     {cardConfig.subtitle}
@@ -286,7 +299,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Rating
@@ -296,7 +309,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                 </motion.div>
                 <motion.div
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   {(() => {

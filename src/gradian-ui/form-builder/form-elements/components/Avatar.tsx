@@ -23,12 +23,12 @@ export const Avatar: React.FC<AvatarProps> = ({
   };
 
   const variantClasses = {
-    default: 'bg-gray-300 text-gray-700',
-    primary: 'bg-violet-200 text-violet-800',
-    secondary: 'bg-gray-200 text-gray-800',
-    success: 'bg-emerald-200 text-emerald-800',
-    warning: 'bg-amber-200 text-amber-800',
-    danger: 'bg-red-200 text-red-800',
+    default: 'bg-gray-100 text-gray-700',
+    primary: 'bg-violet-100 text-violet-800',
+    secondary: 'bg-gray-100 text-gray-800',
+    success: 'bg-emerald-100 text-emerald-800',
+    warning: 'bg-amber-100 text-amber-800',
+    danger: 'bg-red-100 text-red-800',
   };
 
   const avatarClasses = cn(

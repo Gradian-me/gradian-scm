@@ -1,9 +1,10 @@
 // Form Dialog Component
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../../../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../../../components/ui/dialog';
 import { ScrollArea } from '../../../components/ui/scroll-area';
 import { Button } from '../../../components/ui/button';
+import { X } from 'lucide-react';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { cn } from '../../shared/utils';
 import { loggingCustom } from '../../../shared/utils';
@@ -103,7 +104,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
         className={dialogClasses}
         {...(closeOnOutsideClick ? {} : { onInteractOutside: (e) => e.preventDefault() })}

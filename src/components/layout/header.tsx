@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Bell, User, ChevronDown, Plus, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar } from '@/gradian-ui/form-builder/form-elements';
+import { AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -49,9 +50,12 @@ export function Header({
           <HydratedDropdown
             fallback={
               <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                <Avatar className="h-6 w-6">
-                  <AvatarFallback className="text-xs">SC</AvatarFallback>
-                </Avatar>
+                <Avatar 
+                  fallback="SC"
+                  size="sm"
+                  variant="primary"
+                  className="border border-gray-100"
+                />
                 <ChevronDown className="h-4 w-4" />
               </Button>
             }
@@ -59,9 +63,12 @@ export function Header({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className="text-xs">SC</AvatarFallback>
-                  </Avatar>
+                  <Avatar 
+                    fallback="SC"
+                    size="sm"
+                    variant="primary"
+                    className="border border-gray-100"
+                  />
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -206,10 +213,14 @@ export function Header({
           <HydratedDropdown
             fallback={
               <Button variant="ghost" className="flex items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="/avatars/mahyar.jpg" alt="Mahyar Abidi" />
-                  <AvatarFallback>MA</AvatarFallback>
-                </Avatar>
+                <Avatar
+                  src="/avatars/mahyar.jpg"
+                  alt="Mahyar Abidi"
+                  fallback="MA"
+                  size="md"
+                  variant="primary"
+                  className="border border-gray-100"
+                />
                 <span className="text-sm font-medium">Mahyar Abidi</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -218,10 +229,14 @@ export function Header({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/avatars/mahyar.jpg" alt="Mahyar Abidi" />
-                    <AvatarFallback>MA</AvatarFallback>
-                  </Avatar>
+                  <Avatar
+                    src="/avatars/mahyar.jpg"
+                    alt="Mahyar Abidi"
+                    fallback="MA"
+                    size="md"
+                    variant="primary"
+                    className="border border-gray-100"
+                  />
                   <span className="text-sm font-medium">Mahyar Abidi</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>

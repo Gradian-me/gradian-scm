@@ -64,56 +64,64 @@
         "label": "On Time Delivery",
         "value": 98,
         "unit": "%",
-        "trend": "up"
+        "trend": "up",
+        "icon": "Clock"
       },
       {
         "id": "qualityScore",
         "label": "Quality Score",
         "value": 95,
         "unit": "",
-        "trend": "same"
+        "trend": "same",
+        "icon": "CheckCircle"
       },
       {
         "id": "totalOrders",
         "label": "Total Orders",
         "value": 150,
         "unit": "",
-        "trend": "down"
+        "trend": "down",
+        "icon": "Package"
       },
       {
         "id": "totalValue",
         "label": "Total Value",
         "value": 2500000,
         "unit": "USD",
-        "trend": "up"
+        "trend": "up",
+        "icon": "DollarSign"
       },
       {
         "id": "averageOrderValue",
         "label": "Average Order Value",
         "value": 16666.67,
         "unit": "USD",
-        "trend": "same"
+        "trend": "same",
+        "icon": "BarChart"
       },
       {
         "id": "priceCompetitiveness",
         "label": "Price Competitiveness",
         "value": 92,
         "unit": "%",
-        "trend": "up"
+        "trend": "up",
+        "icon": "TrendingUp"
       },
       {
         "id": "responsiveness",
         "label": "Responsiveness",
         "value": 88,
         "unit": "%",
-        "trend": "down"
+        "trend": "down",
+        "icon": "MessageSquare"
       },
       {
         "id": "complianceScore",
         "label": "Compliance Score",
         "value": 96,
         "unit": "",
-        "trend": "same"
+        "trend": "same",
+        "icon": "FileCheck"
       }
     ]
   },
@@ -176,7 +184,8 @@
         "label": "On Time Delivery",
         "value": 95,
         "unit": "%",
-        "trend": "up"
+        "trend": "up",
+        "icon": "Clock"
       },
       {
         "id": "qualityScore",
@@ -253,14 +262,16 @@
         "subLabel": "vs prev month",
         "value": 87,
         "unit": "%",
-        "trend": "down"
+        "trend": "down",
+        "icon": "Clock"
       },
       {
         "id": "qualityScore",
         "label": "Quality Score",
         "value": 90,
         "unit": "",
-        "trend": "same"
+        "trend": "same",
+        "icon": "CheckCircle"
       },
       {
         "id": "totalOrders",
@@ -268,7 +279,8 @@
         "subLabel": "YTD",
         "value": 56,
         "unit": "",
-        "trend": "up"
+        "trend": "up",
+        "icon": "Package"
       },
       {
         "id": "averageOrderValue",
@@ -276,14 +288,16 @@
         "subLabel": "Q3",
         "value": 15200.45,
         "unit": "USD",
-        "trend": "down"
+        "trend": "down",
+        "icon": "BarChart"
       },
       {
         "id": "responsiveness",
         "label": "Responsiveness",
         "value": 82,
         "unit": "%",
-        "trend": "same"
+        "trend": "same",
+        "icon": "MessageSquare"
       }
     ],
     "contacts": [

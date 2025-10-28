@@ -2,9 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '../../../components/ui/dialog';
-import { Button } from '../../../components/ui/button';
-import { X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
 import { DynamicCardRenderer } from './DynamicCardRenderer';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { FormSchema } from '../../form-builder/types/form-schema';
@@ -81,13 +79,8 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} data-test-id="dynamic-card-dialog">
       <DialogContent className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", className)} data-test-id="dynamic-card-dialog-content">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
-          <DialogClose asChild>
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogClose>
         </DialogHeader>
         
         <div className="mt-4">
@@ -106,7 +99,8 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
               onView={onView}
               onEdit={onEdit}
               onDelete={onDelete}
-              className="shadow-none"
+              className="shadow-none border-none"
+              disableAnimation={true} // Disable card animation in dialog
             />
           </motion.div>
         </div>
