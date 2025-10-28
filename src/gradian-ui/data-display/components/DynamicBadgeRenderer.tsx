@@ -1,12 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '../../../components/ui/badge';
+import { cn } from '@/lib/utils';
+
+export type BadgeItem = {
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  color?: string;
+  role?: string;
+};
 
 export interface DynamicBadgeRendererProps {
   /**
    * Array of badge items to display
+   * Can be either an array of strings or an array of BadgeItem objects
    */
-  items: string[];
+  items: string[] | BadgeItem[];
   
   /**
    * Maximum number of badges to display before showing +X more
@@ -34,11 +44,13 @@ export interface DynamicBadgeRendererProps {
   /**
    * Custom renderer for badge content
    */
-  renderBadge?: (item: string, index: number) => React.ReactNode;
+  renderBadge?: (item: string | BadgeItem, index: number) => React.ReactNode;
 }
 
 /**
  * DynamicBadgeRenderer - A component for rendering a collection of badges with a "show more" indicator
+ * Supports both simple string arrays and object arrays with id, label, icon, color, and role properties
+ * For object arrays, only items with role='badge' or no role specified will be displayed
  */
 export const DynamicBadgeRenderer: React.FC<DynamicBadgeRendererProps> = ({
   items = [],
@@ -53,28 +65,61 @@ export const DynamicBadgeRenderer: React.FC<DynamicBadgeRendererProps> = ({
     return null;
   }
 
+  // Determine if we're working with string array or object array
+  const isObjectArray = items.length > 0 && typeof items[0] !== 'string';
+  
+  // Filter items to only include those with role='badge' if they are objects
+  // For string arrays, keep all items
+  const filteredItems = isObjectArray
+    ? (items as BadgeItem[]).filter(item => !item.role || item.role === 'badge')
+    : items;
+
   // Determine how many badges to show
   // If maxBadges is 0, show all badges
   const showAllBadges = maxBadges === 0;
-  const visibleBadges = showAllBadges ? items : items.slice(0, maxBadges);
-  const hasMoreBadges = !showAllBadges && items.length > maxBadges;
-  const extraBadgesCount = items.length - maxBadges;
+  const visibleBadges = showAllBadges ? filteredItems : filteredItems.slice(0, maxBadges);
+  const hasMoreBadges = !showAllBadges && filteredItems.length > maxBadges;
+  const extraBadgesCount = filteredItems.length - maxBadges;
 
   // Container classes
   const containerClasses = `flex justify-start items-center space-x-2 ${className}`;
 
   // Render a badge with optional animation
-  const renderBadgeItem = (item: string, idx: number) => {
-    const badgeContent = renderBadge ? renderBadge(item, idx) : item;
+  const renderBadgeItem = (item: string | BadgeItem, idx: number) => {
+    // Handle string or object item
+    const isItemObject = typeof item !== 'string';
+    const itemId = isItemObject ? (item as BadgeItem).id : `${item}-${idx}`;
+    const itemLabel = isItemObject ? (item as BadgeItem).label : item as string;
+    const itemIcon = isItemObject ? (item as BadgeItem).icon : null;
+    const itemColor = isItemObject ? (item as BadgeItem).color : null;
+    
+    // Use custom renderer if provided
+    const badgeContent = renderBadge ? renderBadge(item, idx) : (
+      <>
+        {itemIcon && <span className="mr-1">{itemIcon}</span>}
+        {itemLabel}
+      </>
+    );
+    
+    // Apply custom color if provided, otherwise use the variant
+    const badgeStyle = itemColor ? { backgroundColor: itemColor, borderColor: itemColor } : {};
+    const badgeClasses = cn(
+      "text-[0.625rem] px-2 py-0",
+      itemColor && "border text-white"
+    );
     
     if (animate) {
       return (
         <motion.div
-          key={`${item}-${idx}`}
+          key={itemId}
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <Badge variant={badgeVariant} className="text-[0.625rem] px-2 py-0">
+          <Badge 
+            variant={itemColor ? undefined : badgeVariant} 
+            className={badgeClasses}
+            style={badgeStyle}
+          >
             {badgeContent}
           </Badge>
         </motion.div>
@@ -82,7 +127,12 @@ export const DynamicBadgeRenderer: React.FC<DynamicBadgeRendererProps> = ({
     }
     
     return (
-      <Badge key={`${item}-${idx}`} variant={badgeVariant} className="text-[0.625rem] px-2 py-0">
+      <Badge 
+        key={itemId} 
+        variant={itemColor ? undefined : badgeVariant} 
+        className={badgeClasses}
+        style={badgeStyle}
+      >
         {badgeContent}
       </Badge>
     );
