@@ -203,7 +203,13 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
                   {(cardConfig.sections || []).map((section: any) => (
-                    <div key={section?.id || Math.random()} className="overflow-hidden">
+                    <div 
+                      key={section?.id || Math.random()} 
+                      className={cn(
+                        "overflow-hidden", 
+                        section?.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
+                      )}
+                    >
                       {renderCardSection({ section, schema, data })}
                     </div>
                   ))}

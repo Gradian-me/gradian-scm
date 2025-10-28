@@ -382,7 +382,7 @@ export function VendorPage() {
         </motion.div>
 
         {/* Vendors List */}
-        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6" : "space-y-4"}>
+        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" : "space-y-4"}>
           {filteredVendors.map((vendor, index) => (
             <div key={vendor.id} className="relative">
               {isEditLoading[vendor.id] && (

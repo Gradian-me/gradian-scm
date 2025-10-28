@@ -18,15 +18,11 @@ export const renderCardSection = ({ section, schema, data }: RenderSectionProps)
   const fieldIds = section?.fieldIds || [];
   if (fieldIds.length === 0) return null;
 
-  // Determine span class based on section.colSpan
-  const colSpan = section?.colSpan || 1;
-  const spanClass = colSpan === 2 ? 'col-span-1 md:col-span-2' : 'col-span-1';
-
   return (
     <motion.div
       whileHover={{ x: 2 }}
       transition={{ duration: 0.2 }}
-      className={cn("space-y-2", spanClass)}
+      className="space-y-2"
     >
       <span className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200">
         {section?.title || section?.id}:
