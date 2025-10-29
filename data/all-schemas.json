@@ -67,9 +67,7 @@
               "colSpan": 1,
               "order": 2,
               "variant": "outlined",
-              "size": "md"
-            },
-            "display": {
+              "size": "md",
               "type": "text",
               "truncate": true
             }
@@ -91,9 +89,7 @@
               "colSpan": 1,
               "order": 3,
               "variant": "outlined",
-              "size": "md"
-            },
-            "display": {
+              "size": "md",
               "type": "text"
             }
           },
@@ -419,9 +415,7 @@
               "colSpan": 3,
               "order": 1,
               "variant": "outlined",
-              "size": "md"
-            },
-            "display": {
+              "size": "md",
               "type": "array",
               "displayType": "badges",
               "maxDisplay": 3,

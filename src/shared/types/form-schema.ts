@@ -24,20 +24,25 @@ export interface FormField {
   options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
   defaultValue?: any;
   ui?: {
+    // Layout properties
     width?: string;
     order?: number;
     colSpan?: number; // Number of columns this field should span
     rowSpan?: number;
+    // Styling properties
     variant?: 'default' | 'outlined' | 'filled' | 'underlined';
     size?: 'sm' | 'md' | 'lg';
     className?: string;
-  };
-  display?: {
+    // Display properties (merged from display)
     type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
     displayType?: 'badges' | 'list' | 'grid';
     maxDisplay?: number;
     showMore?: boolean;
     truncate?: boolean;
+    icon?: string;
+    source?: string;
+    compute?: (data: any) => any;
+    format?: string;
   };
 }
 

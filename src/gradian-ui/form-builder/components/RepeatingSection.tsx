@@ -63,7 +63,7 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
-            <Card key={item._id || `item-${index}`} className="border border-gray-200 rounded-lg shadow-sm">
+            <Card key={item.id || `item-${index}`} className="border border-gray-200 rounded-lg shadow-sm">
               <CardHeader className="pb-4 px-6 pt-6">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium text-gray-900">

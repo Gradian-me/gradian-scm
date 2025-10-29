@@ -8,29 +8,97 @@
       "city": "تهران",
       "state": "تهران",
       "zipCode": "1468943381",
-      "registrationNumber": "asd",
-      "taxId": "asd",
-      "country": "CN",
+      "registrationNumber": "TF-2019-001",
+      "taxId": "US-TAX-0012",
+      "country": "DE",
       "categories": [
-        "technology"
+        "technology",
+        "logistics",
+        "manufacturing"
       ],
-      "status": "ACTIVE",
+      "status": "PENDING",
       "contacts": [
         {
-          "name": "asd",
-          "email": "asd@c.com",
-          "phone": "asd",
+          "name": "Mahyar Abidi",
+          "email": "abidi.mahyar@gmail.com",
+          "phone": "09126184264",
           "position": "asd",
           "department": "",
           "isPrimary": false,
           "notes": "",
-          "_id": "contacts_1761735568931_s8m2qch3o"
+          "id": "01K8QVCPJNR90EJV36R3F2E0T0"
         }
       ],
-      "rating": 2.4,
-      "id": "01K8QSZ3QDEVZMXR20742XH9YM",
-      "createdAt": "2025-10-29T10:59:37.336Z",
-      "updatedAt": "2025-10-29T10:59:55.862Z"
+      "rating": 5,
+      "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
+      "createdAt": "2025-10-29T11:24:37.540Z",
+      "updatedAt": "2025-10-29T11:24:37.540Z",
+      "performanceMetrics": [
+        {
+          "id": "onTimeDelivery",
+          "label": "On Time Delivery",
+          "value": 98,
+          "unit": "%",
+          "trend": "up",
+          "icon": "Clock"
+        },
+        {
+          "id": "qualityScore",
+          "label": "Quality Score",
+          "value": 95,
+          "unit": "",
+          "trend": "same",
+          "icon": "CheckCircle"
+        },
+        {
+          "id": "totalOrders",
+          "label": "Total Orders",
+          "value": 150,
+          "unit": "",
+          "trend": "down",
+          "icon": "Package"
+        },
+        {
+          "id": "totalValue",
+          "label": "Total Value",
+          "value": 2500000,
+          "unit": "USD",
+          "trend": "up",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "averageOrderValue",
+          "label": "Average Order Value",
+          "value": 16666.67,
+          "unit": "USD",
+          "trend": "same",
+          "icon": "BarChart"
+        },
+        {
+          "id": "priceCompetitiveness",
+          "label": "Price Competitiveness",
+          "value": 92,
+          "unit": "%",
+          "trend": "up",
+          "icon": "TrendingUp"
+        },
+        {
+          "id": "responsiveness",
+          "label": "Responsiveness",
+          "value": 88,
+          "unit": "%",
+          "trend": "down",
+          "icon": "MessageSquare"
+        },
+        {
+          "id": "complianceScore",
+          "label": "Compliance Score",
+          "value": 96,
+          "unit": "",
+          "trend": "same",
+          "icon": "FileCheck"
+        }
+      ]
     }
   ],
   "tenders": [],

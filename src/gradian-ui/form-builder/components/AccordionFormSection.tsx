@@ -230,7 +230,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 <div className="space-y-4">
                   {(repeatingItems || []).map((item, index) => (
                     <div
-                      key={item._id || `item-${index}`}
+                      key={item.id || `item-${index}`}
                       className="rounded-xl bg-white border border-gray-200 shadow-sm"
                     >
                       <div className="flex items-center justify-between px-4 sm:px-6 pt-4">

@@ -1,6 +1,7 @@
 // Schema-based Form Wrapper Component
 
 import React, { createContext, useContext, useReducer, useCallback, useMemo, useEffect } from 'react';
+import { ulid } from 'ulid';
 import { 
   FormWrapperProps, 
   FormState, 
@@ -40,11 +41,11 @@ const ensureRepeatingItemIds = (values: FormData, schema: FormSchema): FormData 
       const items = newValues[section.id];
       if (Array.isArray(items)) {
         newValues[section.id] = items.map((item: any, index: number) => {
-          // Only add _id if it doesn't already exist
-          if (!item._id) {
+          // Only add id if it doesn't already exist
+          if (!item.id) {
             return {
               ...item,
-              _id: `${section.id}_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 9)}`
+              id: ulid()
             };
           }
           return item;
@@ -86,20 +87,20 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         // Ensure the array is long enough and item exists at this index
         while (newArray.length <= index) {
           newArray.push({
-            _id: `${sectionId}_${Date.now()}_${newArray.length}_${Math.random().toString(36).substr(2, 9)}`
+            id: ulid()
           });
         }
         
         // If item at index doesn't have required structure, ensure it has an ID
-        if (!newArray[index]._id) {
-          console.warn(`[FormReducer] Item at index ${index} missing _id, adding one`);
+        if (!newArray[index].id) {
+          console.warn(`[FormReducer] Item at index ${index} missing id, adding one`);
           newArray[index] = {
             ...newArray[index],
-            _id: `${sectionId}_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 9)}`
+            id: ulid()
           };
         }
         
-        // Update the specific field in the item, preserving all other fields including _id
+        // Update the specific field in the item, preserving all other fields including id
         newArray[index] = {
           ...newArray[index],
           [fieldName]: action.value,
@@ -110,7 +111,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
           itemIndex: index,
           fieldName,
           value: action.value,
-          itemId: newArray[index]._id,
+          itemId: newArray[index].id,
           before: currentArray[index],
           after: newArray[index],
         });
@@ -228,7 +229,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       // Add a unique ID to help React track items properly
       const itemWithId = {
         ...action.defaultValue,
-        _id: `${action.sectionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        id: ulid()
       };
       return {
         ...state,

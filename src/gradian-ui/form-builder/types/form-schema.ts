@@ -36,6 +36,16 @@ export interface FormField {
     variant?: 'default' | 'outlined' | 'filled' | 'underlined';
     size?: 'sm' | 'md' | 'lg';
     className?: string;
+    // Display properties (merged from display)
+    icon?: string;
+    type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
+    source?: string;
+    compute?: (data: any) => any;
+    displayType?: 'badges' | 'list' | 'grid';
+    maxDisplay?: number;
+    showMore?: boolean;
+    truncate?: boolean;
+    format?: string;
   };
   // Keep layout and styling for backward compatibility
   layout?: {
@@ -56,7 +66,7 @@ export interface FormField {
     dependsOn: string;
     condition: (value: any) => boolean;
   };
-  // Display options for cards and lists
+  // @deprecated - Use ui property instead. Kept for backward compatibility.
   display?: {
     icon?: string;
     type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';

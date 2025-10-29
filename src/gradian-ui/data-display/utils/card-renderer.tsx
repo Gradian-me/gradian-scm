@@ -91,7 +91,8 @@ export const renderCardSection = ({ section, formSchema, data }: RenderSectionPr
 
   const resolvedFields = (section.fieldIds || []).map((fieldId: string) => {
     const field = resolveFieldByIdLocal(fieldId, data);
-    const displayOptions = field?.display || {};
+    // Prefer ui properties, fallback to display for backward compatibility
+    const displayOptions = field?.ui || field?.display || {};
     
     return {
       id: fieldId,

@@ -3,6 +3,7 @@
 // Shared Hooks for Gradian UI Components
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { ulid } from 'ulid';
 import { ComponentHookData, ComponentConfig } from '../types';
 
 /**
@@ -68,7 +69,7 @@ export const useFormState = <T extends Record<string, any>>(
         
         // Ensure the array is long enough
         while (newArray.length <= index) {
-          newArray.push({ _id: `${sectionId}_${Date.now()}_${newArray.length}_${Math.random().toString(36).substr(2, 9)}` });
+          newArray.push({ id: ulid() });
         }
         
         // Update the specific field in the item

@@ -109,7 +109,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
           ) : (
             <div className="space-y-3">
               {repeatingItems.map((item, index) => (
-                <Card key={item._id || `item-${index}`} className="border border-gray-200 rounded-lg">
+                <Card key={item.id || `item-${index}`} className="border border-gray-200 rounded-lg">
                   <CardHeader className="pb-4 px-6 pt-6">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-gray-900">
