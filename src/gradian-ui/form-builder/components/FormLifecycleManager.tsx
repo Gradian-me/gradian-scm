@@ -394,68 +394,6 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
 
   const renderSections = () => {
     return schema.sections.map((section) => {
-      if (section.isRepeatingSection) {
-        const repeatingItems = state.values[section.id] || [];
-        return (
-          <RepeatingSection
-            key={section.id}
-            section={section}
-            items={repeatingItems}
-            onAdd={() => addRepeatingItem(section.id)}
-            onRemove={(index) => removeRepeatingItem(section.id, index)}
-            renderItem={(item, index) => (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {section.fields.map((field) => {
-                    if (!field) return null;
-                    
-                    const fieldName = `${field.name}[${index}]`;
-                    const fieldValue = item[field.name];
-                    const fieldError = state.errors[fieldName];
-                    const fieldTouched = typeof state.touched[fieldName] === 'boolean' 
-                      ? state.touched[fieldName] 
-                      : false;
-
-                    return (
-                      <div key={field.id} className="space-y-2">
-                        <FormElementFactory
-                          field={field as any}
-                          value={fieldValue}
-                          error={fieldError}
-                          touched={fieldTouched as boolean}
-                          onChange={(value) => {
-                            // Update the nested value in the array
-                            const currentArray = state.values[section.id] || [];
-                            const updatedArray = [...currentArray];
-                            updatedArray[index] = {
-                              ...updatedArray[index],
-                              [field.name]: value
-                            };
-                            
-                            // Update the section's array in the form values
-                            setValue(section.id, updatedArray);
-                          }}
-                          onBlur={() => setTouched(fieldName, true)}
-                          onFocus={() => setTouched(fieldName, true)}
-                          disabled={disabled || field.disabled}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            values={state.values}
-            errors={state.errors}
-            touched={state.touched}
-            onChange={setValue}
-            onBlur={(fieldName: string) => setTouched(fieldName, true)}
-            onFocus={() => {}}
-            disabled={disabled}
-          />
-        );
-      }
-
       return (
         <AccordionFormSection
           key={section.id}

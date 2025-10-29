@@ -18,7 +18,9 @@ import {
   Bell,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  PanelRightOpen,
+  PanelLeftOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -130,7 +132,7 @@ export function Sidebar({ isCollapsed, onToggle, isMobile = false }: SidebarProp
           onClick={onToggle}
           className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
         >
-          {isMobile ? <X className="h-5 w-5" /> : (isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />)}
+          {isMobile ? <PanelRightOpen className="h-5 w-5" /> : (isCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelRightOpen className="h-5 w-5" />)}
         </Button>
       </div>
 

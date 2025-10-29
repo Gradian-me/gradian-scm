@@ -3,7 +3,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
-import { ScrollArea } from '../../../components/ui/scroll-area';
 import { DynamicCardRenderer } from './DynamicCardRenderer';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { FormSchema } from '../../form-builder/types/form-schema';
@@ -79,12 +78,12 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} data-test-id="dynamic-card-dialog">
-      <DialogContent className={cn("max-w-3xl max-h-[90vh] h-[90vh] flex flex-col min-h-0", className)} data-test-id="dynamic-card-dialog-content">
-        <DialogHeader className="shrink-0">
+      <DialogContent className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", className)} data-test-id="dynamic-card-dialog-content">
+        <DialogHeader>
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 mt-4">
+        <div className="mt-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,16 +94,16 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
               data={data}
               index={0}
               viewMode="grid"
-              maxBadges={0}
-              maxMetrics={0}
+              maxBadges={0} // Show all badges
+              maxMetrics={0} // Show all metrics
               onView={onView}
               onEdit={onEdit}
               onDelete={onDelete}
               className="shadow-none border-none"
-              disableAnimation={true}
+              disableAnimation={true} // Disable card animation in dialog
             />
           </motion.div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

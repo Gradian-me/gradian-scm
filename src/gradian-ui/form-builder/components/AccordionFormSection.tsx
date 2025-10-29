@@ -88,26 +88,34 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   const renderFields = (fieldsToRender: typeof fields, itemIndex?: number) => {
     return fieldsToRender.map((field) => {
       if (!field) return null;
-      
-      const fieldName = itemIndex !== undefined ? `${field.name}[${itemIndex}]` : field.name;
-      const fieldValue = itemIndex !== undefined 
-        ? values[field.name]?.[itemIndex] 
-        : values[field.name];
-      const fieldError = itemIndex !== undefined 
-        ? errors[`${field.name}[${itemIndex}]`] || errors[field.name]?.[itemIndex]
-        : errors[field.name];
-      let fieldTouched: boolean;
-      if (itemIndex !== undefined) {
-        const touchedValue = touched[field.name];
-        if (Array.isArray(touchedValue)) {
-          fieldTouched = touchedValue[itemIndex] || false;
-        } else {
-          fieldTouched = Boolean(touched[`${field.name}[${itemIndex}]`]);
-        }
-      } else {
-        const touchedValue = touched[field.name];
-        fieldTouched = typeof touchedValue === 'boolean' ? touchedValue : false;
-      }
+
+      // Build name/value/error/touched for normal vs repeating sections
+      const isItem = itemIndex !== undefined && isRepeatingSection;
+
+      const fieldName = isItem 
+        ? `${section.id}[${itemIndex}].${field.name}`
+        : field.name;
+
+      // Safe access helpers for nested structures
+      const nestedValues = (values as any) || {};
+      const nestedErrors = (errors as any) || {};
+      const nestedTouched = (touched as any) || {};
+
+      const fieldValue = isItem 
+        ? nestedValues?.[section.id]?.[itemIndex]?.[field.name]
+        : nestedValues?.[field.name];
+
+      const fieldError = isItem 
+        ? (nestedErrors?.[section.id]?.[itemIndex]?.[field.name] 
+            || nestedErrors?.[`${section.id}[${itemIndex}].${field.name}`])
+        : nestedErrors?.[field.name];
+
+      const fieldTouched = isItem 
+        ? Boolean(
+            nestedTouched?.[section.id]?.[itemIndex]?.[field.name] 
+            || nestedTouched?.[`${section.id}[${itemIndex}].${field.name}`]
+          )
+        : Boolean(nestedTouched?.[field.name]);
 
       // Calculate column span for this field
       const colSpan = getColSpan(field);
@@ -175,105 +183,109 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
   if (isRepeatingSection) {
     return (
-      <div className={sectionClasses}>
-        <Card className="border border-gray-200 rounded-2xl bg-gray-50/50">
-          <CardHeader 
-            className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
-            onClick={toggleExpanded}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-                  {sectionError && (
-                    <span className="text-sm text-red-600 mt-0.5" role="alert">
-                      • {sectionError}
-                    </span>
-                  )}
-                </div>
-                {description && (
-                  <p className="text-xs text-gray-600 mt-1">{description}</p>
+      <Card className={cn(
+        'border border-gray-200 rounded-2xl bg-gray-50/50',
+        styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent',
+        styling?.variant === 'card' && 'shadow-sm bg-white'
+      )}>
+        <CardHeader 
+          className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
+          onClick={toggleExpanded}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+                {sectionError && (
+                  <span className="text-sm text-red-600 mt-0.5" role="alert">
+                    • {sectionError}
+                  </span>
                 )}
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="p-1 h-6 w-6 hover:bg-gray-200"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </Button>
+              {description && (
+                <p className="text-xs text-gray-600 mt-1">{description}</p>
+              )}
             </div>
-          </CardHeader>
-          
-          {isExpanded && (
-            <CardContent className="px-6 pb-6">
-              <div className="space-y-3">
-                {(repeatingItems || []).length === 0 ? (
-                  <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-                    <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {(repeatingItems || []).map((item, index) => (
-                      <Card key={index} className="border border-gray-200 rounded-2xl shadow-sm bg-white">
-                        <CardHeader className="pb-4 px-6 pt-6">
-                          <div className="flex items-center justify-between">
-                            <CardTitle className="text-sm font-medium text-gray-900">
-                              {section.repeatingConfig?.itemTitle 
-                                ? section.repeatingConfig.itemTitle(index + 1)
-                                : `${title} ${index + 1}`
-                              }
-                            </CardTitle>
-                            {onRemoveRepeatingItem && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onRemoveRepeatingItem(index)}
-                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
-                                disabled={disabled}
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </Button>
-                            )}
-                          </div>
-                        </CardHeader>
-                        <CardContent className="px-6 pb-6">
-                          <div className={gridClasses}>
-                            {renderFields(fields, index)}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {onAddRepeatingItem && (
-                  <div className="flex justify-center">
-                    <Button
-                      variant="outline"
-                      onClick={onAddRepeatingItem}
-                      disabled={disabled}
-                      className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+            className="p-1 h-6 w-6 hover:bg-gray-200"
+            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        
+        {isExpanded && (
+          <CardContent className="px-6 pb-6">
+            <div className="space-y-4">
+              {(repeatingItems || []).length === 0 ? (
+                <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                  <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {(repeatingItems || []).map((item, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl bg-white border border-gray-200 shadow-sm"
                     >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      {section.repeatingConfig?.addButtonText || `Add ${title}`}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          )}
-        </Card>
-      </div>
+                      <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {section.repeatingConfig?.itemTitle 
+                            ? section.repeatingConfig.itemTitle(index + 1)
+                            : `${title} ${index + 1}`
+                          }
+                        </div>
+                        {onRemoveRepeatingItem && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onRemoveRepeatingItem(index)}
+                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
+                            disabled={disabled}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </Button>
+                        )}
+                      </div>
+                      <div className="px-4 sm:px-6 pb-4">
+                        <div className={gridClasses}>
+                          {renderFields(fields, index)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {onAddRepeatingItem && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={onAddRepeatingItem}
+                    disabled={disabled}
+                    className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    {section.repeatingConfig?.addButtonText || `Add ${title}`}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        )}
+      </Card>
     );
   }
 
@@ -306,6 +318,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             variant="ghost"
             size="sm"
             className="p-1 h-6 w-6 hover:bg-gray-200"
+            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
           >
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
