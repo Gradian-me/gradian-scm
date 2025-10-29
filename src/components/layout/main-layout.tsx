@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { Sidebar } from './sidebar';
-import { Header } from './header';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Plus, Menu, X, Bell } from 'lucide-react';
+import { Plus, Menu, Bell } from 'lucide-react';
+import { DepartmentSelector } from './DepartmentSelector';
+import { NotificationsDropdown } from './NotificationsDropdown';
+import { UserProfileDropdown } from './UserProfileDropdown';
+import { Badge } from '../ui/badge';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -19,11 +22,12 @@ export function MainLayout({
   children, 
   title, 
   showCreateButton = false, 
-  createButtonText,
+  createButtonText = "Create",
   onCreateClick 
 }: MainLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notificationCount] = useState(3);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -31,6 +35,14 @@ export function MainLayout({
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleNotificationClick = () => {
+    window.location.href = '/notifications';
+  };
+
+  const handleUserProfileClick = () => {
+    window.location.href = '/settings/profile';
   };
 
   return (
@@ -95,43 +107,62 @@ export function MainLayout({
             {/* Desktop Header Content */}
             <div className="hidden md:flex items-center space-x-4">
               {/* Department Dropdown */}
-              <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                <span className="text-xs">SC</span>
-              </Button>
+              <DepartmentSelector />
               
               {/* Notifications */}
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
-              </Button>
+              <NotificationsDropdown initialCount={3} />
               
               {/* User Profile */}
-              <Button variant="ghost" className="flex items-center space-x-2">
-                <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium">MA</span>
-                </div>
-                <span className="text-sm font-medium">Mahyar Abidi</span>
-              </Button>
+              <UserProfileDropdown 
+                userName="Mahyar Abidi"
+                userAvatar="/avatars/mahyar.jpg"
+                userInitials="MA"
+              />
               
               {/* Create Button */}
               {showCreateButton && (
-                <Button onClick={onCreateClick} className="flex items-center space-x-2">
+                <Button 
+                  onClick={onCreateClick} 
+                  className="flex items-center space-x-2"
+                  aria-label={createButtonText}
+                >
                   <Plus className="h-4 w-4" />
                   <span>{createButtonText}</span>
                 </Button>
               )}
             </div>
             
-            {/* Mobile Create Button */}
-            {showCreateButton && (
-              <Button
-                onClick={onCreateClick}
-                size="sm"
-                className="md:hidden bg-violet-600 hover:bg-violet-700 text-white"
+            {/* Mobile Header Actions */}
+            <div className="flex md:hidden items-center space-x-2">
+              {/* Mobile Notifications */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={handleNotificationClick}
               >
-                <Plus className="h-4 w-4" />
+                <Bell className="h-5 w-5" />
+                {notificationCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+                  >
+                    {notificationCount}
+                  </Badge>
+                )}
               </Button>
-            )}
+              
+              {/* Mobile Create Button */}
+              {showCreateButton && (
+                <Button
+                  onClick={onCreateClick}
+                  size="sm"
+                  className="bg-violet-600 hover:bg-violet-700 text-white"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
         
