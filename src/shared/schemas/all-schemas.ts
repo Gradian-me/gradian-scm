@@ -259,7 +259,7 @@ export const vendorSchema: FormSchema = {
       description: 'Add contact persons for this vendor',
       isRepeatingSection: true,
       initialState: 'collapsed',
-      columns: 3,
+      columns: 2,
       gap: 4,
       repeatingConfig: {
         minItems: 1,
@@ -283,7 +283,7 @@ export const vendorSchema: FormSchema = {
             minLength: 2,
           },
           ui: {
-            colSpan: 2,
+            colSpan: 1,
             order: 1,
             variant: 'outlined',
             size: 'md',
@@ -335,9 +335,10 @@ export const vendorSchema: FormSchema = {
           placeholder: 'Enter position/title',
           required: true,
           validation: {
+            required: true,
           },
           ui: {
-            colSpan: 2,
+            colSpan: 1,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -352,7 +353,7 @@ export const vendorSchema: FormSchema = {
           placeholder: 'Enter department',
           required: false,
           ui: {
-            colSpan: 2,
+            colSpan: 1,
             order: 5,
             variant: 'outlined',
             size: 'md',
@@ -382,7 +383,7 @@ export const vendorSchema: FormSchema = {
           placeholder: 'Additional notes about this contact',
           required: false,
           ui: {
-            colSpan: 3,
+            colSpan: 2,
             order: 7,
             variant: 'outlined',
             size: 'md',

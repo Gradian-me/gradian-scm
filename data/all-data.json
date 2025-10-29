@@ -18,10 +18,10 @@
       "status": "PENDING",
       "contacts": [
         {
-          "name": "",
-          "email": "",
-          "phone": "",
-          "position": "",
+          "name": "شسی",
+          "email": "abidi.mahyar@gmail.com",
+          "phone": "09126184264",
+          "position": "asdasdas",
           "department": "",
           "isPrimary": false,
           "notes": ""
@@ -30,7 +30,7 @@
       "rating": 5,
       "id": "01K8QJ4N587ZH08D4RTM220M9G",
       "createdAt": "2025-10-29T08:42:50.417Z",
-      "updatedAt": "2025-10-29T08:42:50.417Z"
+      "updatedAt": "2025-10-29T09:07:30.896Z"
     }
   ],
   "tenders": [],

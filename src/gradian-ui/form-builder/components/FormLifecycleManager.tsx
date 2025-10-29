@@ -45,12 +45,59 @@ type FormAction =
 
 const formReducer = (state: FormState, action: FormAction): FormState => {
   switch (action.type) {
-    case 'SET_VALUE':
+    case 'SET_VALUE': {
+      // Handle nested paths for repeating sections (e.g., "contacts[0].name")
+      const match = action.fieldName.match(/^(.+)\[(\d+)\]\.(.+)$/);
+      
+      if (match) {
+        // This is a repeating section field
+        const [, sectionId, itemIndex, fieldName] = match;
+        const index = parseInt(itemIndex);
+        const currentArray = state.values[sectionId] || [];
+        const newArray = [...currentArray];
+        
+        // Ensure the item exists at this index
+        if (!newArray[index]) {
+          newArray[index] = {};
+        }
+        
+        // Update the specific field in the item
+        newArray[index] = {
+          ...newArray[index],
+          [fieldName]: action.value,
+        };
+        
+        console.log(`[FormReducer] Updating repeating section item:`, {
+          sectionId,
+          itemIndex: index,
+          fieldName,
+          value: action.value,
+          before: currentArray[index],
+          after: newArray[index],
+        });
+        
+        return {
+          ...state,
+          values: {
+            ...state.values,
+            [sectionId]: newArray,
+          },
+          dirty: true,
+        };
+      }
+      
+      // Regular field update
+      console.log(`[FormReducer] Updating regular field:`, {
+        fieldName: action.fieldName,
+        value: action.value,
+      });
+      
       return {
         ...state,
         values: { ...state.values, [action.fieldName]: action.value },
         dirty: true,
       };
+    }
     
     case 'SET_ERROR':
       return {
@@ -81,13 +128,30 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       };
     
     case 'VALIDATE_FIELD': {
-      const field = action.schema.sections
-        .flatMap(section => section.fields)
-        .find(f => f.name === action.fieldName);
+      // Handle nested paths for repeating sections (e.g., "contacts[0].name")
+      const match = action.fieldName.match(/^(.+)\[(\d+)\]\.(.+)$/);
+      
+      let field;
+      let fieldValue;
+      
+      if (match) {
+        // This is a repeating section field
+        const [, sectionId, itemIndex, fieldName] = match;
+        const index = parseInt(itemIndex);
+        const section = action.schema.sections.find(s => s.id === sectionId);
+        field = section?.fields.find(f => f.name === fieldName);
+        fieldValue = state.values[sectionId]?.[index]?.[fieldName];
+      } else {
+        // Regular field
+        field = action.schema.sections
+          .flatMap(section => section.fields)
+          .find(f => f.name === action.fieldName);
+        fieldValue = state.values[action.fieldName];
+      }
       
       if (!field?.validation) return state;
       
-      const result = validateFieldUtil(state.values[action.fieldName], field.validation);
+      const result = validateFieldUtil(fieldValue, field.validation);
       return {
         ...state,
         errors: {
@@ -174,6 +238,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     isValid: true,
     isSubmitting: false,
   });
+  
+  const [addItemError, setAddItemError] = React.useState<string | null>(null);
 
   // Deep comparison to avoid unnecessary resets
   const prevInitialValuesRef = React.useRef<string>(JSON.stringify(initialValues));
@@ -189,6 +255,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   }, [initialValues]);
 
   const setValue = useCallback((fieldName: string, value: any) => {
+    loggingCustom(LogType.FORM_DATA, 'info', `Setting field "${fieldName}" to:`, value);
     dispatch({ type: 'SET_VALUE', fieldName, value });
     onFieldChange?.(fieldName, value);
     
@@ -236,18 +303,33 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           newErrors[section.id] = errorMessage;
           isValid = false;
         }
-      }
-      
-      // Validate individual fields
-      section.fields.forEach(field => {
-        if (field.validation) {
-          const result = validateFieldUtil(state.values[field.name], field.validation);
-          if (!result.isValid) {
-            newErrors[field.name] = result.error || 'Invalid value';
-            isValid = false;
+        
+        // Validate fields within each repeating item
+        items.forEach((item: any, itemIndex: number) => {
+          section.fields.forEach(field => {
+            if (field.validation) {
+              const fieldValue = item[field.name];
+              const result = validateFieldUtil(fieldValue, field.validation);
+              if (!result.isValid) {
+                const errorKey = `${section.id}[${itemIndex}].${field.name}`;
+                newErrors[errorKey] = result.error || 'Invalid value';
+                isValid = false;
+              }
+            }
+          });
+        });
+      } else {
+        // Validate individual fields in non-repeating sections
+        section.fields.forEach(field => {
+          if (field.validation) {
+            const result = validateFieldUtil(state.values[field.name], field.validation);
+            if (!result.isValid) {
+              newErrors[field.name] = result.error || 'Invalid value';
+              isValid = false;
+            }
           }
-        }
-      });
+        });
+      }
     });
     
     // Update errors in state immediately and mark fields as touched
@@ -273,14 +355,71 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
 
   const addRepeatingItem = useCallback((sectionId: string) => {
     const section = schema.sections.find(s => s.id === sectionId);
-    if (section?.isRepeatingSection) {
-      const defaultValue = section.fields.reduce((acc, field) => {
-        acc[field.name] = field.defaultValue || '';
-        return acc;
-      }, {} as any);
-      dispatch({ type: 'ADD_REPEATING_ITEM', sectionId, defaultValue });
+    if (!section?.isRepeatingSection) return;
+    
+    // Clear any previous add item error
+    setAddItemError(null);
+    
+    // Validate existing items before allowing a new one
+    const items = state.values[sectionId] || [];
+    let hasErrors = false;
+    const newErrors: FormErrors = {};
+    const errorFields: string[] = [];
+    
+    // Check if there are existing items to validate
+    if (items.length > 0) {
+      items.forEach((item: any, itemIndex: number) => {
+        section.fields.forEach(field => {
+          if (field.validation) {
+            const fieldValue = item[field.name];
+            const result = validateFieldUtil(fieldValue, field.validation);
+            if (!result.isValid) {
+              const errorKey = `${sectionId}[${itemIndex}].${field.name}`;
+              newErrors[errorKey] = result.error || 'Invalid value';
+              hasErrors = true;
+              errorFields.push(`Item ${itemIndex + 1} - ${field.label || field.name}`);
+              
+              // Mark field as touched to show the error
+              dispatch({ type: 'SET_TOUCHED', fieldName: errorKey, touched: true });
+            }
+          }
+        });
+      });
+      
+      // Update errors in state
+      Object.entries(newErrors).forEach(([fieldName, error]) => {
+        dispatch({ type: 'SET_ERROR', fieldName, error });
+      });
     }
-  }, [schema]);
+    
+    // If there are validation errors, don't add a new item
+    if (hasErrors) {
+      const errorMessage = `Please fix validation errors in existing items before adding a new one. Fields with errors: ${errorFields.slice(0, 3).join(', ')}${errorFields.length > 3 ? ` and ${errorFields.length - 3} more...` : ''}`;
+      
+      setAddItemError(errorMessage);
+      
+      loggingCustom(LogType.FORM_DATA, 'warn', 
+        `Cannot add new item to "${section.title}": Please fix validation errors in existing items first.`
+      );
+      
+      // Clear the error after 5 seconds
+      setTimeout(() => setAddItemError(null), 5000);
+      
+      return;
+    }
+    
+    // Add the new item
+    const defaultValue = section.fields.reduce((acc, field) => {
+      acc[field.name] = field.defaultValue || '';
+      return acc;
+    }, {} as any);
+    
+    loggingCustom(LogType.FORM_DATA, 'info', 
+      `Adding new item to repeating section "${section.title}"`
+    );
+    
+    dispatch({ type: 'ADD_REPEATING_ITEM', sectionId, defaultValue });
+  }, [schema, state.values]);
 
   const removeRepeatingItem = useCallback((sectionId: string, index: number) => {
     dispatch({ type: 'REMOVE_REPEATING_ITEM', sectionId, index });
@@ -326,14 +465,26 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           sectionValid = false;
           sectionErrors.push(`Maximum ${maxItems} item(s) allowed, found ${items.length}`);
         }
+        
+        // Check for errors within repeating items
+        items.forEach((item: any, itemIndex: number) => {
+          section.fields.forEach(field => {
+            const errorKey = `${section.id}[${itemIndex}].${field.name}`;
+            if (state.errors[errorKey]) {
+              sectionValid = false;
+              sectionErrors.push(`Item ${itemIndex + 1} - ${field.name}: ${state.errors[errorKey]}`);
+            }
+          });
+        });
+      } else {
+        // Check errors for non-repeating section fields
+        section.fields.forEach(field => {
+          if (state.errors[field.name]) {
+            sectionValid = false;
+            sectionErrors.push(`${field.name}: ${state.errors[field.name]}`);
+          }
+        });
       }
-      
-      section.fields.forEach(field => {
-        if (state.errors[field.name]) {
-          sectionValid = false;
-          sectionErrors.push(`${field.name}: ${state.errors[field.name]}`);
-        }
-      });
       
       loggingCustom(LogType.FORM_DATA, sectionValid ? 'info' : 'warn', 
         `Section "${section.title || section.id}": ${sectionValid ? 'VALID' : 'INVALID'}${sectionErrors.length > 0 ? ` - ${sectionErrors.join(', ')}` : ''}`
@@ -414,8 +565,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     });
   };
 
-  // Get first validation error for display (prioritize section-level errors)
+  // Get first validation error for display (prioritize section-level errors, then repeating item errors)
   const firstValidationError = useMemo(() => {
+    // First check for section-level errors (min/max items)
     const sectionErrors = Object.entries(state.errors).filter(([key, value]) => {
       const section = schema.sections.find(s => s.id === key);
       return section?.isRepeatingSection && value;
@@ -428,6 +580,27 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       return section ? `${section.title}: ${errorMessage}` : errorMessage;
     }
     
+    // Then check for repeating item field errors
+    const repeatingSectionItemErrors = Object.entries(state.errors).filter(([key, value]) => {
+      return key.includes('[') && key.includes(']') && value;
+    });
+    
+    if (repeatingSectionItemErrors.length > 0) {
+      const [errorKey, errorMessage] = repeatingSectionItemErrors[0];
+      // Parse the error key to get section id, item index, and field name
+      const match = errorKey.match(/^(.+)\[(\d+)\]\.(.+)$/);
+      if (match) {
+        const [, sectionId, itemIndex, fieldName] = match;
+        const section = schema.sections.find(s => s.id === sectionId);
+        const field = section?.fields.find(f => f.name === fieldName);
+        return section 
+          ? `${section.title} - Item ${parseInt(itemIndex) + 1} (${field?.label || fieldName}): ${errorMessage}`
+          : errorMessage;
+      }
+      return errorMessage;
+    }
+    
+    // Finally check for regular field errors
     return Object.values(state.errors).find(err => err) || '';
   }, [state.errors, schema.sections]);
 
@@ -435,6 +608,18 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     <>
       {children || (
         <>
+          {/* Add Item Error Alert */}
+          {addItemError && (
+            <div className="mb-4">
+              <FormAlert 
+                type="warning" 
+                message={addItemError} 
+                onDismiss={() => setAddItemError(null)}
+                dismissible={true}
+              />
+            </div>
+          )}
+          
           {/* Error Alert - always shown when there are errors */}
           {(error || firstValidationError) && (
             <div className="mb-4">
