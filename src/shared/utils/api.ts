@@ -70,6 +70,47 @@ export class ApiClient {
 
 export const apiClient = new ApiClient();
 
+/**
+ * Generic API request function for easy usage
+ * @param endpoint - The API endpoint
+ * @param options - Request options (method, body, headers, etc.)
+ * @returns Promise with ApiResponse
+ */
+export async function apiRequest<T>(
+  endpoint: string,
+  options?: {
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    body?: any;
+    headers?: Record<string, string>;
+    params?: Record<string, any>;
+  }
+): Promise<ApiResponse<T>> {
+  const method = options?.method || 'GET';
+  
+  try {
+    switch (method) {
+      case 'GET':
+        return await apiClient.get<T>(endpoint, options?.params);
+      case 'POST':
+        return await apiClient.post<T>(endpoint, options?.body);
+      case 'PUT':
+        return await apiClient.put<T>(endpoint, options?.body);
+      case 'PATCH':
+        return await apiClient.patch<T>(endpoint, options?.body);
+      case 'DELETE':
+        return await apiClient.delete<T>(endpoint);
+      default:
+        throw new Error(`Unsupported HTTP method: ${method}`);
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: formatApiError(error),
+      data: null as any,
+    };
+  }
+}
+
 export const buildQueryString = (params: PaginationParams): string => {
   const searchParams = new URLSearchParams();
   

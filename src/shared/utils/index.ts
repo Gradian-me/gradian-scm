@@ -1,3 +1,5 @@
-export { IconRenderer, getIconComponent, LucideIconComponents } from './icon-renderer';
-export { loggingCustom } from './logging-custom';
-
+// Shared utilities index
+export * from './api';
+export * from './schema-registry';
+export * from './validation';
+export * from './logging-custom';

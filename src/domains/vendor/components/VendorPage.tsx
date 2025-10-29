@@ -18,10 +18,13 @@ import { DynamicFilterPane } from './DynamicFilterPane';
 import { useEntity } from '../hooks/useEntity';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
-import { vendorFormSchema } from '../schemas/vendor-form.schema';
+import { getSchemaById } from '../../../shared/utils/schema-registry';
 import { vendorService } from '../services/vendor.service';
 import { Vendor } from '../types';
 import { asFormSchema } from '../utils/schema-utils';
+
+// Load schema dynamically from centralized registry
+const vendorFormSchema = getSchemaById('vendors');
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
