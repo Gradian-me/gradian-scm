@@ -21,13 +21,18 @@ export async function generateStaticParams() {
 
 /**
  * Serialize schema to remove RegExp and other non-serializable objects
- * Converts RegExp patterns to strings that can be passed to Client Components
+ * Converts RegExp patterns to a special object format that can be passed to Client Components
+ * and reconstructed on the client side
  */
-function serializeSchema(schema: FormSchema): FormSchema {
+function serializeSchema(schema: FormSchema): any {
   return JSON.parse(JSON.stringify(schema, (key, value) => {
-    // Convert RegExp to string pattern
+    // Convert RegExp to a serializable format with marker
     if (value instanceof RegExp) {
-      return value.source;
+      return {
+        __regexp: true,
+        source: value.source,
+        flags: value.flags
+      };
     }
     return value;
   }));

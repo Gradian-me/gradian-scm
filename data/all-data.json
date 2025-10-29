@@ -1,0 +1,41 @@
+{
+  "vendors": [
+    {
+      "name": "سیناژن",
+      "email": "abidi.mahyar@gmail.com",
+      "phone": "09126184264",
+      "address": "تهران شهرک غرب بلوار فرحزادی خیابان سپهر پلاک 34\nتحویل نگهبانی گردد - مهیار عبیدی",
+      "city": "تهران",
+      "state": "تهران",
+      "zipCode": "1468943381",
+      "registrationNumber": "TF-2019-001",
+      "taxId": "US-TAX-0022asd",
+      "country": "CN",
+      "categories": [
+        "education",
+        "services"
+      ],
+      "status": "PENDING",
+      "contacts": [
+        {
+          "name": "",
+          "email": "",
+          "phone": "",
+          "position": "",
+          "department": "",
+          "isPrimary": false,
+          "notes": ""
+        }
+      ],
+      "rating": 5,
+      "id": "01K8QJ4N587ZH08D4RTM220M9G",
+      "createdAt": "2025-10-29T08:42:50.417Z",
+      "updatedAt": "2025-10-29T08:42:50.417Z"
+    }
+  ],
+  "tenders": [],
+  "purchaseOrders": [],
+  "products": [],
+  "shipments": [],
+  "invoices": []
+}

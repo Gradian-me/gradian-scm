@@ -40,7 +40,8 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
   const [currentFilters, setCurrentFilters] = useState<EntityFilters>({});
   const [formValues, setFormValues] = useState<any>({});
 
-  const apiEndpoint = `/${schema.id}`;
+  // Use the new dynamic API route
+  const apiEndpoint = `/api/data/${schema.id}`;
 
   // Fetch all entities
   const fetchEntities = useCallback(async (filters?: EntityFilters) => {

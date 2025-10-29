@@ -23,7 +23,37 @@ interface DynamicPageRendererProps {
   entityName: string;
 }
 
-export function DynamicPageRenderer({ schema, entityName }: DynamicPageRendererProps) {
+/**
+ * Reconstruct RegExp objects from serialized schema
+ */
+function reconstructRegExp(obj: any): any {
+  if (obj && typeof obj === 'object') {
+    // Check if this is a serialized RegExp
+    if (obj.__regexp === true && obj.source) {
+      return new RegExp(obj.source, obj.flags || '');
+    }
+    
+    // Recursively process arrays
+    if (Array.isArray(obj)) {
+      return obj.map(item => reconstructRegExp(item));
+    }
+    
+    // Recursively process objects
+    const result: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = reconstructRegExp(obj[key]);
+      }
+    }
+    return result;
+  }
+  
+  return obj;
+}
+
+export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPageRendererProps) {
+  // Reconstruct RegExp objects in the schema
+  const schema = reconstructRegExp(rawSchema) as FormSchema;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [formError, setFormError] = useState<string | null>(null);
   const [isEditLoading, setIsEditLoading] = useState<Record<string, boolean>>({});
