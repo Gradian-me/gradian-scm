@@ -29,7 +29,7 @@ export const vendorFormSchema: FormSchema = {
       title: 'Vendor Information',
       description: 'Basic vendor details and contact information',
       initialState: 'expanded',
-      columns: 3,
+      columns: 2,
       gap: 4,
       fields: [
         {
@@ -112,7 +112,7 @@ export const vendorFormSchema: FormSchema = {
             required: true,
           },
           ui: {
-            colSpan: 2,
+            colSpan: 1,
             order: 4,
             variant: 'outlined',
             size: 'md',
@@ -159,7 +159,7 @@ export const vendorFormSchema: FormSchema = {
             required: true,
           },
           ui: {
-            colSpan: 2,
+            colSpan: 1,
             order: 6,
             variant: 'outlined',
             size: 'md',

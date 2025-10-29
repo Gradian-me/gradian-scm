@@ -20,9 +20,9 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   const sizeClasses = {
     sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl',
+    md: 'md:max-w-4xl',
+    lg: 'lg:max-w-7xl',
+    xl: 'xl:max-w-[88rem]',
     full: 'max-w-full mx-4',
   };
 
@@ -30,8 +30,8 @@ export const Modal: React.FC<ModalProps> = ({
     'bg-white shadow-xl overflow-hidden',
     'rounded-none sm:rounded-2xl', // No rounded corners on mobile, rounded on desktop
     'h-screen w-screen sm:h-auto sm:w-auto', // Full screen on mobile, auto on desktop
-    'mx-0 sm:mx-4', // No margin on mobile, margin on desktop
-    'max-h-screen sm:max-h-[90vh]', // Full height on mobile, constrained on desktop
+    'mx-0 md:mx-2', // No margin on mobile, margin on desktop
+    'max-h-screen sm:max-h-[95vh]', // Full height on mobile, constrained on desktop
     'flex flex-col', // Add flex column layout
     sizeClasses[size],
     className

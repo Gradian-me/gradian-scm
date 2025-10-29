@@ -442,7 +442,7 @@ export function VendorPage() {
         onClose={isCreateModalOpen ? closeCreateModal : closeEditModal}
         title={modalTitle}
         description={isCreateModalOpen ? 'Add a new vendor to your system' : 'Edit vendor information'}
-        size="lg"
+        size="xl"
         showCloseButton={false}
       >
         {/* Loading indicator for form submission */}

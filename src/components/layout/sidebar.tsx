@@ -17,8 +17,6 @@ import {
   Settings,
   Bell,
   X,
-  ChevronLeft,
-  ChevronRight,
   PanelRightOpen,
   PanelLeftOpen
 } from 'lucide-react';

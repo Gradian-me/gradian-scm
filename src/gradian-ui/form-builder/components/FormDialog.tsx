@@ -90,16 +90,16 @@ export const FormDialog: React.FC<FormDialogProps> = ({
   };
 
   const sizeClasses = {
-    sm: '!max-w-2xl',
-    md: '!max-w-4xl',
-    lg: '!max-w-6xl',
-    xl: '!max-w-7xl',
-    '2xl': '!max-w-7xl',
+    sm: 'sm:max-w-2xl',
+    md: 'md:max-w-6xl',
+    lg: 'lg:max-w-[88rem]',
+    xl: 'xl:max-w-[100rem]',
+    '2xl': '2xl:max-w-[112rem]',
   };
 
   const dialogClasses = cn(
     sizeClasses[size],
-    '!max-h-[95vh] !w-[95vw] sm:w-full flex flex-col',
+    'max-h-[95vh] w-[98vw] md:w-full flex flex-col',
     className
   );
 
@@ -109,7 +109,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         className={dialogClasses}
         {...(closeOnOutsideClick ? {} : { onInteractOutside: (e) => e.preventDefault() })}
       >
-        <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
+        <DialogHeader className="px-2 md:px-4 pt-6 pb-2 shrink-0">
           {title && <DialogTitle>{title}</DialogTitle>}
           {description && <DialogDescription className="mt-0.5">{description}</DialogDescription>}
         </DialogHeader>

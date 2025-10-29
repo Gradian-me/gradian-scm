@@ -49,11 +49,11 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   const gridClasses = cn(
     'grid gap-3',
     columns === 1 && 'grid-cols-1',
-    columns === 2 && 'grid-cols-1 md:grid-cols-2',
-    columns === 3 && 'grid-cols-1 md:grid-cols-3',
-    columns === 4 && 'grid-cols-1 md:grid-cols-4',
-    columns === 6 && 'grid-cols-1 md:grid-cols-6',
-    columns === 12 && 'grid-cols-1 md:grid-cols-12',
+    columns === 2 && 'grid-cols-1 lg:grid-cols-2',
+    columns === 3 && 'grid-cols-1 lg:grid-cols-3',
+    columns === 4 && 'grid-cols-1 lg:grid-cols-4',
+    columns === 6 && 'grid-cols-1 lg:grid-cols-6',
+    columns === 12 && 'grid-cols-1 lg:grid-cols-12',
     gap !== undefined && gap !== null && gap !== 0 && `gap-${gap}`
   );
 
@@ -121,38 +121,32 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       const colSpan = getColSpan(field);
       
       // Generate the appropriate column span class
-      let colSpanClass = '';
+      // Default to single column on mobile to avoid overlap,
+      // and apply the actual span at md and up.
+      let colSpanClass = 'col-span-1';
       if (colSpan === columns) {
-        colSpanClass = 'col-span-full';
+        colSpanClass = 'col-span-1 lg:col-span-full';
       } else {
-        // For responsive layouts
+        // For responsive layouts at md+
         if (columns === 3) {
-          if (colSpan === 1) {
-            colSpanClass = 'col-span-1';
-          } else if (colSpan === 2) {
-            colSpanClass = 'col-span-2';
+          if (colSpan === 2) {
+            colSpanClass = 'col-span-1 lg:col-span-2';
           }
         } else if (columns === 2) {
-          if (colSpan === 1) {
-            colSpanClass = 'col-span-1';
-          } else if (colSpan === 2) {
-            colSpanClass = 'col-span-2';
+          if (colSpan === 2) {
+            colSpanClass = 'col-span-1 lg:col-span-2';
           }
         } else if (columns === 4) {
-          if (colSpan === 1) {
-            colSpanClass = 'col-span-1';
-          } else if (colSpan === 2) {
-            colSpanClass = 'col-span-2';
+          if (colSpan === 2) {
+            colSpanClass = 'col-span-1 lg:col-span-2';
           } else if (colSpan === 3) {
-            colSpanClass = 'col-span-3';
+            colSpanClass = 'col-span-1 lg:col-span-3';
           }
-        } else if (columns === 6) {
-          colSpanClass = `col-span-${colSpan}`;
-        } else if (columns === 12) {
-          colSpanClass = `col-span-${colSpan}`;
+        } else if (columns === 6 || columns === 12) {
+          colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
         } else {
           // Default for other column counts
-          colSpanClass = `col-span-${colSpan}`;
+          colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
         }
       }
 
