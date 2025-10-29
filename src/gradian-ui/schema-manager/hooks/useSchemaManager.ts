@@ -15,17 +15,19 @@ export type { GeneratedSchemas, SchemaManager, SchemaManagerConfig };
  * Works generically for any entity
  */
 export const useSchemaManager = <T extends Record<string, any> = any>(schema: FormSchema): SchemaManager<T> => {
+  const schemaWithUI = schema as any;
+  
   // Check if schema has UI config
-  if (!schema.ui) {
+  if (!schemaWithUI.ui) {
     throw new Error(`Schema "${schema.id}" missing ui configuration. Add ui property to schema.`);
   }
 
   const config: SchemaManagerConfig = {
-    entityName: schema.ui.entityName,
+    entityName: schemaWithUI.ui.entityName,
     schema,
-    customFilters: schema.ui.filters,
-    onDelete: schema.ui.onDelete,
-    onView: schema.ui.onView,
+    customFilters: schemaWithUI.ui.filters,
+    onDelete: schemaWithUI.ui.onDelete,
+    onView: schemaWithUI.ui.onView,
   };
 
   // Generate schemas (Zod validation)
@@ -34,15 +36,15 @@ export const useSchemaManager = <T extends Record<string, any> = any>(schema: Fo
   // Generate UI hook using the config
   const useGeneratedHook = useMemo(
     () => createEntityUIHook<T>(
-      schema.ui!.entityName,
+      schemaWithUI.ui.entityName,
       schema,
       {
-        createTitle: schema.ui!.createTitle,
-        editTitle: schema.ui!.editTitle,
-        basePath: schema.ui!.basePath,
-        customFilters: schema.ui!.filters,
-        onDelete: schema.ui!.onDelete,
-        onView: schema.ui!.onView,
+        createTitle: schemaWithUI.ui.createTitle,
+        editTitle: schemaWithUI.ui.editTitle,
+        basePath: schemaWithUI.ui.basePath,
+        customFilters: schemaWithUI.ui.filters,
+        onDelete: schemaWithUI.ui.onDelete,
+        onView: schemaWithUI.ui.onView,
       }
     ),
     [schema]
@@ -52,10 +54,10 @@ export const useSchemaManager = <T extends Record<string, any> = any>(schema: Fo
   const hook = useGeneratedHook();
 
   // Get entity name for prefixing
-  const entityName = schema.ui!.entityName.toLowerCase();
+  const entityName = schemaWithUI.ui.entityName.toLowerCase();
 
   // Get actions configuration from schema
-  const actions = schema.ui?.actions || { view: true, edit: true, delete: true };
+  const actions = schemaWithUI.ui?.actions || { view: true, edit: true, delete: true };
 
   return {
     ...hook,
@@ -67,7 +69,7 @@ export const useSchemaManager = <T extends Record<string, any> = any>(schema: Fo
     
     // Auto-generate entity-prefixed aliases (e.g., vendorFormState, selectedVendor for Vendor)
     [`${entityName}FormState`]: hook.formState,
-    [`selected${schema.ui!.entityName}`]: hook.selectedEntity,
+    [`selected${schemaWithUI.ui.entityName}`]: hook.selectedEntity,
     
     // Expose actions configuration
     entityActions: actions,

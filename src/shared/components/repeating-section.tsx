@@ -41,7 +41,12 @@ export function RepeatingSection({
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle>{title}</CardTitle>
+          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+            {items.length}
+          </span>
+        </div>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (

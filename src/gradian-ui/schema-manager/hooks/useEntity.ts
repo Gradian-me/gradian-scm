@@ -37,7 +37,7 @@ export const createEntityHook = <T extends Record<string, any> = any>(
 export const createEntityAlias = <T extends Record<string, any> = any>(
   schema: FormSchema
 ) => {
-  const entityName = schema.ui?.entityName || 'Entity';
+  const entityName = (schema as any).ui?.entityName || 'Entity';
   return createEntityHook<T>(entityName, schema)();
 };
 

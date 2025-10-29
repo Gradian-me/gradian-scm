@@ -53,11 +53,49 @@ export const useFormState = <T extends Record<string, any>>(
   const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({});
 
   const setValue = useCallback((field: keyof T, value: any) => {
-    setValues(prev => ({ ...prev, [field]: value }));
+    // Handle nested paths for repeating sections (e.g., "contacts[0].name")
+    const fieldStr = String(field);
+    const match = fieldStr.match(/^(.+)\[(\d+)\]\.(.+)$/);
     
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+    if (match) {
+      // This is a repeating section field (e.g., "contacts[0].name")
+      const [, sectionId, itemIndex, nestedField] = match;
+      const index = parseInt(itemIndex);
+      
+      setValues(prev => {
+        const currentArray = (prev[sectionId as keyof T] as any) || [];
+        const newArray = [...currentArray];
+        
+        // Ensure the array is long enough
+        while (newArray.length <= index) {
+          newArray.push({ _id: `${sectionId}_${Date.now()}_${newArray.length}_${Math.random().toString(36).substr(2, 9)}` });
+        }
+        
+        // Update the specific field in the item
+        newArray[index] = {
+          ...newArray[index],
+          [nestedField]: value,
+        };
+        
+        return {
+          ...prev,
+          [sectionId]: newArray,
+        } as T;
+      });
+      
+      // Clear error for nested field
+      const errorKey = field;
+      if (errors[errorKey]) {
+        setErrors(prev => ({ ...prev, [errorKey]: undefined }));
+      }
+    } else {
+      // Regular field update
+      setValues(prev => ({ ...prev, [field]: value }));
+      
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors(prev => ({ ...prev, [field]: undefined }));
+      }
     }
   }, [errors]);
 

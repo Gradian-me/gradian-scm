@@ -1,14 +1,9 @@
 // Schema Validator
 // Validates data against schema definitions
 
-import { FormSchema, FieldSchema } from '@/shared/types/form-schema';
+import { FormSchema, FormField } from '@/shared/types/form-schema';
 import { ValidationError as DomainValidationError } from '../errors/domain.errors';
-
-interface ValidationError {
-  field: string;
-  message: string;
-  code?: string;
-}
+import { ValidationErrorDetail } from '../types/base.types';
 
 /**
  * Validate data against a schema
@@ -16,11 +11,11 @@ interface ValidationError {
 export function validateAgainstSchema(
   data: Record<string, any>,
   schema: FormSchema
-): { isValid: boolean; errors: ValidationError[] } {
-  const errors: ValidationError[] = [];
+): { isValid: boolean; errors: ValidationErrorDetail[] } {
+  const errors: ValidationErrorDetail[] = [];
 
   // Get all fields from all sections
-  const allFields: FieldSchema[] = [];
+  const allFields: FormField[] = [];
   schema.sections.forEach(section => {
     allFields.push(...section.fields);
   });
@@ -42,10 +37,10 @@ export function validateAgainstSchema(
  * Validate a single field
  */
 export function validateField(
-  field: FieldSchema,
+  field: FormField,
   value: any
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): ValidationErrorDetail[] {
+  const errors: ValidationErrorDetail[] = [];
 
   // Required validation
   if (field.required || field.validation?.required) {
@@ -87,7 +82,6 @@ export function validateField(
       break;
 
     case 'tel':
-    case 'phone':
       if (!isValidPhone(value)) {
         errors.push({
           field: field.name,

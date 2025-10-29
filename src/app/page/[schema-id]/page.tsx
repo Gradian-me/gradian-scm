@@ -2,7 +2,7 @@
 // Renders any entity page based on schema ID
 import { notFound } from 'next/navigation';
 import { DynamicPageRenderer } from '../../../components/dynamic/DynamicPageRenderer';
-import { findSchemaById, getAvailableSchemaIds } from '../../../shared/utils/schema-registry';
+import { findSchemaById, getAvailableSchemaIds } from '../../../shared/utils/schema-registry.server';
 import { FormSchema } from '../../../shared/types/form-schema';
 
 interface PageProps {

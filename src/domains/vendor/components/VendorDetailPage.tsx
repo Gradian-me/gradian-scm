@@ -511,7 +511,6 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
                 onSubmit={handleUpdateVendor}
                 onReset={() => vendorFormState.reset()}
                 initialValues={vendorFormState.values}
-                onFieldChange={(fieldName: any, value: any) => vendorFormState.setValue(fieldName, value)}
               />
             </div>
           </div>

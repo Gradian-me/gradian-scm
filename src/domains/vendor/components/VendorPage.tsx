@@ -18,13 +18,15 @@ import { DynamicFilterPane } from './DynamicFilterPane';
 import { useEntity } from '../hooks/useEntity';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { useVendor } from '../hooks/useVendor';
-import { getSchemaById } from '../../../shared/utils/schema-registry';
+// import { getSchemaById } from '../../../shared/utils/schema-registry.server'; // SERVER ONLY
 import { vendorService } from '../services/vendor.service';
 import { Vendor } from '../types';
 import { asFormSchema } from '../utils/schema-utils';
+import { vendorFormSchema as vendorFormSchemaImport } from '../schemas/vendor-form.schema';
 
 // Load schema dynamically from centralized registry
-const vendorFormSchema = getSchemaById('vendors');
+// TODO: This domain folder will be removed - use dynamic pages instead
+const vendorFormSchema = vendorFormSchemaImport;
 
 export function VendorPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -480,7 +482,6 @@ export function VendorPage() {
             status: currentVendor.status || 'ACTIVE',
             rating: currentVendor.rating || 5,
           } : vendorFormState.values)}
-          onFieldChange={(fieldName, value) => vendorFormState.setValue(fieldName as any, value)}
           error={formError}
           onErrorDismiss={() => setFormError(null)}
           disabled={isSubmitting}

@@ -1,6 +1,5 @@
 import { useSchemaManager } from '../../../gradian-ui/schema-manager';
-import { FormSchema } from '../../../gradian-ui/form-builder/types/form-schema';
-import { ExtendedFormSchema } from '../types/extended-form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 
 /**
  * Custom useEntity hook that ensures the schema has all required properties
@@ -8,16 +7,16 @@ import { ExtendedFormSchema } from '../types/extended-form-schema';
  * @param schema The form schema
  * @returns The schema manager hook
  */
-export function useEntity<T>(entityType: string, schema: FormSchema | ExtendedFormSchema) {
+export function useEntity<T extends Record<string, any> = any>(entityType: string, schema: FormSchema) {
   // Ensure schema has UI property with required fields
   const safeSchema = {
     ...schema,
     ui: {
-      ...(schema.ui || {}),
-      entityName: (schema as ExtendedFormSchema).singular_name || entityType || 'Entity',
-      createTitle: `Create New ${(schema as ExtendedFormSchema).singular_name || entityType || 'Entity'}`,
-      editTitle: `Edit ${(schema as ExtendedFormSchema).singular_name || entityType || 'Entity'}`,
-      basePath: schema.name ? schema.name.toLowerCase() : ((schema as ExtendedFormSchema).plural_name || entityType + 's').toLowerCase()
+      ...((schema as any).ui || {}),
+      entityName: (schema as any).singular_name || entityType || 'Entity',
+      createTitle: `Create New ${(schema as any).singular_name || entityType || 'Entity'}`,
+      editTitle: `Edit ${(schema as any).singular_name || entityType || 'Entity'}`,
+      basePath: schema.name ? schema.name.toLowerCase() : ((schema as any).plural_name || entityType + 's').toLowerCase()
     }
   };
 

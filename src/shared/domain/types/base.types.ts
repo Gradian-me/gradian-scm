@@ -38,7 +38,7 @@ export interface ApiResponse<T = any> {
   message?: string;
 }
 
-export interface ValidationError {
+export interface ValidationErrorDetail {
   field: string;
   message: string;
   code?: string;
@@ -46,6 +46,6 @@ export interface ValidationError {
 
 export interface ValidationResult {
   isValid: boolean;
-  errors: ValidationError[];
+  errors: ValidationErrorDetail[];
 }
 

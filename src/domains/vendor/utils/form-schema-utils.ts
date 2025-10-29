@@ -1,14 +1,12 @@
-import { FormConfig } from '../../../gradian-ui/form-builder/form-wrapper/types';
 import { FormElementConfig } from '../../../gradian-ui/form-builder/form-elements/types';
-import { FormField } from '../../../gradian-ui/form-builder/types/form-schema';
-import { ExtendedFormSchema } from '../types/extended-form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 
 /**
  * Extracts all fields from form sections and converts them to FormElementConfig
  * @param schema The extended form schema with sections
  * @returns Array of form element configs
  */
-const extractFieldsFromSections = (schema: ExtendedFormSchema): FormElementConfig[] => {
+const extractFieldsFromSections = (schema: FormSchema): FormElementConfig[] => {
   if (!schema.sections) {
     return [];
   }
@@ -52,19 +50,19 @@ const extractFieldsFromSections = (schema: ExtendedFormSchema): FormElementConfi
           };
         }
         // For backward compatibility
-        else if (field.layout || field.styling) {
-          if (field.layout) {
+        else if ((field as any).layout || (field as any).styling) {
+          if ((field as any).layout) {
             elementConfig.layout = {
-              width: field.layout.width,
-              order: field.layout.order,
+              width: (field as any).layout.width,
+              order: (field as any).layout.order,
               hidden: false
             };
           }
           
-          if (field.styling) {
+          if ((field as any).styling) {
             elementConfig.styling = {
-              variant: field.styling.variant === 'underlined' ? 'outlined' : field.styling.variant as 'default' | 'outlined' | 'filled' | undefined,
-              size: field.styling.size
+              variant: (field as any).styling.variant === 'underlined' ? 'outlined' : (field as any).styling.variant as 'default' | 'outlined' | 'filled' | undefined,
+              size: (field as any).styling.size
             };
           }
         }
@@ -82,7 +80,7 @@ const extractFieldsFromSections = (schema: ExtendedFormSchema): FormElementConfi
  * @param schema The extended form schema with singular_name and plural_name
  * @returns Updated config with dynamic UI properties
  */
-export const generateDynamicSchemaProperties = (schema: ExtendedFormSchema): any => {
+export const generateDynamicSchemaProperties = (schema: FormSchema): any => {
   const { singular_name, plural_name, sections, cardMetadata, ...restSchema } = schema;
   
   // Extract all fields from sections
@@ -123,7 +121,7 @@ export const generateDynamicSchemaProperties = (schema: ExtendedFormSchema): any
  * @param schema The form schema to update
  * @returns Updated config with dynamic properties
  */
-export const updateSchemaWithDynamicProperties = (schema: ExtendedFormSchema): any => {
+export const updateSchemaWithDynamicProperties = (schema: FormSchema): any => {
   if (!schema.singular_name) {
     return {
       ...schema,

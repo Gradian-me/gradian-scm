@@ -1,195 +1,161 @@
-# Gradian Supply Chain Management System
+# Gradian Supply Chain Management (SCM)
 
-A comprehensive supply chain management system built with Next.js 14, TypeScript, and modern web technologies. This system is designed specifically for pharmaceutical companies to manage their procurement, vendor relationships, and supply chain operations.
+A modern, dynamic supply chain management system built with Next.js 16, featuring a fully schema-driven architecture.
 
-## Features
+## 🚀 Key Features
 
-### 🏠 Dashboard
-- Real-time KPI metrics and analytics
-- Interactive charts and data visualizations
-- Recent activity feed
-- Quick action buttons
-- Responsive design with smooth animations
+- **100% Dynamic Schema System** - Add new entities by editing JSON, no code changes needed
+- **Automatic CRUD Operations** - API routes and pages generated automatically from schemas
+- **Type-Safe** - Full TypeScript support with runtime validation
+- **Server & Client Compatible** - Seamless data fetching on both sides
+- **Domain-Driven Design** - Clean architecture with Repository, Service, and Controller layers
+- **Modern UI** - Built with Tailwind CSS and shadcn/ui components
 
-### 👥 Vendor Management
-- Complete vendor profiles with contact information
-- Performance tracking and metrics
-- Certification management
-- Rating and review system
-- Advanced search and filtering
+## 📁 Project Structure
 
-### 📋 Tender Management
-- Create and manage procurement tenders
-- Quotation submission and evaluation
-- Automated evaluation criteria
-- Timeline tracking
-- Status management
-
-### 🛒 Purchase Orders
-- Generate purchase orders from tenders
-- Multi-level approval workflow
-- Vendor integration
-- Status tracking
-- PDF generation
-
-### 📊 Analytics & Reporting
-- Comprehensive spend analysis
-- Monthly trend tracking
-- Vendor performance metrics
-- Cost savings calculations
-- Export capabilities
-
-### 🚚 Shipment Tracking
-- Real-time shipment status
-- Carrier integration
-- Delivery tracking
-- Exception management
-
-### 💰 Invoice Management
-- Automated invoice processing
-- Approval workflows
-- Payment tracking
-- Financial reporting
-
-## Technology Stack
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, ShadCN/UI
-- **Animations**: Framer Motion
-- **Charts**: Recharts
-- **Icons**: Lucide React
-- **Forms**: React Hook Form, Zod validation
-- **State Management**: React Query (TanStack Query)
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd gradian-scm
+```
+gradian-scm/
+├── data/
+│   ├── all-schemas.json          # All entity schemas (single source of truth)
+│   ├── all-data.json             # All entity data
+│   └── *.json                    # Individual entity data files
+├── src/
+│   ├── app/
+│   │   ├── page/[schema-id]/     # Dynamic entity pages
+│   │   ├── api/
+│   │   │   ├── schemas/          # Schema API endpoint
+│   │   │   └── data/[schema-id]/ # Dynamic CRUD API routes
+│   │   └── ...                   # Other pages
+│   ├── components/
+│   │   └── dynamic/              # Dynamic page renderer
+│   ├── shared/
+│   │   ├── schemas/              # Schema TypeScript definitions
+│   │   ├── utils/                # Utilities (schema-registry, schema-loader)
+│   │   └── domain/               # DDD base classes (Repository, Service, Controller)
+│   └── gradian-ui/               # Reusable UI component library
+└── docs/                         # Documentation
 ```
 
-2. Install dependencies:
+## 🎯 Quick Start
+
+### 1. Installation
+
 ```bash
 npm install
 ```
 
-3. Run the development server:
+### 2. Run Development Server
+
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project Structure
+### 3. Add a New Entity
 
+Simply edit `data/all-schemas.json`:
+
+```json
+{
+  "id": "products",
+  "name": "products",
+  "title": "Create New Product",
+  "singular_name": "Product",
+  "plural_name": "Products",
+  "sections": [
+    {
+      "id": "basic-info",
+      "title": "Basic Information",
+      "fields": [
+        {
+          "id": "product-name",
+          "name": "name",
+          "label": "Product Name",
+          "type": "text",
+          "component": "text",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
 ```
-src/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── vendors/           # Vendor management pages
-│   ├── tenders/           # Tender management pages
-│   ├── purchase-orders/   # Purchase order pages
-│   ├── analytics/         # Analytics pages
-│   └── page.tsx           # Dashboard page
-├── components/            # Reusable components
-│   ├── ui/               # ShadCN/UI components
-│   ├── layout/           # Layout components
-│   └── dashboard/        # Dashboard-specific components
-├── lib/                  # Utility functions
-│   ├── utils.ts          # Common utilities
-│   ├── validations.ts    # Zod schemas
-│   └── mock-data.ts      # Sample data
-└── types/                # TypeScript type definitions
-    └── index.ts          # Main type definitions
+
+**That's it!** The following are now automatically available:
+- Page: `/page/products`
+- API: `GET/POST /api/data/products`
+- Forms, validation, and CRUD operations
+
+## 📚 Documentation
+
+- [Quick Start Guide](./QUICK_START_GUIDE.md) - Detailed setup and usage
+- [Dynamic Schema System](./DYNAMIC_SCHEMA_REFACTOR.md) - How the schema system works
+- [CRUD Architecture](./DYNAMIC_CRUD_ARCHITECTURE.md) - Domain-driven design implementation
+- [Mock Data Guide](./MOCK_DATA_REFACTOR.md) - Data structure and metrics
+- [Database Setup](./DATABASE_SETUP.md) - Prisma configuration
+
+## 🛠️ Technology Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Data Access**: Prisma (optional, JSON files by default)
+- **Validation**: Zod
+- **State Management**: Zustand
+- **Charts**: Recharts
+
+## 📦 Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
 ```
 
-## Key Features Implemented
+## 🎨 Key Concepts
 
-### ✅ Completed
-- [x] Next.js 14 project setup with TypeScript
-- [x] ShadCN/UI component library integration
-- [x] Responsive sidebar navigation with animations
-- [x] Dashboard with KPI cards and analytics charts
-- [x] Vendor management with performance tracking
-- [x] Tender management system
-- [x] Purchase order management
-- [x] Analytics and reporting
-- [x] API routes with validation
-- [x] Mock data and seed data
-- [x] Framer Motion animations
+### Dynamic Schema System
 
-### 🚧 In Progress
-- [ ] Dark mode support
-- [ ] Notifications system
-- [ ] RBAC (Role-Based Access Control)
-- [ ] Shipment tracking
-- [ ] Invoice management
-- [ ] Calendar integration
-- [ ] Advanced filtering and search
+All entities are defined in `data/all-schemas.json`. The system automatically:
+1. Generates API routes
+2. Creates UI pages with forms
+3. Handles CRUD operations
+4. Validates data
+5. Manages state
 
-## API Endpoints
+### Server-Side vs Client-Side
 
-### Dashboard
-- `GET /api/dashboard` - Get dashboard metrics and analytics
+**Server-Side Functions** (sync):
+```typescript
+import { getSchemaById } from '@/shared/utils/schema-registry';
+const schema = getSchemaById('vendors');
+```
 
-### Vendors
-- `GET /api/vendors` - List all vendors
-- `POST /api/vendors` - Create new vendor
-- `GET /api/vendors/[id]` - Get vendor details
-- `PUT /api/vendors/[id]` - Update vendor
-- `DELETE /api/vendors/[id]` - Delete vendor
+**Client-Side Functions** (async):
+```typescript
+import { fetchSchemaById } from '@/shared/utils/schema-registry';
+const schema = await fetchSchemaById('vendors');
+```
 
-### Tenders
-- `GET /api/tenders` - List all tenders
-- `POST /api/tenders` - Create new tender
-- `GET /api/tenders/[id]` - Get tender details
-- `PUT /api/tenders/[id]` - Update tender
-- `DELETE /api/tenders/[id]` - Cancel tender
-- `GET /api/tenders/[id]/quotations` - Get tender quotations
-- `POST /api/tenders/[id]/quotations` - Submit quotation
+## 🤝 Contributing
 
-### Purchase Orders
-- `GET /api/purchase-orders` - List all purchase orders
-- `POST /api/purchase-orders` - Create new purchase order
-- `GET /api/purchase-orders/[id]` - Get purchase order details
-- `PUT /api/purchase-orders/[id]` - Update purchase order
-- `DELETE /api/purchase-orders/[id]` - Cancel purchase order
+1. Add schemas to `data/all-schemas.json`
+2. Add data to corresponding JSON files in `data/`
+3. Use existing components from `gradian-ui/`
+4. Follow the domain-driven architecture
 
-### Notifications
-- `GET /api/notifications` - Get user notifications
-- `POST /api/notifications` - Create notification
-- `PUT /api/notifications/[id]/read` - Mark notification as read
+## 📄 License
 
-## Design System
+This project is proprietary and confidential.
 
-The application follows a consistent design system with:
+## 🔗 Related Projects
 
-- **Color Palette**: Blue primary, with semantic colors for success, warning, error, and info
-- **Typography**: Clean, readable fonts with proper hierarchy
-- **Spacing**: Consistent spacing scale using Tailwind CSS
-- **Components**: Reusable, accessible components built with ShadCN/UI
-- **Animations**: Smooth, purposeful animations using Framer Motion
+- Gradian UI - Custom component library
+- Schema Manager - Auto-generation utilities
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please contact the development team or create an issue in the repository.
+Built with ❤️ by the Gradian Team

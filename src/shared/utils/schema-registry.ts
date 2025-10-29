@@ -1,75 +1,139 @@
 // Schema Registry Utilities
-// Utilities for finding and working with schemas dynamically
+// Universal functions that work on both client and server side
+// For server-only functions, import from './schema-registry.server'
 
-import { FormSchema } from '../types/form-schema';
-import { ALL_SCHEMAS, schemaExists } from '../schemas/all-schemas';
+import { FormSchema, FormField } from '../types/form-schema';
 
 /**
- * Find a schema by its ID
- * @param schemaId - The ID of the schema to find
+ * Convert a pattern string to RegExp
+ * @param pattern - The pattern string
+ * @returns RegExp object or undefined
+ */
+function stringToRegExp(pattern: string | undefined): RegExp | undefined {
+  if (!pattern) return undefined;
+  
+  try {
+    return new RegExp(pattern);
+  } catch (error) {
+    console.warn(`Invalid pattern: ${pattern}`, error);
+    return undefined;
+  }
+}
+
+/**
+ * Process a field to convert string patterns to RegExp
+ * @param field - The field to process
+ * @returns Processed field
+ */
+function processField(field: any): FormField {
+  const processedField = { ...field };
+  
+  // Convert pattern string to RegExp
+  if (processedField.validation?.pattern && typeof processedField.validation.pattern === 'string') {
+    processedField.validation.pattern = stringToRegExp(processedField.validation.pattern);
+  }
+  
+  return processedField;
+}
+
+/**
+ * Process a schema to convert string patterns to RegExp objects
+ * @param schema - The schema to process
+ * @returns Processed schema
+ */
+function processSchema(schema: any): FormSchema {
+  const processedSchema = { ...schema };
+  
+  // Process all fields in all sections
+  if (processedSchema.sections) {
+    processedSchema.sections = processedSchema.sections.map((section: any) => ({
+      ...section,
+      fields: section.fields ? section.fields.map(processField) : []
+    }));
+  }
+  
+  return processedSchema as FormSchema;
+}
+
+/**
+ * Load schemas from server (works on both client and server)
+ * @returns Array of FormSchema objects
+ */
+async function loadSchemasFromServer(): Promise<FormSchema[]> {
+  // Check if we're on the server side
+  if (typeof window === 'undefined') {
+    // Server side - use dynamic import to avoid bundling fs in client
+    const { loadAllSchemas } = await import('./schema-loader');
+    return loadAllSchemas();
+  } else {
+    // Client side - fetch from API
+    const response = await fetch('/api/schemas');
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to load schemas');
+    }
+    
+    // Process schemas to convert string patterns to RegExp
+    return result.data.map(processSchema);
+  }
+}
+
+// ============================================================================
+// CLIENT-SIDE COMPATIBLE ASYNC FUNCTIONS
+// ============================================================================
+
+/**
+ * Fetch a schema by ID (Works on both client and server)
+ * @param schemaId - The ID of the schema to fetch
  * @returns The schema if found, or null if not found
  */
-export const findSchemaById = (schemaId: string): FormSchema | null => {
-  if (!schemaExists(schemaId)) {
-    console.warn(`Schema with ID "${schemaId}" not found`);
+export async function fetchSchemaById(schemaId: string): Promise<FormSchema | null> {
+  try {
+    const schemas = await loadSchemasFromServer();
+    return schemas.find(s => s.id === schemaId) || null;
+  } catch (error) {
+    console.error('Error fetching schema:', error);
     return null;
   }
-  
-  return ALL_SCHEMAS[schemaId];
-};
+}
 
 /**
- * Get a schema by ID, throws error if not found
- * @param schemaId - The ID of the schema to get
- * @returns The schema
- * @throws Error if schema not found
+ * Fetch all schemas (Works on both client and server)
+ * @returns Array of all schemas
  */
-export const getSchemaById = (schemaId: string): FormSchema => {
-  const schema = findSchemaById(schemaId);
-  
-  if (!schema) {
-    throw new Error(`Schema with ID "${schemaId}" not found`);
+export async function fetchAllSchemas(): Promise<FormSchema[]> {
+  try {
+    return await loadSchemasFromServer();
+  } catch (error) {
+    console.error('Error fetching schemas:', error);
+    return [];
   }
-  
-  return schema;
-};
+}
 
 /**
- * Get all available schema IDs
+ * Fetch all schema IDs (Works on both client and server)
  * @returns Array of schema IDs
  */
-export const getAvailableSchemaIds = (): string[] => {
-  return Object.keys(ALL_SCHEMAS);
-};
+export async function fetchSchemaIds(): Promise<string[]> {
+  const schemas = await fetchAllSchemas();
+  return schemas.map(s => s.id);
+}
 
 /**
- * Get schema metadata
- * @param schemaId - The ID of the schema
- * @returns Metadata about the schema
+ * Check if a schema exists (Works on both client and server)
+ * @param schemaId - The ID of the schema to check
+ * @returns True if schema exists, false otherwise
  */
-export const getSchemaMetadata = (schemaId: string) => {
-  const schema = findSchemaById(schemaId);
-  
-  if (!schema) {
-    return null;
-  }
-  
-  return {
-    id: schema.id,
-    name: schema.name,
-    title: schema.title,
-    description: schema.description,
-    singularName: schema.singular_name,
-    pluralName: schema.plural_name,
-  };
-};
+export async function schemaExistsAsync(schemaId: string): Promise<boolean> {
+  const schema = await fetchSchemaById(schemaId);
+  return schema !== null;
+}
 
-/**
- * Validate if a schema ID is valid
- * @param schemaId - The ID to validate
- * @returns True if valid, false otherwise
- */
-export const isValidSchemaId = (schemaId: string): boolean => {
-  return schemaExists(schemaId);
-};
-
+// ============================================================================
+// NOTE: For server-side synchronous functions, import from:
+// './schema-registry.server' which includes:
+// - getSchemaById, findSchemaById, getAvailableSchemaIds
+// - schemaExists, getAllSchemasArray, getSchemaMetadata
+// - isValidSchemaId, clearSchemaCache
+// ============================================================================

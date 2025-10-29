@@ -44,7 +44,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
     watch,
     control,
   } = useForm<CreateVendorInput>({
-    resolver: zodResolver(createVendorSchema) as any,
+    resolver: zodResolver(createVendorSchema as any) as any,
     defaultValues: {
       name: initialData?.name || '',
       email: initialData?.email || '',
@@ -57,7 +57,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
       registrationNumber: initialData?.registrationNumber || '',
       taxId: initialData?.taxId || '',
       categories: initialData?.categories || [],
-      contacts: (initialData?.contacts || []).map(contact => ({
+      contacts: (initialData?.contacts || []).map((contact: any) => ({
         ...contact,
         isPrimary: Boolean(contact.isPrimary),
       })),
@@ -113,7 +113,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
   const handleFormSubmit = (data: CreateVendorInput) => {
     try {
       // Ensure at least one contact is marked as primary
-      if (data.contacts.length > 0 && !data.contacts.some(contact => contact.isPrimary)) {
+      if (data.contacts.length > 0 && !data.contacts.some((contact: any) => contact.isPrimary)) {
         data.contacts[0].isPrimary = true;
       }
       onSubmit(data);
@@ -186,7 +186,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter company name"
               />
               {errors.name && (
-                <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.name.message || '')}</p>
               )}
             </div>
             <div>
@@ -198,7 +198,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter email address"
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.email.message || '')}</p>
               )}
             </div>
             <div>
@@ -209,7 +209,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter phone number"
               />
               {errors.phone && (
-                <p className="text-sm text-red-600 mt-1">{errors.phone.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.phone.message || '')}</p>
               )}
             </div>
             <div>
@@ -220,7 +220,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter registration number"
               />
               {errors.registrationNumber && (
-                <p className="text-sm text-red-600 mt-1">{errors.registrationNumber.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.registrationNumber.message || '')}</p>
               )}
             </div>
             <div>
@@ -231,7 +231,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter tax ID"
               />
               {errors.taxId && (
-                <p className="text-sm text-red-600 mt-1">{errors.taxId.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.taxId.message || '')}</p>
               )}
             </div>
             <div>
@@ -273,7 +273,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
               rows={3}
             />
             {errors.address && (
-              <p className="text-sm text-red-600 mt-1">{errors.address.message}</p>
+              <p className="text-sm text-red-600 mt-1">{String(errors.address.message || '')}</p>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -285,7 +285,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter city"
               />
               {errors.city && (
-                <p className="text-sm text-red-600 mt-1">{errors.city.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.city.message || '')}</p>
               )}
             </div>
             <div>
@@ -296,7 +296,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter state"
               />
               {errors.state && (
-                <p className="text-sm text-red-600 mt-1">{errors.state.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.state.message || '')}</p>
               )}
             </div>
             <div>
@@ -307,7 +307,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 placeholder="Enter ZIP code"
               />
               {errors.zipCode && (
-                <p className="text-sm text-red-600 mt-1">{errors.zipCode.message}</p>
+                <p className="text-sm text-red-600 mt-1">{String(errors.zipCode.message || '')}</p>
               )}
             </div>
             </div>
@@ -356,7 +356,7 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
             </div>
           )}
           {errors.categories && (
-            <p className="text-sm text-red-600">{errors.categories.message}</p>
+            <p className="text-sm text-red-600">{String(errors.categories.message || '')}</p>
             )}
           </CardContent>
           )}
@@ -380,8 +380,8 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 {...register(`contacts.${index}.name`)}
                 placeholder="Enter contact name"
               />
-              {errors.contacts?.[index]?.name && (
-                <p className="text-sm text-red-600 mt-1">{errors.contacts[index]?.name?.message}</p>
+              {(errors.contacts as any)?.[index]?.name && (
+                <p className="text-sm text-red-600 mt-1">{String((errors.contacts as any)?.[index]?.name?.message || '')}</p>
               )}
             </div>
             <div>
@@ -392,8 +392,8 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 {...register(`contacts.${index}.email`)}
                 placeholder="Enter contact email"
               />
-              {errors.contacts?.[index]?.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.contacts[index]?.email?.message}</p>
+              {(errors.contacts as any)?.[index]?.email && (
+                <p className="text-sm text-red-600 mt-1">{String((errors.contacts as any)?.[index]?.email?.message || '')}</p>
               )}
             </div>
             <div>
@@ -403,8 +403,8 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 {...register(`contacts.${index}.phone`)}
                 placeholder="Enter contact phone"
               />
-              {errors.contacts?.[index]?.phone && (
-                <p className="text-sm text-red-600 mt-1">{errors.contacts[index]?.phone?.message}</p>
+              {(errors.contacts as any)?.[index]?.phone && (
+                <p className="text-sm text-red-600 mt-1">{String((errors.contacts as any)?.[index]?.phone?.message || '')}</p>
               )}
             </div>
             <div>
@@ -414,8 +414,8 @@ export function VendorForm({ onSubmit, onCancel, isLoading = false, initialData,
                 {...register(`contacts.${index}.position`)}
                 placeholder="Enter position"
               />
-              {errors.contacts?.[index]?.position && (
-                <p className="text-sm text-red-600 mt-1">{errors.contacts[index]?.position?.message}</p>
+              {(errors.contacts as any)?.[index]?.position && (
+                <p className="text-sm text-red-600 mt-1">{String((errors.contacts as any)?.[index]?.position?.message || '')}</p>
               )}
             </div>
             <div className="md:col-span-2">

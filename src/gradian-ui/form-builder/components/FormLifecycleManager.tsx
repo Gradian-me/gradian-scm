@@ -31,13 +31,38 @@ export const useFormContext = () => {
   return context;
 };
 
+// Helper function to ensure repeating section items have unique IDs
+const ensureRepeatingItemIds = (values: FormData, schema: FormSchema): FormData => {
+  const newValues = { ...values };
+  
+  schema.sections.forEach(section => {
+    if (section.isRepeatingSection && newValues[section.id]) {
+      const items = newValues[section.id];
+      if (Array.isArray(items)) {
+        newValues[section.id] = items.map((item: any, index: number) => {
+          // Only add _id if it doesn't already exist
+          if (!item._id) {
+            return {
+              ...item,
+              _id: `${section.id}_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 9)}`
+            };
+          }
+          return item;
+        });
+      }
+    }
+  });
+  
+  return newValues;
+};
+
 // Form State Reducer
 type FormAction =
   | { type: 'SET_VALUE'; fieldName: string; value: any }
   | { type: 'SET_ERROR'; fieldName: string; error: string }
   | { type: 'SET_TOUCHED'; fieldName: string; touched: boolean }
   | { type: 'SET_SUBMITTING'; isSubmitting: boolean }
-  | { type: 'RESET'; initialValues: FormData }
+  | { type: 'RESET'; initialValues: FormData; schema: FormSchema }
   | { type: 'VALIDATE_FIELD'; fieldName: string; schema: FormSchema }
   | { type: 'VALIDATE_FORM'; schema: FormSchema }
   | { type: 'ADD_REPEATING_ITEM'; sectionId: string; defaultValue: any }
@@ -54,14 +79,27 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         const [, sectionId, itemIndex, fieldName] = match;
         const index = parseInt(itemIndex);
         const currentArray = state.values[sectionId] || [];
-        const newArray = [...currentArray];
         
-        // Ensure the item exists at this index
-        if (!newArray[index]) {
-          newArray[index] = {};
+        // Create a deep copy of the array to avoid mutations
+        const newArray = currentArray.map((item: any) => ({ ...item }));
+        
+        // Ensure the array is long enough and item exists at this index
+        while (newArray.length <= index) {
+          newArray.push({
+            _id: `${sectionId}_${Date.now()}_${newArray.length}_${Math.random().toString(36).substr(2, 9)}`
+          });
         }
         
-        // Update the specific field in the item
+        // If item at index doesn't have required structure, ensure it has an ID
+        if (!newArray[index]._id) {
+          console.warn(`[FormReducer] Item at index ${index} missing _id, adding one`);
+          newArray[index] = {
+            ...newArray[index],
+            _id: `${sectionId}_${Date.now()}_${index}_${Math.random().toString(36).substr(2, 9)}`
+          };
+        }
+        
+        // Update the specific field in the item, preserving all other fields including _id
         newArray[index] = {
           ...newArray[index],
           [fieldName]: action.value,
@@ -72,6 +110,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
           itemIndex: index,
           fieldName,
           value: action.value,
+          itemId: newArray[index]._id,
           before: currentArray[index],
           after: newArray[index],
         });
@@ -119,7 +158,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     
     case 'RESET':
       return {
-        values: action.initialValues,
+        values: ensureRepeatingItemIds(action.initialValues, action.schema),
         errors: {},
         touched: {},
         dirty: false,
@@ -186,11 +225,16 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 
     case 'ADD_REPEATING_ITEM': {
       const currentArray = state.values[action.sectionId] || [];
+      // Add a unique ID to help React track items properly
+      const itemWithId = {
+        ...action.defaultValue,
+        _id: `${action.sectionId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      };
       return {
         ...state,
         values: {
           ...state.values,
-          [action.sectionId]: [...currentArray, action.defaultValue],
+          [action.sectionId]: [...currentArray, itemWithId],
         },
         dirty: true,
       };
@@ -231,7 +275,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   ...props
 }) => {
   const [state, dispatch] = useReducer(formReducer, {
-    values: initialValues,
+    values: ensureRepeatingItemIds(initialValues, schema),
     errors: {},
     touched: {},
     dirty: false,
@@ -250,12 +294,12 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     const currentInitialValues = JSON.stringify(initialValues);
     if (prevInitialValuesRef.current !== currentInitialValues) {
       prevInitialValuesRef.current = currentInitialValues;
-      dispatch({ type: 'RESET', initialValues });
+      dispatch({ type: 'RESET', initialValues, schema });
     }
-  }, [initialValues]);
+  }, [initialValues, schema]);
 
   const setValue = useCallback((fieldName: string, value: any) => {
-    loggingCustom(LogType.FORM_DATA, 'info', `Setting field "${fieldName}" to:`, value);
+    loggingCustom(LogType.FORM_DATA, 'info', `Setting field "${fieldName}" to: ${JSON.stringify(value)}`);
     dispatch({ type: 'SET_VALUE', fieldName, value });
     onFieldChange?.(fieldName, value);
     
@@ -349,9 +393,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   }, [schema, state.values, state.errors]);
 
   const reset = useCallback(() => {
-    dispatch({ type: 'RESET', initialValues });
+    dispatch({ type: 'RESET', initialValues, schema });
     onReset?.();
-  }, [initialValues, onReset]);
+  }, [initialValues, onReset, schema]);
 
   const addRepeatingItem = useCallback((sectionId: string) => {
     const section = schema.sections.find(s => s.id === sectionId);

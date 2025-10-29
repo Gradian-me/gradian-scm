@@ -42,6 +42,9 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
       <div>
         <div className="flex items-start gap-2">
           <h3 className="text-base font-medium text-gray-900">{title}</h3>
+          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+            {items.length}
+          </span>
           {sectionError && (
             <span className="text-sm text-red-600 mt-0.5" role="alert">
               • {sectionError}
@@ -60,7 +63,7 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
-            <Card key={index} className="border border-gray-200 rounded-lg shadow-sm">
+            <Card key={item._id || `item-${index}`} className="border border-gray-200 rounded-lg shadow-sm">
               <CardHeader className="pb-4 px-6 pt-6">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium text-gray-900">

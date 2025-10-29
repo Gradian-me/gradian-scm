@@ -8,29 +8,29 @@
       "city": "تهران",
       "state": "تهران",
       "zipCode": "1468943381",
-      "registrationNumber": "TF-2019-001",
-      "taxId": "US-TAX-0022asd",
+      "registrationNumber": "asd",
+      "taxId": "asd",
       "country": "CN",
       "categories": [
-        "education",
-        "services"
+        "technology"
       ],
-      "status": "PENDING",
+      "status": "ACTIVE",
       "contacts": [
         {
-          "name": "شسی",
-          "email": "abidi.mahyar@gmail.com",
-          "phone": "09126184264",
-          "position": "asdasdas",
+          "name": "asd",
+          "email": "asd@c.com",
+          "phone": "asd",
+          "position": "asd",
           "department": "",
           "isPrimary": false,
-          "notes": ""
+          "notes": "",
+          "_id": "contacts_1761735568931_s8m2qch3o"
         }
       ],
-      "rating": 5,
-      "id": "01K8QJ4N587ZH08D4RTM220M9G",
-      "createdAt": "2025-10-29T08:42:50.417Z",
-      "updatedAt": "2025-10-29T09:07:30.896Z"
+      "rating": 2.4,
+      "id": "01K8QSZ3QDEVZMXR20742XH9YM",
+      "createdAt": "2025-10-29T10:59:37.336Z",
+      "updatedAt": "2025-10-29T10:59:55.862Z"
     }
   ],
   "tenders": [],

@@ -190,6 +190,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+                <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                  {(repeatingItems || []).length}
+                </span>
                 {sectionError && (
                   <span className="text-sm text-red-600 mt-0.5" role="alert">
                     • {sectionError}
@@ -227,7 +230,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 <div className="space-y-4">
                   {(repeatingItems || []).map((item, index) => (
                     <div
-                      key={index}
+                      key={item._id || `item-${index}`}
                       className="rounded-xl bg-white border border-gray-200 shadow-sm"
                     >
                       <div className="flex items-center justify-between px-4 sm:px-6 pt-4">

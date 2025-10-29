@@ -466,7 +466,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           onSubmit={isCreateModalOpen ? handleCreateEntity : handleUpdateEntity}
           onReset={() => formState.reset()}
           initialValues={isCreateModalOpen ? formState.values : currentEntity || formState.values}
-          onFieldChange={(fieldName, value) => formState.setValue(fieldName as any, value)}
           error={formError}
           onErrorDismiss={() => setFormError(null)}
           disabled={isSubmitting}

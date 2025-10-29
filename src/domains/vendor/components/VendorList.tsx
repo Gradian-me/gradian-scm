@@ -29,7 +29,7 @@ export function VendorList({
 }: VendorListProps) {
   // Get metadata from schema
   const cardMetadata = vendorFormSchema.cardMetadata;
-  const listMetadata = vendorFormSchema.listMetadata;
+  const listMetadata = (vendorFormSchema as any).listMetadata;
 
   if (!cardMetadata || !listMetadata) {
     return (
@@ -42,8 +42,8 @@ export function VendorList({
   return (
     <DynamicList
       data={vendors}
-      cardMetadata={cardMetadata}
-      listMetadata={listMetadata}
+      cardMetadata={cardMetadata as any}
+      listMetadata={listMetadata as any}
       formSchema={vendorFormSchema}
       isLoading={isLoading}
       onItemClick={onView}

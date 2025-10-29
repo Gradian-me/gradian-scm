@@ -91,7 +91,12 @@ export const FormSection: React.FC<FormSectionProps> = ({
       <div className={sectionClasses}>
         <div className="space-y-3">
           <div>
-            <h3 className="text-base font-medium text-gray-900">{title}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-medium text-gray-900">{title}</h3>
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                {repeatingItems.length}
+              </span>
+            </div>
             {description && (
               <p className="text-xs text-gray-600 mt-1">{description}</p>
             )}
@@ -104,7 +109,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
           ) : (
             <div className="space-y-3">
               {repeatingItems.map((item, index) => (
-                <Card key={index} className="border border-gray-200 rounded-lg">
+                <Card key={item._id || `item-${index}`} className="border border-gray-200 rounded-lg">
                   <CardHeader className="pb-4 px-6 pt-6">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-medium text-gray-900">

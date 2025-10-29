@@ -6,7 +6,7 @@ import { BaseRepository } from '@/shared/domain/repositories/base.repository';
 import { BaseService } from '@/shared/domain/services/base.service';
 import { BaseController } from '@/shared/domain/controllers/base.controller';
 import { BaseEntity } from '@/shared/domain/types/base.types';
-import { isValidSchemaId, getSchemaById } from '@/shared/utils/schema-registry';
+import { isValidSchemaId, getSchemaById } from '@/shared/utils/schema-registry.server';
 
 /**
  * Create controller instance for the given schema
