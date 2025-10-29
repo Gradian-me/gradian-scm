@@ -6,14 +6,14 @@ import {
   Building,
   CheckCircle,
   Clock,
-  Filter,
   Plus,
   Star
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { Spinner } from '../../../components/ui/spinner';
-import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, SearchBar, ViewSwitcher } from '../../../gradian-ui';
+import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper } from '../../../gradian-ui';
+import { DynamicFilterPane } from './DynamicFilterPane';
 // import { useEntity } from '../../../gradian-ui/schema-manager';
 import { useEntity } from '../hooks/useEntity';
 import { VENDOR_STATUS } from '../../../shared/constants';
@@ -354,43 +354,15 @@ export function VendorPage() {
       </div>
       <div className="space-y-6">
         {/* Search and Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 mb-6"
-        >
-          <div className="flex-1">
-            <SearchBar
-              placeholder="Search vendors by name, email, or phone..."
-              value={searchTermLocal}
-              onChange={setSearchTermLocal}
-              className="h-10 w-full"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2 items-center">
-            <Button variant="outline" size="sm" className="h-10 whitespace-nowrap">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-            <div className="border border-gray-300 rounded-md h-10 flex items-center">
-              <ViewSwitcher
-                currentView={viewMode}
-                onViewChange={setViewMode}
-                className="h-full"
-              />
-            </div>
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="h-10 whitespace-nowrap ml-auto sm:ml-0 text-xs"
-              onClick={openCreateModal}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Vendor
-            </Button>
-          </div>
-        </motion.div>
+        <DynamicFilterPane
+          searchTerm={searchTermLocal}
+          onSearchChange={setSearchTermLocal}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onAddNew={openCreateModal}
+          searchPlaceholder="Search vendors by name, email, or phone..."
+          addButtonText="Add Vendor"
+        />
 
         {/* Vendors List */}
         <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" : "space-y-4"}>

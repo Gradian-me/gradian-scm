@@ -89,7 +89,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
     }
   };
 
-  const sizeClasses = {
+  const sizeClasses: Record<string, string> = {
     sm: '!max-w-2xl',
     md: '!max-w-4xl',
     lg: '!max-w-6xl',
@@ -99,7 +99,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
 
   const dialogClasses = cn(
     sizeClasses[size],
-    '!max-h-[95vh] !w-[95vw] sm:w-full flex flex-col',
+    '!max-h-[95vh] !w-[95vw] sm:w-full flex flex-col min-h-0',
     className
   );
 
@@ -116,65 +116,54 @@ export const FormDialog: React.FC<FormDialogProps> = ({
 
         {/* Form Actions */}
         {(schema.actions?.cancel || schema.actions?.reset || schema.actions?.submit) && (
-          <div className="px-6 pb-2 shrink-0 bg-white border-b border-gray-200 relative z-20">
-            <div className="flex justify-end space-x-3">
+          <div
+            className="px-6 pb-3 pt-1 border-b shrink-0 flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-2">
               {schema.actions?.cancel && (
-                <Button
-                  type="button"
-                  variant={schema.actions.cancel.variant || 'outline'}
-                  onClick={handleCancel}
-                  disabled={disabled}
-                >
-                  {schema.actions.cancel.label}
+                <Button type="button" variant="ghost" onClick={() => handleCancel()} disabled={disabled}>
+                  Cancel
                 </Button>
               )}
               {schema.actions?.reset && (
-                <Button
-                  type="button"
-                  variant={schema.actions.reset.variant || 'outline'}
-                  onClick={handleResetClick}
-                  disabled={disabled}
-                >
-                  {schema.actions.reset.label}
-                </Button>
-              )}
-              {schema.actions?.submit && (
-                <Button
-                  type="button"
-                  variant={schema.actions.submit.variant || 'default'}
-                  disabled={disabled}
-                  onClick={handleFormSubmitClick}
-                >
-                  {schema.actions.submit.label}
+                <Button type="button" variant="outline" onClick={handleResetClick} disabled={disabled}>
+                  Reset
                 </Button>
               )}
             </div>
+            {schema.actions?.submit && (
+              <Button type="button" onClick={handleFormSubmitClick} disabled={disabled}>
+                Submit
+              </Button>
+            )}
           </div>
         )}
         
         {/* Form Content */}
-        <ScrollArea className="flex-1 px-6 py-1" style={{ maxHeight: 'calc(90vh - 300px)' }}>
-          <form 
-            id="form-dialog-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (submitForm) {
-                submitForm();
-              }
-            }}
-          >
-            <SchemaFormWrapper
-              schema={schema}
-              onSubmit={handleSubmit}
-              onReset={onReset}
-              onFieldChange={onFieldChange}
-              initialValues={initialValues}
-              validationMode={validationMode}
-              disabled={disabled}
-              onMount={(submitFn) => setSubmitForm(submitFn)}
-              hideActions={true}
-            />
-          </form>
+        <ScrollArea className="flex-1 px-6 py-1">
+          <div className="space-y-6">
+            <form 
+              id="form-dialog-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (submitForm) {
+                  submitForm();
+                }
+              }}
+            >
+              <SchemaFormWrapper
+                schema={schema}
+                onSubmit={handleSubmit}
+                onReset={onReset}
+                onFieldChange={onFieldChange}
+                initialValues={initialValues}
+                validationMode={validationMode}
+                disabled={disabled}
+                onMount={(submitFn) => setSubmitForm(submitFn)}
+                hideActions={true}
+              />
+            </form>
+          </div>
         </ScrollArea>
 
         {showCloseButton && (

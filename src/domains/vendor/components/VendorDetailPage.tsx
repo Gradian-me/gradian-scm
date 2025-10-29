@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header, GridBuilder, GridItem, KPIIndicator, Avatar, AvatarImage, AvatarFallback, CardWrapper, CardContent, CardHeader, CardTitle, Badge, Button } from '../../../gradian-ui';
+import { ScrollArea } from '../../../components/ui/scroll-area';
 import { SchemaFormWrapper } from '../../../gradian-ui/form-builder';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { VendorForm } from './VendorForm';
@@ -492,9 +493,9 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
       {/* Edit Vendor Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b shrink-0">
+              <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Edit Vendor</h2>
                 <button
                   onClick={closeEditModal}
@@ -505,7 +506,9 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
                   </svg>
                 </button>
               </div>
-              
+            </div>
+            
+            <ScrollArea className="flex-1 p-6">
               <SchemaFormWrapper
                 schema={vendorFormSchema}
                 onSubmit={handleUpdateVendor}
@@ -513,7 +516,7 @@ export function VendorDetailPage({ vendorId }: VendorDetailPageProps) {
                 initialValues={vendorFormState.values}
                 onFieldChange={(fieldName: any, value: any) => vendorFormState.setValue(fieldName, value)}
               />
-            </div>
+            </ScrollArea>
           </div>
         </div>
       )}

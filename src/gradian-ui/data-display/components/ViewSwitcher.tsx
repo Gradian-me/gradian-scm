@@ -26,8 +26,8 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         className={cn(
           'h-full w-10 p-0 rounded-md',
           currentView === 'grid' 
-            ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm' 
-            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+            ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm' 
+            : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50'
         )}
       >
         <Grid3X3 className="h-4 w-4" />
@@ -39,8 +39,8 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         className={cn(
           'h-full w-10 p-0 rounded-md',
           currentView === 'list' 
-            ? 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm' 
-            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+            ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm' 
+            : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50'
         )}
       >
         <List className="h-4 w-4" />
