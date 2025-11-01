@@ -125,9 +125,10 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
       return (
         <motion.div
           key={`${metric.label}-${idx}`}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: idx * 0.05 }}
           whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-          className="w-full"
         >
           {metricContent}
         </motion.div>

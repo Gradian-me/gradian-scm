@@ -146,8 +146,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               <div className="flex justify-between space-x-3 mb-4 flex-nowrap w-full">
                 <div className="flex items-center gap-2 truncate">
                   <motion.div
-                    whileHover={disableAnimation ? undefined : { scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
+                    animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                   >
                     <Avatar
                       fallback={getInitials(cardConfig.avatarField)}
@@ -160,12 +162,18 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   </motion.div>
                   <div className="flex-1 min-w-0">
                     <motion.h3
+                      initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                      animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
                       className="text-md font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
                       whileHover={{ x: 2 }}
                     >
                       {cardConfig.title}
                     </motion.h3>
                     <motion.div
+                      initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                      animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
                       className="text-xs text-gray-500 truncate"
                       whileHover={{ x: 2 }}
                     > <p className="text-xs text-gray-500 truncate">{cardConfig.subtitle}</p>
@@ -174,13 +182,22 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   {/* Rating */}
-                  <Rating
-                    value={Number(cardConfig.ratingField) || 0}
-                    size="sm"
-                    showValue={true}
-                  />
+                  <motion.div
+                    initial={disableAnimation ? false : { opacity: 0, y: -10 }}
+                    animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
+                  >
+                    <Rating
+                      value={Number(cardConfig.ratingField) || 0}
+                      size="sm"
+                      showValue={true}
+                    />
+                  </motion.div>
                   {/* Status */}
                   <motion.div
+                    initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
+                    animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
                     whileHover={disableAnimation ? undefined : { scale: 1.02 }}
                   >
                     {(() => {
@@ -206,14 +223,20 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               
               {/* Performance Metrics */}
               {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
-                <div className="w-full mb-3 border-t border-gray-100 pt-2 mt-2">
+                <motion.div
+                  initial={disableAnimation ? false : { opacity: 0, y: 10 }}
+                  animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.35 }}
+                  className="w-full mb-3 border-t border-gray-100 pt-2 mt-2"
+                >
                   <div className="text-xs text-gray-500 mb-1">Performance:</div>
                   <DynamicMetricRenderer
                     metrics={cardConfig.metricsField}
                     maxMetrics={maxMetrics}
                     className="w-full"
+                    animate={!disableAnimation}
                   />
-                </div>
+                </motion.div>
               )}
               
               {/* Separator after metrics */}
@@ -248,8 +271,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             <div className="flex items-center space-x-4 w-full flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <motion.div
-                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
+                  animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                  whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                 >
                   <Avatar
                     fallback={getInitials(cardConfig.avatarField)}
@@ -262,22 +287,32 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 </motion.div>
                 <div className="flex-1 min-w-0">
                   <motion.h3
+                    initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                    animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
                     className={cn(
                       "text-base font-semibold truncate",
                       !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
                     )}
-                    whileHover={disableAnimation ? undefined : { x: 2 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={disableAnimation ? undefined : { 
+                      x: 2,
+                      transition: { type: "spring", stiffness: 400, damping: 25 }
+                    }}
                   >
                     {cardConfig.title}
                   </motion.h3>
                   <motion.p
+                    initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                    animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
                     className={cn(
                       "text-xs text-gray-500 truncate",
                       !disableAnimation && "group-hover:text-gray-700 transition-colors duration-200"
                     )}
-                    whileHover={disableAnimation ? undefined : { x: 2 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={disableAnimation ? undefined : { 
+                      x: 2,
+                      transition: { type: "spring", stiffness: 400, damping: 25 }
+                    }}
                   >
                     {cardConfig.subtitle}
                   </motion.p>
@@ -287,14 +322,17 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     className="mt-1"
                     badgeVariant="outline"
                   />
-                  
-                  {/* List view metrics removed */}
                 </div>
               </div>
               <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
                 <motion.div
-                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  initial={disableAnimation ? false : { opacity: 0, y: -10 }}
+                  animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
+                  whileHover={disableAnimation ? undefined : { 
+                    scale: 1.02,
+                    transition: { type: "spring", stiffness: 300, damping: 30 }
+                  }}
                 >
                   <Rating
                     value={Number(cardConfig.ratingField) || 0}
@@ -303,8 +341,13 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                 </motion.div>
                 <motion.div
-                  whileHover={disableAnimation ? undefined : { scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
+                  animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
+                  whileHover={disableAnimation ? undefined : { 
+                    scale: 1.02,
+                    transition: { type: "spring", stiffness: 300, damping: 30 }
+                  }}
                 >
                   {(() => {
                     const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);

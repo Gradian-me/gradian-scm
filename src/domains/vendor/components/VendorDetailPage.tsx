@@ -1,35 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Header, GridBuilder, GridItem, KPIIndicator, Avatar, AvatarImage, AvatarFallback, CardWrapper, CardContent, CardHeader, CardTitle, Badge, Button } from '../../../gradian-ui';
-import { SchemaFormWrapper } from '../../../gradian-ui/form-builder';
-import { MainLayout } from '../../../components/layout/main-layout';
-import { VendorForm } from './VendorForm';
-import { 
-  ArrowLeft, 
-  Star, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Building,
-  BarChart3,
-  ShoppingCart,
-  Edit,
-  Trash2,
-  CheckCircle,
+import { motion } from 'framer-motion';
+import {
   AlertCircle,
-  Calendar,
-  Award,
-  FileText
+  ArrowLeft,
+  Edit,
+  Mail,
+  MapPin,
+  Phone,
+  Star,
+  Trash2
 } from 'lucide-react';
-import { useVendor } from '../hooks/useVendor';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { MainLayout } from '../../../components/layout/main-layout';
+import { Avatar, AvatarFallback, AvatarImage, Badge, Button, CardContent, CardHeader, CardTitle, CardWrapper, GridBuilder, KPIIndicator } from '../../../gradian-ui';
+import { SchemaFormWrapper } from '../../../gradian-ui/form-builder';
 import { useEntity } from '../../../gradian-ui/schema-manager';
-import { Vendor } from '../types';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { vendorDetailConfig } from '../configs/vendor-page.config';
+import { useVendor } from '../hooks/useVendor';
 import { vendorFormSchema } from '../schemas/vendor-form.schema';
-import { motion } from 'framer-motion';
+import { Vendor } from '../types';
 
 interface VendorDetailPageProps {
   vendorId: string;
