@@ -556,7 +556,161 @@
         "columns": 3,
         "gap": 4
       }
-    ]
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "componentRenderers": [
+        {
+          "id": "on-time-delivery-kpi",
+          "componentType": "kpi",
+          "dataPath": "performanceMetrics",
+          "config": {
+            "id": "on-time-delivery-kpi",
+            "name": "On-Time Delivery KPI",
+            "title": "On-Time Delivery",
+            "format": "percentage",
+            "precision": 1,
+            "color": "#10B981",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "quality-score-kpi",
+          "componentType": "kpi",
+          "dataPath": "performanceMetrics",
+          "config": {
+            "id": "quality-score-kpi",
+            "name": "Quality Score KPI",
+            "title": "Quality Score",
+            "format": "percentage",
+            "precision": 1,
+            "color": "#3B82F6",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "total-orders-kpi",
+          "componentType": "kpi",
+          "dataPath": "performanceMetrics",
+          "config": {
+            "id": "total-orders-kpi",
+            "name": "Total Orders KPI",
+            "title": "Total Orders",
+            "format": "number",
+            "precision": 0,
+            "color": "#F59E0B",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "total-value-kpi",
+          "componentType": "kpi",
+          "dataPath": "performanceMetrics",
+          "config": {
+            "id": "total-value-kpi",
+            "name": "Total Value KPI",
+            "title": "Total Value",
+            "format": "currency",
+            "precision": 0,
+            "color": "#8B5CF6",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "contact-information",
+          "title": "Contact Information",
+          "description": "Primary contact details",
+          "colSpan": 2,
+          "fieldIds": ["email-address", "phone-number", "registration-number", "tax-id", "country"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "address-details",
+          "title": "Address Details",
+          "description": "Physical location information",
+          "colSpan": 2,
+          "fieldIds": ["address", "city", "state", "zip-code"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "categories-section",
+          "title": "Categories",
+          "description": "Vendor categories",
+          "colSpan": 1,
+          "fieldIds": [],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    }
   },
   {
     "id": "tenders",

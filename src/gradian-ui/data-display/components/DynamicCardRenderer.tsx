@@ -18,7 +18,8 @@ export interface DynamicCardRendererProps {
   schema: FormSchema;
   data: any;
   index: number;
-  onView?: (data: any) => void;
+  onView?: (data: any) => void; // Opens dialog (card click)
+  onViewDetail?: (data: any) => void; // Navigates to detail page (view button)
   onEdit?: (data: any) => void;
   onDelete?: (data: any) => void;
   viewMode?: 'grid' | 'list';
@@ -32,7 +33,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   schema,
   data,
   index,
-  onView,
+  onView, // Card click - opens dialog
+  onViewDetail, // View button - navigates to detail page
   onEdit,
   onDelete,
   viewMode = 'grid',
@@ -364,10 +366,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               {/* Action Buttons for List View */}
               <DynamicCardActionButtons
                 viewMode="list"
-                showView={!!showView}
+                showView={!!onViewDetail || !!showView}
                 showEdit={!!showEdit}
                 showDelete={!!showDelete}
-                onView={onView ? () => onView(data) : undefined}
+                onView={onViewDetail ? () => onViewDetail(data) : (onView ? () => onView(data) : undefined)}
                 onEdit={onEdit ? () => onEdit(data) : undefined}
                 onDelete={onDelete ? () => onDelete(data) : undefined}
               />
@@ -378,10 +380,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           {viewMode === 'grid' && (
             <DynamicCardActionButtons
               viewMode="grid"
-              showView={!!showView}
+              showView={!!onViewDetail || !!showView}
               showEdit={!!showEdit}
               showDelete={!!showDelete}
-              onView={onView ? () => onView(data) : undefined}
+              onView={onViewDetail ? () => onViewDetail(data) : (onView ? () => onView(data) : undefined)}
               onEdit={onEdit ? () => onEdit(data) : undefined}
               onDelete={onDelete ? () => onDelete(data) : undefined}
             />

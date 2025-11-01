@@ -711,11 +711,20 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           {schema.actions && !hideActions && (
             <div className="space-y-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex justify-end space-x-3">
-                {schema.actions.cancel && (
+                {schema.actions?.cancel && (
                   <Button
                     type="button"
                     variant={schema.actions.cancel?.variant || 'outline'}
-                    onClick={reset}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      // Use custom onClick if provided, otherwise reset
+                      const cancelAction = schema.actions?.cancel as any;
+                      if (cancelAction?.onClick) {
+                        cancelAction.onClick();
+                      } else {
+                        reset();
+                      }
+                    }}
                     disabled={disabled}
                   >
                     {schema.actions.cancel?.label}

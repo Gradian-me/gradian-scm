@@ -76,6 +76,49 @@ export interface CardSection {
   fieldIds: string[];
 }
 
+export interface DetailPageSection {
+  id: string;
+  title: string;
+  description?: string;
+  colSpan?: number; // Number of columns this section should span in the grid
+  fieldIds: string[]; // Field IDs to display as key-value pairs
+  layout?: {
+    columns?: number; // Number of columns for the key-value grid inside the card (default: 2)
+    gap?: number;
+  };
+  styling?: {
+    variant?: 'default' | 'card' | 'minimal';
+    className?: string;
+  };
+}
+
+export interface ComponentRendererConfig {
+  id: string;
+  componentType: 'kpi' | 'chart' | 'metric' | 'custom'; // Type of component to render
+  componentName?: string; // Name of the custom component (for 'custom' type)
+  fieldIds?: string[]; // Field IDs to extract data from
+  dataPath?: string; // Path to data in the object (e.g., 'performanceMetrics.onTimeDelivery')
+  config?: any; // Component-specific configuration (e.g., KPIIndicator config)
+  props?: Record<string, any>; // Additional props to pass to the component
+  colSpan?: number; // Number of columns this component should span
+}
+
+export interface DetailPageMetadata {
+  sections?: DetailPageSection[]; // Info card sections with key-value pairs
+  componentRenderers?: ComponentRendererConfig[]; // Custom components to render (e.g., KPIIndicator)
+  layout?: {
+    mainColumns?: number; // Number of columns for main content area (default: 2)
+    sidebarColumns?: number; // Number of columns for sidebar (default: 1)
+    // totalColumns is calculated automatically as mainColumns + sidebarColumns
+    gap?: number;
+  };
+  header?: {
+    showBackButton?: boolean;
+    showActions?: boolean;
+    actions?: Array<'edit' | 'delete' | 'export'>;
+  };
+}
+
 export interface FormSchema {
   id: string;
   name: string;
@@ -86,6 +129,7 @@ export interface FormSchema {
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];
+  detailPageMetadata?: DetailPageMetadata;
   layout?: {
     direction?: 'column' | 'row';
     gap?: number;

@@ -10,13 +10,14 @@ import {
   Star
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MainLayout } from '../layout/main-layout';
 import { Spinner } from '../ui/spinner';
 import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper } from '../../gradian-ui';
 import { FormSchema } from '../../shared/types/form-schema';
 import { DynamicFilterPane } from '../../domains/vendor/components/DynamicFilterPane';
 import { asFormSchema } from '../../domains/vendor/utils/schema-utils';
-import { useDynamicEntity } from '../../shared/hooks/use-dynamic-entity';
+import { useDynamicEntity } from '../../shared/hooks';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -52,6 +53,7 @@ function reconstructRegExp(obj: any): any {
 }
 
 export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPageRendererProps) {
+  const router = useRouter();
   // Reconstruct RegExp objects in the schema
   const schema = reconstructRegExp(rawSchema) as FormSchema;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -93,13 +95,18 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     handleDeleteEntity,
   } = useDynamicEntity(schema);
 
-  // Custom handleViewEntity that opens the detail dialog
-  const handleViewEntity = (entity: any) => {
-    console.log('View entity clicked:', entity);
+  // Custom handleViewEntity that opens the detail dialog (card click)
+  const handleViewEntity = useCallback((entity: any) => {
     setSelectedEntityForDetail(entity);
     setIsDetailDialogOpen(true);
-    console.log('Dialog state:', { isDetailDialogOpen: true, entity });
-  };
+  }, []);
+
+  // Navigate to detail page (view button click)
+  const handleViewDetailPage = useCallback((entity: any) => {
+    if (entity?.id && schema?.id) {
+      router.push(`/page/${schema.id}/${entity.id}`);
+    }
+  }, [router, schema?.id]);
 
   useEffect(() => {
     fetchEntities();
@@ -391,6 +398,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                 maxBadges={3}
                 maxMetrics={5}
                 onView={handleViewEntity}
+                onViewDetail={handleViewDetailPage}
                 onEdit={(e) => {
                   if (!isEditLoading[e.id]) {
                     handleEditEntity(e);
@@ -436,6 +444,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
         data={selectedEntityForDetail}
         title={selectedEntityForDetail?.name || `${singularName} Details`}
         onView={handleViewEntity}
+        onViewDetail={handleViewDetailPage}
         onEdit={handleEditEntity}
         onDelete={handleDeleteEntity}
       />

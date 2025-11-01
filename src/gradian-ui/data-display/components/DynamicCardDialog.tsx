@@ -41,9 +41,14 @@ export interface DynamicCardDialogProps {
   className?: string;
   
   /**
-   * Callback when view button is clicked
+   * Callback when view button is clicked (navigates to detail page)
    */
   onView?: (data: any) => void;
+  
+  /**
+   * Callback when view detail button is clicked (navigates to detail page)
+   */
+  onViewDetail?: (data: any) => void;
   
   /**
    * Callback when edit button is clicked
@@ -67,6 +72,7 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
   title = 'Details',
   className,
   onView,
+  onViewDetail,
   onEdit,
   onDelete
 }) => {
@@ -97,6 +103,7 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
               maxBadges={0} // Show all badges
               maxMetrics={0} // Show all metrics
               onView={onView}
+              onViewDetail={onViewDetail}
               onEdit={onEdit}
               onDelete={onDelete}
               className="shadow-none border-none"

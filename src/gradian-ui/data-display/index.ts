@@ -30,5 +30,8 @@ export { DynamicBadgeRenderer } from './components/DynamicBadgeRenderer';
 export { DynamicMetricRenderer } from './components/DynamicMetricRenderer';
 export { DynamicCardDialog } from './components/DynamicCardDialog';
 export { DynamicCardActionButtons } from './components/DynamicCardActionButtons';
+export { DynamicInfoCard } from './components/DynamicInfoCard';
+export { ComponentRenderer } from './components/ComponentRenderer';
+export { DynamicDetailPageRenderer } from './components/DynamicDetailPageRenderer';
 
 export * from './types';

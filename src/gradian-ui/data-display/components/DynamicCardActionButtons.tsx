@@ -23,9 +23,14 @@ export interface DynamicCardActionButtonsProps {
   showDelete?: boolean;
   
   /**
-   * Callback when view button is clicked
+   * Callback when view button is clicked (navigates to detail page)
    */
   onView?: () => void;
+  
+  /**
+   * Callback when card itself is clicked (opens dialog)
+   */
+  onCardClick?: () => void;
   
   /**
    * Callback when edit button is clicked

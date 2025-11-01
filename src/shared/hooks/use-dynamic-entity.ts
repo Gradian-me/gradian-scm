@@ -173,6 +173,8 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
   const openEditModal = useCallback((entity: T) => {
     setSelectedEntity(entity);
     setCurrentEntity(entity);
+    // Set form values to entity data for form population
+    setFormValues(entity as any);
     setIsEditModalOpen(true);
     setIsCreateModalOpen(false);
   }, []);
