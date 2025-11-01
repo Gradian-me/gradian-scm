@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/gradian-ui/form-builder/form-elements';
@@ -14,6 +14,11 @@ interface DepartmentSelectorProps {
 
 export function DepartmentSelector({ onDepartmentChange }: DepartmentSelectorProps) {
   const [selectedDepartment, setSelectedDepartment] = useState('Supply Chain');
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   const handleDepartmentSelect = (department: string) => {
     console.log('Department selected:', department);
@@ -29,15 +34,35 @@ export function DepartmentSelector({ onDepartmentChange }: DepartmentSelectorPro
     .join('')
     .substring(0, 2);
 
+  if (!isMounted) {
+    return (
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="flex items-center space-x-2"
+        aria-label="Select department"
+        disabled
+      >
+        <Avatar 
+          fallback={departmentInitials}
+          size="sm"
+          variant="primary"
+          className="border border-gray-100"
+        />
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex items-center space-x-2"
-          aria-label="Select department"
-        >
+        <DropdownMenuPrimitive.Trigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center space-x-2"
+            aria-label="Select department"
+          >
           <Avatar 
             fallback={departmentInitials}
             size="sm"

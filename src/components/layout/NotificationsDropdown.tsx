@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,12 @@ interface NotificationsDropdownProps {
 
 export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdownProps) {
   const [notificationCount, setNotificationCount] = useState(initialCount);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleViewAllClick = () => {
     router.push('/notifications');
@@ -29,15 +34,37 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
     // router.push(`/notifications/${id}`);
   };
 
+  if (!isMounted) {
+    return (
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="relative"
+        aria-label="Notifications"
+        disabled
+      >
+        <Bell className="h-5 w-5" />
+        {notificationCount > 0 && (
+          <Badge 
+            variant="destructive" 
+            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+          >
+            {notificationCount}
+          </Badge>
+        )}
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="relative"
-          aria-label="Notifications"
-        >
+        <DropdownMenuPrimitive.Trigger asChild>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative"
+            aria-label="Notifications"
+          >
           <Bell className="h-5 w-5" />
           {notificationCount > 0 && (
             <Badge 

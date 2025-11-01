@@ -557,5 +557,399 @@
         "gap": 4
       }
     ]
+  },
+  {
+    "id": "tenders",
+    "name": "tenders",
+    "title": "Create New Tender",
+    "description": "Create a new tender for procurement",
+    "singular_name": "Tender",
+    "plural_name": "Tenders",
+    "fields": [
+      {
+        "id": "tender-title",
+        "name": "title",
+        "label": "Tender Title",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter tender title",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 3
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "tender-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter tender description",
+        "required": true,
+        "validation": {
+          "required": true,
+          "minLength": 10
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "tender-category",
+        "name": "category",
+        "label": "Category",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select category",
+        "required": true,
+        "options": [
+          { "label": "HPLC Columns", "value": "HPLC Columns" },
+          { "label": "Merck Products", "value": "Merck Products" },
+          { "label": "Laboratory Equipment", "value": "Laboratory Equipment" },
+          { "label": "Biotech Consumables", "value": "Biotech Consumables" },
+          { "label": "Analytical Instruments", "value": "Analytical Instruments" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "estimated-value",
+        "name": "estimatedValue",
+        "label": "Estimated Value",
+        "sectionId": "basic-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter estimated value",
+        "required": true,
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "currency",
+        "name": "currency",
+        "label": "Currency",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select currency",
+        "required": false,
+        "defaultValue": "USD",
+        "options": [
+          { "label": "USD", "value": "USD" },
+          { "label": "EUR", "value": "EUR" },
+          { "label": "GBP", "value": "GBP" },
+          { "label": "CAD", "value": "CAD" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "closing-date",
+        "name": "closingDate",
+        "label": "Closing Date",
+        "sectionId": "basic-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "eval-price",
+        "name": "evaluationCriteria.price",
+        "label": "Price (%)",
+        "sectionId": "evaluation-criteria",
+        "type": "number",
+        "component": "number",
+        "placeholder": "40",
+        "required": false,
+        "defaultValue": 40,
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "eval-quality",
+        "name": "evaluationCriteria.quality",
+        "label": "Quality (%)",
+        "sectionId": "evaluation-criteria",
+        "type": "number",
+        "component": "number",
+        "placeholder": "30",
+        "required": false,
+        "defaultValue": 30,
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "eval-delivery",
+        "name": "evaluationCriteria.delivery",
+        "label": "Delivery (%)",
+        "sectionId": "evaluation-criteria",
+        "type": "number",
+        "component": "number",
+        "placeholder": "20",
+        "required": false,
+        "defaultValue": 20,
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "eval-experience",
+        "name": "evaluationCriteria.experience",
+        "label": "Experience (%)",
+        "sectionId": "evaluation-criteria",
+        "type": "number",
+        "component": "number",
+        "placeholder": "10",
+        "required": false,
+        "defaultValue": 10,
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-product-name",
+        "name": "productName",
+        "label": "Product Name",
+        "sectionId": "tender-items",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter product name",
+        "required": true,
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "tender-items",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter item description",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-quantity",
+        "name": "quantity",
+        "label": "Quantity",
+        "sectionId": "tender-items",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter quantity",
+        "required": true,
+        "defaultValue": 1,
+        "validation": {
+          "required": true,
+          "min": 1
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-unit",
+        "name": "unit",
+        "label": "Unit",
+        "sectionId": "tender-items",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select unit",
+        "required": true,
+        "defaultValue": "piece",
+        "options": [
+          { "label": "Piece", "value": "piece" },
+          { "label": "Kilogram", "value": "kg" },
+          { "label": "Liter", "value": "L" },
+          { "label": "Box", "value": "box" },
+          { "label": "Set", "value": "set" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-unit-price",
+        "name": "estimatedUnitPrice",
+        "label": "Unit Price",
+        "sectionId": "tender-items",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter unit price",
+        "required": true,
+        "defaultValue": 0,
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "item-specifications",
+        "name": "specifications",
+        "label": "Specifications",
+        "sectionId": "tender-items",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter technical specifications",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Tender Information",
+        "description": "Basic tender details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "evaluation-criteria",
+        "title": "Evaluation Criteria",
+        "description": "Set the weightings for evaluation (must total 100%)",
+        "initialState": "expanded",
+        "columns": 4,
+        "gap": 4
+      },
+      {
+        "id": "tender-items",
+        "title": "Tender Items",
+        "description": "Add items to the tender",
+        "isRepeatingSection": true,
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4,
+        "repeatingConfig": {
+          "minItems": 1,
+          "maxItems": 50,
+          "addButtonText": "Add Item",
+          "removeButtonText": "Remove Item",
+          "emptyMessage": "No items added yet"
+        }
+      }
+    ],
+    "actions": {
+      "submit": {
+        "label": "Create Tender",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
   }
 ]

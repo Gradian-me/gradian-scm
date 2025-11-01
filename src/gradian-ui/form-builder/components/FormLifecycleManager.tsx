@@ -186,9 +186,14 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         fieldValue = state.values[action.fieldName];
       }
       
-      if (!field?.validation) return state;
+      if (!field || (!field.required && !field.validation)) return state;
       
-      const result = validateFieldUtil(fieldValue, field.validation);
+      const validationRules = {
+        ...field.validation,
+        // Ensure required is set if field.required is true
+        required: field.required || field.validation?.required || false
+      };
+      const result = validateFieldUtil(fieldValue, validationRules);
       return {
         ...state,
         errors: {
@@ -203,8 +208,14 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       let isValid = true;
       
       action.schema.fields.forEach(field => {
-        if (field.validation) {
-          const result = validateFieldUtil(state.values[field.name], field.validation);
+        // Check if field is required or has validation rules
+        if (field.required || field.validation) {
+          const validationRules = {
+            ...field.validation,
+            // Ensure required is set if field.required is true
+            required: field.required || field.validation?.required || false
+          };
+          const result = validateFieldUtil(state.values[field.name], validationRules);
           if (!result.isValid) {
             newErrors[field.name] = result.error || 'Invalid value';
             isValid = false;
@@ -348,9 +359,15 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
         items.forEach((item: any, itemIndex: number) => {
           sectionFields.forEach(field => {
-            if (field.validation) {
+            // Check if field is required or has validation rules
+            if (field.required || field.validation) {
+              const validationRules = {
+                ...field.validation,
+                // Ensure required is set if field.required is true
+                required: field.required || field.validation?.required || false
+              };
               const fieldValue = item[field.name];
-              const result = validateFieldUtil(fieldValue, field.validation);
+              const result = validateFieldUtil(fieldValue, validationRules);
               if (!result.isValid) {
                 const errorKey = `${section.id}[${itemIndex}].${field.name}`;
                 newErrors[errorKey] = result.error || 'Invalid value';
@@ -363,8 +380,14 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         // Validate individual fields in non-repeating sections
         const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
         sectionFields.forEach(field => {
-          if (field.validation) {
-            const result = validateFieldUtil(state.values[field.name], field.validation);
+          // Check if field is required or has validation rules
+          if (field.required || field.validation) {
+            const validationRules = {
+              ...field.validation,
+              // Ensure required is set if field.required is true
+              required: field.required || field.validation?.required || false
+            };
+            const result = validateFieldUtil(state.values[field.name], validationRules);
             if (!result.isValid) {
               newErrors[field.name] = result.error || 'Invalid value';
               isValid = false;
@@ -413,9 +436,15 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       const sectionFields = schema.fields.filter(f => f.sectionId === sectionId);
       items.forEach((item: any, itemIndex: number) => {
         sectionFields.forEach(field => {
-          if (field.validation) {
+          // Check if field is required or has validation rules
+          if (field.required || field.validation) {
+            const validationRules = {
+              ...field.validation,
+              // Ensure required is set if field.required is true
+              required: field.required || field.validation?.required || false
+            };
             const fieldValue = item[field.name];
-            const result = validateFieldUtil(fieldValue, field.validation);
+            const result = validateFieldUtil(fieldValue, validationRules);
             if (!result.isValid) {
               const errorKey = `${sectionId}[${itemIndex}].${field.name}`;
               newErrors[errorKey] = result.error || 'Invalid value';

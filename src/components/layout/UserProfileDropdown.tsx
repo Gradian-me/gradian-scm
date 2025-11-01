@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/gradian-ui/form-builder/form-elements';
@@ -19,7 +20,12 @@ export function UserProfileDropdown({
   userAvatar = "/avatars/mahyar.jpg", 
   userInitials = "MA" 
 }: UserProfileDropdownProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleProfileClick = () => {
     router.push('/settings/profile');
@@ -37,14 +43,36 @@ export function UserProfileDropdown({
     // router.push('/auth/login');
   };
 
+  if (!isMounted) {
+    return (
+      <Button 
+        variant="ghost" 
+        className="flex items-center space-x-2"
+        aria-label="User profile menu"
+        disabled
+      >
+        <Avatar
+          src={userAvatar}
+          alt={userName}
+          fallback={userInitials}
+          size="md"
+          variant="primary"
+          className="border border-gray-100"
+        />
+        <span className="text-sm font-medium">{userName}</span>
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenuPrimitive.Root>
-      <DropdownMenuPrimitive.Trigger asChild>
-        <Button 
-          variant="ghost" 
-          className="flex items-center space-x-2"
-          aria-label="User profile menu"
-        >
+        <DropdownMenuPrimitive.Trigger asChild>
+          <Button 
+            variant="ghost" 
+            className="flex items-center space-x-2"
+            aria-label="User profile menu"
+          >
           <Avatar
             src={userAvatar}
             alt={userName}

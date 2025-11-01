@@ -49,8 +49,13 @@ function processField(field: any): FormField {
 function processSchema(schema: any): FormSchema {
   const processedSchema = { ...schema };
   
+  // Ensure fields array exists
+  if (!processedSchema.fields) {
+    processedSchema.fields = [];
+  }
+  
   // If schema has old structure (fields in sections), transform to new structure
-  if (processedSchema.sections && !processedSchema.fields) {
+  if (processedSchema.sections && processedSchema.fields.length === 0) {
     const allFields: FormField[] = [];
     
     processedSchema.sections.forEach((section: any) => {
@@ -67,9 +72,14 @@ function processSchema(schema: any): FormSchema {
     });
     
     processedSchema.fields = allFields;
-  } else if (processedSchema.fields) {
+  } else if (processedSchema.fields && processedSchema.fields.length > 0) {
     // Process fields that are already at schema level
     processedSchema.fields = processedSchema.fields.map(processField);
+  }
+  
+  // Ensure sections array exists
+  if (!processedSchema.sections) {
+    processedSchema.sections = [];
   }
   
   return processedSchema as FormSchema;
@@ -95,8 +105,20 @@ export function loadAllSchemas(): FormSchema[] {
     const fileContents = fs.readFileSync(dataPath, 'utf8');
     const schemas = JSON.parse(fileContents);
     
+    if (!Array.isArray(schemas)) {
+      console.error('Schemas file does not contain an array');
+      return [];
+    }
+    
     // Process each schema to convert patterns
-    return schemas.map(processSchema);
+    const processedSchemas = schemas.map(processSchema);
+    
+    // Log loaded schemas for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Schema Loader] Loaded ${processedSchemas.length} schemas:`, processedSchemas.map(s => s.id));
+    }
+    
+    return processedSchemas;
   } catch (error) {
     console.error('Error loading schemas:', error);
     return [];
