@@ -65,14 +65,37 @@ const formatFieldValue = (field: any, value: any): React.ReactNode => {
           return (
             <div className="flex flex-wrap gap-1">
               {displayItems.map((item, idx) => (
-                <Badge key={idx} variant="outline" className="text-xs">
-                  {String(item)}
-                </Badge>
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay: idx * 0.05,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="outline" className="text-xs">
+                    {String(item)}
+                  </Badge>
+                </motion.div>
               ))}
               {remaining > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{remaining}
-                </Badge>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay: displayItems.length * 0.05,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Badge variant="secondary" className="text-xs">
+                    +{remaining}
+                  </Badge>
+                </motion.div>
               )}
             </div>
           );
@@ -177,9 +200,21 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {data.categories.map((category: string, idx: number) => (
-                  <Badge key={idx} variant="primary">
-                    {category}
-                  </Badge>
+                  <motion.div
+                    key={idx}
+                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
+                    animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
+                    transition={disableAnimation ? {} : { 
+                      duration: 0.3, 
+                      delay: idx * 0.05,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.05 }}
+                  >
+                    <Badge variant="primary">
+                      {category}
+                    </Badge>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>

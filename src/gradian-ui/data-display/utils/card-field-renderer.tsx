@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
@@ -121,14 +122,37 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
         return (
           <div className="flex flex-wrap gap-1">
             {value.slice(0, 2).map((item: string, idx: number) => (
-              <Badge key={idx} variant="secondary" className="text-xs">
-                {item}
-              </Badge>
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: idx * 0.05,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <Badge variant="secondary" className="text-xs">
+                  {item}
+                </Badge>
+              </motion.div>
             ))}
             {value.length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{value.length - 2}
-              </Badge>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.3, 
+                  delay: Math.min(2, value.length) * 0.05,
+                  ease: [0.25, 0.46, 0.45, 0.94]
+                }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <Badge variant="outline" className="text-xs">
+                  +{value.length - 2}
+                </Badge>
+              </motion.div>
             )}
           </div>
         );

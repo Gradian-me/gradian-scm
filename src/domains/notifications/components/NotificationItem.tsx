@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Notification } from '../types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -99,12 +100,26 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
-                    {notification.type}
-                  </Badge>
-                  <Badge variant={getPriorityBadgeVariant(notification.priority)} className="text-xs">
-                    {notification.priority}
-                  </Badge>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
+                      {notification.type}
+                    </Badge>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <Badge variant={getPriorityBadgeVariant(notification.priority)} className="text-xs">
+                      {notification.priority}
+                    </Badge>
+                  </motion.div>
                 </div>
                 
                 <div className="flex items-center space-x-2">

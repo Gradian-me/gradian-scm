@@ -184,12 +184,23 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     </div>
                   )}
                   {headerInfo.status && (
-                    <Badge variant={badgeConfig.color}>
-                      {badgeConfig.icon && (
-                        <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
-                      )}
-                      {badgeConfig.label}
-                    </Badge>
+                    <motion.div
+                      initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
+                      animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
+                      transition={disableAnimation ? {} : { 
+                        duration: 0.3, 
+                        delay: 0.2,
+                        ease: [0.25, 0.46, 0.45, 0.94]
+                      }}
+                      whileHover={disableAnimation ? undefined : { scale: 1.05 }}
+                    >
+                      <Badge variant={badgeConfig.color}>
+                        {badgeConfig.icon && (
+                          <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
+                        )}
+                        {badgeConfig.label}
+                      </Badge>
+                    </motion.div>
                   )}
                 </div>
               </div>

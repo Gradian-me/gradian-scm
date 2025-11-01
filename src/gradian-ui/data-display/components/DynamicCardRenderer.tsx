@@ -220,6 +220,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   maxBadges={maxBadges}
                   className="w-full"
                   badgeVariant="outline"
+                  animate={!disableAnimation}
                 />
               </div>
               
@@ -323,6 +324,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     maxBadges={maxBadges}
                     className="mt-1"
                     badgeVariant="outline"
+                    animate={!disableAnimation}
                   />
                 </div>
               </div>

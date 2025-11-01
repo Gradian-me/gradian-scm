@@ -112,8 +112,14 @@ export const DynamicBadgeRenderer: React.FC<DynamicBadgeRendererProps> = ({
       return (
         <motion.div
           key={itemId}
+          initial={{ opacity: 0, scale: 0.8, y: 5 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ 
+            duration: 0.3, 
+            delay: idx * 0.05,
+            ease: [0.25, 0.46, 0.45, 0.94]
+          }}
           whileHover={{ scale: 1.05 }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
           <Badge 
             variant={itemColor ? undefined : badgeVariant} 

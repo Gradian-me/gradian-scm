@@ -239,10 +239,17 @@ export function TenderList({
                     <div className="flex items-center space-x-3 mb-2">
                       <h3 className="text-lg font-semibold">{tender.title}</h3>
                       {tender.awardedTo && (
-                        <Badge variant="warning" className="flex items-center space-x-1">
-                          <Trophy className="h-3 w-3" />
-                          <span>Winner: {tender.awardedTo}</span>
-                        </Badge>
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.4 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <Badge variant="warning" className="flex items-center space-x-1">
+                            <Trophy className="h-3 w-3" />
+                            <span>Winner: {tender.awardedTo}</span>
+                          </Badge>
+                        </motion.div>
                       )}
                     </div>
                     <p className="text-gray-600 mb-4 line-clamp-2">{tender.description}</p>
@@ -250,9 +257,17 @@ export function TenderList({
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">Category:</span>
-                        <Badge variant="secondary" className="ml-2">
-                          {tender.category}
-                        </Badge>
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.45 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          whileHover={{ scale: 1.05 }}
+                          className="inline-block ml-2"
+                        >
+                          <Badge variant="secondary">
+                            {tender.category}
+                          </Badge>
+                        </motion.div>
                       </div>
                       <div>
                         <span className="text-gray-500">Value:</span>
@@ -290,15 +305,29 @@ export function TenderList({
                   
                   <div className="flex flex-col items-stretch lg:items-end space-y-2 lg:ml-4 w-full lg:w-auto">
                     <div className="flex flex-col lg:items-end space-y-2">
-                      <Badge variant={getStatusColor(tender.status)} className="flex items-center space-x-1 w-fit">
-                        {getStatusIcon(tender.status)}
-                        <span>{tender.status}</span>
-                      </Badge>
-                      {tender.awardedTo && (
-                        <Badge variant="warning" className="flex items-center space-x-1 w-fit">
-                          <Trophy className="h-3 w-3" />
-                          <span>{tender.awardedTo}</span>
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.5 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Badge variant={getStatusColor(tender.status)} className="flex items-center space-x-1 w-fit">
+                          {getStatusIcon(tender.status)}
+                          <span>{tender.status}</span>
                         </Badge>
+                      </motion.div>
+                      {tender.awardedTo && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.55 + index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <Badge variant="warning" className="flex items-center space-x-1 w-fit">
+                            <Trophy className="h-3 w-3" />
+                            <span>{tender.awardedTo}</span>
+                          </Badge>
+                        </motion.div>
                       )}
                     </div>
                     <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
