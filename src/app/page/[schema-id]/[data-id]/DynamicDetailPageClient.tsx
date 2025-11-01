@@ -48,27 +48,9 @@ function reconstructRegExp(obj: any): any {
  * Ensure schema has default actions for form buttons
  */
 function ensureSchemaActions(schema: FormSchema): FormSchema {
-  if (!schema.actions) {
-    const singularName = schema.singular_name || 
-                        (schema.name?.endsWith('s') ? 
-                          schema.name.slice(0, -1) : 
-                          schema.name || 'Item');
-    
-    schema.actions = {
-      submit: {
-        label: `Update ${singularName}`,
-        variant: 'default',
-        loading: 'Updating...',
-      },
-      reset: {
-        label: 'Reset',
-        variant: 'outline',
-      },
-      cancel: {
-        label: 'Cancel',
-        variant: 'ghost',
-      }
-    };
+  if (!schema.actions || !Array.isArray(schema.actions)) {
+    // Set default actions as an array of action types
+    schema.actions = ['cancel', 'reset', 'submit'];
   }
   return schema;
 }
@@ -191,18 +173,12 @@ export function DynamicDetailPageClient({
         >
           <SchemaFormWrapper
             key={`edit-${dataId}`}
-            schema={{
-              ...schema,
-              actions: {
-                ...schema.actions,
-                cancel: {
-                  ...schema.actions?.cancel,
-                  onClick: closeEditModal,
-                } as any
-              }
-            }}
+            schema={schema}
             onSubmit={handleUpdate}
-            onReset={() => formState.reset()}
+            onReset={() => {
+              formState.reset();
+              closeEditModal();
+            }}
             initialValues={currentEntity || data || {}}
           />
         </Modal>

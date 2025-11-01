@@ -1,4 +1,32 @@
-import { FormSchema, FormField } from '../../../shared/types/form-schema';
+import { FormSchema, FormField } from '../../types/form-schema';
+
+/**
+ * Apply default UI properties to a field if they are not specified
+ */
+export const applyFieldUIDefaults = (field: FormField): FormField => {
+  const fieldCopy = { ...field };
+  
+  // Initialize ui if it doesn't exist
+  if (!fieldCopy.ui) {
+    fieldCopy.ui = {};
+  }
+  
+  // Apply defaults only if not already specified
+  if (!fieldCopy.ui.size) {
+    fieldCopy.ui.size = 'md';
+  }
+  if (!fieldCopy.ui.variant) {
+    fieldCopy.ui.variant = 'outlined';
+  }
+  if (!fieldCopy.ui.colSpan) {
+    fieldCopy.ui.colSpan = 1;
+  }
+  if (!fieldCopy.ui.order && fieldCopy.ui.order !== 0) {
+    fieldCopy.ui.order = 999; // Default high order for unsorted fields
+  }
+  
+  return fieldCopy;
+};
 
 /**
  * Get all fields for a specific section from the schema
@@ -7,7 +35,9 @@ export const getFieldsForSection = (schema: FormSchema, sectionId: string): Form
   if (!schema?.fields) {
     return [];
   }
-  return schema.fields.filter(field => field.sectionId === sectionId);
+  return schema.fields
+    .filter(field => field.sectionId === sectionId)
+    .map(field => applyFieldUIDefaults(field));
 };
 
 /**

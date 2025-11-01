@@ -16,6 +16,7 @@ import { getValueByRole, getSingleValueByRole } from '../utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
+import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -82,17 +83,17 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   customComponents = {}
 }) => {
   const detailMetadata = schema.detailPageMetadata;
-  const layout = detailMetadata?.layout || {};
 
-  const mainColumns = layout.mainColumns ?? 2;
-  const sidebarColumns = layout.sidebarColumns ?? 1;
+  // Default layout values (can be overridden in detailPageMetadata if needed)
+  const mainColumns = 2 as 1 | 2 | 3;
+  const sidebarColumns = 1 as 1 | 2;
   // Calculate totalColumns from mainColumns + sidebarColumns
-  const totalColumns = mainColumns + sidebarColumns;
-  const gap = layout.gap || 6;
+  const totalColumns = (mainColumns + sidebarColumns) as 2 | 3 | 4;
+  const gap = 6;
 
-  const headerConfig = detailMetadata?.header || {};
-  const showBackButton = headerConfig.showBackButton !== false;
-  const showActions = headerConfig.showActions !== false;
+  // Default header values (can be overridden if needed)
+  const showBackButton = true;
+  const showActions = true;
 
   if (isLoading) {
     return (
@@ -125,16 +126,29 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const badgeConfig = getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
 
   // Separate sections and component renderers
-  const sections = detailMetadata?.sections || [];
+  const metadataSections = detailMetadata?.sections || [];
   const componentRenderers = detailMetadata?.componentRenderers || [];
+
+  // Get default sections (includes badges if schema has badge fields)
+  const defaultSections = getDefaultSections(schema);
+  
+  // Filter out default sections that already exist in metadata to avoid duplicates
+  const defaultSectionIds = new Set(defaultSections.map(s => s.id));
+  const filteredDefaultSections = defaultSections.filter(
+    defaultSection => !metadataSections.some(metaSection => metaSection.id === defaultSection.id)
+  );
+  
+  // Combine sections: default sections first, then metadata sections
+  const sections = [...filteredDefaultSections, ...metadataSections];
 
   // Group component renderers by whether they should be in the main area or sidebar
   // For now, all components go in the main area unless specified otherwise
   const mainComponents = componentRenderers.filter((comp, index) => index < mainColumns * 2);
   const sidebarComponents = componentRenderers.slice(mainColumns * 2);
 
-  // Determine if sidebar should be shown - show if layout specifies sidebar columns
-  const hasSidebar = totalColumns > mainColumns && sidebarColumns > 0;
+  // Determine if sidebar should be shown - show if layout specifies sidebar columns or if we have sidebar sections
+  const hasSidebarSections = sections.some(s => s.columnArea === 'sidebar');
+  const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections;
 
   // Split sections between main and sidebar if needed
   // Use columnArea property if specified, otherwise use fallback logic

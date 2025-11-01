@@ -10,6 +10,7 @@ import { DetailPageSection, FormSchema } from '../../../shared/types/form-schema
 import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
 import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
+import { isBadgeSection, collectBadgeValues } from '../../schema-manager/utils/badge-utils';
 
 export interface DynamicInfoCardProps {
   section: DetailPageSection;
@@ -112,8 +113,9 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
   className
 }) => {
   const colSpan = section.colSpan || 1;
-  const gridColumns = section.layout?.columns || 2;
-  const gap = section.layout?.gap || 4;
+  // Default grid columns and gap (removed from schema)
+  const gridColumns = 2 as 1 | 2 | 3;
+  const gap = 4 as 2 | 3 | 4 | 6;
 
   // Define cardClasses early so it can be used in early returns
   const cardClasses = cn(
@@ -135,10 +137,11 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
     };
   }).filter(Boolean);
 
-  // Handle special cases for sections without field IDs (like categories)
-  if (fields.length === 0 && section.id === 'categories-section') {
-    // Special handling for categories
-    if (data.categories && Array.isArray(data.categories)) {
+  // Handle badge sections using schema manager utils
+  if (isBadgeSection(section, schema)) {
+    const badgeValues = collectBadgeValues(schema, data, section);
+    
+    if (badgeValues.length > 0) {
       return (
         <motion.div
           initial={disableAnimation ? false : { opacity: 0, y: 20 }}
@@ -154,11 +157,11 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
               id: section.id,
               name: section.title,
               styling: {
-                variant: section.styling?.variant || 'default',
+                variant: 'default',
                 size: 'md'
               }
             }}
-            className={section.styling?.className}
+            className="h-auto"
           >
             <CardHeader>
               <CardTitle>{section.title}</CardTitle>
@@ -168,7 +171,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
             </CardHeader>
             <CardContent>
               <DynamicBadgeRenderer
-                items={data.categories}
+                items={badgeValues}
                 maxBadges={0}
                 badgeVariant="outline"
                 animate={!disableAnimation}
@@ -211,11 +214,11 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
           id: section.id,
           name: section.title,
           styling: {
-            variant: section.styling?.variant || 'default',
+            variant: 'default',
             size: 'md'
           }
         }}
-        className={cn(section.styling?.className, "h-auto")}
+        className="h-auto"
       >
         <CardHeader>
           <CardTitle>{section.title}</CardTitle>

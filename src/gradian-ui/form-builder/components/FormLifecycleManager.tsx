@@ -20,6 +20,8 @@ import { FormAlert } from '../../../components/ui/form-alert';
 import { cn, validateField as validateFieldUtil } from '../../shared/utils';
 import { loggingCustom } from '../../../shared/utils';
 import { LogType } from '../../../shared/constants/application-variables';
+import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
+import { ChevronsDown, ChevronsUp } from 'lucide-react';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -291,6 +293,16 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   });
   
   const [addItemError, setAddItemError] = React.useState<string | null>(null);
+  
+  // State to track which sections are expanded
+  const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>(() => {
+    // Initialize based on section initialState prop
+    const initial: Record<string, boolean> = {};
+    schema.sections.forEach(section => {
+      initial[section.id] = section.initialState !== 'collapsed';
+    });
+    return initial;
+  });
 
   // Deep comparison to avoid unnecessary resets
   const prevInitialValuesRef = React.useRef<string>(JSON.stringify(initialValues));
@@ -304,6 +316,22 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       dispatch({ type: 'RESET', initialValues, schema });
     }
   }, [initialValues, schema]);
+
+  // Update expanded sections when schema sections change
+  const sectionIds = useMemo(() => schema.sections.map(s => s.id).join(','), [schema.sections]);
+  useEffect(() => {
+    setExpandedSections(prev => {
+      const newExpanded: Record<string, boolean> = {};
+      schema.sections.forEach(section => {
+        // Preserve existing state if section still exists, otherwise use initialState
+        newExpanded[section.id] = prev[section.id] !== undefined 
+          ? prev[section.id]
+          : (section.initialState !== 'collapsed');
+      });
+      return newExpanded;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionIds]);
 
   const setValue = useCallback((fieldName: string, value: any) => {
     loggingCustom(LogType.FORM_DATA, 'info', `Setting field "${fieldName}" to: ${JSON.stringify(value)}`);
@@ -586,6 +614,17 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     dispatch({ type: 'SET_SUBMITTING', isSubmitting: false });
   }, [disabled, validateForm, onSubmit, state.values, state.errors, schema]);
 
+  // Get action configurations dynamically
+  const editMode = isEditMode(initialValues);
+  const singularName = getSingularName(schema);
+  const actionConfigs = useMemo(() => {
+    const defaultActions: Array<'submit' | 'cancel' | 'reset'> = ['cancel', 'reset', 'submit'];
+    const actions = schema.actions || defaultActions;
+    // Ensure actions is always an array
+    const actionsArray = Array.isArray(actions) ? actions : defaultActions;
+    return actionsArray.map(actionType => getActionConfig(actionType, singularName, editMode));
+  }, [schema.actions, singularName, editMode]);
+
   const contextValue: FormContextType = {
     state,
     actions: {
@@ -614,6 +653,40 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     className
   );
 
+  // Collapse/Expand all functions
+  const collapseAll = useCallback(() => {
+    const collapsed: Record<string, boolean> = {};
+    schema.sections.forEach(section => {
+      collapsed[section.id] = false;
+    });
+    setExpandedSections(collapsed);
+  }, [schema.sections]);
+
+  const expandAll = useCallback(() => {
+    const expanded: Record<string, boolean> = {};
+    schema.sections.forEach(section => {
+      expanded[section.id] = true;
+    });
+    setExpandedSections(expanded);
+  }, [schema.sections]);
+
+  // Toggle individual section
+  const toggleSection = useCallback((sectionId: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionId]: !prev[sectionId]
+    }));
+  }, []);
+
+  // Check if all sections are expanded or collapsed
+  const allExpanded = useMemo(() => {
+    return schema.sections.every(section => expandedSections[section.id] === true);
+  }, [schema.sections, expandedSections]);
+
+  const allCollapsed = useMemo(() => {
+    return schema.sections.every(section => expandedSections[section.id] === false);
+  }, [schema.sections, expandedSections]);
+
   // If this is rendered inside a form (FormDialog), don't create another form element
   const isInsideForm = typeof window !== 'undefined' && 
     document.getElementById('form-dialog-form')?.closest('form');
@@ -632,7 +705,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           onBlur={(fieldName: string) => setTouched(fieldName, true)}
           onFocus={() => {}}
           disabled={disabled}
-          initialState={section.initialState || 'expanded'}
+          isExpanded={expandedSections[section.id] ?? (section.initialState !== 'collapsed')}
+          onToggleExpanded={() => toggleSection(section.id)}
           repeatingItems={section.isRepeatingSection ? (state.values[section.id] || []) : undefined}
           onAddRepeatingItem={section.isRepeatingSection ? () => addRepeatingItem(section.id) : undefined}
           onRemoveRepeatingItem={section.isRepeatingSection ? (index: number) => removeRepeatingItem(section.id, index) : undefined}
@@ -708,55 +782,87 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
             </div>
           )}
           
-          {schema.actions && !hideActions && (
+          {actionConfigs.length > 0 && !hideActions && (
             <div className="space-y-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex justify-end space-x-3">
-                {schema.actions?.cancel && (
-                  <Button
-                    type="button"
-                    variant={schema.actions.cancel?.variant || 'outline'}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      // Use custom onClick if provided, otherwise reset
-                      const cancelAction = schema.actions?.cancel as any;
-                      if (cancelAction?.onClick) {
-                        cancelAction.onClick();
-                      } else {
-                        reset();
-                      }
-                    }}
-                    disabled={disabled}
-                  >
-                    {schema.actions.cancel?.label}
-                  </Button>
-                )}
-                {schema.actions.reset && (
-                  <Button
-                    type="button"
-                    variant={schema.actions.reset?.variant || 'outline'}
-                    onClick={reset}
-                    disabled={disabled}
-                  >
-                    {schema.actions.reset?.label}
-                  </Button>
-                )}
-                {schema.actions.submit && (
-                  <Button
-                    type="button"
-                    variant={schema.actions.submit?.variant || 'default'}
-                    disabled={disabled || state.isSubmitting}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      submit();
-                    }}
-                  >
-                    {state.isSubmitting 
-                      ? schema.actions.submit?.loading || 'Submitting...'
-                      : schema.actions.submit?.label
-                    }
-                  </Button>
-                )}
+                {actionConfigs.map((config) => {
+                  if (config.type === 'submit') {
+                    return (
+                      <Button
+                        key={config.type}
+                        type="button"
+                        variant={config.variant}
+                        disabled={disabled || state.isSubmitting}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          submit();
+                        }}
+                      >
+                        {state.isSubmitting 
+                          ? config.loading || 'Submitting...'
+                          : config.label
+                        }
+                      </Button>
+                    );
+                  } else if (config.type === 'cancel') {
+                    return (
+                      <Button
+                        key={config.type}
+                        type="button"
+                        variant={config.variant}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          reset();
+                        }}
+                        disabled={disabled}
+                      >
+                        {config.label}
+                      </Button>
+                    );
+                  } else if (config.type === 'reset') {
+                    return (
+                      <Button
+                        key={config.type}
+                        type="button"
+                        variant={config.variant}
+                        onClick={reset}
+                        disabled={disabled}
+                      >
+                        {config.label}
+                      </Button>
+                    );
+                  }
+                  return null;
+                })}
               </div>
+            </div>
+          )}
+          
+          {/* Collapse/Expand All Buttons */}
+          {schema.sections.length > 0 && (
+            <div className="flex justify-end gap-2 mb-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={collapseAll}
+                disabled={allCollapsed || disabled}
+                className="flex items-center gap-2"
+              >
+                <ChevronsUp className="h-4 w-4" />
+                Collapse All
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={expandAll}
+                disabled={allExpanded || disabled}
+                className="flex items-center gap-2"
+              >
+                <ChevronsDown className="h-4 w-4" />
+                Expand All
+              </Button>
             </div>
           )}
           

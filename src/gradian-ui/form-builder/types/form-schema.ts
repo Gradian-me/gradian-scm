@@ -236,21 +236,7 @@ export interface FormSchema {
     showErrors?: boolean;
     showSuccess?: boolean;
   };
-  actions?: {
-    submit?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-      loading?: string;
-    };
-    reset?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-    };
-    cancel?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-    };
-  };
+  actions?: Array<'submit' | 'cancel' | 'reset'>;
   showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
 }
 
@@ -323,6 +309,8 @@ export interface FormSectionProps {
   onAddRepeatingItem?: () => void;
   onRemoveRepeatingItem?: (index: number) => void;
   initialState?: 'expanded' | 'collapsed'; // New prop for initial state
+  isExpanded?: boolean; // Controlled expanded state
+  onToggleExpanded?: () => void; // Callback to toggle expanded state
 }
 
 export interface RepeatingSectionProps {

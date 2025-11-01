@@ -23,6 +23,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   onAddRepeatingItem,
   onRemoveRepeatingItem,
   initialState = 'expanded', // New prop for initial state
+  isExpanded: controlledIsExpanded, // Controlled expanded state
+  onToggleExpanded, // Callback to toggle expanded state
 }) => {
   // Get fields for this section from the schema
   const fields = getFieldsForSection(schema, section.id);
@@ -35,13 +37,21 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     isRepeatingSection 
   } = section;
   
-  const [isExpanded, setIsExpanded] = useState(initialState === 'expanded');
+  // Use controlled state if provided, otherwise use internal state
+  const [internalIsExpanded, setInternalIsExpanded] = useState(initialState === 'expanded');
+  const isExpanded = controlledIsExpanded !== undefined ? controlledIsExpanded : internalIsExpanded;
   
   // Get section-level error
   const sectionError = errors?.[section.id];
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
+    if (onToggleExpanded) {
+      // Use controlled toggle if provided
+      onToggleExpanded();
+    } else {
+      // Use internal state toggle
+      setInternalIsExpanded(!internalIsExpanded);
+    }
   };
 
   const sectionClasses = cn(

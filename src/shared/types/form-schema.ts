@@ -141,21 +141,7 @@ export interface FormSchema {
     size?: 'sm' | 'md' | 'lg';
     className?: string;
   };
-  actions?: {
-    submit?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-      loading?: string;
-    };
-    reset?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-    };
-    cancel?: {
-      label: string;
-      variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
-    };
-  };
+  actions?: Array<'submit' | 'cancel' | 'reset'>;
   validation?: {
     mode?: 'onChange' | 'onBlur' | 'onSubmit';
     showErrors?: boolean;
