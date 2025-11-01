@@ -41,22 +41,22 @@ const navigationItems = [
   },
   {
     name: 'Vendors',
-    href: 'page/vendors',
+    href: '/vendors',
     icon: Users,
   },
   {
     name: 'Tenders/Quotations',
-    href: 'page/tenders',
+    href: '/tenders',
     icon: FileText,
   },
   {
     name: 'Users',
-    href: 'page/users',
+    href: '/users',
     icon: User,
   },
   {
     name: 'Projects',
-    href: 'page/projects',
+    href: '/projects',
     icon: Folder,
   },
   {

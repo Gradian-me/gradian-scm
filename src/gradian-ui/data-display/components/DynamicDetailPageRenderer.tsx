@@ -83,7 +83,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 }) => {
   const detailMetadata = schema.detailPageMetadata;
   const layout = detailMetadata?.layout || {};
-  
+
   const mainColumns = layout.mainColumns ?? 2;
   const sidebarColumns = layout.sidebarColumns ?? 1;
   // Calculate totalColumns from mainColumns + sidebarColumns
@@ -132,17 +132,17 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   // For now, all components go in the main area unless specified otherwise
   const mainComponents = componentRenderers.filter((comp, index) => index < mainColumns * 2);
   const sidebarComponents = componentRenderers.slice(mainColumns * 2);
-  
+
   // Determine if sidebar should be shown - show if layout specifies sidebar columns
   const hasSidebar = totalColumns > mainColumns && sidebarColumns > 0;
-  
+
   // Split sections between main and sidebar if needed
-  // Put first sections in main, rest in sidebar
-  const sectionsForMain = hasSidebar 
-    ? sections.filter((s, index) => index < Math.ceil(sections.length / 2) || s.colSpan === 2)
+  // Use columnArea property if specified, otherwise use fallback logic
+  const sectionsForMain = hasSidebar
+    ? sections.filter((s, index) => s.columnArea === 'main' || (!s.columnArea && (index < Math.ceil(sections.length / 2) || s.colSpan === 2)))
     : sections;
   const sectionsForSidebar = hasSidebar
-    ? sections.filter((s, index) => index >= Math.ceil(sections.length / 2) && s.colSpan !== 2)
+    ? sections.filter((s, index) => s.columnArea === 'sidebar' || (!s.columnArea && (index >= Math.ceil(sections.length / 2) && s.colSpan !== 2)))
     : [];
 
   return (
@@ -153,10 +153,11 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           initial={disableAnimation ? false : { opacity: 0, y: 20 }}
           animate={disableAnimation ? false : { opacity: 1, y: 0 }}
           transition={disableAnimation ? {} : { duration: 0.3 }}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between w-full"
         >
-          <div className="flex items-center space-x-4">
-            {showBackButton && (onBack || backUrl) && (
+          <div className="flex items-center  flex-col w-full">
+          <div className='flex items-center justify-between w-full'>
+          {showBackButton && (onBack || backUrl) && (
               <Button
                 variant="outline"
                 onClick={onBack}
@@ -165,7 +166,26 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 Back
               </Button>
             )}
-            <div className="flex items-center space-x-4">
+
+            {showActions && (onEdit || onDelete) && (
+              <div className="flex space-x-2">
+                {onEdit && (
+                  <Button variant="outline" onClick={onEdit} className="px-4 py-2 gap-2">
+                    <Edit className="h-4 w-4  " />
+                    <span className='hidden md:block'>Edit</span>
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button variant="outline" onClick={onDelete} className="text-red-600 hover:text-red-700 px-4 py-2 gap-2">
+                    <Trash2 className="h-4 w-4 " />
+                    <span className='hidden md:block'>Delete</span>
+                  </Button>
+                )}
+              </div>
+            )}
+
+          </div>
+            <div className="flex items-center space-x-4 mr-auto py-4">
               <Avatar className="h-16 w-16">
                 <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
                 <AvatarFallback>{getInitials(headerInfo.avatar)}</AvatarFallback>
@@ -187,8 +207,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
                       animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
-                      transition={disableAnimation ? {} : { 
-                        duration: 0.3, 
+                      transition={disableAnimation ? {} : {
+                        duration: 0.3,
                         delay: 0.2,
                         ease: [0.25, 0.46, 0.45, 0.94]
                       }}
@@ -207,125 +227,110 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
             </div>
           </div>
 
-          {showActions && (onEdit || onDelete) && (
-            <div className="flex space-x-2">
-              {onEdit && (
-                <Button variant="outline" onClick={onEdit}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-              )}
-              {onDelete && (
-                <Button variant="outline" onClick={onDelete} className="text-red-600 hover:text-red-700">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              )}
-            </div>
-          )}
+
         </motion.div>
 
         {/* Main Content Grid */}
         {hasSidebar ? (
           <div className={cn(
             "grid gap-6",
-            totalColumns === 2 && "grid-cols-1 lg:grid-cols-2",
-            totalColumns === 3 && "grid-cols-1 lg:grid-cols-3",
-            totalColumns === 4 && "grid-cols-1 lg:grid-cols-4"
+            totalColumns === 2 && "grid-cols-1 md:grid-cols-2",
+            totalColumns === 3 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+            totalColumns === 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
           )}>
             {/* Main Content Area */}
             <div className={cn(
               "space-y-6",
-              mainColumns === 2 && "lg:col-span-2",
-              mainColumns === 3 && "lg:col-span-3",
-              mainColumns === 1 && "lg:col-span-1"
+              mainColumns === 2 && "md:col-span-2",
+              mainColumns === 3 && "md:col-span-2 lg:col-span-3",
+              mainColumns === 1 && "md:col-span-1"
             )}>
-            {/* Component Renderers (e.g., KPIIndicators) */}
-            {mainComponents.length > 0 && (
-              <motion.div
-                initial={disableAnimation ? false : { opacity: 0, y: 20 }}
-                animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
-              >
-                <GridBuilder
-                  config={{
-                    id: 'detail-components-grid',
-                    name: 'Detail Components Grid',
-                    columns: 2,
-                    gap: gap,
-                    responsive: true
-                  }}
+              {/* Component Renderers (e.g., KPIIndicators) */}
+              {mainComponents.length > 0 && (
+                <motion.div
+                  initial={disableAnimation ? false : { opacity: 0, y: 20 }}
+                  animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
                 >
-                  {mainComponents.map((compConfig, index) => (
-                    <ComponentRenderer
-                      key={compConfig.id}
-                      config={compConfig}
-                      schema={schema}
-                      data={data}
-                      index={index}
-                      disableAnimation={disableAnimation}
-                      customComponents={customComponents}
-                    />
-                  ))}
-                </GridBuilder>
-              </motion.div>
-            )}
+                  <GridBuilder
+                    config={{
+                      id: 'detail-components-grid',
+                      name: 'Detail Components Grid',
+                      columns: 2,
+                      gap: gap,
+                      responsive: true
+                    }}
+                  >
+                    {mainComponents.map((compConfig, index) => (
+                      <ComponentRenderer
+                        key={compConfig.id}
+                        config={compConfig}
+                        schema={schema}
+                        data={data}
+                        index={index}
+                        disableAnimation={disableAnimation}
+                        customComponents={customComponents}
+                      />
+                    ))}
+                  </GridBuilder>
+                </motion.div>
+              )}
 
-            {/* Info Cards - Two Column Grid */}
-            {sectionsForMain.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {sectionsForMain.map((section, index) => (
-                  <DynamicInfoCard
-                    key={section.id}
-                    section={section}
-                    schema={schema}
-                    data={data}
-                    index={index + mainComponents.length}
-                    disableAnimation={disableAnimation}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          {hasSidebar && (
-            <div className={cn(
-              "space-y-6",
-              sidebarColumns === 1 && "lg:col-span-1",
-              sidebarColumns === 2 && "lg:col-span-2",
-              !sidebarColumns && "lg:col-span-1"
-            )}>
-              {/* Sidebar Component Renderers */}
-              {sidebarComponents.map((compConfig, index) => (
-                <ComponentRenderer
-                  key={compConfig.id}
-                  config={compConfig}
-                  schema={schema}
-                  data={data}
-                  index={index + sections.length}
-                  disableAnimation={disableAnimation}
-                  customComponents={customComponents}
-                />
-              ))}
-              
-              {/* Sidebar Info Cards */}
-              {sectionsForSidebar.length > 0 && (
-                <div className="space-y-6">
-                  {sectionsForSidebar.map((section, index) => (
+              {/* Info Cards - Two Column Grid */}
+              {sectionsForMain.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {sectionsForMain.map((section, index) => (
                     <DynamicInfoCard
                       key={section.id}
                       section={section}
                       schema={schema}
                       data={data}
-                      index={index + mainComponents.length + sectionsForMain.length}
+                      index={index + mainComponents.length}
                       disableAnimation={disableAnimation}
                     />
                   ))}
                 </div>
               )}
             </div>
-          )}
+
+            {/* Sidebar */}
+            {hasSidebar && (
+              <div className={cn(
+                "space-y-6",
+                sidebarColumns === 1 && "md:col-span-1",
+                sidebarColumns === 2 && "md:col-span-2",
+                !sidebarColumns && "md:col-span-1"
+              )}>
+                {/* Sidebar Component Renderers */}
+                {sidebarComponents.map((compConfig, index) => (
+                  <ComponentRenderer
+                    key={compConfig.id}
+                    config={compConfig}
+                    schema={schema}
+                    data={data}
+                    index={index + sections.length}
+                    disableAnimation={disableAnimation}
+                    customComponents={customComponents}
+                  />
+                ))}
+
+                {/* Sidebar Info Cards */}
+                {sectionsForSidebar.length > 0 && (
+                  <div className="space-y-6">
+                    {sectionsForSidebar.map((section, index) => (
+                      <DynamicInfoCard
+                        key={section.id}
+                        section={section}
+                        schema={schema}
+                        data={data}
+                        index={index + mainComponents.length + sectionsForMain.length}
+                        disableAnimation={disableAnimation}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -362,7 +367,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
             {/* Info Cards - Two Column Grid */}
             {sectionsForMain.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {sectionsForMain.map((section, index) => (
                   <DynamicInfoCard
                     key={section.id}

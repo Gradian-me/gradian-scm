@@ -40,9 +40,6 @@ export function Header({
         </motion.h1>
 
         <div className="flex items-center space-x-4">
-          {/* Test Dropdown */}
-          <TestDropdown />
-          
           {/* Department Selector Component */}
           <DepartmentSelector />
 

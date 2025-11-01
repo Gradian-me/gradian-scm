@@ -112,10 +112,7 @@ export function DynamicDetailPageClient({
         if (response.success && response.data) {
           setData(response.data);
         } else {
-          const errorMsg = typeof response.error === 'string' 
-            ? response.error 
-            : response.error?.message || 'Failed to fetch entity';
-          setError(errorMsg);
+          setError(response.error || 'Failed to fetch entity');
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch entity');
@@ -201,7 +198,7 @@ export function DynamicDetailPageClient({
                 cancel: {
                   ...schema.actions?.cancel,
                   onClick: closeEditModal,
-                }
+                } as any
               }
             }}
             onSubmit={handleUpdate}

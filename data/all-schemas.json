@@ -682,25 +682,27 @@
           }
         },
         {
-          "id": "address-details",
-          "title": "Address Details",
-          "description": "Physical location information",
-          "colSpan": 2,
-          "fieldIds": ["address", "city", "state", "zip-code"],
+          "id": "categories-section",
+          "title": "Categories",
+          "description": "Vendor categories",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": [],
           "layout": {
-            "columns": 2,
-            "gap": 4
+            "columns": 1,
+            "gap": 2
           },
           "styling": {
             "variant": "default"
           }
         },
         {
-          "id": "categories-section",
-          "title": "Categories",
-          "description": "Vendor categories",
+          "id": "address-details",
+          "title": "Address Details",
+          "description": "Physical location information",
           "colSpan": 1,
-          "fieldIds": [],
+          "columnArea": "sidebar",
+          "fieldIds": ["address", "city", "state", "zip-code"],
           "layout": {
             "columns": 1,
             "gap": 2
@@ -1165,6 +1167,7 @@
           "title": "Status & Information",
           "description": "Current status and key dates",
           "colSpan": 1,
+          "columnArea": "sidebar",
           "fieldIds": ["tender-status"],
           "layout": {
             "columns": 1,
@@ -1600,6 +1603,7 @@
           "title": "Status & Availability",
           "description": "Product status and inventory",
           "colSpan": 1,
+          "columnArea": "sidebar",
           "fieldIds": ["product-status", "product-quantity"],
           "layout": {
             "columns": 1,
@@ -1914,6 +1918,7 @@
           "title": "Access & Permissions",
           "description": "User role and status",
           "colSpan": 1,
+          "columnArea": "sidebar",
           "fieldIds": ["user-role", "user-status"],
           "layout": {
             "columns": 1,
@@ -2458,6 +2463,7 @@
           "title": "Status & Information",
           "description": "Company status and business metrics",
           "colSpan": 1,
+          "columnArea": "sidebar",
           "fieldIds": ["company-status"],
           "layout": {
             "columns": 1,
@@ -3043,6 +3049,7 @@
           "title": "Related Entities",
           "description": "Related vendors, companies, or tenders",
           "colSpan": 1,
+          "columnArea": "sidebar",
           "fieldIds": ["project-vendor", "project-company", "project-tender"],
           "layout": {
             "columns": 1,

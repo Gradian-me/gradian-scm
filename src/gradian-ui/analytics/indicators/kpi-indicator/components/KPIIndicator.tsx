@@ -42,17 +42,24 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
     }
   };
 
-  const getSizeClasses = () => {
-    switch (styling.size) {
-      case 'sm':
-        return 'text-2xl';
-      case 'lg':
-        return 'text-4xl';
-      case 'xl':
-        return 'text-5xl';
-      default:
-        return 'text-3xl';
-    }
+  const getClampStyles = () => {
+    const baseSize = {
+      sm: { min: 1.25, max: 1.75 }, // 1.25rem - 1.75rem (20px - 28px)
+      md: { min: 1.5, max: 2.25 },  // 1.5rem - 2.25rem (24px - 36px)
+      lg: { min: 2, max: 3 },       // 2rem - 3rem (32px - 48px)
+      xl: { min: 2.5, max: 4 },     // 2.5rem - 4rem (40px - 64px)
+    }[styling.size];
+
+    // Use container query units (cqw) for truly container-based clamping
+    // cqw = container query width (1 cqw = 1% of container width)
+    // This ensures the font scales based on the card's actual width, not the viewport
+    // Formula: clamp(min, percentage-of-container, max)
+    // The middle value uses cqw to scale font based on container width
+    const containerBasedValue = `clamp(${baseSize.min}rem, ${baseSize.max * 0.75}cqw, ${baseSize.max}rem)`;
+    
+    return {
+      fontSize: containerBasedValue,
+    };
   };
 
   const getCardClasses = () => {
@@ -75,15 +82,16 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
     className
   );
 
-  const valueClasses = cn(
-    'font-bold text-gray-900',
-    getSizeClasses()
-  );
+  const valueClasses = cn('font-bold text-gray-900');
 
   return (
     <div
       className={indicatorClasses}
-      style={{ borderLeftColor: color, borderLeftWidth: '4px' }}
+      style={{ 
+        borderLeftColor: color, 
+        borderLeftWidth: '4px',
+        containerType: 'inline-size'
+      }}
       {...props}
     >
       <div className="flex items-start justify-between">
@@ -94,7 +102,7 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
           </div>
           
           <div className="flex items-baseline space-x-2">
-            <span className={valueClasses} style={{ color }}>
+            <span className={valueClasses} style={{ color, ...getClampStyles() }}>
               {formatValue(value)}
             </span>
             {unit && (

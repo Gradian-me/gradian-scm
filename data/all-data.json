@@ -161,7 +161,7 @@
       "phone": "09126184264",
       "department": "Sales",
       "role": "inventory",
-      "status": "INACTIVE",
+      "status": "SUSPENDED",
       "categories": [
         "general"
       ],
@@ -179,7 +179,8 @@
       "rating": 5,
       "id": "01K8ZGR7F8GQ9AWE4GC843XBQV",
       "createdAt": "2025-11-01T10:52:30.058Z",
-      "updatedAt": "2025-11-01T11:47:25.085Z"
+      "updatedAt": "2025-11-01T12:35:14.223Z",
+      "position": "Backend Developer"
     }
   ],
   "companies": [],
@@ -200,10 +201,11 @@
       "rating": 5,
       "id": "01K8ZKS11JT1V9KJD56PAXD91C",
       "createdAt": "2025-11-01T11:45:21.975Z",
-      "updatedAt": "2025-11-01T11:46:08.212Z",
+      "updatedAt": "2025-11-01T13:31:06.384Z",
       "vendor": "Masoud",
       "company": "CinnaGen",
-      "tender": "Mahyar"
+      "tender": "Mahyar",
+      "budget": 12341204120
     }
   ]
 }

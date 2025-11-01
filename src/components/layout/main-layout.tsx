@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Sidebar } from './sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/button';
-import { Plus, Menu, Bell } from 'lucide-react';
+import { Plus, Menu, Bell, PanelRight, PanelRightOpen, PanelLeftOpen } from 'lucide-react';
 import { DepartmentSelector } from './DepartmentSelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
@@ -91,7 +91,7 @@ export function MainLayout({
               onClick={toggleMobileMenu}
               className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             >
-              <Menu className="h-5 w-5" />
+              <PanelLeftOpen className="h-5 w-5" />
             </Button>
             
             {/* Title */}

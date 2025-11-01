@@ -82,6 +82,7 @@ export interface DetailPageSection {
   description?: string;
   colSpan?: number; // Number of columns this section should span in the grid
   fieldIds: string[]; // Field IDs to display as key-value pairs
+  columnArea?: 'main' | 'sidebar'; // Which area to place this section in (main or sidebar)
   layout?: {
     columns?: number; // Number of columns for the key-value grid inside the card (default: 2)
     gap?: number;

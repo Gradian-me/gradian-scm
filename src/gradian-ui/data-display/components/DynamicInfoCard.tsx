@@ -3,13 +3,13 @@
 
 import { motion } from 'framer-motion';
 import React from 'react';
-import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { CardContent, CardHeader, CardTitle, CardWrapper } from '../card/components/CardWrapper';
 import { DetailPageSection, FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
+import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
 
 export interface DynamicInfoCardProps {
   section: DetailPageSection;
@@ -60,44 +60,13 @@ const formatFieldValue = (field: any, value: any): React.ReactNode => {
       if (Array.isArray(value)) {
         if (uiConfig.displayType === 'badges') {
           const maxDisplay = uiConfig.maxDisplay || 5;
-          const displayItems = value.slice(0, maxDisplay);
-          const remaining = value.length - maxDisplay;
           return (
-            <div className="flex flex-wrap gap-1">
-              {displayItems.map((item, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.3, 
-                    delay: idx * 0.05,
-                    ease: [0.25, 0.46, 0.45, 0.94]
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Badge variant="outline" className="text-xs">
-                    {String(item)}
-                  </Badge>
-                </motion.div>
-              ))}
-              {remaining > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.3, 
-                    delay: displayItems.length * 0.05,
-                    ease: [0.25, 0.46, 0.45, 0.94]
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <Badge variant="secondary" className="text-xs">
-                    +{remaining}
-                  </Badge>
-                </motion.div>
-              )}
-            </div>
+            <DynamicBadgeRenderer
+              items={value}
+              maxBadges={maxDisplay}
+              badgeVariant="outline"
+              animate={true}
+            />
           );
         }
         return <span>{value.join(', ')}</span>;
@@ -198,25 +167,12 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
               )}
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {data.categories.map((category: string, idx: number) => (
-                  <motion.div
-                    key={idx}
-                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
-                    animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
-                    transition={disableAnimation ? {} : { 
-                      duration: 0.3, 
-                      delay: idx * 0.05,
-                      ease: [0.25, 0.46, 0.45, 0.94]
-                    }}
-                    whileHover={disableAnimation ? undefined : { scale: 1.05 }}
-                  >
-                    <Badge variant="primary">
-                      {category}
-                    </Badge>
-                  </motion.div>
-                ))}
-              </div>
+              <DynamicBadgeRenderer
+                items={data.categories}
+                maxBadges={0}
+                badgeVariant="outline"
+                animate={!disableAnimation}
+              />
             </CardContent>
           </CardWrapper>
         </motion.div>
@@ -233,7 +189,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
     "grid gap-4",
     gridColumns === 1 && "grid-cols-1",
     gridColumns === 2 && "grid-cols-1 md:grid-cols-2",
-    gridColumns === 3 && "grid-cols-1 md:grid-cols-3",
+    gridColumns === 3 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
     gap === 2 && "gap-2",
     gap === 3 && "gap-3",
     gap === 4 && "gap-4",

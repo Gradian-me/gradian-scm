@@ -1,9 +1,8 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Badge } from '../../../components/ui/badge';
 import { FormSchema } from '../../form-builder/types/form-schema';
 import { resolveFieldById, getFieldValue } from '../../form-builder/form-elements/utils/field-resolver';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { DynamicBadgeRenderer } from '../components/DynamicBadgeRenderer';
 
 interface RenderFieldValueProps {
   field: any;
@@ -43,45 +42,15 @@ const renderValueByType = ({ field, value, data }: RenderFieldValueProps): React
     case 'array':
       if (field.displayType === 'badges') {
         const items = Array.isArray(value) ? value : [];
-        const displayItems = items.slice(0, field.maxDisplay || 3);
-        const remainingCount = items.length - displayItems.length;
+        const maxDisplay = field.maxDisplay || 3;
         
         return (
-          <div className="flex flex-wrap gap-1">
-            {displayItems.map((item: any, idx: number) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: idx * 0.05,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <Badge variant="secondary" className="text-xs">
-                  {item}
-                </Badge>
-              </motion.div>
-            ))}
-            {remainingCount > 0 && field.showMore && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  delay: displayItems.length * 0.05,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <Badge variant="outline" className="text-xs">
-                  +{remainingCount}
-                </Badge>
-              </motion.div>
-            )}
-          </div>
+          <DynamicBadgeRenderer
+            items={items}
+            maxBadges={maxDisplay}
+            badgeVariant="outline"
+            animate={true}
+          />
         );
       }
       return <span>{Array.isArray(value) ? value.join(', ') : value}</span>;
