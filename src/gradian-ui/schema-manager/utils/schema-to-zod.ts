@@ -135,11 +135,14 @@ export const generateZodSchemaFromForm = <T extends FormSchema>(
   const shape: Record<string, any> = {};
   
   schema.sections.forEach(section => {
+    // Get fields for this section
+    const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+    
     // Handle repeating sections (like contacts)
     if (section.isRepeatingSection) {
       const nestedShape: Record<string, any> = {};
       
-      section.fields.forEach(field => {
+      sectionFields.forEach(field => {
         const zodType = convertValidationToZod(field);
         nestedShape[field.name] = zodType;
       });
@@ -174,7 +177,7 @@ export const generateZodSchemaFromForm = <T extends FormSchema>(
       }
     } else {
       // Handle regular fields
-      section.fields.forEach(field => {
+      sectionFields.forEach(field => {
         const zodType = convertValidationToZod(field);
         
         if (mode === 'update') {
@@ -199,11 +202,14 @@ export const generateValidationRulesFromForm = <T extends FormSchema>(
   const rules: Record<string, any> = {};
   
   schema.sections.forEach(section => {
+    // Get fields for this section
+    const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+    
     // Handle repeating sections
     if (section.isRepeatingSection) {
       // For repeating sections, we create nested rules
       // The key is the section id, and values are the array items
-      section.fields.forEach(field => {
+      sectionFields.forEach(field => {
         const fieldRules: ValidationRule = {};
         
         if (field.validation) {
@@ -224,7 +230,7 @@ export const generateValidationRulesFromForm = <T extends FormSchema>(
       });
     } else {
       // Handle regular fields
-      section.fields.forEach(field => {
+      sectionFields.forEach(field => {
         const fieldRules: ValidationRule = {};
         
         if (field.validation) {
@@ -255,13 +261,16 @@ export const extractInitialValuesFromForm = <T extends FormSchema>(
   const initialValues: Record<string, any> = {};
   
   schema.sections.forEach(section => {
+    // Get fields for this section
+    const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+    
     // Handle repeating sections
     if (section.isRepeatingSection) {
       // For repeating sections, initialize as empty array
       initialValues[section.id] = [];
     } else {
       // Handle regular fields
-      section.fields.forEach(field => {
+      sectionFields.forEach(field => {
         if (field.defaultValue !== undefined) {
           initialValues[field.name] = field.defaultValue;
         } else {

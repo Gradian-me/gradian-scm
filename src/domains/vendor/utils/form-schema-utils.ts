@@ -2,21 +2,19 @@ import { FormElementConfig } from '../../../gradian-ui/form-builder/form-element
 import { FormSchema } from '../../../shared/types/form-schema';
 
 /**
- * Extracts all fields from form sections and converts them to FormElementConfig
- * @param schema The extended form schema with sections
+ * Extracts all fields from form schema and converts them to FormElementConfig
+ * @param schema The extended form schema with fields
  * @returns Array of form element configs
  */
 const extractFieldsFromSections = (schema: FormSchema): FormElementConfig[] => {
-  if (!schema.sections) {
+  if (!schema.fields) {
     return [];
   }
   
   const fields: FormElementConfig[] = [];
   
-  schema.sections.forEach(section => {
-    if (section.fields) {
-      // Convert FormField to FormElementConfig
-      section.fields.forEach(field => {
+  // Convert FormField to FormElementConfig
+  schema.fields.forEach(field => {
         // Handle component types that are not in FormElementConfig
         const component = field.component === 'tel' || field.component === 'url' || field.component === 'datetime-local' 
           ? 'text' 
@@ -67,9 +65,7 @@ const extractFieldsFromSections = (schema: FormSchema): FormElementConfig[] => {
           }
         }
         
-        fields.push(elementConfig);
-      });
-    }
+    fields.push(elementConfig);
   });
   
   return fields;

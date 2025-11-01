@@ -51,13 +51,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   // Find status field options from schema
   const findStatusFieldOptions = () => {
-    if (!schema || !schema.sections) return undefined;
+    if (!schema || !schema.fields) return undefined;
 
-    for (const section of schema.sections) {
-      for (const field of section.fields) {
-        if (field.role === 'status' && field.options) {
-          return field.options;
-        }
+    for (const field of schema.fields) {
+      if (field.role === 'status' && field.options) {
+        return field.options;
       }
     }
     return undefined;

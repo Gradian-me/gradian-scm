@@ -109,6 +109,9 @@ export const createEntityUIHook = <T extends Record<string, any>>(
     // Populate form with entity data (auto-generated from schema)
     const populateForm = useCallback((entity: T) => {
       schema.sections.forEach(section => {
+        // Get fields for this section
+        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+        
         if (section.isRepeatingSection) {
           // Handle repeating sections
           const sectionData = entity[section.id];
@@ -117,7 +120,7 @@ export const createEntityUIHook = <T extends Record<string, any>>(
           }
         } else {
           // Handle regular fields
-          section.fields.forEach(field => {
+          sectionFields.forEach(field => {
             const value = entity[field.name];
             if (value !== undefined) {
               formState.setValue(field.name, value);
@@ -336,13 +339,16 @@ export const generateFormPopulator = <T extends Record<string, any>>(
 ) => {
   return (entity: T, formState: ReturnType<typeof useFormState>) => {
     schema.sections.forEach(section => {
+      // Get fields for this section
+      const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+      
       if (section.isRepeatingSection) {
         const sectionData = entity[section.id];
         if (Array.isArray(sectionData)) {
           formState.setValue(section.id, sectionData);
         }
       } else {
-        section.fields.forEach(field => {
+        sectionFields.forEach(field => {
           const value = entity[field.name];
           if (value !== undefined && value !== null) {
             formState.setValue(field.name, value);

@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { Button } from '../../../components/ui/button';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '../../shared/utils';
+import { getFieldsForSection } from '../form-elements/utils/field-resolver';
 
 export const AccordionFormSection: React.FC<FormSectionProps> = ({
   section,
+  schema,
   values,
   errors,
   touched,
@@ -22,10 +24,11 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   onRemoveRepeatingItem,
   initialState = 'expanded', // New prop for initial state
 }) => {
+  // Get fields for this section from the schema
+  const fields = getFieldsForSection(schema, section.id);
   const { 
     title, 
     description, 
-    fields, 
     columns = 2, // Default to 2 columns if not specified
     gap = 4, // Default gap
     styling, 

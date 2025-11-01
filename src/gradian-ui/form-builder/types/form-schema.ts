@@ -4,6 +4,7 @@ export interface FormField {
   id: string;
   name: string;
   label: string;
+  sectionId: string; // Reference to the section this field belongs to
   type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   placeholder?: string;
@@ -84,7 +85,6 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
-  fields: FormField[];
   columns?: number; // Default: 2 if not specified
   gap?: number;
   // Keep layout for backward compatibility
@@ -216,10 +216,11 @@ export interface FormSchema {
   name: string;
   title: string;
   description?: string;
+  fields: FormField[]; // All fields at schema level, each with a sectionId
   cardConfig?: CardConfig;
   cardMetadata?: CardSection[];
   listMetadata?: ListMetadata;
-  sections: FormSection[];
+  sections: FormSection[]; // Sections no longer contain fields
   layout?: {
     direction?: 'column' | 'row';
     gap?: number;
@@ -310,6 +311,7 @@ export interface FormWrapperProps {
 
 export interface FormSectionProps {
   section: FormSection;
+  schema: FormSchema; // Schema needed to get fields for the section
   values: FormData;
   errors: FormErrors;
   touched: FormTouched;

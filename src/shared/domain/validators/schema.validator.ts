@@ -14,11 +14,8 @@ export function validateAgainstSchema(
 ): { isValid: boolean; errors: ValidationErrorDetail[] } {
   const errors: ValidationErrorDetail[] = [];
 
-  // Get all fields from all sections
-  const allFields: FormField[] = [];
-  schema.sections.forEach(section => {
-    allFields.push(...section.fields);
-  });
+  // Get all fields from schema (fields are at schema level)
+  const allFields: FormField[] = schema.fields || [];
 
   // Validate each field
   allFields.forEach(field => {

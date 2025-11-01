@@ -4,6 +4,7 @@ export interface FormField {
   id: string;
   name: string;
   label: string;
+  sectionId: string; // Reference to the section this field belongs to
   type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   placeholder?: string;
@@ -50,7 +51,6 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
-  fields: FormField[];
   columns?: number; // Default: 2 if not specified
   gap?: number;
   styling?: {
@@ -83,7 +83,8 @@ export interface FormSchema {
   description?: string;
   singular_name?: string;
   plural_name?: string;
-  sections: FormSection[];
+  fields: FormField[]; // All fields at schema level, each with a sectionId
+  sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];
   layout?: {
     direction?: 'column' | 'row';

@@ -178,14 +178,11 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         // This is a repeating section field
         const [, sectionId, itemIndex, fieldName] = match;
         const index = parseInt(itemIndex);
-        const section = action.schema.sections.find(s => s.id === sectionId);
-        field = section?.fields.find(f => f.name === fieldName);
+        field = action.schema.fields.find(f => f.sectionId === sectionId && f.name === fieldName);
         fieldValue = state.values[sectionId]?.[index]?.[fieldName];
       } else {
         // Regular field
-        field = action.schema.sections
-          .flatMap(section => section.fields)
-          .find(f => f.name === action.fieldName);
+        field = action.schema.fields.find(f => f.name === action.fieldName);
         fieldValue = state.values[action.fieldName];
       }
       
@@ -205,16 +202,14 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       const newErrors: FormErrors = {};
       let isValid = true;
       
-      action.schema.sections.forEach(section => {
-        section.fields.forEach(field => {
-          if (field.validation) {
-            const result = validateFieldUtil(state.values[field.name], field.validation);
-            if (!result.isValid) {
-              newErrors[field.name] = result.error || 'Invalid value';
-              isValid = false;
-            }
+      action.schema.fields.forEach(field => {
+        if (field.validation) {
+          const result = validateFieldUtil(state.values[field.name], field.validation);
+          if (!result.isValid) {
+            newErrors[field.name] = result.error || 'Invalid value';
+            isValid = false;
           }
-        });
+        }
       });
       
       return {
@@ -350,8 +345,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         }
         
         // Validate fields within each repeating item
+        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
         items.forEach((item: any, itemIndex: number) => {
-          section.fields.forEach(field => {
+          sectionFields.forEach(field => {
             if (field.validation) {
               const fieldValue = item[field.name];
               const result = validateFieldUtil(fieldValue, field.validation);
@@ -365,7 +361,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         });
       } else {
         // Validate individual fields in non-repeating sections
-        section.fields.forEach(field => {
+        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+        sectionFields.forEach(field => {
           if (field.validation) {
             const result = validateFieldUtil(state.values[field.name], field.validation);
             if (!result.isValid) {
@@ -413,8 +410,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     
     // Check if there are existing items to validate
     if (items.length > 0) {
+      const sectionFields = schema.fields.filter(f => f.sectionId === sectionId);
       items.forEach((item: any, itemIndex: number) => {
-        section.fields.forEach(field => {
+        sectionFields.forEach(field => {
           if (field.validation) {
             const fieldValue = item[field.name];
             const result = validateFieldUtil(fieldValue, field.validation);
@@ -454,7 +452,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     }
     
     // Add the new item
-    const defaultValue = section.fields.reduce((acc, field) => {
+    const sectionFields = schema.fields.filter(f => f.sectionId === sectionId);
+    const defaultValue = sectionFields.reduce((acc, field) => {
       acc[field.name] = field.defaultValue || '';
       return acc;
     }, {} as any);
@@ -512,8 +511,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         }
         
         // Check for errors within repeating items
+        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
         items.forEach((item: any, itemIndex: number) => {
-          section.fields.forEach(field => {
+          sectionFields.forEach(field => {
             const errorKey = `${section.id}[${itemIndex}].${field.name}`;
             if (state.errors[errorKey]) {
               sectionValid = false;
@@ -523,7 +523,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         });
       } else {
         // Check errors for non-repeating section fields
-        section.fields.forEach(field => {
+        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+        sectionFields.forEach(field => {
           if (state.errors[field.name]) {
             sectionValid = false;
             sectionErrors.push(`${field.name}: ${state.errors[field.name]}`);
@@ -594,6 +595,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         <AccordionFormSection
           key={section.id}
           section={section}
+          schema={schema}
           values={state.values}
           errors={state.errors}
           touched={state.touched}
@@ -637,7 +639,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       if (match) {
         const [, sectionId, itemIndex, fieldName] = match;
         const section = schema.sections.find(s => s.id === sectionId);
-        const field = section?.fields.find(f => f.name === fieldName);
+        const field = schema.fields.find(f => f.sectionId === sectionId && f.name === fieldName);
         return section 
           ? `${section.title} - Item ${parseInt(itemIndex) + 1} (${field?.label || fieldName}): ${errorMessage}`
           : errorMessage;

@@ -1,17 +1,25 @@
-import { FormSchema } from '../../../form-builder/types/form-schema';
+import { FormSchema, FormField } from '../../../shared/types/form-schema';
+
+/**
+ * Get all fields for a specific section from the schema
+ */
+export const getFieldsForSection = (schema: FormSchema, sectionId: string): FormField[] => {
+  if (!schema?.fields) {
+    return [];
+  }
+  return schema.fields.filter(field => field.sectionId === sectionId);
+};
 
 /**
  * Get all fields from the schema that have a specific role
  */
 export const getFieldsByRole = (schema: FormSchema, role: string): any[] => {
   const fields: any[] = [];
-  if (schema?.sections) {
-    schema.sections.forEach((section: any) => {
-      section.fields?.forEach((field: any) => {
-        if (field.role === role) {
-          fields.push(field);
-        }
-      });
+  if (schema?.fields) {
+    schema.fields.forEach((field: any) => {
+      if (field.role === role) {
+        fields.push(field);
+      }
     });
   }
   return fields;
@@ -45,16 +53,11 @@ export const getSingleValueByRole = (schema: FormSchema, data: any, role: string
  * Resolve field by ID from form schema
  */
 export const resolveFieldById = (schema: FormSchema, fieldId: string): any => {
-  const fieldDefinitionsMap = new Map();
-  if (schema?.sections) {
-    schema.sections.forEach((section: any) => {
-      section.fields?.forEach((field: any) => {
-        fieldDefinitionsMap.set(field.id, field);
-      });
-    });
+  if (!schema?.fields) {
+    return { id: fieldId, name: fieldId };
   }
   
-  const field = fieldDefinitionsMap.get(fieldId);
+  const field = schema.fields.find(f => f.id === fieldId);
   if (!field) {
     return { id: fieldId, name: fieldId };
   }

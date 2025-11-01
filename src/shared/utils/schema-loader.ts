@@ -42,18 +42,34 @@ function processField(field: any): FormField {
 
 /**
  * Process a schema to convert string patterns to RegExp objects
+ * and transform old structure (fields in sections) to new structure (fields at schema level)
  * @param schema - The schema to process
  * @returns Processed schema
  */
 function processSchema(schema: any): FormSchema {
   const processedSchema = { ...schema };
   
-  // Process all fields in all sections
-  if (processedSchema.sections) {
-    processedSchema.sections = processedSchema.sections.map((section: any) => ({
-      ...section,
-      fields: section.fields ? section.fields.map(processField) : []
-    }));
+  // If schema has old structure (fields in sections), transform to new structure
+  if (processedSchema.sections && !processedSchema.fields) {
+    const allFields: FormField[] = [];
+    
+    processedSchema.sections.forEach((section: any) => {
+      if (section.fields && Array.isArray(section.fields)) {
+        section.fields.forEach((field: any) => {
+          allFields.push(processField({
+            ...field,
+            sectionId: section.id
+          }));
+        });
+      }
+      // Remove fields from section
+      delete section.fields;
+    });
+    
+    processedSchema.fields = allFields;
+  } else if (processedSchema.fields) {
+    // Process fields that are already at schema level
+    processedSchema.fields = processedSchema.fields.map(processField);
   }
   
   return processedSchema as FormSchema;

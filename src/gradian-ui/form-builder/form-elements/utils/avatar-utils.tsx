@@ -30,8 +30,8 @@ export const getAvatarContent = ({
   let avatarField: any;
   let fallbackField: any;
   
-  for (const section of formSchema.sections) {
-    for (const field of section.fields || []) {
+  if (formSchema.fields) {
+    for (const field of formSchema.fields) {
       if (field.role === 'avatar' && data[field.name]) {
         avatarField = data[field.name];
       }

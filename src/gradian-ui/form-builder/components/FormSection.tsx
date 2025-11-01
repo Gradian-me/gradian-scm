@@ -5,9 +5,11 @@ import { FormSectionProps } from '../types/form-schema';
 import { FormElementFactory } from './FormElementFactory';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { cn } from '../../shared/utils';
+import { getFieldsForSection } from '../form-elements/utils/field-resolver';
 
 export const FormSection: React.FC<FormSectionProps> = ({
   section,
+  schema,
   values,
   errors,
   touched,
@@ -19,7 +21,9 @@ export const FormSection: React.FC<FormSectionProps> = ({
   onAddRepeatingItem,
   onRemoveRepeatingItem,
 }) => {
-  const { title, description, fields, layout, styling, isRepeatingSection } = section;
+  // Get fields for this section from the schema
+  const fields = getFieldsForSection(schema, section.id);
+  const { title, description, layout, styling, isRepeatingSection } = section;
 
   const sectionClasses = cn(
     'space-y-3',
