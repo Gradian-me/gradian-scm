@@ -2,7 +2,7 @@ import React from 'react';
 import { FormSchema } from '../../form-builder/types/form-schema';
 import { resolveFieldById, getFieldValue } from '../../form-builder/form-elements/utils/field-resolver';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { DynamicBadgeRenderer } from '../components/DynamicBadgeRenderer';
+import { BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
 
 interface RenderFieldValueProps {
   field: any;
@@ -45,7 +45,7 @@ const renderValueByType = ({ field, value, data }: RenderFieldValueProps): React
         const maxDisplay = field.maxDisplay || 3;
         
         return (
-          <DynamicBadgeRenderer
+          <BadgeRenderer
             items={items}
             maxBadges={maxDisplay}
             badgeVariant="outline"

@@ -9,8 +9,8 @@ import { CardContent, CardHeader, CardTitle, CardWrapper } from '../card/compone
 import { DetailPageSection, FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
-import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
-import { isBadgeSection, collectBadgeValues } from '../../schema-manager/utils/badge-utils';
+import { isBadgeSection, getBadgeFields } from '../../schema-manager/utils/badge-utils';
+import { BadgeViewer } from '../../form-builder/form-elements/utils/badge-viewer';
 
 export interface DynamicInfoCardProps {
   section: DetailPageSection;
@@ -22,24 +22,34 @@ export interface DynamicInfoCardProps {
 }
 
 /**
- * Format field value based on field type and UI configuration
+ * Format field value based on field type and configuration
  */
 const formatFieldValue = (field: any, value: any): React.ReactNode => {
   if (value === null || value === undefined || value === '') {
     return <span className="text-gray-400">N/A</span>;
   }
 
-  // Use UI config if available
-  const uiConfig = field?.ui || {};
-  const displayType = uiConfig.type || field?.type || 'text';
-  const format = uiConfig.format;
+  // Use field type
+  const displayType = field?.type || 'text';
+
+  // Handle badge fields (checkbox or array types with badge role)
+  if (field?.role === 'badge' && Array.isArray(value)) {
+    return (
+      <BadgeViewer
+        field={field}
+        value={value}
+        badgeVariant="outline"
+        animate={true}
+      />
+    );
+  }
 
   switch (displayType) {
     case 'currency':
       return <span>{formatCurrency(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
     case 'percentage':
       const numValue = typeof value === 'number' ? value : parseFloat(value) || 0;
-      return <span>{numValue.toFixed(uiConfig.precision || 0)}%</span>;
+      return <span>{numValue.toFixed(2)}%</span>;
     case 'number':
       return <span>{formatNumber(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
     case 'date':
@@ -58,18 +68,8 @@ const formatFieldValue = (field: any, value: any): React.ReactNode => {
         return <span>{String(value)}</span>;
       }
     case 'array':
+    case 'checkbox':
       if (Array.isArray(value)) {
-        if (uiConfig.displayType === 'badges') {
-          const maxDisplay = uiConfig.maxDisplay || 5;
-          return (
-            <DynamicBadgeRenderer
-              items={value}
-              maxBadges={maxDisplay}
-              badgeVariant="outline"
-              animate={true}
-            />
-          );
-        }
         return <span>{value.join(', ')}</span>;
       }
       return <span>{String(value)}</span>;
@@ -137,11 +137,63 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
     };
   }).filter(Boolean);
 
-  // Handle badge sections using schema manager utils
+  // Handle badge sections using BadgeViewer for maintainability
   if (isBadgeSection(section, schema)) {
-    const badgeValues = collectBadgeValues(schema, data, section);
+    // Collect badge fields and their values
+    const badgeFieldData: Array<{ field: any; value: any }> = [];
     
-    if (badgeValues.length > 0) {
+    if (section.fieldIds && section.fieldIds.length > 0) {
+      // Get fields from section fieldIds
+      section.fieldIds.forEach(fieldId => {
+        const field = resolveFieldById(schema, fieldId);
+        if (field && field.role === 'badge') {
+          const value = getFieldValue(field, data);
+          if (value !== null && value !== undefined && value !== '' && 
+              (Array.isArray(value) ? value.length > 0 : true)) {
+            badgeFieldData.push({ field, value });
+          }
+        }
+      });
+    } else {
+      // Get all badge fields from schema
+      const allBadgeFields = getBadgeFields(schema);
+      allBadgeFields.forEach(field => {
+        const value = getFieldValue(field, data);
+        if (value !== null && value !== undefined && value !== '' && 
+            (Array.isArray(value) ? value.length > 0 : true)) {
+          badgeFieldData.push({ field, value });
+        }
+      });
+    }
+    
+    if (badgeFieldData.length > 0) {
+      // Combine all badge values into a single array
+      const allBadgeValues: any[] = [];
+      const allOptions = new Map<string, any>(); // Track all options from all fields
+      
+      badgeFieldData.forEach(({ field, value }) => {
+        const values = Array.isArray(value) ? value : [value];
+        allBadgeValues.push(...values);
+        
+        // Collect options from all fields for label/icon/color resolution
+        if (field.options && Array.isArray(field.options)) {
+          field.options.forEach((opt: any) => {
+            if (!allOptions.has(opt.value)) {
+              allOptions.set(opt.value, opt);
+            }
+          });
+        }
+      });
+      
+      // Create a virtual combined field with all options
+      const combinedField: any = {
+        id: 'combined-badges',
+        name: 'badges',
+        role: 'badge',
+        options: Array.from(allOptions.values()),
+        type: 'checkbox'
+      };
+      
       return (
         <motion.div
           initial={disableAnimation ? false : { opacity: 0, y: 20 }}
@@ -161,17 +213,18 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                 size: 'md'
               }
             }}
-            className="h-auto"
+            className="h-auto bg-white border border-gray-200 shadow-sm"
           >
-            <CardHeader>
-              <CardTitle>{section.title}</CardTitle>
+            <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
+              <CardTitle className="text-base font-semibold text-gray-900">{section.title}</CardTitle>
               {section.description && (
-                <p className="text-sm text-gray-500 mt-1">{section.description}</p>
+                <p className="text-sm text-gray-500 mt-1.5">{section.description}</p>
               )}
             </CardHeader>
             <CardContent>
-              <DynamicBadgeRenderer
-                items={badgeValues}
+              <BadgeViewer
+                field={combinedField}
+                value={allBadgeValues}
                 maxBadges={0}
                 badgeVariant="outline"
                 animate={!disableAnimation}
@@ -218,12 +271,12 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
             size: 'md'
           }
         }}
-        className="h-auto"
+        className="h-auto bg-white border border-gray-200 shadow-sm"
       >
-        <CardHeader>
-          <CardTitle>{section.title}</CardTitle>
+        <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
+          <CardTitle className="text-base font-semibold text-gray-900">{section.title}</CardTitle>
           {section.description && (
-            <p className="text-sm text-gray-500 mt-1">{section.description}</p>
+            <p className="text-sm text-gray-500 mt-1.5">{section.description}</p>
           )}
         </CardHeader>
         <CardContent>

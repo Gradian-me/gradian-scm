@@ -26,7 +26,7 @@ export { DynamicCardRenderer } from './components/DynamicCardRenderer';
 export { ViewSwitcher } from './components/ViewSwitcher';
 export { DynamicCard } from './components/DynamicCard';
 export { DynamicList } from './components/DynamicList';
-export { DynamicBadgeRenderer } from './components/DynamicBadgeRenderer';
+// BadgeRenderer is now exported from form-builder/form-elements/utils/badge-viewer
 export { DynamicMetricRenderer } from './components/DynamicMetricRenderer';
 export { DynamicCardDialog } from './components/DynamicCardDialog';
 export { DynamicCardActionButtons } from './components/DynamicCardActionButtons';

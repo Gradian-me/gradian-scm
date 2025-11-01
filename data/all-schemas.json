@@ -162,6 +162,45 @@
         "order": 6
       },
       {
+        "id": "vendor-certifications",
+        "name": "certifications",
+        "label": "Certifications",
+        "sectionId": "basic-information",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Select certifications",
+        "required": false,
+        "role": "badge",
+        "options": [
+          {
+            "label": "ISO 9001",
+            "value": "iso9001"
+          },
+          {
+            "label": "ISO 14001",
+            "value": "iso14001"
+          },
+          {
+            "label": "FDA Approved",
+            "value": "fda"
+          },
+          {
+            "label": "CE Marking",
+            "value": "ce"
+          },
+          {
+            "label": "RoHS Compliant",
+            "value": "rohs"
+          },
+          {
+            "label": "REACH Compliant",
+            "value": "reach"
+          }
+        ],
+        "colSpan": 2,
+        "order": 7
+      },
+      {
         "id": "address",
         "name": "address",
         "label": "Address",

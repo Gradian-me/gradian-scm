@@ -18,12 +18,12 @@ export const CardWrapper: React.FC<CardWrapperProps> = ({
   } = config;
 
   const cardClasses = cn(
-    'rounded-lg border bg-card text-card-foreground shadow-sm',
+    'rounded-xl border bg-card text-card-foreground shadow-sm',
     'w-full h-full', // Ensure full width and height
     styling.variant === 'elevated' && 'shadow-lg',
     styling.variant === 'outlined' && 'border',
     styling.variant === 'filled' && 'bg-muted',
-    styling.rounded && 'rounded-xl',
+    styling.rounded && 'rounded-2xl',
     styling.shadow === 'sm' && 'shadow-sm',
     styling.shadow === 'md' && 'shadow-md',
     styling.shadow === 'lg' && 'shadow-lg',

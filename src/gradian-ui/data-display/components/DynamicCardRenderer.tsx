@@ -10,7 +10,8 @@ import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
 import { CardWrapper } from '../card/components/CardWrapper';
 import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection } from '../utils';
-import { DynamicBadgeRenderer } from './DynamicBadgeRenderer';
+import { BadgeViewer, BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
+import { getFieldsByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
 
@@ -74,13 +75,52 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     section.id !== 'performance'
   ) || [];
 
+  // Get all badge fields from schema and combine their values
+  const badgeFields = getFieldsByRole(schema, 'badge');
+  const allBadgeValues: any[] = [];
+  const allOptions = new Map<string, any>();
+  let combinedBadgeField: any = null;
+
+  // Collect values from all badge fields and combine options
+  badgeFields.forEach(field => {
+    const value = data[field.name];
+    if (value && Array.isArray(value)) {
+      allBadgeValues.push(...value);
+    }
+    
+    // Collect options from all fields
+    if (field.options && Array.isArray(field.options)) {
+      field.options.forEach((opt: any) => {
+        if (!allOptions.has(opt.value)) {
+          allOptions.set(opt.value, opt);
+        }
+      });
+    }
+    
+    // Use first badge field as base, but combine options from all
+    if (!combinedBadgeField && field) {
+      combinedBadgeField = { ...field, options: Array.from(allOptions.values()) };
+    }
+  });
+
+  // Update combined field with all options
+  if (combinedBadgeField && allOptions.size > 0) {
+    combinedBadgeField.options = Array.from(allOptions.values());
+  }
+
+  // Fallback if no badge fields found
+  const badgeValues = allBadgeValues.length > 0 
+    ? allBadgeValues 
+    : (getArrayValuesByRole(schema, data, 'badge') || data.categories || []);
+
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
     subtitle: getSingleValueByRole(schema, data, 'subtitle', data.email) || data.email || 'No description',
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
-    badgeField: getArrayValuesByRole(schema, data, 'badge') || data.categories || [],
+    badgeField: combinedBadgeField,
+    badgeValues,
     metricsField: data.performanceMetrics || null,
     sections: filteredSections,
     statusOptions
@@ -225,13 +265,26 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 )}
               </div>
               <div className="w-full items-center justify-start mb-2">
-                <DynamicBadgeRenderer
-                  items={Array.isArray(cardConfig.badgeField) ? cardConfig.badgeField : []}
-                  maxBadges={maxBadges}
-                  className="w-full"
-                  badgeVariant="outline"
-                  animate={!disableAnimation}
-                />
+                {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
+                  <BadgeViewer
+                    field={cardConfig.badgeField}
+                    value={cardConfig.badgeValues}
+                    maxBadges={maxBadges}
+                    className="w-full"
+                    badgeVariant="outline"
+                    animate={!disableAnimation}
+                  />
+                ) : (
+                  cardConfig.badgeValues.length > 0 && (
+                    <BadgeRenderer
+                      items={cardConfig.badgeValues}
+                      maxBadges={maxBadges}
+                      className="w-full"
+                      badgeVariant="outline"
+                      animate={!disableAnimation}
+                    />
+                  )
+                )}
               </div>
               
               {/* Performance Metrics */}
@@ -329,13 +382,26 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   >
                     {cardConfig.subtitle}
                   </motion.p>
-                  <DynamicBadgeRenderer
-                    items={Array.isArray(cardConfig.badgeField) ? cardConfig.badgeField : []}
-                    maxBadges={maxBadges}
-                    className="mt-1"
-                    badgeVariant="outline"
-                    animate={!disableAnimation}
-                  />
+                  {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
+                    <BadgeViewer
+                      field={cardConfig.badgeField}
+                      value={cardConfig.badgeValues}
+                      maxBadges={maxBadges}
+                      className="mt-1"
+                      badgeVariant="outline"
+                      animate={!disableAnimation}
+                    />
+                  ) : (
+                    cardConfig.badgeValues.length > 0 && (
+                      <BadgeRenderer
+                        items={cardConfig.badgeValues}
+                        maxBadges={maxBadges}
+                        className="mt-1"
+                        badgeVariant="outline"
+                        animate={!disableAnimation}
+                      />
+                    )
+                  )}
                 </div>
               </div>
               {(hasRatingField || hasStatusField) && (

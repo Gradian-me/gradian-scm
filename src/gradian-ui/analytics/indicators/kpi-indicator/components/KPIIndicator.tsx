@@ -76,9 +76,9 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
   };
 
   const indicatorClasses = cn(
-    'kpi-indicator p-6 rounded-lg',
+    'kpi-indicator p-6 rounded-xl',
     getCardClasses(),
-    styling.rounded && 'rounded-lg',
+    styling.rounded && 'rounded-xl',
     className
   );
 

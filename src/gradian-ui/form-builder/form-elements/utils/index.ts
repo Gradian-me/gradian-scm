@@ -33,3 +33,7 @@ export {
   getFieldValue,
 } from './field-resolver';
 
+// Badge viewer component
+export { BadgeViewer, BadgeRenderer } from './badge-viewer';
+export type { BadgeViewerProps, BadgeRendererProps, BadgeItem } from './badge-viewer';
+
