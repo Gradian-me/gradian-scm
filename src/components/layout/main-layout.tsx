@@ -13,6 +13,7 @@ import { Badge } from '../ui/badge';
 interface MainLayoutProps {
   children: React.ReactNode;
   title: string;
+  subtitle?: string;
   showCreateButton?: boolean;
   createButtonText?: string;
   onCreateClick?: () => void;
@@ -20,7 +21,8 @@ interface MainLayoutProps {
 
 export function MainLayout({ 
   children, 
-  title, 
+  title,
+  subtitle,
   showCreateButton = false, 
   createButtonText = "Create",
   onCreateClick 
@@ -95,14 +97,26 @@ export function MainLayout({
             </Button>
             
             {/* Title */}
-            <motion.h1
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-xl md:text-2xl font-semibold text-gray-900"
-            >
-              {title}
-            </motion.h1>
+            <div className="flex flex-col">
+              <motion.h1
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="text-xl md:text-2xl font-semibold text-gray-900"
+              >
+                {title}
+              </motion.h1>
+              {subtitle && (
+                <motion.p
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                  className="text-sm text-gray-500 mt-0.5"
+                >
+                  {subtitle}
+                </motion.p>
+              )}
+            </div>
             
             {/* Desktop Header Content */}
             <div className="hidden md:flex items-center space-x-4">

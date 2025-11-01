@@ -124,8 +124,8 @@ export const getDefaultSections = (schema: FormSchema): DetailPageSection[] => {
   if (hasBadgeFields(schema)) {
     defaultSections.push({
       id: 'badges',
-      title: 'Badges',
-      description: 'Associated badges',
+      title: 'Tags',
+      description: 'Associated tags',
       colSpan: 1,
       columnArea: 'sidebar',
       fieldIds: []

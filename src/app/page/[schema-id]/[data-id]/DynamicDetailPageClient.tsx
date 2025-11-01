@@ -145,11 +145,11 @@ export function DynamicDetailPageClient({
   }, [dataId, schemaId, updateEntity, closeEditModal]);
 
   const pageTitle = data 
-    ? `${entityName} Details - ${data.name || data.title || dataId}`
-    : `Loading ${entityName}...`;
+    ? (data.name || data.title || dataId)
+    : `Loading...`;
 
   return (
-    <MainLayout title={pageTitle}>
+    <MainLayout title={pageTitle} subtitle={entityName}>
       <DynamicDetailPageRenderer
         schema={schema}
         data={data}
