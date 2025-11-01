@@ -13,5 +13,6 @@ export const vendorFormSchema: FormSchema = {
   description: 'Add a new vendor to your supply chain management system',
   singular_name: 'Vendor',
   plural_name: 'Vendors',
+  fields: [],  // Minimal schema - full schema loaded from JSON in dynamic pages
   sections: []  // Minimal schema - full schema loaded from JSON in dynamic pages
 };

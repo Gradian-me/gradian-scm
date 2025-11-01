@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { MainLayout } from '../../../components/layout/main-layout';
 import { Avatar, AvatarFallback, AvatarImage, Badge, Button, CardContent, CardHeader, CardTitle, CardWrapper, GridBuilder, KPIIndicator } from '../../../gradian-ui';
 import { SchemaFormWrapper } from '../../../gradian-ui/form-builder';
-import { useEntity } from '../../../gradian-ui/schema-manager';
+import { useEntity } from '../hooks/useEntity';
 import { VENDOR_STATUS } from '../../../shared/constants';
 import { vendorDetailConfig } from '../configs/vendor-page.config';
 import { useVendor } from '../hooks/useVendor';
