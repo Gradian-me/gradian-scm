@@ -3,6 +3,7 @@
 // For server-only functions, import from './schema-registry.server'
 
 import { FormSchema, FormField } from '../types/form-schema';
+import { config } from '../../lib/config';
 
 /**
  * Convert a pattern string to RegExp
@@ -83,7 +84,7 @@ async function loadSchemasFromServer(): Promise<FormSchema[]> {
     return loadAllSchemas();
   } else {
     // Client side - fetch from API
-    const response = await fetch('/api/schemas');
+    const response = await fetch(config.schemaApi.basePath);
     const result = await response.json();
     
     if (!result.success) {
@@ -101,13 +102,34 @@ async function loadSchemasFromServer(): Promise<FormSchema[]> {
 
 /**
  * Fetch a schema by ID (Works on both client and server)
+ * Uses optimized loading: server reads directly, client fetches from API
  * @param schemaId - The ID of the schema to fetch
  * @returns The schema if found, or null if not found
  */
 export async function fetchSchemaById(schemaId: string): Promise<FormSchema | null> {
   try {
-    const schemas = await loadSchemasFromServer();
-    return schemas.find(s => s.id === schemaId) || null;
+    // Check if we're on the server side
+    if (typeof window === 'undefined') {
+      // Server side - use direct file access for better performance
+      const { loadSchemaById } = await import('./schema-loader');
+      const schema = loadSchemaById(schemaId);
+      return schema ? processSchema(schema) : null;
+    } else {
+      // Client side - fetch from API
+      const response = await fetch(`${config.schemaApi.basePath}/${schemaId}`);
+      
+      if (!response.ok) {
+        return null;
+      }
+      
+      const result = await response.json();
+      if (!result.success) {
+        return null;
+      }
+      
+      // Process the schema to convert string patterns to RegExp
+      return processSchema(result.data);
+    }
   } catch (error) {
     console.error('Error fetching schema:', error);
     return null;

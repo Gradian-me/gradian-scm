@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Filter, Plus } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import { SearchBar, ViewSwitcher } from '../../../gradian-ui';
+import { Button } from '../../components/ui/button';
+import { SearchBar, ViewSwitcher } from '../../gradian-ui';
 
 interface DynamicFilterPaneProps {
   searchTerm: string;
@@ -66,3 +66,4 @@ export const DynamicFilterPane = ({
     </motion.div>
   );
 };
+

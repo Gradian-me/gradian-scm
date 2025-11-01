@@ -8,14 +8,19 @@ import { loadAllSchemas, loadSchemasAsRecord } from './schema-loader';
 
 // Cache for loaded schemas
 let schemasCache: Record<string, FormSchema> | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_TTL_MS = 5000; // 5 seconds cache in development
 
 /**
  * Get all schemas (cached) - synchronous version for server-side only
  * @returns Record of schema ID to FormSchema
  */
 export const getAllSchemasSync = (): Record<string, FormSchema> => {
-  if (!schemasCache) {
+  // In development, use TTL-based cache to support hot reloading
+  const now = Date.now();
+  if (!schemasCache || (process.env.NODE_ENV === 'development' && now - cacheTimestamp > CACHE_TTL_MS)) {
     schemasCache = loadSchemasAsRecord();
+    cacheTimestamp = now;
   }
   return schemasCache;
 };

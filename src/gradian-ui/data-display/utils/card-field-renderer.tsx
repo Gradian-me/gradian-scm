@@ -161,7 +161,7 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
     case 'select':
       return (
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {customIcon || <IconRenderer iconName="MapPin" className="h-4 w-4 shrink-0" />}
+          {customIcon || <IconRenderer iconName="Text" className="h-3 w-3 shrink-0" />}
           <span>{value}</span>
         </div>
       );

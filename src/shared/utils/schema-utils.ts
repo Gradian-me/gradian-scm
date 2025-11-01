@@ -1,5 +1,10 @@
-import { FormSchema } from "../../../gradian-ui/form-builder/types/form-schema";
-import { ExtendedFormSchema } from "../types/extended-form-schema";
+import { FormSchema } from '../../shared/types/form-schema';
+
+// Extended form schema with additional properties
+export type ExtendedFormSchema = FormSchema & {
+  // Add any extended properties here if needed
+  [key: string]: any;
+};
 
 /**
  * Safely cast an ExtendedFormSchema to FormSchema for components that require it
@@ -45,3 +50,4 @@ export const asFormSchema = (schema: ExtendedFormSchema): FormSchema => {
   
   return schema as unknown as FormSchema;
 };
+

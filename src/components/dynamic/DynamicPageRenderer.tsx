@@ -15,8 +15,8 @@ import { MainLayout } from '../layout/main-layout';
 import { Spinner } from '../ui/spinner';
 import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper } from '../../gradian-ui';
 import { FormSchema } from '../../shared/types/form-schema';
-import { DynamicFilterPane } from '../../domains/vendor/components/DynamicFilterPane';
-import { asFormSchema } from '../../domains/vendor/utils/schema-utils';
+import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
+import { asFormSchema } from '../../shared/utils/schema-utils';
 import { useDynamicEntity } from '../../shared/hooks';
 
 interface DynamicPageRendererProps {

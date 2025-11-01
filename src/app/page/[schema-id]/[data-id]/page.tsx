@@ -1,8 +1,8 @@
 // Dynamic Detail Page Route
 // Renders detail page for any entity based on schema ID and data ID
 import { notFound } from 'next/navigation';
-import { findSchemaById } from '../../../../shared/utils/schema-registry.server';
 import { FormSchema } from '../../../../shared/types/form-schema';
+import { fetchSchemaById } from '../../../../shared/utils/schema-registry';
 import { DynamicDetailPageClient } from './DynamicDetailPageClient';
 
 interface PageProps {
@@ -31,7 +31,7 @@ function serializeSchema(schema: FormSchema): any {
 
 export default async function DynamicDetailPage({ params }: PageProps) {
   const { 'schema-id': schemaId, 'data-id': dataId } = await params;
-  const schema = findSchemaById(schemaId);
+  const schema = await fetchSchemaById(schemaId);
 
   if (!schema) {
     notFound();
@@ -52,7 +52,7 @@ export default async function DynamicDetailPage({ params }: PageProps) {
 
 export async function generateMetadata({ params }: PageProps) {
   const { 'schema-id': schemaId, 'data-id': dataId } = await params;
-  const schema = findSchemaById(schemaId);
+  const schema = await fetchSchemaById(schemaId);
 
   if (!schema) {
     return {

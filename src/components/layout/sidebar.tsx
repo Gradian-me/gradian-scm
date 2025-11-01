@@ -18,7 +18,9 @@ import {
   Bell,
   X,
   PanelRightOpen,
-  PanelLeftOpen
+  PanelLeftOpen,
+  User,
+  Folder
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -39,28 +41,23 @@ const navigationItems = [
   },
   {
     name: 'Vendors',
-    href: '/vendors',
+    href: 'page/vendors',
     icon: Users,
   },
   {
     name: 'Tenders/Quotations',
-    href: '/tenders',
+    href: 'page/tenders',
     icon: FileText,
   },
   {
-    name: 'Purchase Orders',
-    href: '/purchase-orders',
-    icon: ShoppingCart,
+    name: 'Users',
+    href: 'page/users',
+    icon: User,
   },
   {
-    name: 'Invoices',
-    href: '/invoices',
-    icon: Receipt,
-  },
-  {
-    name: 'Shipments',
-    href: '/shipments',
-    icon: Truck,
+    name: 'Projects',
+    href: 'page/projects',
+    icon: Folder,
   },
   {
     name: 'Tender Calendar',

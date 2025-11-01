@@ -2,7 +2,8 @@
 // Renders any entity page based on schema ID
 import { notFound } from 'next/navigation';
 import { DynamicPageRenderer } from '../../../components/dynamic/DynamicPageRenderer';
-import { findSchemaById, getAvailableSchemaIds } from '../../../shared/utils/schema-registry.server';
+import { getAvailableSchemaIds } from '../../../shared/utils/schema-registry.server';
+import { fetchSchemaById } from '../../../shared/utils/schema-registry';
 import { FormSchema } from '../../../shared/types/form-schema';
 
 interface PageProps {
@@ -40,7 +41,7 @@ function serializeSchema(schema: FormSchema): any {
 
 export default async function DynamicEntityPage({ params }: PageProps) {
   const { 'schema-id': schemaId } = await params;
-  const schema = findSchemaById(schemaId);
+  const schema = await fetchSchemaById(schemaId);
 
   if (!schema) {
     notFound();
@@ -59,7 +60,7 @@ export default async function DynamicEntityPage({ params }: PageProps) {
 
 export async function generateMetadata({ params }: PageProps) {
   const { 'schema-id': schemaId } = await params;
-  const schema = findSchemaById(schemaId);
+  const schema = await fetchSchemaById(schemaId);
 
   if (!schema) {
     return {

@@ -101,9 +101,109 @@
       ]
     }
   ],
-  "tenders": [],
+  "tenders": [
+    {
+      "title": "asdas",
+      "description": "adasdasdasdasdasd",
+      "category": "HPLC Columns",
+      "estimatedValue": 1231231,
+      "closingDate": "2025-11-01T14:09",
+      "status": "PENDING",
+      "tender-items": [
+        {
+          "productName": "asdasdasd",
+          "description": "asdasd",
+          "quantity": 1,
+          "unit": "piece",
+          "estimatedUnitPrice": 123123,
+          "specifications": "123123",
+          "id": "01K8ZFZZ2PWW374HXY6GW71A5P"
+        }
+      ],
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K8ZG0EVT101D9VS78AB39TJW",
+      "createdAt": "2025-11-01T10:39:31.199Z",
+      "updatedAt": "2025-11-01T10:39:31.199Z"
+    }
+  ],
   "purchaseOrders": [],
-  "products": [],
+  "products": [
+    {
+      "name": "MediLab Solutions",
+      "description": "asdasdasdasdasdsadasdasd",
+      "sku": "123123",
+      "category": "home-garden",
+      "status": "DISCONTINUED",
+      "price": 1234,
+      "currency": "EUR",
+      "unit": "piece",
+      "quantity": 12,
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K8ZG4YRHHX054E9HC2JC9P6R",
+      "createdAt": "2025-11-01T10:41:58.550Z",
+      "updatedAt": "2025-11-01T10:47:16.767Z"
+    }
+  ],
   "shipments": [],
-  "invoices": []
+  "invoices": [],
+  "users": [
+    {
+      "name": "Mahyar Abidi",
+      "email": "abidi.mahyar@gmail.com",
+      "phone": "09126184264",
+      "department": "Sales",
+      "role": "inventory",
+      "status": "INACTIVE",
+      "categories": [
+        "general"
+      ],
+      "contacts": [
+        {
+          "name": "مهیار عبیدی",
+          "email": "abidi.mahyar@gmail.com",
+          "phone": "09126184264",
+          "position": "Primary Contact",
+          "isPrimary": true,
+          "department": "",
+          "notes": ""
+        }
+      ],
+      "rating": 5,
+      "id": "01K8ZGR7F8GQ9AWE4GC843XBQV",
+      "createdAt": "2025-11-01T10:52:30.058Z",
+      "updatedAt": "2025-11-01T11:47:25.085Z"
+    }
+  ],
+  "companies": [],
+  "projects": [
+    {
+      "name": "MediLab Solutions",
+      "description": "dasdsaasdasdasfdasf",
+      "status": "ON_HOLD",
+      "priority": "MEDIUM",
+      "startDate": "2025-11-01",
+      "endDate": "2025-11-20",
+      "progress": 28,
+      "department": "Finance",
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K8ZKS11JT1V9KJD56PAXD91C",
+      "createdAt": "2025-11-01T11:45:21.975Z",
+      "updatedAt": "2025-11-01T11:46:08.212Z",
+      "vendor": "Masoud",
+      "company": "CinnaGen",
+      "tender": "Mahyar"
+    }
+  ]
 }

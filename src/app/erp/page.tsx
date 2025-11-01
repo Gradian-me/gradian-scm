@@ -40,16 +40,16 @@ export default function ERPPage() {
         const mockIntegrations: ERPIntegration[] = [
           {
             id: '1',
-            name: 'SAP ERP',
-            status: 'connected',
-            lastSync: new Date('2024-01-23T10:30:00'),
+            name: 'RAHKARAN ERP',
+            status: 'syncing',
+            lastSync: new Date(new Date().getTime() - 1000 * 60 * 60 * 24),
             recordsSynced: 1247,
             errors: 0,
             description: 'Main ERP system for financial and inventory management',
           },
           {
             id: '2',
-            name: 'Oracle NetSuite',
+            name: 'SharePoint',
             status: 'connected',
             lastSync: new Date('2024-01-23T09:15:00'),
             recordsSynced: 892,
@@ -58,22 +58,13 @@ export default function ERPPage() {
           },
           {
             id: '3',
-            name: 'Microsoft Dynamics 365',
-            status: 'syncing',
+            name: 'Microsoft Teams',
+            status: 'connected',
             lastSync: new Date('2024-01-23T08:45:00'),
             recordsSynced: 156,
             errors: 0,
             description: 'Customer relationship and sales management system',
-          },
-          {
-            id: '4',
-            name: 'Workday HCM',
-            status: 'error',
-            lastSync: new Date('2024-01-22T16:20:00'),
-            recordsSynced: 0,
-            errors: 5,
-            description: 'Human capital management and workforce planning',
-          },
+          }
         ];
         
         setIntegrations(mockIntegrations);

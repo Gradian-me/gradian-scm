@@ -4,3 +4,4 @@ export * from './api';
 // Import directly from './schema-registry' (client) or './schema-registry.server' (server)
 export * from './validation';
 export * from './logging-custom';
+export * from './schema-utils';

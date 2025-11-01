@@ -719,6 +719,20 @@
     "description": "Create a new tender for procurement",
     "singular_name": "Tender",
     "plural_name": "Tenders",
+    "cardMetadata": [
+      {
+        "id": "tender-details",
+        "title": "Tender Details",
+        "colSpan": 1,
+        "fieldIds": ["tender-category", "estimated-value", "closing-date"]
+      },
+      {
+        "id": "tender-info",
+        "title": "Information",
+        "colSpan": 1,
+        "fieldIds": ["tender-description"]
+      }
+    ],
     "fields": [
       {
         "id": "tender-title",
@@ -750,6 +764,7 @@
         "component": "textarea",
         "placeholder": "Enter tender description",
         "required": true,
+        "role": "subtitle",
         "validation": {
           "required": true,
           "minLength": 10
@@ -844,6 +859,31 @@
         "ui": {
           "colSpan": 1,
           "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "tender-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "Pending", "value": "PENDING", "icon": "Clock", "color": "warning" },
+          { "label": "Closed", "value": "CLOSED", "icon": "XCircle", "color": "destructive" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
           "variant": "outlined",
           "size": "md"
         }
@@ -1094,9 +1134,1943 @@
         }
       }
     ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "sections": [
+        {
+          "id": "tender-overview",
+          "title": "Tender Overview",
+          "description": "Basic tender information",
+          "colSpan": 2,
+          "fieldIds": ["tender-title", "tender-description", "tender-category", "estimated-value", "currency", "closing-date"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "tender-status-section",
+          "title": "Status & Information",
+          "description": "Current status and key dates",
+          "colSpan": 1,
+          "fieldIds": ["tender-status"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
     "actions": {
       "submit": {
         "label": "Create Tender",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
+  },
+  {
+    "id": "products",
+    "name": "products",
+    "title": "Create New Product",
+    "description": "Add a new product to your catalog",
+    "singular_name": "Product",
+    "plural_name": "Products",
+    "cardMetadata": [
+      {
+        "id": "product-info",
+        "title": "Product Information",
+        "colSpan": 1,
+        "fieldIds": ["product-sku", "product-category", "product-status"]
+      },
+      {
+        "id": "pricing-info",
+        "title": "Pricing",
+        "colSpan": 1,
+        "fieldIds": ["product-price", "product-currency", "product-unit"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "product-name",
+        "name": "name",
+        "label": "Product Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter product name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter product description",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true,
+          "minLength": 10
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-sku",
+        "name": "sku",
+        "label": "SKU",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter product SKU",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-category",
+        "name": "category",
+        "label": "Category",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select category",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "Electronics", "value": "electronics" },
+          { "label": "Clothing", "value": "clothing" },
+          { "label": "Food", "value": "food" },
+          { "label": "Books", "value": "books" },
+          { "label": "Toys", "value": "toys" },
+          { "label": "Sports", "value": "sports" },
+          { "label": "Home & Garden", "value": "home-garden" },
+          { "label": "Other", "value": "other" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-price",
+        "name": "price",
+        "label": "Price",
+        "sectionId": "pricing",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter price",
+        "required": true,
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-currency",
+        "name": "currency",
+        "label": "Currency",
+        "sectionId": "pricing",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select currency",
+        "required": true,
+        "defaultValue": "USD",
+        "options": [
+          { "label": "USD", "value": "USD" },
+          { "label": "EUR", "value": "EUR" },
+          { "label": "GBP", "value": "GBP" },
+          { "label": "CAD", "value": "CAD" },
+          { "label": "JPY", "value": "JPY" },
+          { "label": "CNY", "value": "CNY" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-unit",
+        "name": "unit",
+        "label": "Unit",
+        "sectionId": "pricing",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select unit",
+        "required": true,
+        "defaultValue": "piece",
+        "options": [
+          { "label": "Piece", "value": "piece" },
+          { "label": "Kilogram", "value": "kg" },
+          { "label": "Gram", "value": "g" },
+          { "label": "Liter", "value": "L" },
+          { "label": "Milliliter", "value": "ml" },
+          { "label": "Box", "value": "box" },
+          { "label": "Pack", "value": "pack" },
+          { "label": "Set", "value": "set" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "Inactive", "value": "INACTIVE", "icon": "XCircle", "color": "destructive" },
+          { "label": "Out of Stock", "value": "OUT_OF_STOCK", "icon": "AlertCircle", "color": "warning" },
+          { "label": "Discontinued", "value": "DISCONTINUED", "icon": "Ban", "color": "error" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-quantity",
+        "name": "quantity",
+        "label": "Quantity in Stock",
+        "sectionId": "inventory",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter quantity",
+        "required": true,
+        "defaultValue": 0,
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-reorder-point",
+        "name": "reorderPoint",
+        "label": "Reorder Point",
+        "sectionId": "inventory",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter reorder point",
+        "required": false,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-weight",
+        "name": "weight",
+        "label": "Weight (kg)",
+        "sectionId": "shipping",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter weight",
+        "required": false,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-dimensions",
+        "name": "dimensions",
+        "label": "Dimensions (L x W x H cm)",
+        "sectionId": "shipping",
+        "type": "text",
+        "component": "text",
+        "placeholder": "e.g., 10 x 5 x 3",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-manufacturer",
+        "name": "manufacturer",
+        "label": "Manufacturer",
+        "sectionId": "additional-info",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter manufacturer name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-brand",
+        "name": "brand",
+        "label": "Brand",
+        "sectionId": "additional-info",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter brand name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Product Information",
+        "description": "Basic product details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "pricing",
+        "title": "Pricing",
+        "description": "Product pricing information",
+        "initialState": "expanded",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "inventory",
+        "title": "Inventory",
+        "description": "Stock and inventory management",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "shipping",
+        "title": "Shipping Details",
+        "description": "Product dimensions and weight",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "additional-info",
+        "title": "Additional Information",
+        "description": "Manufacturer and brand details",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "sections": [
+        {
+          "id": "product-details",
+          "title": "Product Details",
+          "description": "Basic product information",
+          "colSpan": 2,
+          "fieldIds": ["product-name", "product-description", "product-sku", "product-category"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "product-pricing-details",
+          "title": "Pricing Information",
+          "description": "Product pricing details",
+          "colSpan": 2,
+          "fieldIds": ["product-price", "product-currency", "product-unit"],
+          "layout": {
+            "columns": 3,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "product-status-section",
+          "title": "Status & Availability",
+          "description": "Product status and inventory",
+          "colSpan": 1,
+          "fieldIds": ["product-status", "product-quantity"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create Product",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
+  },
+  {
+    "id": "users",
+    "name": "users",
+    "title": "Create New User",
+    "description": "Add a new user to the system",
+    "singular_name": "User",
+    "plural_name": "Users",
+    "cardMetadata": [
+      {
+        "id": "user-contact",
+        "title": "Contact Information",
+        "colSpan": 1,
+        "fieldIds": ["user-email", "user-phone", "user-department"]
+      },
+      {
+        "id": "user-role-info",
+        "title": "Role & Access",
+        "colSpan": 1,
+        "fieldIds": ["user-role", "user-status"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "user-name",
+        "name": "name",
+        "label": "Full Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter full name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-email",
+        "name": "email",
+        "label": "Email Address",
+        "sectionId": "basic-information",
+        "type": "email",
+        "component": "email",
+        "placeholder": "Enter email address",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true,
+          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md",
+          "truncate": true
+        }
+      },
+      {
+        "id": "user-phone",
+        "name": "phone",
+        "label": "Phone Number",
+        "sectionId": "basic-information",
+        "type": "tel",
+        "component": "text",
+        "placeholder": "Enter phone number",
+        "required": false,
+        "validation": {
+          "pattern": "^[+]?[(]?[0-9]{1,4}[)]?[-\\s.]?[(]?[0-9]{1,4}[)]?[-\\s.]?[0-9]{1,9}$"
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-department",
+        "name": "department",
+        "label": "Department",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select department",
+        "required": true,
+        "options": [
+          { "label": "IT", "value": "IT" },
+          { "label": "Supply Chain", "value": "Supply Chain" },
+          { "label": "Finance", "value": "Finance" },
+          { "label": "Operations", "value": "Operations" },
+          { "label": "Human Resources", "value": "Human Resources" },
+          { "label": "Marketing", "value": "Marketing" },
+          { "label": "Sales", "value": "Sales" },
+          { "label": "Procurement", "value": "Procurement" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-role",
+        "name": "role",
+        "label": "Role",
+        "sectionId": "access-control",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select user role",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "Admin", "value": "admin", "icon": "Shield", "color": "error" },
+          { "label": "Procurement Manager", "value": "procurement", "icon": "ShoppingCart", "color": "primary" },
+          { "label": "Inventory Manager", "value": "inventory", "icon": "Package", "color": "primary" },
+          { "label": "Financial Manager", "value": "finance", "icon": "DollarSign", "color": "primary" },
+          { "label": "Analyst", "value": "analyst", "icon": "BarChart", "color": "default" },
+          { "label": "Viewer", "value": "viewer", "icon": "Eye", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "access-control",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "Inactive", "value": "INACTIVE", "icon": "XCircle", "color": "destructive" },
+          { "label": "Suspended", "value": "SUSPENDED", "icon": "Ban", "color": "warning" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-avatar",
+        "name": "avatar",
+        "label": "Avatar URL",
+        "sectionId": "profile",
+        "type": "url",
+        "component": "text",
+        "placeholder": "/avatars/username.jpg",
+        "required": false,
+        "validation": {
+          "pattern": "^\\/.+|^https?:\\/\\/.+"
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-position",
+        "name": "position",
+        "label": "Job Title",
+        "sectionId": "profile",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter job title",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-manager",
+        "name": "manager",
+        "label": "Manager",
+        "sectionId": "profile",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter manager name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "user-location",
+        "name": "location",
+        "label": "Location",
+        "sectionId": "profile",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter office location",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "User personal and contact details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "access-control",
+        "title": "Access Control",
+        "description": "User role and permissions",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "profile",
+        "title": "Profile Information",
+        "description": "Additional profile details",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "sections": [
+        {
+          "id": "user-basic-info",
+          "title": "Basic Information",
+          "description": "User personal and contact details",
+          "colSpan": 2,
+          "fieldIds": ["user-name", "user-email", "user-phone", "user-department"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "user-access-info",
+          "title": "Access & Permissions",
+          "description": "User role and status",
+          "colSpan": 1,
+          "fieldIds": ["user-role", "user-status"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "user-profile-details",
+          "title": "Profile Details",
+          "description": "Additional profile information",
+          "colSpan": 2,
+          "fieldIds": ["user-avatar", "user-position", "user-manager", "user-location"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create User",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
+  },
+  {
+    "id": "companies",
+    "name": "companies",
+    "title": "Create New Company",
+    "description": "Add a new company to your supply chain",
+    "singular_name": "Company",
+    "plural_name": "Companies",
+    "cardMetadata": [
+      {
+        "id": "company-contact",
+        "title": "Contact Information",
+        "colSpan": 1,
+        "fieldIds": ["company-email", "company-phone", "company-website"]
+      },
+      {
+        "id": "company-location",
+        "title": "Location",
+        "colSpan": 1,
+        "fieldIds": ["company-country", "company-industry"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "company-name",
+        "name": "name",
+        "label": "Company Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter company name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-description",
+        "name": "description",
+        "label": "Company Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter company description",
+        "required": false,
+        "role": "subtitle",
+        "validation": {
+          "minLength": 10
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-email",
+        "name": "email",
+        "label": "Email Address",
+        "sectionId": "basic-information",
+        "type": "email",
+        "component": "email",
+        "placeholder": "Enter email address",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md",
+          "truncate": true
+        }
+      },
+      {
+        "id": "company-phone",
+        "name": "phone",
+        "label": "Phone Number",
+        "sectionId": "basic-information",
+        "type": "tel",
+        "component": "text",
+        "placeholder": "Enter phone number",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-website",
+        "name": "website",
+        "label": "Website",
+        "sectionId": "basic-information",
+        "type": "url",
+        "component": "text",
+        "placeholder": "https://example.com",
+        "required": false,
+        "validation": {
+          "pattern": "^https?:\\/\\/.+"
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-industry",
+        "name": "industry",
+        "label": "Industry",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select industry",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "Technology", "value": "technology" },
+          { "label": "Manufacturing", "value": "manufacturing" },
+          { "label": "Healthcare", "value": "healthcare" },
+          { "label": "Finance", "value": "finance" },
+          { "label": "Retail", "value": "retail" },
+          { "label": "Energy", "value": "energy" },
+          { "label": "Transportation", "value": "transportation" },
+          { "label": "Food & Beverage", "value": "food-beverage" },
+          { "label": "Construction", "value": "construction" },
+          { "label": "Other", "value": "other" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-country",
+        "name": "country",
+        "label": "Country",
+        "sectionId": "location-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select country",
+        "required": true,
+        "role": "location",
+        "options": [
+          { "label": "United States", "value": "USA" },
+          { "label": "Canada", "value": "CAN" },
+          { "label": "United Kingdom", "value": "UK" },
+          { "label": "Germany", "value": "DE" },
+          { "label": "France", "value": "FR" },
+          { "label": "Japan", "value": "JP" },
+          { "label": "China", "value": "CN" },
+          { "label": "India", "value": "IN" },
+          { "label": "Australia", "value": "AU" },
+          { "label": "Brazil", "value": "BR" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-city",
+        "name": "city",
+        "label": "City",
+        "sectionId": "location-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter city",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-state",
+        "name": "state",
+        "label": "State/Province",
+        "sectionId": "location-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter state or province",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-address",
+        "name": "address",
+        "label": "Full Address",
+        "sectionId": "location-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter full address",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-postal-code",
+        "name": "postalCode",
+        "label": "Postal Code",
+        "sectionId": "location-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter postal code",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "business-details",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "Inactive", "value": "INACTIVE", "icon": "XCircle", "color": "destructive" },
+          { "label": "Pending", "value": "PENDING", "icon": "Clock", "color": "warning" },
+          { "label": "Suspended", "value": "SUSPENDED", "icon": "Ban", "color": "error" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-employees",
+        "name": "employeeCount",
+        "label": "Number of Employees",
+        "sectionId": "business-details",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter employee count",
+        "required": false,
+        "validation": {
+          "min": 1
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-established",
+        "name": "establishedYear",
+        "label": "Established Year",
+        "sectionId": "business-details",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter year",
+        "required": false,
+        "validation": {
+          "min": 1800,
+          "max": 2100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-revenue",
+        "name": "annualRevenue",
+        "label": "Annual Revenue (USD)",
+        "sectionId": "business-details",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter annual revenue",
+        "required": false,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-tax-id",
+        "name": "taxId",
+        "label": "Tax ID / VAT Number",
+        "sectionId": "business-details",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter tax ID",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-registration",
+        "name": "registrationNumber",
+        "label": "Registration Number",
+        "sectionId": "business-details",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter registration number",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-legal-name",
+        "name": "legalName",
+        "label": "Legal Name",
+        "sectionId": "additional-info",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter legal company name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-type",
+        "name": "companyType",
+        "label": "Company Type",
+        "sectionId": "additional-info",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select company type",
+        "required": false,
+        "options": [
+          { "label": "Corporation", "value": "corporation" },
+          { "label": "LLC", "value": "llc" },
+          { "label": "Partnership", "value": "partnership" },
+          { "label": "Sole Proprietorship", "value": "sole-proprietorship" },
+          { "label": "Other", "value": "other" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "company-notes",
+        "name": "notes",
+        "label": "Notes",
+        "sectionId": "additional-info",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about the company",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Company Information",
+        "description": "Basic company details and contact information",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "location-information",
+        "title": "Location Information",
+        "description": "Company address and location details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "business-details",
+        "title": "Business Details",
+        "description": "Company business information and metrics",
+        "initialState": "expanded",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "additional-info",
+        "title": "Additional Information",
+        "description": "Additional company details and notes",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "sections": [
+        {
+          "id": "company-basic-info",
+          "title": "Company Information",
+          "description": "Basic company details and contact",
+          "colSpan": 2,
+          "fieldIds": ["company-name", "company-description", "company-email", "company-phone", "company-website", "company-industry"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "company-location-details",
+          "title": "Location Details",
+          "description": "Company address and location",
+          "colSpan": 2,
+          "fieldIds": ["company-country", "company-city", "company-state", "company-address", "company-postal-code"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "company-status-section",
+          "title": "Status & Information",
+          "description": "Company status and business metrics",
+          "colSpan": 1,
+          "fieldIds": ["company-status"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create Company",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
+  },
+  {
+    "id": "projects",
+    "name": "projects",
+    "title": "Create New Project",
+    "description": "Add a new project to your supply chain management system",
+    "singular_name": "Project",
+    "plural_name": "Projects",
+    "cardMetadata": [
+      {
+        "id": "project-info",
+        "title": "Project Information",
+        "colSpan": 1,
+        "fieldIds": ["project-status", "project-priority", "project-progress"]
+      },
+      {
+        "id": "project-dates",
+        "title": "Timeline",
+        "colSpan": 1,
+        "fieldIds": ["project-start-date", "project-end-date"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "project-name",
+        "name": "name",
+        "label": "Project Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter project name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 3
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter project description",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true,
+          "minLength": 10
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Planning", "value": "PLANNING", "icon": "Clock", "color": "warning" },
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "On Hold", "value": "ON_HOLD", "icon": "PauseCircle", "color": "warning" },
+          { "label": "Completed", "value": "COMPLETED", "icon": "CheckCircle2", "color": "success" },
+          { "label": "Cancelled", "value": "CANCELLED", "icon": "XCircle", "color": "destructive" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-priority",
+        "name": "priority",
+        "label": "Priority",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select priority",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "High", "value": "HIGH", "icon": "AlertTriangle", "color": "destructive" },
+          { "label": "Medium", "value": "MEDIUM", "icon": "AlertCircle", "color": "warning" },
+          { "label": "Low", "value": "LOW", "icon": "Info", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-start-date",
+        "name": "startDate",
+        "label": "Start Date",
+        "sectionId": "timeline",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select start date",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-end-date",
+        "name": "endDate",
+        "label": "Expected End Date",
+        "sectionId": "timeline",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select end date",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-progress",
+        "name": "progress",
+        "label": "Progress (%)",
+        "sectionId": "timeline",
+        "type": "number",
+        "component": "number",
+        "placeholder": "0",
+        "required": false,
+        "defaultValue": 0,
+        "role": "rating",
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-budget",
+        "name": "budget",
+        "label": "Budget",
+        "sectionId": "financial",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter budget amount",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-currency",
+        "name": "currency",
+        "label": "Currency",
+        "sectionId": "financial",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select currency",
+        "required": false,
+        "defaultValue": "USD",
+        "options": [
+          { "label": "USD", "value": "USD" },
+          { "label": "EUR", "value": "EUR" },
+          { "label": "GBP", "value": "GBP" },
+          { "label": "CAD", "value": "CAD" },
+          { "label": "JPY", "value": "JPY" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-spent",
+        "name": "spent",
+        "label": "Amount Spent",
+        "sectionId": "financial",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter amount spent",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-manager",
+        "name": "projectManager",
+        "label": "Project Manager",
+        "sectionId": "team",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter project manager name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-department",
+        "name": "department",
+        "label": "Department",
+        "sectionId": "team",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select department",
+        "required": true,
+        "options": [
+          { "label": "IT", "value": "IT" },
+          { "label": "Supply Chain", "value": "Supply Chain" },
+          { "label": "Finance", "value": "Finance" },
+          { "label": "Operations", "value": "Operations" },
+          { "label": "Procurement", "value": "Procurement" },
+          { "label": "Logistics", "value": "Logistics" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-team-members",
+        "name": "teamMembers",
+        "label": "Team Members",
+        "sectionId": "team",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter team member names (comma-separated)",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-vendor",
+        "name": "vendor",
+        "label": "Related Vendor",
+        "sectionId": "relations",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter vendor name or ID",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-company",
+        "name": "company",
+        "label": "Related Company",
+        "sectionId": "relations",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter company name or ID",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-tender",
+        "name": "tender",
+        "label": "Related Tender",
+        "sectionId": "relations",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter tender ID",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-notes",
+        "name": "notes",
+        "label": "Notes",
+        "sectionId": "additional-info",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about the project",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "project-tags",
+        "name": "tags",
+        "label": "Tags",
+        "sectionId": "additional-info",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter tags (comma-separated)",
+        "required": false,
+        "role": "badge",
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md",
+          "type": "array",
+          "displayType": "badges"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Project Information",
+        "description": "Basic project details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "timeline",
+        "title": "Timeline",
+        "description": "Project timeline and progress",
+        "initialState": "expanded",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "financial",
+        "title": "Financial Information",
+        "description": "Budget and spending details",
+        "initialState": "expanded",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "team",
+        "title": "Team Information",
+        "description": "Project team and department",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "relations",
+        "title": "Related Entities",
+        "description": "Related vendors, companies, or tenders",
+        "initialState": "collapsed",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "additional-info",
+        "title": "Additional Information",
+        "description": "Notes and tags",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "componentRenderers": [
+        {
+          "id": "project-progress-kpi",
+          "componentType": "kpi",
+          "dataPath": "progress",
+          "config": {
+            "id": "project-progress-kpi",
+            "name": "Project Progress KPI",
+            "title": "Progress",
+            "format": "percentage",
+            "precision": 1,
+            "color": "#3B82F6",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "project-budget-kpi",
+          "componentType": "kpi",
+          "dataPath": "budget",
+          "config": {
+            "id": "project-budget-kpi",
+            "name": "Project Budget KPI",
+            "title": "Budget",
+            "format": "currency",
+            "precision": 0,
+            "color": "#10B981",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "project-spent-kpi",
+          "componentType": "kpi",
+          "dataPath": "spent",
+          "config": {
+            "id": "project-spent-kpi",
+            "name": "Amount Spent KPI",
+            "title": "Amount Spent",
+            "format": "currency",
+            "precision": 0,
+            "color": "#F59E0B",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "project-overview",
+          "title": "Project Overview",
+          "description": "Basic project information",
+          "colSpan": 2,
+          "fieldIds": ["project-name", "project-description", "project-status", "project-priority"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "project-timeline-section",
+          "title": "Timeline & Progress",
+          "description": "Project timeline and progress tracking",
+          "colSpan": 2,
+          "fieldIds": ["project-start-date", "project-end-date", "project-progress"],
+          "layout": {
+            "columns": 3,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "project-financial-section",
+          "title": "Financial Information",
+          "description": "Budget and spending details",
+          "colSpan": 2,
+          "fieldIds": ["project-budget", "project-currency", "project-spent"],
+          "layout": {
+            "columns": 3,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "project-team-section",
+          "title": "Team Information",
+          "description": "Project team and department",
+          "colSpan": 2,
+          "fieldIds": ["project-manager", "project-department", "project-team-members"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "project-relations-section",
+          "title": "Related Entities",
+          "description": "Related vendors, companies, or tenders",
+          "colSpan": 1,
+          "fieldIds": ["project-vendor", "project-company", "project-tender"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "project-additional-section",
+          "title": "Additional Information",
+          "description": "Notes and tags",
+          "colSpan": 2,
+          "fieldIds": ["project-notes", "project-tags"],
+          "layout": {
+            "columns": 1,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create Project",
         "variant": "default",
         "loading": "Creating..."
       },
