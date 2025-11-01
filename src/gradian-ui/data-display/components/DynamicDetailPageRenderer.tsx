@@ -18,6 +18,7 @@ import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
 import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
 import { GoToTop } from '../../layout/go-to-top';
+import { Rating } from '../../form-builder';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -132,13 +133,13 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
   // Get default sections (includes badges if schema has badge fields)
   const defaultSections = getDefaultSections(schema);
-  
+
   // Filter out default sections that already exist in metadata to avoid duplicates
   const defaultSectionIds = new Set(defaultSections.map(s => s.id));
   const filteredDefaultSections = defaultSections.filter(
     defaultSection => !metadataSections.some(metaSection => metaSection.id === defaultSection.id)
   );
-  
+
   // Combine sections: default sections first, then metadata sections
   const sections = [...filteredDefaultSections, ...metadataSections];
 
@@ -171,73 +172,76 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           className="flex items-center justify-between w-full"
         >
           <div className="flex items-center  flex-col w-full">
-          <div className='flex items-center justify-between w-full'>
-          {showBackButton && (onBack || backUrl) && (
-              <Button
-                variant="outline"
-                onClick={onBack}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {schema.plural_name || 'Back'}
-              </Button>
-            )}
+            <div className='flex items-center justify-between w-full'>
+              {showBackButton && (onBack || backUrl) && (
+                <Button
+                  variant="outline"
+                  onClick={onBack}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {schema.plural_name || 'Back'}
+                </Button>
+              )}
 
-            {showActions && (onEdit || onDelete) && (
-              <div className="flex space-x-2">
-                {onEdit && (
-                  <Button variant="outline" onClick={onEdit} className="px-4 py-2 gap-2">
-                    <Edit className="h-4 w-4  " />
-                    <span className='hidden md:block'>Edit</span>
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button variant="outline" onClick={onDelete} className="text-red-600 hover:text-red-700 px-4 py-2 gap-2">
-                    <Trash2 className="h-4 w-4 " />
-                    <span className='hidden md:block'>Delete</span>
-                  </Button>
-                )}
-              </div>
-            )}
-
-          </div>
-            <div className="flex items-center space-x-4 mr-auto py-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
-                <AvatarFallback>{getInitials(headerInfo.avatar)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-bold">{headerInfo.title}</h1>
-                {headerInfo.subtitle && (
-                  <p className="text-sm text-gray-500 mt-1">{headerInfo.subtitle}</p>
-                )}
-                <div className="flex items-center space-x-2 mt-2">
-                  {headerInfo.rating > 0 && (
-                    <div className="flex items-center space-x-1">
-                      <span className="text-sm text-gray-500">
-                        ⭐ {headerInfo.rating.toFixed(1)}
-                      </span>
-                    </div>
+              {showActions && (onEdit || onDelete) && (
+                <div className="flex space-x-2">
+                  {onEdit && (
+                    <Button variant="outline" onClick={onEdit} className="px-4 py-2 gap-2">
+                      <Edit className="h-4 w-4  " />
+                      <span className='hidden md:block'>Edit</span>
+                    </Button>
                   )}
-                  {headerInfo.status && (
-                    <motion.div
-                      initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
-                      animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
-                      transition={disableAnimation ? {} : {
-                        duration: 0.3,
-                        delay: 0.2,
-                        ease: [0.25, 0.46, 0.45, 0.94]
-                      }}
-                      whileHover={disableAnimation ? undefined : { scale: 1.05 }}
-                    >
-                      <Badge variant={badgeConfig.color}>
-                        {badgeConfig.icon && (
-                          <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
-                        )}
-                        {badgeConfig.label}
-                      </Badge>
-                    </motion.div>
+                  {onDelete && (
+                    <Button variant="outline" onClick={onDelete} className="text-red-600 hover:text-red-700 px-4 py-2 gap-2">
+                      <Trash2 className="h-4 w-4 " />
+                      <span className='hidden md:block'>Delete</span>
+                    </Button>
                   )}
                 </div>
+              )}
+
+            </div>
+            <div className="flex items-center space-x-2 justify-between py-4 w-full">
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
+                  <AvatarFallback>{getInitials(headerInfo.avatar)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-2xl font-bold">{headerInfo.title}</h1>
+                  {headerInfo.subtitle && (
+                    <p className="text-sm text-gray-500 mt-1">{headerInfo.subtitle}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-end flex-col justify-end gap-2">
+                {headerInfo.rating > 0 && (
+                  <Rating
+                    value={headerInfo.rating}
+                    maxValue={5}
+                    size="md"
+                    showValue={true}
+                  />
+                )}
+                {headerInfo.status && (
+                  <motion.div
+                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
+                    animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
+                    transition={disableAnimation ? {} : {
+                      duration: 0.3,
+                      delay: 0.2,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.05 }}
+                  >
+                    <Badge variant={badgeConfig.color}>
+                      {badgeConfig.icon && (
+                        <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
+                      )}
+                      {badgeConfig.label}
+                    </Badge>
+                  </motion.div>
+                )}
               </div>
             </div>
           </div>
@@ -398,7 +402,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           </div>
         )}
       </div>
-      
+
       {/* Go to Top Button */}
       <GoToTop threshold={100} />
     </div>
