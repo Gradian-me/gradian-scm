@@ -1,23 +1,58 @@
 import { Notification, NotificationFilters, NotificationGroup } from '../types';
-import notificationsData from '../../../../data/notifications.json';
+import { apiRequest } from '@/shared/utils/api';
 
-// Convert JSON data to proper format
-const notifications: Notification[] = notificationsData.map((notification: any) => ({
-  id: notification.id,
-  title: notification.title,
-  message: notification.message,
-  type: notification.type as 'success' | 'info' | 'warning' | 'error',
-  category: notification.category as 'quotation' | 'purchase_order' | 'shipment' | 'vendor' | 'tender' | 'system',
-  priority: notification.priority as 'low' | 'medium' | 'high' | 'urgent',
-  isRead: notification.isRead,
-  createdAt: new Date(notification.createdAt),
-  readAt: notification.readAt ? new Date(notification.readAt) : undefined,
-  actionUrl: notification.actionUrl,
-  metadata: notification.metadata
-}));
+// Transform raw notification data to Notification type
+function transformNotificationData(notification: any): Notification {
+  return {
+    id: notification.id,
+    title: notification.title,
+    message: notification.message,
+    type: notification.type as 'success' | 'info' | 'warning' | 'error',
+    category: notification.category as 'quotation' | 'purchase_order' | 'shipment' | 'vendor' | 'tender' | 'system',
+    priority: notification.priority as 'low' | 'medium' | 'high' | 'urgent',
+    isRead: notification.isRead,
+    createdAt: new Date(notification.createdAt),
+    readAt: notification.readAt ? new Date(notification.readAt) : undefined,
+    actionUrl: notification.actionUrl,
+    metadata: notification.metadata
+  };
+}
+
+// Get notifications from API
+async function getNotificationsFromAPI(filters?: NotificationFilters): Promise<Notification[]> {
+  try {
+    const params: Record<string, string> = {};
+    if (filters?.search) params.search = filters.search;
+    if (filters?.type) params.type = filters.type;
+    if (filters?.category) params.category = filters.category;
+    if (filters?.priority) params.priority = filters.priority;
+    if (filters?.isRead !== undefined) params.isRead = filters.isRead.toString();
+
+    const response = await apiRequest<{ data: any[] }>(
+      '/api/notifications',
+      {
+        method: 'GET',
+        params
+      }
+    );
+
+    if (!response.success || !response.data) {
+      return [];
+    }
+
+    return response.data.map(transformNotificationData);
+  } catch (error) {
+    console.error('Error fetching notifications from API:', error);
+    return [];
+  }
+}
 
 export class NotificationService {
   static async getNotifications(filters: NotificationFilters = {}): Promise<Notification[]> {
+    // Fetch from API (handles filtering on server side)
+    const notifications = await getNotificationsFromAPI(filters);
+    
+    // Additional client-side filtering if needed
     let filtered = [...notifications];
 
     if (filters.search) {
@@ -26,22 +61,6 @@ export class NotificationService {
         n => n.title.toLowerCase().includes(searchLower) || 
              n.message.toLowerCase().includes(searchLower)
       );
-    }
-
-    if (filters.type) {
-      filtered = filtered.filter(n => n.type === filters.type);
-    }
-
-    if (filters.category) {
-      filtered = filtered.filter(n => n.category === filters.category);
-    }
-
-    if (filters.priority) {
-      filtered = filtered.filter(n => n.priority === filters.priority);
-    }
-
-    if (filters.isRead !== undefined) {
-      filtered = filtered.filter(n => n.isRead === filters.isRead);
     }
 
     return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -66,52 +85,118 @@ export class NotificationService {
   }
 
   static async markAsRead(notificationId: string): Promise<void> {
-    const notification = notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.isRead = true;
-      notification.readAt = new Date();
+    try {
+      const response = await apiRequest(
+        `/api/notifications/${notificationId}`,
+        {
+          method: 'PUT',
+          body: { isRead: true, readAt: new Date().toISOString() }
+        }
+      );
+
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to mark notification as read');
+      }
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to mark notification as read');
+    }
+  }
+
+  static async markAsUnread(notificationId: string): Promise<void> {
+    try {
+      const response = await apiRequest(
+        `/api/notifications/${notificationId}`,
+        {
+          method: 'PUT',
+          body: { isRead: false }
+        }
+      );
+
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to mark notification as unread');
+      }
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to mark notification as unread');
     }
   }
 
   static async markAllAsRead(): Promise<void> {
-    notifications.forEach(notification => {
-      if (!notification.isRead) {
-        notification.isRead = true;
-        notification.readAt = new Date();
-      }
-    });
+    try {
+      // Get all unread notifications first
+      const notifications = await getNotificationsFromAPI({ isRead: false });
+      
+      // Update each notification
+      await Promise.all(
+        notifications.map(n => 
+          apiRequest(`/api/notifications/${n.id}`, {
+            method: 'PUT',
+            body: { isRead: true, readAt: new Date().toISOString() }
+          })
+        )
+      );
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to mark all notifications as read');
+    }
   }
 
   static async getUnreadCount(): Promise<number> {
-    return notifications.filter(n => !n.isRead).length;
+    const notifications = await getNotificationsFromAPI({ isRead: false });
+    return notifications.length;
   }
 
   static async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>): Promise<Notification> {
-    const newNotification: Notification = {
-      ...notification,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      isRead: false
-    };
-    
-    notifications.unshift(newNotification);
-    return newNotification;
+    try {
+      const response = await apiRequest<{ data: any }>(
+        '/api/notifications',
+        {
+          method: 'POST',
+          body: notification
+        }
+      );
+
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'Failed to create notification');
+      }
+
+      return transformNotificationData(response.data);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to create notification');
+    }
   }
 
   static async updateNotification(id: string, updates: Partial<Notification>): Promise<Notification | null> {
-    const index = notifications.findIndex(n => n.id === id);
-    if (index === -1) return null;
-    
-    notifications[index] = { ...notifications[index], ...updates };
-    return notifications[index];
+    try {
+      const response = await apiRequest<{ data: any }>(
+        `/api/notifications/${id}`,
+        {
+          method: 'PUT',
+          body: updates
+        }
+      );
+
+      if (!response.success || !response.data) {
+        return null;
+      }
+
+      return transformNotificationData(response.data);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to update notification');
+    }
   }
 
   static async deleteNotification(id: string): Promise<boolean> {
-    const index = notifications.findIndex(n => n.id === id);
-    if (index === -1) return false;
-    
-    notifications.splice(index, 1);
-    return true;
+    try {
+      const response = await apiRequest(
+        `/api/notifications/${id}`,
+        {
+          method: 'DELETE'
+        }
+      );
+
+      return response.success;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Failed to delete notification');
+    }
   }
 
   static getCategoryLabel(category: string): string {

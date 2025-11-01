@@ -1,9 +1,7 @@
 export const API_ENDPOINTS = {
-  VENDORS: '/api/vendors',
-  TENDERS: '/api/tenders',
-  PURCHASE_ORDERS: '/api/purchase-orders',
+  DATA: '/api/data',
   DASHBOARD: '/api/dashboard',
-  NOTIFICATIONS: '/api/notifications',
+  SCHEMAS: '/api/schemas',
 } as const;
 
 export const ROUTES = {

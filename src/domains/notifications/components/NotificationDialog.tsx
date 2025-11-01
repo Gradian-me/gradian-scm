@@ -27,10 +27,12 @@ interface NotificationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onMarkAsRead: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
 }
 
-export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead }: NotificationDialogProps) {
+export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead, onMarkAsUnread }: NotificationDialogProps) {
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
+  const [isMarkingAsUnread, setIsMarkingAsUnread] = useState(false);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -85,6 +87,17 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
       await onMarkAsRead(notification.id);
     } finally {
       setIsMarkingAsRead(false);
+    }
+  };
+
+  const handleMarkAsUnread = async () => {
+    if (!notification || !notification.isRead || !onMarkAsUnread) return;
+    
+    setIsMarkingAsUnread(true);
+    try {
+      await onMarkAsUnread(notification.id);
+    } finally {
+      setIsMarkingAsUnread(false);
     }
   };
 
@@ -216,7 +229,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {!notification.isRead && (
+              {!notification.isRead ? (
                 <Button
                   variant="outline"
                   onClick={handleMarkAsRead}
@@ -225,6 +238,17 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                 >
                   {isMarkingAsRead ? 'Marking...' : 'Mark as Read'}
                 </Button>
+              ) : (
+                onMarkAsUnread && (
+                  <Button
+                    variant="outline"
+                    onClick={handleMarkAsUnread}
+                    disabled={isMarkingAsUnread}
+                    className="text-sm"
+                  >
+                    {isMarkingAsUnread ? 'Marking...' : 'Mark as Unread'}
+                  </Button>
+                )
               )}
             </div>
             

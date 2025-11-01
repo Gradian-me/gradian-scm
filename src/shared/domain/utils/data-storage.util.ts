@@ -1,5 +1,6 @@
 // Data Storage Utility
 // Handles reading and writing to all-data.json file
+// SERVER-ONLY: This file uses Node.js fs module and can only be used in server-side code (API routes, server components)
 
 import fs from 'fs';
 import path from 'path';

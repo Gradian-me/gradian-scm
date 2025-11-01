@@ -30,6 +30,7 @@ export function NotificationsPage() {
     unreadCount,
     updateFilters,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     clearFilters
   } = useNotifications();
@@ -284,6 +285,7 @@ export function NotificationsPage() {
                 key={group.category}
                 group={group}
                 onMarkAsRead={markAsRead}
+                onMarkAsUnread={markAsUnread}
               />
             ))}
           </div>

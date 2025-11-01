@@ -40,18 +40,108 @@ export function useNotifications() {
 
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
+      // Optimistically update the notification
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId 
+            ? { ...n, isRead: true, readAt: new Date() }
+            : n
+        )
+      );
+      
+      // Update grouped notifications
+      setGroupedNotifications(prev => 
+        prev.map(group => {
+          const updatedNotifications = group.notifications.map(n =>
+            n.id === notificationId
+              ? { ...n, isRead: true, readAt: new Date() }
+              : n
+          );
+          return {
+            ...group,
+            notifications: updatedNotifications,
+            unreadCount: updatedNotifications.filter(n => !n.isRead).length
+          };
+        })
+      );
+      
+      // Update unread count
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      // Call the API
       await NotificationService.markAsRead(notificationId);
-      await fetchNotifications();
     } catch (err) {
+      // On error, revert by refetching
+      await fetchNotifications();
       setError(err instanceof Error ? err.message : 'Failed to mark notification as read');
+    }
+  }, [fetchNotifications]);
+
+  const markAsUnread = useCallback(async (notificationId: string) => {
+    try {
+      // Optimistically update the notification
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId 
+            ? { ...n, isRead: false, readAt: undefined }
+            : n
+        )
+      );
+      
+      // Update grouped notifications
+      setGroupedNotifications(prev => 
+        prev.map(group => {
+          const updatedNotifications = group.notifications.map(n =>
+            n.id === notificationId
+              ? { ...n, isRead: false, readAt: undefined }
+              : n
+          );
+          return {
+            ...group,
+            notifications: updatedNotifications,
+            unreadCount: updatedNotifications.filter(n => !n.isRead).length
+          };
+        })
+      );
+      
+      // Update unread count
+      setUnreadCount(prev => prev + 1);
+      
+      // Call the API
+      await NotificationService.markAsUnread(notificationId);
+    } catch (err) {
+      // On error, revert by refetching
+      await fetchNotifications();
+      setError(err instanceof Error ? err.message : 'Failed to mark notification as unread');
     }
   }, [fetchNotifications]);
 
   const markAllAsRead = useCallback(async () => {
     try {
+      const now = new Date();
+      
+      // Optimistically update all notifications
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, isRead: true, readAt: now }))
+      );
+      
+      // Update grouped notifications
+      setGroupedNotifications(prev => 
+        prev.map(group => ({
+          ...group,
+          notifications: group.notifications.map(n => ({ ...n, isRead: true, readAt: now })),
+          unreadCount: 0
+        }))
+      );
+      
+      // Update unread count
+      setUnreadCount(0);
+      
+      // Call the API
       await NotificationService.markAllAsRead();
-      await fetchNotifications();
     } catch (err) {
+      // On error, revert by refetching
+      await fetchNotifications();
       setError(err instanceof Error ? err.message : 'Failed to mark all notifications as read');
     }
   }, [fetchNotifications]);
@@ -102,6 +192,7 @@ export function useNotifications() {
     fetchNotifications,
     updateFilters,
     markAsRead,
+    markAsUnread,
     markAllAsRead,
     clearFilters,
     createNotification,

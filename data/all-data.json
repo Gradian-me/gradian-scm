@@ -201,11 +201,256 @@
       "rating": 5,
       "id": "01K8ZKS11JT1V9KJD56PAXD91C",
       "createdAt": "2025-11-01T11:45:21.975Z",
-      "updatedAt": "2025-11-01T13:31:06.384Z",
+      "updatedAt": "2025-11-01T13:43:58.628Z",
       "vendor": "Masoud",
       "company": "CinnaGen",
       "tender": "Mahyar",
-      "budget": 12341204120
+      "budget": 12341204999
+    }
+  ],
+  "servers": [
+    {
+      "name": "asdasd",
+      "status": "ACTIVE",
+      "type": "file",
+      "location": "datacenter-a",
+      "operatingSystem": "centos",
+      "backupEnabled": false,
+      "backupType": "differential",
+      "backupSchedule": "biweekly",
+      "backupTime": "19:26",
+      "backupRetentionDays": 123,
+      "backupLocation": "nas",
+      "lastBackupDate": "2025-11-01T17:24",
+      "maintenanceEnabled": false,
+      "maintenanceSchedule": "monthly",
+      "maintenanceType": [
+        "os-updates",
+        "hardware-check",
+        "security-patches",
+        "software-updates"
+      ],
+      "lastMaintenanceDate": "2025-11-06T17:24",
+      "nextMaintenanceDate": "2025-11-13T17:24",
+      "firewallEnabled": true,
+      "securityStatus": "AT_RISK",
+      "sslCertificate": "expired",
+      "antivirusEnabled": true,
+      "antivirusLastScan": "2025-11-06T17:25",
+      "sslExpiryDate": "2025-11-13",
+      "securityPatchesStatus": "updates-available",
+      "monitoringEnabled": true,
+      "accessControlType": "ssh-key",
+      "intrusionDetection": true,
+      "ipAddress": "1.1.1.1",
+      "hostname": "asdasdasdasd",
+      "maintenanceWindow": "asdasdsad",
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K8ZV7GPV0VCXMEBD64DP6H75",
+      "createdAt": "2025-11-01T13:55:36.802Z",
+      "updatedAt": "2025-11-01T13:56:42.170Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "1",
+      "title": "New Quotation Received",
+      "message": "Transfarma submitted a quotation for HPLC Columns. The quotation includes detailed pricing for 50 units of HPLC columns with 2-year warranty and technical support.",
+      "type": "success",
+      "category": "quotation",
+      "priority": "medium",
+      "isRead": false,
+      "createdAt": "2024-12-10T10:30:00.000Z",
+      "actionUrl": "/quotations/1",
+      "metadata": {
+        "vendor": "Transfarma",
+        "product": "HPLC Columns",
+        "quantity": 50,
+        "value": 25000,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "2",
+      "title": "Purchase Order Approved",
+      "message": "PO-2024-001 has been approved by finance team. The purchase order for laboratory equipment has been processed and vendor has been notified for shipment.",
+      "type": "info",
+      "category": "purchase_order",
+      "priority": "high",
+      "isRead": false,
+      "createdAt": "2024-12-10T09:15:00.000Z",
+      "actionUrl": "/purchase-orders/1",
+      "metadata": {
+        "poNumber": "PO-2024-001",
+        "amount": 45000,
+        "currency": "USD",
+        "vendor": "Merck",
+        "approver": "Finance Team"
+      }
+    },
+    {
+      "id": "3",
+      "title": "Shipment Delayed",
+      "message": "SH-2024-001 is experiencing delays due to severe weather conditions affecting the shipping route. Expected delay of 2-3 business days.",
+      "type": "warning",
+      "category": "shipment",
+      "priority": "urgent",
+      "isRead": false,
+      "createdAt": "2024-12-10T08:45:00.000Z",
+      "actionUrl": "/shipments/1",
+      "metadata": {
+        "shipmentId": "SH-2024-001",
+        "delayReason": "Weather Conditions",
+        "expectedDelay": "2-3 business days",
+        "carrier": "FedEx",
+        "trackingNumber": "1234567890"
+      }
+    },
+    {
+      "id": "4",
+      "title": "Vendor Registration Complete",
+      "message": "New vendor Merck has been successfully registered and approved. All documentation has been verified and vendor is now active in the system.",
+      "type": "success",
+      "category": "vendor",
+      "priority": "low",
+      "isRead": true,
+      "createdAt": "2024-12-09T14:20:00.000Z",
+      "actionUrl": "/vendors/merck",
+      "metadata": {
+        "vendorName": "Merck",
+        "registrationDate": "2024-12-09",
+        "approver": "Supply Chain Manager",
+        "status": "Active"
+      },
+      "updatedAt": "2025-11-01T15:25:11.597Z",
+      "readAt": "2025-11-01T15:25:11.548Z"
+    },
+    {
+      "id": "5",
+      "title": "Tender Deadline Approaching",
+      "message": "Tender T-2024-003 for laboratory equipment closes in 2 days. Please ensure all required documentation is submitted before the deadline.",
+      "type": "warning",
+      "category": "tender",
+      "priority": "high",
+      "isRead": false,
+      "createdAt": "2024-12-10T07:30:00.000Z",
+      "actionUrl": "/tenders/t-2024-003",
+      "metadata": {
+        "tenderId": "T-2024-003",
+        "deadline": "2024-12-12T17:00:00.000Z",
+        "category": "Laboratory Equipment",
+        "estimatedValue": 100000,
+        "currency": "USD"
+      }
+    },
+    {
+      "id": "6",
+      "title": "System Maintenance Scheduled",
+      "message": "System will be under maintenance on Sunday from 2AM to 4AM EST. All users will be logged out during this period. Please save your work before the maintenance window.",
+      "type": "info",
+      "category": "system",
+      "priority": "medium",
+      "isRead": true,
+      "createdAt": "2024-12-08T16:00:00.000Z",
+      "readAt": "2025-11-01T15:23:32.470Z",
+      "metadata": {
+        "maintenanceDate": "2024-12-15",
+        "startTime": "02:00",
+        "endTime": "04:00",
+        "timezone": "EST",
+        "affectedServices": [
+          "Database",
+          "API",
+          "File Storage"
+        ]
+      },
+      "updatedAt": "2025-11-01T15:23:32.508Z"
+    },
+    {
+      "id": "7",
+      "title": "Payment Failed",
+      "message": "Payment for PO-2024-002 failed due to insufficient funds in the designated account. Please update payment method or add funds to complete the transaction.",
+      "type": "error",
+      "category": "purchase_order",
+      "priority": "urgent",
+      "isRead": false,
+      "createdAt": "2024-12-10T11:00:00.000Z",
+      "actionUrl": "/purchase-orders/2",
+      "metadata": {
+        "poNumber": "PO-2024-002",
+        "amount": 32000,
+        "currency": "USD",
+        "paymentMethod": "Bank Transfer",
+        "failureReason": "Insufficient Funds"
+      }
+    },
+    {
+      "id": "8",
+      "title": "New Vendor Application",
+      "message": "PharmaCorp has submitted a vendor application for pharmaceutical supplies. Application includes all required documentation and certifications.",
+      "type": "info",
+      "category": "vendor",
+      "priority": "medium",
+      "isRead": true,
+      "createdAt": "2024-12-10T06:00:00.000Z",
+      "actionUrl": "/vendors/applications/pharmacorp",
+      "metadata": {
+        "vendorName": "PharmaCorp",
+        "applicationDate": "2024-12-10",
+        "category": "Pharmaceutical Supplies",
+        "certifications": [
+          "ISO 9001",
+          "GMP",
+          "FDA Approved"
+        ],
+        "status": "Pending Review"
+      },
+      "readAt": "2025-11-01T15:20:12.691Z",
+      "updatedAt": "2025-11-01T15:20:12.729Z"
+    },
+    {
+      "id": "9",
+      "title": "Quality Inspection Passed",
+      "message": "Quality inspection for batch QC-2024-001 has passed all tests. Products are approved for shipment and distribution.",
+      "type": "success",
+      "category": "system",
+      "priority": "medium",
+      "isRead": false,
+      "createdAt": "2024-12-10T12:15:00.000Z",
+      "actionUrl": "/quality-control/qc-2024-001",
+      "metadata": {
+        "batchId": "QC-2024-001",
+        "product": "HPLC Columns",
+        "quantity": 100,
+        "inspector": "Quality Control Team",
+        "testResults": "All tests passed"
+      },
+      "readAt": null,
+      "updatedAt": "2025-11-01T15:24:08.068Z"
+    },
+    {
+      "id": "10",
+      "title": "Contract Renewal Reminder",
+      "message": "Contract with Transfarma expires in 30 days. Please review terms and initiate renewal process to avoid service interruption.",
+      "type": "warning",
+      "category": "vendor",
+      "priority": "high",
+      "isRead": true,
+      "createdAt": "2024-12-10T13:45:00.000Z",
+      "actionUrl": "/contracts/transfarma",
+      "metadata": {
+        "vendorName": "Transfarma",
+        "contractId": "CT-2023-001",
+        "expiryDate": "2025-01-10",
+        "contractValue": 500000,
+        "currency": "USD"
+      },
+      "updatedAt": "2025-11-01T15:25:02.489Z",
+      "readAt": "2025-11-01T15:25:02.468Z"
     }
   ]
 }

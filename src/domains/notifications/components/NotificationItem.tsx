@@ -20,9 +20,10 @@ import { formatDistanceToNow } from 'date-fns';
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
 }
 
-export function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps) {
+export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }: NotificationItemProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -138,7 +139,7 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
                     View
                   </Button>
                   
-                  {!notification.isRead && (
+                  {!notification.isRead ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -147,6 +148,17 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
                     >
                       Mark Read
                     </Button>
+                  ) : (
+                    onMarkAsUnread && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => onMarkAsUnread(notification.id)}
+                      >
+                        Mark Unread
+                      </Button>
+                    )
                   )}
                 </div>
               </div>
@@ -161,6 +173,7 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onMarkAsRead={onMarkAsRead}
+        onMarkAsUnread={onMarkAsUnread}
       />
     </>
   );

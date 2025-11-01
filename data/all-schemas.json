@@ -3086,5 +3086,972 @@
         "variant": "outline"
       }
     }
+  },
+  {
+    "id": "servers",
+    "name": "servers",
+    "title": "Create New Server",
+    "description": "Add a new server configuration with backup, maintenance, and security settings",
+    "singular_name": "Server",
+    "plural_name": "Servers",
+    "cardMetadata": [
+      {
+        "id": "server-info",
+        "title": "Server Information",
+        "colSpan": 1,
+        "fieldIds": ["server-type", "server-status", "server-location"]
+      },
+      {
+        "id": "server-health",
+        "title": "Health & Status",
+        "colSpan": 1,
+        "fieldIds": ["last-backup-date", "last-maintenance-date", "security-status"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "server-name",
+        "name": "name",
+        "label": "Server Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter server name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter server description",
+        "required": false,
+        "role": "subtitle",
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-type",
+        "name": "type",
+        "label": "Server Type",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select server type",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "Application Server", "value": "application", "icon": "Server", "color": "primary" },
+          { "label": "Database Server", "value": "database", "icon": "Database", "color": "primary" },
+          { "label": "Web Server", "value": "web", "icon": "Globe", "color": "primary" },
+          { "label": "File Server", "value": "file", "icon": "Folder", "color": "default" },
+          { "label": "Mail Server", "value": "mail", "icon": "Mail", "color": "default" },
+          { "label": "Backup Server", "value": "backup", "icon": "Save", "color": "default" },
+          { "label": "Development Server", "value": "development", "icon": "Code", "color": "default" },
+          { "label": "Production Server", "value": "production", "icon": "Zap", "color": "warning" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
+          { "label": "Maintenance", "value": "MAINTENANCE", "icon": "Wrench", "color": "warning" },
+          { "label": "Down", "value": "DOWN", "icon": "XCircle", "color": "destructive" },
+          { "label": "Decommissioned", "value": "DECOMMISSIONED", "icon": "Ban", "color": "error" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-ip-address",
+        "name": "ipAddress",
+        "label": "IP Address",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "192.168.1.1",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-hostname",
+        "name": "hostname",
+        "label": "Hostname",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "server01.example.com",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-location",
+        "name": "location",
+        "label": "Location",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select location",
+        "required": true,
+        "role": "location",
+        "options": [
+          { "label": "Data Center A", "value": "datacenter-a" },
+          { "label": "Data Center B", "value": "datacenter-b" },
+          { "label": "Cloud - AWS", "value": "cloud-aws" },
+          { "label": "Cloud - Azure", "value": "cloud-azure" },
+          { "label": "Cloud - GCP", "value": "cloud-gcp" },
+          { "label": "On-Premises - HQ", "value": "onprem-hq" },
+          { "label": "On-Premises - Remote", "value": "onprem-remote" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "server-operating-system",
+        "name": "operatingSystem",
+        "label": "Operating System",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select OS",
+        "required": true,
+        "options": [
+          { "label": "Linux - Ubuntu", "value": "ubuntu" },
+          { "label": "Linux - CentOS", "value": "centos" },
+          { "label": "Linux - Red Hat", "value": "redhat" },
+          { "label": "Linux - Debian", "value": "debian" },
+          { "label": "Windows Server", "value": "windows-server" },
+          { "label": "Windows Server Core", "value": "windows-core" },
+          { "label": "macOS Server", "value": "macos" },
+          { "label": "Other", "value": "other" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-enabled",
+        "name": "backupEnabled",
+        "label": "Enable Backup",
+        "sectionId": "backup-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable automated backups",
+        "required": false,
+        "defaultValue": true,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-type",
+        "name": "backupType",
+        "label": "Backup Type",
+        "sectionId": "backup-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select backup type",
+        "required": true,
+        "options": [
+          { "label": "Full Backup", "value": "full" },
+          { "label": "Incremental Backup", "value": "incremental" },
+          { "label": "Differential Backup", "value": "differential" },
+          { "label": "Mirror Backup", "value": "mirror" },
+          { "label": "Cloud Backup", "value": "cloud" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-schedule",
+        "name": "backupSchedule",
+        "label": "Backup Schedule",
+        "sectionId": "backup-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select schedule",
+        "required": true,
+        "options": [
+          { "label": "Daily", "value": "daily" },
+          { "label": "Weekly", "value": "weekly" },
+          { "label": "Bi-Weekly", "value": "biweekly" },
+          { "label": "Monthly", "value": "monthly" },
+          { "label": "Custom", "value": "custom" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-time",
+        "name": "backupTime",
+        "label": "Backup Time",
+        "sectionId": "backup-configuration",
+        "type": "time",
+        "component": "time",
+        "placeholder": "Select backup time",
+        "required": true,
+        "defaultValue": "02:00",
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-retention",
+        "name": "backupRetentionDays",
+        "label": "Retention Period (Days)",
+        "sectionId": "backup-configuration",
+        "type": "number",
+        "component": "number",
+        "placeholder": "30",
+        "required": true,
+        "defaultValue": 30,
+        "validation": {
+          "required": true,
+          "min": 1,
+          "max": 3650
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-location",
+        "name": "backupLocation",
+        "label": "Backup Storage Location",
+        "sectionId": "backup-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select storage location",
+        "required": true,
+        "options": [
+          { "label": "Local Storage", "value": "local" },
+          { "label": "Network Storage (NAS)", "value": "nas" },
+          { "label": "Cloud - AWS S3", "value": "aws-s3" },
+          { "label": "Cloud - Azure Blob", "value": "azure-blob" },
+          { "label": "Cloud - GCP Storage", "value": "gcp-storage" },
+          { "label": "Tape Backup", "value": "tape" },
+          { "label": "External Drive", "value": "external" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "last-backup-date",
+        "name": "lastBackupDate",
+        "label": "Last Backup Date",
+        "sectionId": "backup-configuration",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select last backup date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "backup-notes",
+        "name": "backupNotes",
+        "label": "Backup Notes",
+        "sectionId": "backup-configuration",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about backup configuration",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-enabled",
+        "name": "maintenanceEnabled",
+        "label": "Enable Maintenance",
+        "sectionId": "maintenance-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable scheduled maintenance",
+        "required": false,
+        "defaultValue": true,
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-schedule",
+        "name": "maintenanceSchedule",
+        "label": "Maintenance Schedule",
+        "sectionId": "maintenance-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select schedule",
+        "required": true,
+        "options": [
+          { "label": "Daily", "value": "daily" },
+          { "label": "Weekly", "value": "weekly" },
+          { "label": "Bi-Weekly", "value": "biweekly" },
+          { "label": "Monthly", "value": "monthly" },
+          { "label": "Quarterly", "value": "quarterly" },
+          { "label": "Custom", "value": "custom" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-window",
+        "name": "maintenanceWindow",
+        "label": "Maintenance Window",
+        "sectionId": "maintenance-configuration",
+        "type": "text",
+        "component": "text",
+        "placeholder": "e.g., Saturday 02:00-04:00",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-type",
+        "name": "maintenanceType",
+        "label": "Maintenance Type",
+        "sectionId": "maintenance-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Select maintenance types",
+        "required": true,
+        "options": [
+          { "label": "OS Updates", "value": "os-updates" },
+          { "label": "Security Patches", "value": "security-patches" },
+          { "label": "Hardware Check", "value": "hardware-check" },
+          { "label": "Software Updates", "value": "software-updates" },
+          { "label": "Performance Optimization", "value": "performance" },
+          { "label": "Log Rotation", "value": "log-rotation" },
+          { "label": "Disk Cleanup", "value": "disk-cleanup" },
+          { "label": "Antivirus Scan", "value": "antivirus-scan" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md",
+          "type": "array",
+          "displayType": "badges",
+          "maxDisplay": 4,
+          "showMore": true
+        }
+      },
+      {
+        "id": "last-maintenance-date",
+        "name": "lastMaintenanceDate",
+        "label": "Last Maintenance Date",
+        "sectionId": "maintenance-configuration",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select last maintenance date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "next-maintenance-date",
+        "name": "nextMaintenanceDate",
+        "label": "Next Scheduled Maintenance",
+        "sectionId": "maintenance-configuration",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select next maintenance date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-responsible",
+        "name": "maintenanceResponsible",
+        "label": "Responsible Person/Team",
+        "sectionId": "maintenance-configuration",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter responsible person or team",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "maintenance-notes",
+        "name": "maintenanceNotes",
+        "label": "Maintenance Notes",
+        "sectionId": "maintenance-configuration",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about maintenance",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "security-status",
+        "name": "securityStatus",
+        "label": "Security Status",
+        "sectionId": "security-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select security status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Secure", "value": "SECURE", "icon": "Shield", "color": "success" },
+          { "label": "Warning", "value": "WARNING", "icon": "AlertTriangle", "color": "warning" },
+          { "label": "At Risk", "value": "AT_RISK", "icon": "AlertCircle", "color": "destructive" },
+          { "label": "Unknown", "value": "UNKNOWN", "icon": "HelpCircle", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "firewall-enabled",
+        "name": "firewallEnabled",
+        "label": "Firewall Enabled",
+        "sectionId": "security-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable firewall",
+        "required": false,
+        "defaultValue": true,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "ssl-certificate",
+        "name": "sslCertificate",
+        "label": "SSL Certificate Status",
+        "sectionId": "security-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select SSL status",
+        "required": true,
+        "options": [
+          { "label": "Valid", "value": "valid", "icon": "CheckCircle", "color": "success" },
+          { "label": "Expired", "value": "expired", "icon": "XCircle", "color": "destructive" },
+          { "label": "Expiring Soon", "value": "expiring-soon", "icon": "AlertTriangle", "color": "warning" },
+          { "label": "Not Installed", "value": "not-installed", "icon": "X", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "ssl-expiry-date",
+        "name": "sslExpiryDate",
+        "label": "SSL Certificate Expiry Date",
+        "sectionId": "security-configuration",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select expiry date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "antivirus-enabled",
+        "name": "antivirusEnabled",
+        "label": "Antivirus Enabled",
+        "sectionId": "security-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable antivirus",
+        "required": false,
+        "defaultValue": true,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "antivirus-last-scan",
+        "name": "antivirusLastScan",
+        "label": "Last Antivirus Scan",
+        "sectionId": "security-configuration",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select last scan date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "security-patches-status",
+        "name": "securityPatchesStatus",
+        "label": "Security Patches Status",
+        "sectionId": "security-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select patches status",
+        "required": true,
+        "options": [
+          { "label": "Up to Date", "value": "up-to-date", "icon": "CheckCircle", "color": "success" },
+          { "label": "Updates Available", "value": "updates-available", "icon": "AlertCircle", "color": "warning" },
+          { "label": "Critical Updates Pending", "value": "critical-pending", "icon": "AlertTriangle", "color": "destructive" },
+          { "label": "Not Monitored", "value": "not-monitored", "icon": "X", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "last-patch-date",
+        "name": "lastPatchDate",
+        "label": "Last Patch Date",
+        "sectionId": "security-configuration",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select last patch date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "access-control-type",
+        "name": "accessControlType",
+        "label": "Access Control Type",
+        "sectionId": "security-configuration",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select access control",
+        "required": true,
+        "options": [
+          { "label": "SSH Key Only", "value": "ssh-key" },
+          { "label": "Username/Password", "value": "username-password" },
+          { "label": "Two-Factor Authentication", "value": "2fa" },
+          { "label": "Certificate Based", "value": "certificate" },
+          { "label": "Multi-Factor Authentication", "value": "mfa" },
+          { "label": "LDAP/Active Directory", "value": "ldap" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 9,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "monitoring-enabled",
+        "name": "monitoringEnabled",
+        "label": "Monitoring Enabled",
+        "sectionId": "security-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable security monitoring",
+        "required": false,
+        "defaultValue": true,
+        "ui": {
+          "colSpan": 1,
+          "order": 10,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "intrusion-detection",
+        "name": "intrusionDetection",
+        "label": "Intrusion Detection Enabled",
+        "sectionId": "security-configuration",
+        "type": "checkbox",
+        "component": "checkbox",
+        "placeholder": "Enable intrusion detection",
+        "required": false,
+        "defaultValue": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 11,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "security-notes",
+        "name": "securityNotes",
+        "label": "Security Notes",
+        "sectionId": "security-configuration",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional security configuration notes",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 12,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Server Information",
+        "description": "Basic server details and configuration",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "backup-configuration",
+        "title": "Backup Configuration",
+        "description": "Configure backup settings and schedule",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "maintenance-configuration",
+        "title": "Maintenance Configuration",
+        "description": "Schedule and manage server maintenance",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "security-configuration",
+        "title": "Security Configuration",
+        "description": "Security settings and monitoring",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "componentRenderers": [
+        {
+          "id": "server-status-kpi",
+          "componentType": "kpi",
+          "dataPath": "status",
+          "config": {
+            "id": "server-status-kpi",
+            "name": "Server Status KPI",
+            "title": "Status",
+            "format": "text",
+            "precision": 0,
+            "color": "#10B981",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "security-status-kpi",
+          "componentType": "kpi",
+          "dataPath": "securityStatus",
+          "config": {
+            "id": "security-status-kpi",
+            "name": "Security Status KPI",
+            "title": "Security",
+            "format": "text",
+            "precision": 0,
+            "color": "#3B82F6",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "backup-status-kpi",
+          "componentType": "kpi",
+          "dataPath": "lastBackupDate",
+          "config": {
+            "id": "backup-status-kpi",
+            "name": "Backup Status KPI",
+            "title": "Last Backup",
+            "format": "date",
+            "precision": 0,
+            "color": "#8B5CF6",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "server-basic-info",
+          "title": "Server Information",
+          "description": "Basic server details and configuration",
+          "colSpan": 2,
+          "fieldIds": ["server-name", "server-description", "server-type", "server-status", "server-ip-address", "server-hostname", "server-location", "server-operating-system"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "backup-details",
+          "title": "Backup Configuration",
+          "description": "Backup settings and schedule",
+          "colSpan": 2,
+          "fieldIds": ["backup-enabled", "backup-type", "backup-schedule", "backup-time", "backup-retention", "backup-location", "last-backup-date", "backup-notes"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "maintenance-details",
+          "title": "Maintenance Configuration",
+          "description": "Maintenance schedule and history",
+          "colSpan": 2,
+          "fieldIds": ["maintenance-enabled", "maintenance-schedule", "maintenance-window", "maintenance-type", "last-maintenance-date", "next-maintenance-date", "maintenance-responsible", "maintenance-notes"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "security-details",
+          "title": "Security Configuration",
+          "description": "Security settings and status",
+          "colSpan": 2,
+          "fieldIds": ["security-status", "firewall-enabled", "ssl-certificate", "ssl-expiry-date", "antivirus-enabled", "antivirus-last-scan", "security-patches-status", "last-patch-date", "access-control-type", "monitoring-enabled", "intrusion-detection", "security-notes"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "server-status-section",
+          "title": "Server Status",
+          "description": "Current server status and health",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": ["server-status", "security-status"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create Server",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
   }
 ]

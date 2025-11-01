@@ -9,9 +9,10 @@ import { NotificationService } from '../services/notification.service';
 interface NotificationGroupProps {
   group: NotificationGroupType;
   onMarkAsRead: (id: string) => void;
+  onMarkAsUnread?: (id: string) => void;
 }
 
-export function NotificationGroup({ group, onMarkAsRead }: NotificationGroupProps) {
+export function NotificationGroup({ group, onMarkAsRead, onMarkAsUnread }: NotificationGroupProps) {
   return (
     <Card className="mb-6">
       <CardHeader className="pb-3">
@@ -38,6 +39,7 @@ export function NotificationGroup({ group, onMarkAsRead }: NotificationGroupProp
               key={notification.id}
               notification={notification}
               onMarkAsRead={onMarkAsRead}
+              onMarkAsUnread={onMarkAsUnread}
             />
           ))}
         </div>
