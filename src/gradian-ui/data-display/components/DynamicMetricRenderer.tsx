@@ -20,30 +20,30 @@ export interface DynamicMetricRendererProps {
    * Array of metric items to display
    */
   metrics: MetricItem[];
-  
+
   /**
    * Maximum number of metrics to display before showing +X more
    * @default 3
    */
   maxMetrics?: number;
-  
+
   /**
    * CSS class name for the container
    */
   className?: string;
-  
+
   /**
    * Badge variant for the "more" indicator
    * @default "outline"
    */
   badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
-  
+
   /**
    * Whether to animate the metrics
    * @default true
    */
   animate?: boolean;
-  
+
   /**
    * Custom renderer for metric content
    */
@@ -83,7 +83,7 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-    
+
     const metricContent = renderMetric ? (
       renderMetric(metric, idx)
     ) : (
@@ -120,33 +120,27 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
         </div>
       </div>
     );
-    
-    if (animate) {
-      return (
-        <motion.div
-          key={`${metric.label}-${idx}`}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: idx * 0.05 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          {metricContent}
-        </motion.div>
-      );
-    }
-    
+
     return (
-      <div key={`${metric.label}-${idx}`} className="w-full">
+      <motion.div
+        key={`${metric.label}-${idx}`}
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15, delay: idx * 0.01 }}
+        whileHover={{ scale: 1.01, backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
+        className="px-1 py-0.5 rounded-lg"
+      >
         {metricContent}
-      </div>
+      </motion.div>
     );
+
   };
 
   return (
     <div className={containerClasses}>
       {/* Render visible metrics */}
       {visibleMetrics.map((metric, idx) => renderMetricItem(metric, idx))}
-      
+
       {/* Render +X more indicator if needed */}
       {hasMoreMetrics && (
         <div className="flex items-center justify-end w-full">
