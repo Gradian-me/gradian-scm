@@ -24,10 +24,18 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       filtered = filtered.filter((entity: any) => {
-        const searchableFields = ['name', 'title', 'email', 'phone', 'description'];
-        return searchableFields.some(field => 
-          entity[field]?.toString().toLowerCase().includes(searchLower)
-        );
+        const searchableFields = [
+          'name', 'title', 'email', 'phone', 'description',
+          'productName', 'requestId', 'batchNumber', 'productSku',
+          'companyName', 'tenderTitle', 'projectName', 'serverName'
+        ];
+        return searchableFields.some(field => {
+          const value = entity[field];
+          if (value && typeof value === 'string') {
+            return value.toLowerCase().includes(searchLower);
+          }
+          return false;
+        });
       });
     }
 

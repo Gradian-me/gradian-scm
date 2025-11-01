@@ -4053,5 +4053,788 @@
         "variant": "outline"
       }
     }
+  },
+  {
+    "id": "lims-requests",
+    "name": "lims-requests",
+    "title": "Create New LIMS Request",
+    "description": "Create a new laboratory information management system request for product sample testing",
+    "singular_name": "LIMS Request",
+    "plural_name": "LIMS Requests",
+    "cardMetadata": [
+      {
+        "id": "sample-info",
+        "title": "Sample Information",
+        "colSpan": 1,
+        "fieldIds": ["batch-number", "product-name", "request-status"]
+      },
+      {
+        "id": "test-info",
+        "title": "Test Summary",
+        "colSpan": 1,
+        "fieldIds": ["request-date", "priority"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "request-id",
+        "name": "requestId",
+        "label": "Request ID",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Auto-generated or enter manually",
+        "required": false,
+        "role": "title",
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-name",
+        "name": "productName",
+        "label": "Product Name",
+        "sectionId": "sample-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter product name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "product-sku",
+        "name": "productSku",
+        "label": "Product SKU",
+        "sectionId": "sample-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter product SKU",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "batch-number",
+        "name": "batchNumber",
+        "label": "Batch Number",
+        "sectionId": "sample-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter batch number",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "lot-number",
+        "name": "lotNumber",
+        "label": "Lot Number",
+        "sectionId": "sample-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter lot number",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "manufacturing-date",
+        "name": "manufacturingDate",
+        "label": "Manufacturing Date",
+        "sectionId": "sample-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select manufacturing date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "expiry-date",
+        "name": "expiryDate",
+        "label": "Expiry Date",
+        "sectionId": "sample-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select expiry date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "sample-quantity",
+        "name": "sampleQuantity",
+        "label": "Sample Quantity",
+        "sectionId": "sample-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter sample quantity",
+        "required": false,
+        "defaultValue": 1,
+        "validation": {
+          "min": 1
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "sample-unit",
+        "name": "sampleUnit",
+        "label": "Unit",
+        "sectionId": "sample-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select unit",
+        "required": false,
+        "defaultValue": "piece",
+        "options": [
+          { "label": "Piece", "value": "piece" },
+          { "label": "Gram", "value": "g" },
+          { "label": "Kilogram", "value": "kg" },
+          { "label": "Liter", "value": "L" },
+          { "label": "Milliliter", "value": "ml" },
+          { "label": "Bottle", "value": "bottle" },
+          { "label": "Vial", "value": "vial" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "sample-received-date",
+        "name": "sampleReceivedDate",
+        "label": "Sample Received Date",
+        "sectionId": "sample-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select received date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 9,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "sample-condition",
+        "name": "sampleCondition",
+        "label": "Sample Condition",
+        "sectionId": "sample-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select sample condition",
+        "required": false,
+        "options": [
+          { "label": "Good", "value": "good", "icon": "CheckCircle", "color": "success" },
+          { "label": "Acceptable", "value": "acceptable", "icon": "Info", "color": "default" },
+          { "label": "Damaged", "value": "damaged", "icon": "AlertTriangle", "color": "warning" },
+          { "label": "Compromised", "value": "compromised", "icon": "XCircle", "color": "destructive" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 10,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "request-date",
+        "name": "requestDate",
+        "label": "Request Date",
+        "sectionId": "basic-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select request date",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "request-status",
+        "name": "status",
+        "label": "Request Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Pending", "value": "PENDING", "icon": "Clock", "color": "warning" },
+          { "label": "In Progress", "value": "IN_PROGRESS", "icon": "PlayCircle", "color": "primary" },
+          { "label": "Completed", "value": "COMPLETED", "icon": "CheckCircle", "color": "success" },
+          { "label": "On Hold", "value": "ON_HOLD", "icon": "PauseCircle", "color": "warning" },
+          { "label": "Cancelled", "value": "CANCELLED", "icon": "XCircle", "color": "destructive" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "priority",
+        "name": "priority",
+        "label": "Priority",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select priority",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "High", "value": "HIGH", "icon": "AlertTriangle", "color": "destructive" },
+          { "label": "Medium", "value": "MEDIUM", "icon": "AlertCircle", "color": "warning" },
+          { "label": "Low", "value": "LOW", "icon": "Info", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "requested-by",
+        "name": "requestedBy",
+        "label": "Requested By",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter requester name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-name",
+        "name": "testName",
+        "label": "Test Name",
+        "sectionId": "tests",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter test name",
+        "required": true,
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-type",
+        "name": "testType",
+        "label": "Test Type",
+        "sectionId": "tests",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select test type",
+        "required": true,
+        "options": [
+          { "label": "Chemical Analysis", "value": "chemical" },
+          { "label": "Microbiological", "value": "microbiological" },
+          { "label": "Physical Properties", "value": "physical" },
+          { "label": "Purity Test", "value": "purity" },
+          { "label": "Potency Test", "value": "potency" },
+          { "label": "Stability Test", "value": "stability" },
+          { "label": "Contamination Test", "value": "contamination" },
+          { "label": "Other", "value": "other" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-status",
+        "name": "testStatus",
+        "label": "Test Status",
+        "sectionId": "tests",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select test status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Not Started", "value": "NOT_STARTED", "icon": "Clock", "color": "default" },
+          { "label": "In Progress", "value": "IN_PROGRESS", "icon": "PlayCircle", "color": "primary" },
+          { "label": "Passed", "value": "PASSED", "icon": "CheckCircle", "color": "success" },
+          { "label": "Failed", "value": "FAILED", "icon": "XCircle", "color": "destructive" },
+          { "label": "On Hold", "value": "ON_HOLD", "icon": "PauseCircle", "color": "warning" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-method",
+        "name": "testMethod",
+        "label": "Test Method",
+        "sectionId": "tests",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter test method reference",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-specification",
+        "name": "testSpecification",
+        "label": "Specification",
+        "sectionId": "tests",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter test specification or requirements",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-result",
+        "name": "testResult",
+        "label": "Test Result",
+        "sectionId": "tests",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter test result value",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-unit",
+        "name": "testUnit",
+        "label": "Result Unit",
+        "sectionId": "tests",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter unit (e.g., %, mg/L, CFU/g)",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-start-date",
+        "name": "testStartDate",
+        "label": "Test Start Date",
+        "sectionId": "tests",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select start date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-completion-date",
+        "name": "testCompletionDate",
+        "label": "Test Completion Date",
+        "sectionId": "tests",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select completion date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 9,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "tested-by",
+        "name": "testedBy",
+        "label": "Tested By",
+        "sectionId": "tests",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter technician name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 10,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "test-notes",
+        "name": "testNotes",
+        "label": "Test Notes",
+        "sectionId": "tests",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about the test",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 11,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "lab-notes",
+        "name": "labNotes",
+        "label": "Laboratory Notes",
+        "sectionId": "additional-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about the request",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "expected-completion-date",
+        "name": "expectedCompletionDate",
+        "label": "Expected Completion Date",
+        "sectionId": "additional-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select expected completion date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "department",
+        "name": "department",
+        "label": "Department",
+        "sectionId": "additional-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select department",
+        "required": false,
+        "options": [
+          { "label": "Quality Control", "value": "QC" },
+          { "label": "Quality Assurance", "value": "QA" },
+          { "label": "Research & Development", "value": "R&D" },
+          { "label": "Production", "value": "Production" },
+          { "label": "Regulatory Affairs", "value": "Regulatory" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Request Information",
+        "description": "Basic LIMS request details",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "sample-information",
+        "title": "Sample Information",
+        "description": "Product sample details with batch number",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4,
+        "styling": {
+          "variant": "card"
+        }
+      },
+      {
+        "id": "tests",
+        "title": "Tests",
+        "description": "Add tests to be performed on the sample",
+        "isRepeatingSection": true,
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4,
+        "repeatingConfig": {
+          "minItems": 1,
+          "maxItems": 50,
+          "addButtonText": "Add Test",
+          "removeButtonText": "Remove Test",
+          "emptyMessage": "No tests added yet"
+        }
+      },
+      {
+        "id": "additional-information",
+        "title": "Additional Information",
+        "description": "Additional notes and scheduling information",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "componentRenderers": [
+        {
+          "id": "total-tests-kpi",
+          "componentType": "kpi",
+          "dataPath": "tests",
+          "config": {
+            "id": "total-tests-kpi",
+            "name": "Total Tests KPI",
+            "title": "Total Tests",
+            "format": "number",
+            "precision": 0,
+            "color": "#3B82F6",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "passed-tests-kpi",
+          "componentType": "kpi",
+          "dataPath": "tests",
+          "config": {
+            "id": "passed-tests-kpi",
+            "name": "Passed Tests KPI",
+            "title": "Passed Tests",
+            "format": "number",
+            "precision": 0,
+            "color": "#10B981",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "failed-tests-kpi",
+          "componentType": "kpi",
+          "dataPath": "tests",
+          "config": {
+            "id": "failed-tests-kpi",
+            "name": "Failed Tests KPI",
+            "title": "Failed Tests",
+            "format": "number",
+            "precision": 0,
+            "color": "#EF4444",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "completion-rate-kpi",
+          "componentType": "kpi",
+          "dataPath": "tests",
+          "config": {
+            "id": "completion-rate-kpi",
+            "name": "Completion Rate KPI",
+            "title": "Completion Rate",
+            "format": "percentage",
+            "precision": 1,
+            "color": "#8B5CF6",
+            "trend": {
+              "enabled": true,
+              "period": "day",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "request-overview",
+          "title": "Request Overview",
+          "description": "Basic request information",
+          "colSpan": 2,
+          "fieldIds": ["request-id", "request-date", "request-status", "priority", "requested-by"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "sample-details",
+          "title": "Sample Information",
+          "description": "Product sample details with batch number",
+          "colSpan": 2,
+          "fieldIds": ["product-name", "product-sku", "batch-number", "lot-number", "manufacturing-date", "expiry-date", "sample-quantity", "sample-unit", "sample-received-date", "sample-condition"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "request-status-section",
+          "title": "Status & Priority",
+          "description": "Request status and priority information",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": ["request-status", "priority"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "additional-details",
+          "title": "Additional Information",
+          "description": "Additional notes and scheduling",
+          "colSpan": 2,
+          "fieldIds": ["lab-notes", "expected-completion-date", "department"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create LIMS Request",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
   }
 ]

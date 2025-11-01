@@ -181,6 +181,32 @@
       "createdAt": "2025-11-01T10:52:30.058Z",
       "updatedAt": "2025-11-01T12:35:14.223Z",
       "position": "Backend Developer"
+    },
+    {
+      "name": "Shafigh Nouru",
+      "email": "abidi.mahyar@gmail.com",
+      "phone": "09126184264",
+      "department": "Marketing",
+      "role": "analyst",
+      "status": "ACTIVE",
+      "categories": [
+        "general"
+      ],
+      "contacts": [
+        {
+          "name": "مهیار عبیدی",
+          "email": "abidi.mahyar@gmail.com",
+          "phone": "09126184264",
+          "position": "Primary Contact",
+          "isPrimary": true,
+          "department": "",
+          "notes": ""
+        }
+      ],
+      "rating": 5,
+      "id": "01K9012MFSCK084NEXSNH9Z73M",
+      "createdAt": "2025-11-01T15:37:48.291Z",
+      "updatedAt": "2025-11-01T15:37:59.101Z"
     }
   ],
   "companies": [],
@@ -188,12 +214,12 @@
     {
       "name": "MediLab Solutions",
       "description": "dasdsaasdasdasfdasf",
-      "status": "ON_HOLD",
+      "status": "ACTIVE",
       "priority": "MEDIUM",
       "startDate": "2025-11-01",
       "endDate": "2025-11-20",
       "progress": 28,
-      "department": "Finance",
+      "department": "IT",
       "categories": [
         "general"
       ],
@@ -201,11 +227,11 @@
       "rating": 5,
       "id": "01K8ZKS11JT1V9KJD56PAXD91C",
       "createdAt": "2025-11-01T11:45:21.975Z",
-      "updatedAt": "2025-11-01T13:43:58.628Z",
+      "updatedAt": "2025-11-01T15:36:08.531Z",
       "vendor": "Masoud",
       "company": "CinnaGen",
       "tender": "Mahyar",
-      "budget": 12341204999
+      "budget": 213144
     }
   ],
   "servers": [
@@ -215,14 +241,14 @@
       "type": "file",
       "location": "datacenter-a",
       "operatingSystem": "centos",
-      "backupEnabled": false,
+      "backupEnabled": true,
       "backupType": "differential",
       "backupSchedule": "biweekly",
       "backupTime": "19:26",
       "backupRetentionDays": 123,
       "backupLocation": "nas",
       "lastBackupDate": "2025-11-01T17:24",
-      "maintenanceEnabled": false,
+      "maintenanceEnabled": true,
       "maintenanceSchedule": "monthly",
       "maintenanceType": [
         "os-updates",
@@ -233,8 +259,8 @@
       "lastMaintenanceDate": "2025-11-06T17:24",
       "nextMaintenanceDate": "2025-11-13T17:24",
       "firewallEnabled": true,
-      "securityStatus": "AT_RISK",
-      "sslCertificate": "expired",
+      "securityStatus": "WARNING",
+      "sslCertificate": "valid",
       "antivirusEnabled": true,
       "antivirusLastScan": "2025-11-06T17:25",
       "sslExpiryDate": "2025-11-13",
@@ -252,7 +278,7 @@
       "rating": 5,
       "id": "01K8ZV7GPV0VCXMEBD64DP6H75",
       "createdAt": "2025-11-01T13:55:36.802Z",
-      "updatedAt": "2025-11-01T13:56:42.170Z"
+      "updatedAt": "2025-11-01T15:38:45.757Z"
     }
   ],
   "notifications": [
@@ -409,8 +435,8 @@
         ],
         "status": "Pending Review"
       },
-      "readAt": "2025-11-01T15:20:12.691Z",
-      "updatedAt": "2025-11-01T15:20:12.729Z"
+      "updatedAt": "2025-11-01T15:43:53.580Z",
+      "readAt": "2025-11-01T15:43:53.556Z"
     },
     {
       "id": "9",
@@ -439,7 +465,7 @@
       "type": "warning",
       "category": "vendor",
       "priority": "high",
-      "isRead": true,
+      "isRead": false,
       "createdAt": "2024-12-10T13:45:00.000Z",
       "actionUrl": "/contracts/transfarma",
       "metadata": {
@@ -449,8 +475,77 @@
         "contractValue": 500000,
         "currency": "USD"
       },
-      "updatedAt": "2025-11-01T15:25:02.489Z",
-      "readAt": "2025-11-01T15:25:02.468Z"
+      "updatedAt": "2025-11-01T15:44:14.270Z"
+    }
+  ],
+  "lims-requests": [
+    {
+      "requestId": "123123",
+      "status": "ON_HOLD",
+      "requestDate": "2025-11-01T19:02",
+      "priority": "MEDIUM",
+      "productName": "CinnoRA",
+      "productSku": "asda",
+      "batchNumber": "A0123GA",
+      "sampleQuantity": 123.2,
+      "sampleUnit": "ml",
+      "sampleCondition": "compromised",
+      "tests": [
+        {
+          "testName": "ELISA",
+          "testType": "microbiological",
+          "testStatus": "PASSED",
+          "testMethod": "asdasd",
+          "testSpecification": "",
+          "testResult": "12.1",
+          "testUnit": "%",
+          "testStartDate": "",
+          "testCompletionDate": "",
+          "testedBy": "xxx",
+          "testNotes": "",
+          "id": "01K900WFWTGJAH0FBE0XE0SY40"
+        }
+      ],
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K900X8B94ZXMC446BGZZEJA4",
+      "createdAt": "2025-11-01T15:34:52.015Z",
+      "updatedAt": "2025-11-01T15:34:52.015Z"
+    },
+    {
+      "requestDate": "2025-10-30T19:18",
+      "requestId": "asdasd",
+      "status": "PENDING",
+      "priority": "HIGH",
+      "productName": "CinnoRA",
+      "batchNumber": "A0123GA",
+      "tests": [
+        {
+          "testName": "ELISA",
+          "testType": "purity",
+          "testStatus": "PASSED",
+          "testMethod": "",
+          "testSpecification": "",
+          "testResult": "",
+          "testUnit": "",
+          "testStartDate": "",
+          "testCompletionDate": "",
+          "testedBy": "",
+          "testNotes": "",
+          "id": "01K901PPFD0YDP5284YKCH79BQ"
+        }
+      ],
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "rating": 5,
+      "id": "01K901PYBNGWH8C69GS6SHYET4",
+      "createdAt": "2025-11-01T15:48:53.754Z",
+      "updatedAt": "2025-11-01T15:48:53.754Z"
     }
   ]
 }

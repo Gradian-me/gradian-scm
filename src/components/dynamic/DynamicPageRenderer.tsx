@@ -303,12 +303,31 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   };
 
   const filteredEntities = useMemo(() => {
-    return entities?.filter((entity: any) => {
-      const matchesSearch = entity.name?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
-                           entity.email?.toLowerCase().includes(searchTermLocal.toLowerCase()) ||
-                           entity.phone?.toLowerCase().includes(searchTermLocal.toLowerCase());
-      return matchesSearch;
-    }) || [];
+    if (!entities) return [];
+    
+    // If no search term, return all entities
+    if (!searchTermLocal || searchTermLocal.trim() === '') {
+      return entities;
+    }
+    
+    const searchLower = searchTermLocal.toLowerCase();
+    
+    return entities.filter((entity: any) => {
+      // Search across common text fields dynamically
+      const searchableFields = [
+        'name', 'title', 'email', 'phone', 'description',
+        'productName', 'requestId', 'batchNumber', 'productSku',
+        'companyName', 'tenderTitle', 'projectName'
+      ];
+      
+      return searchableFields.some(field => {
+        const value = entity[field];
+        if (value && typeof value === 'string') {
+          return value.toLowerCase().includes(searchLower);
+        }
+        return false;
+      });
+    });
   }, [entities, searchTermLocal]);
 
   const getStatusColor = useCallback((status: string) => {
@@ -373,7 +392,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onAddNew={openCreateModal}
-          searchPlaceholder={`Search ${pluralName.toLowerCase()} by name, email, or phone...`}
+          searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
         />
 
