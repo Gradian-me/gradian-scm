@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '../layout/main-layout';
 import { Spinner } from '../ui/spinner';
-import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper } from '../../gradian-ui';
+import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, GoToTop } from '../../gradian-ui';
 import { FormSchema } from '../../shared/types/form-schema';
 import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
 import { asFormSchema } from '../../shared/utils/schema-utils';
@@ -499,6 +499,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           disabled={isSubmitting}
         />
       </Modal>
+      
+      {/* Go to Top Button */}
+      <GoToTop threshold={100} />
     </MainLayout>
   );
 }

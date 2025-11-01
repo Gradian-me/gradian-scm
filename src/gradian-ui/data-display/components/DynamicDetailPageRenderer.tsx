@@ -17,6 +17,7 @@ import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
 import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
+import { GoToTop } from '../../layout/go-to-top';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -397,6 +398,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           </div>
         )}
       </div>
+      
+      {/* Go to Top Button */}
+      <GoToTop threshold={100} />
     </div>
   );
 };

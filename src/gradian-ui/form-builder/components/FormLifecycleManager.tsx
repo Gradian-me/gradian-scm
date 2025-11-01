@@ -22,6 +22,7 @@ import { loggingCustom } from '../../../shared/utils';
 import { LogType } from '../../../shared/constants/application-variables';
 import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
 import { ChevronsDown, ChevronsUp } from 'lucide-react';
+import { GoToTopForm } from '../form-elements/go-to-top-form';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -875,27 +876,31 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   );
 
   return (
-    <FormContext.Provider value={contextValue}>
-      {typeof window !== 'undefined' && document.getElementById('form-dialog-form') ? (
-        <div
-          className={formClasses}
-          {...props}
-        >
-          {formContent}
-        </div>
-      ) : (
-        <form
-          className={formClasses}
-          onSubmit={(e) => {
-            e.preventDefault();
-            submit();
-          }}
-          {...props}
-        >
-          {formContent}
-        </form>
-      )}
-    </FormContext.Provider>
+    <>
+      <FormContext.Provider value={contextValue}>
+        {typeof window !== 'undefined' && document.getElementById('form-dialog-form') ? (
+          <div
+            className={formClasses}
+            {...props}
+          >
+            {formContent}
+          </div>
+        ) : (
+          <form
+            className={formClasses}
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+            {...props}
+          >
+            {formContent}
+          </form>
+        )}
+      </FormContext.Provider>
+      {/* Go to Top Button */}
+      <GoToTopForm threshold={100} />
+    </>
   );
 };
 

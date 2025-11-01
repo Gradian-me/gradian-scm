@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sidebar } from './sidebar';
+import { Sidebar } from '../../gradian-ui/layout/sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/button';
 import { Plus, Menu, Bell, PanelRight, PanelRightOpen, PanelLeftOpen } from 'lucide-react';
@@ -9,6 +9,7 @@ import { DepartmentSelector } from './DepartmentSelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { Badge } from '../ui/badge';
+import { GoToTop } from '../../gradian-ui/layout';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -51,7 +52,14 @@ export function MainLayout({
     <div className="flex h-screen bg-gray-50">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
-        <Sidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+        <Sidebar 
+          isCollapsed={isSidebarCollapsed} 
+          onToggle={toggleSidebar}
+          department={{
+            name: 'Supply Chain Dept.',
+            abbreviation: 'SC'
+          }}
+        />
       </div>
       
       {/* Mobile Sidebar Overlay */}
@@ -75,7 +83,15 @@ export function MainLayout({
               transition={{ duration: 0.3, ease: "easeOut" }}
               className="fixed left-0 top-0 h-full w-80 bg-gray-900 text-white z-50 md:hidden"
             >
-              <Sidebar isCollapsed={false} onToggle={toggleMobileMenu} isMobile={true} />
+              <Sidebar 
+                isCollapsed={false} 
+                onToggle={toggleMobileMenu} 
+                isMobile={true}
+                department={{
+                  name: 'Supply Chain Dept.',
+                  abbreviation: 'SC'
+                }}
+              />
             </motion.div>
           </>
         )}
@@ -186,11 +202,15 @@ export function MainLayout({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50"
+          data-scroll-container="main-content"
         >
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
         </motion.main>
+        
+        {/* Go to Top Button */}
+        <GoToTop scrollContainerSelector="[data-scroll-container='main-content']" threshold={100} />
       </div>
     </div>
   );

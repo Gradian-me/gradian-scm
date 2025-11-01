@@ -12,3 +12,4 @@ export * from './components/Input';
 export * from './components/Select';
 export * from './components/Rating';
 export * from './components/Avatar';
+export * from './go-to-top-form';

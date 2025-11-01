@@ -6,6 +6,7 @@ import { ScrollArea } from '../../../components/ui/scroll-area';
 import { Button } from '../../../components/ui/button';
 import { X } from 'lucide-react';
 import { SchemaFormWrapper } from './FormLifecycleManager';
+import { GoToTopForm } from '../form-elements/go-to-top-form';
 import { cn } from '../../shared/utils';
 import { loggingCustom } from '../../../shared/utils';
 import { LogType } from '../../../shared/constants/application-variables';
@@ -179,7 +180,11 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         )}
         
         {/* Form Content */}
-        <ScrollArea className="flex-1 px-6 py-1" style={{ maxHeight: 'calc(90vh - 300px)' }}>
+        <ScrollArea 
+          className="flex-1 px-6 py-1" 
+          style={{ maxHeight: 'calc(90vh - 300px)' }}
+          data-scroll-container="form-dialog-scroll"
+        >
           <form 
             id="form-dialog-form"
             onSubmit={(e) => {
@@ -202,6 +207,12 @@ export const FormDialog: React.FC<FormDialogProps> = ({
             />
           </form>
         </ScrollArea>
+        
+        {/* Go to Top Button for Form Dialog */}
+        <GoToTopForm 
+          threshold={100}
+          className="z-[100]"
+        />
 
         {showCloseButton && (
           <DialogFooter className="px-6 pb-6 pt-3 border-t shrink-0">
