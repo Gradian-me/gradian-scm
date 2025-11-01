@@ -27,32 +27,11 @@ export interface FormField {
   };
   options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
   defaultValue?: any;
-  ui?: {
-    // Layout properties
-    width?: string;
-    order?: number;
-    colSpan?: number;
-    rowSpan?: number;
-    // Styling properties
-    variant?: 'default' | 'outlined' | 'filled' | 'underlined';
-    size?: 'sm' | 'md' | 'lg';
-    className?: string;
-    // Display properties (merged from display)
-    icon?: string;
-    type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
-    source?: string;
-    compute?: (data: any) => any;
-    displayType?: 'badges' | 'list' | 'grid';
-    maxDisplay?: number;
-    showMore?: boolean;
-    truncate?: boolean;
-    format?: string;
-  };
+  colSpan?: number; // Number of columns this field should span
+  order?: number; // Order for field display
   // Keep layout and styling for backward compatibility
   layout?: {
     width?: string;
-    order?: number;
-    colSpan?: number;
     rowSpan?: number;
     variant?: 'default' | 'outlined' | 'filled' | 'underlined';
     size?: 'sm' | 'md' | 'lg';

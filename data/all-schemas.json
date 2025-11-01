@@ -11,13 +11,21 @@
         "id": "contact-info",
         "title": "Contact Information",
         "colSpan": 1,
-        "fieldIds": ["email-address", "phone-number", "tax-id"]
+        "fieldIds": [
+          "email-address",
+          "phone-number",
+          "tax-id"
+        ]
       },
       {
         "id": "location",
         "title": "Location",
         "colSpan": 1,
-        "fieldIds": ["country", "state", "city"]
+        "fieldIds": [
+          "country",
+          "state",
+          "city"
+        ]
       }
     ],
     "fields": [
@@ -35,12 +43,8 @@
           "required": true,
           "minLength": 2
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 1,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 1
       },
       {
         "id": "email-address",
@@ -57,14 +61,8 @@
           "required": true,
           "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 2,
-          "variant": "outlined",
-          "size": "md",
-          "type": "text",
-          "truncate": true
-        }
+        "colSpan": 1,
+        "order": 2
       },
       {
         "id": "phone-number",
@@ -80,13 +78,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 3,
-          "variant": "outlined",
-          "size": "md",
-          "type": "text"
-        }
+        "colSpan": 1,
+        "order": 3
       },
       {
         "id": "registration-number",
@@ -100,12 +93,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 4,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 4
       },
       {
         "id": "tax-id",
@@ -119,12 +108,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 5,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 5
       },
       {
         "id": "country",
@@ -137,24 +122,44 @@
         "required": true,
         "role": "location",
         "options": [
-          { "label": "United States", "value": "USA" },
-          { "label": "Canada", "value": "CAN" },
-          { "label": "United Kingdom", "value": "UK" },
-          { "label": "Germany", "value": "DE" },
-          { "label": "France", "value": "FR" },
-          { "label": "Japan", "value": "JP" },
-          { "label": "China", "value": "CN" },
-          { "label": "India", "value": "IN" }
+          {
+            "label": "United States",
+            "value": "USA"
+          },
+          {
+            "label": "Canada",
+            "value": "CAN"
+          },
+          {
+            "label": "United Kingdom",
+            "value": "UK"
+          },
+          {
+            "label": "Germany",
+            "value": "DE"
+          },
+          {
+            "label": "France",
+            "value": "FR"
+          },
+          {
+            "label": "Japan",
+            "value": "JP"
+          },
+          {
+            "label": "China",
+            "value": "CN"
+          },
+          {
+            "label": "India",
+            "value": "IN"
+          }
         ],
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 6,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 6
       },
       {
         "id": "address",
@@ -168,12 +173,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 3,
-          "order": 1,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 3,
+        "order": 1
       },
       {
         "id": "city",
@@ -187,12 +188,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 2,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 2
       },
       {
         "id": "state",
@@ -206,12 +203,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 3,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 3
       },
       {
         "id": "zip-code",
@@ -225,12 +218,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 4,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 4
       },
       {
         "id": "contact-name",
@@ -245,12 +234,8 @@
           "required": true,
           "minLength": 2
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 1,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 1
       },
       {
         "id": "contact-email",
@@ -265,12 +250,8 @@
           "required": true,
           "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 2,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 2
       },
       {
         "id": "contact-phone",
@@ -284,12 +265,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 3,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 3
       },
       {
         "id": "contact-position",
@@ -303,12 +280,8 @@
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 4,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 4
       },
       {
         "id": "contact-department",
@@ -319,12 +292,8 @@
         "component": "text",
         "placeholder": "Enter department",
         "required": false,
-        "ui": {
-          "colSpan": 1,
-          "order": 5,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 5
       },
       {
         "id": "contact-is-primary",
@@ -335,12 +304,8 @@
         "component": "checkbox",
         "placeholder": "Mark as primary contact",
         "required": false,
-        "ui": {
-          "colSpan": 1,
-          "order": 6,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 6
       },
       {
         "id": "contact-notes",
@@ -351,12 +316,8 @@
         "component": "textarea",
         "placeholder": "Additional notes about this contact",
         "required": false,
-        "ui": {
-          "colSpan": 2,
-          "order": 7,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 2,
+        "order": 7
       },
       {
         "id": "categories",
@@ -369,28 +330,44 @@
         "required": true,
         "role": "badge",
         "options": [
-          { "label": "Technology", "value": "technology" },
-          { "label": "Manufacturing", "value": "manufacturing" },
-          { "label": "Services", "value": "services" },
-          { "label": "Logistics", "value": "logistics" },
-          { "label": "Healthcare", "value": "healthcare" },
-          { "label": "Finance", "value": "finance" },
-          { "label": "Education", "value": "education" },
-          { "label": "Retail", "value": "retail" }
+          {
+            "label": "Technology",
+            "value": "technology"
+          },
+          {
+            "label": "Manufacturing",
+            "value": "manufacturing"
+          },
+          {
+            "label": "Services",
+            "value": "services"
+          },
+          {
+            "label": "Logistics",
+            "value": "logistics"
+          },
+          {
+            "label": "Healthcare",
+            "value": "healthcare"
+          },
+          {
+            "label": "Finance",
+            "value": "finance"
+          },
+          {
+            "label": "Education",
+            "value": "education"
+          },
+          {
+            "label": "Retail",
+            "value": "retail"
+          }
         ],
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 3,
-          "order": 1,
-          "variant": "outlined",
-          "size": "md",
-          "type": "array",
-          "displayType": "badges",
-          "maxDisplay": 3,
-          "showMore": true
-        }
+        "colSpan": 3,
+        "order": 1
       },
       {
         "id": "website",
@@ -404,12 +381,8 @@
         "validation": {
           "pattern": "^https?:\\/\\/.+"
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 2,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 2
       },
       {
         "id": "established-year",
@@ -423,12 +396,8 @@
         "validation": {
           "min": 1800
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 3,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 3
       },
       {
         "id": "employee-count",
@@ -442,12 +411,8 @@
         "validation": {
           "min": 1
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 4,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 4
       },
       {
         "id": "description",
@@ -459,12 +424,8 @@
         "placeholder": "Enter company description",
         "required": false,
         "role": "description",
-        "ui": {
-          "colSpan": 3,
-          "order": 5,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 3,
+        "order": 5
       },
       {
         "id": "status",
@@ -477,19 +438,30 @@
         "required": true,
         "role": "status",
         "options": [
-          { "label": "Active", "value": "ACTIVE", "icon": "CheckCircle", "color": "success" },
-          { "label": "Pending", "value": "PENDING", "icon": "Clock", "color": "warning" },
-          { "label": "Inactive", "value": "INACTIVE", "icon": "XCircle", "color": "destructive" }
+          {
+            "label": "Active",
+            "value": "ACTIVE",
+            "icon": "CheckCircle",
+            "color": "success"
+          },
+          {
+            "label": "Pending",
+            "value": "PENDING",
+            "icon": "Clock",
+            "color": "warning"
+          },
+          {
+            "label": "Inactive",
+            "value": "INACTIVE",
+            "icon": "XCircle",
+            "color": "destructive"
+          }
         ],
         "validation": {
           "required": true
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 6,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 6
       },
       {
         "id": "rating",
@@ -505,12 +477,8 @@
           "min": 1,
           "max": 5
         },
-        "ui": {
-          "colSpan": 1,
-          "order": 7,
-          "variant": "outlined",
-          "size": "md"
-        }
+        "colSpan": 1,
+        "order": 7
       }
     ],
     "sections": [
@@ -519,18 +487,13 @@
         "title": "Vendor Information",
         "description": "Basic vendor details and contact information",
         "initialState": "expanded",
-        "columns": 2,
-        "gap": 4
+        "columns": 2
       },
       {
         "id": "address-information",
         "title": "Address Information",
         "description": "Complete address details for the vendor",
-        "columns": 3,
-        "gap": 4,
-        "styling": {
-          "variant": "card"
-        }
+        "columns": 3
       },
       {
         "id": "contacts",
@@ -539,7 +502,6 @@
         "isRepeatingSection": true,
         "initialState": "collapsed",
         "columns": 2,
-        "gap": 4,
         "repeatingConfig": {
           "minItems": 1,
           "maxItems": 5,
@@ -553,8 +515,7 @@
         "title": "Business Details",
         "description": "Additional business information and categories",
         "initialState": "expanded",
-        "columns": 3,
-        "gap": 4
+        "columns": 3
       }
     ],
     "detailPageMetadata": {
@@ -646,7 +607,13 @@
           "title": "Contact Information",
           "description": "Primary contact details",
           "colSpan": 2,
-          "fieldIds": ["email-address", "phone-number", "registration-number", "tax-id", "country"]
+          "fieldIds": [
+            "email-address",
+            "phone-number",
+            "registration-number",
+            "tax-id",
+            "country"
+          ]
         },
         {
           "id": "address-details",
@@ -654,7 +621,12 @@
           "description": "Physical location information",
           "colSpan": 1,
           "columnArea": "sidebar",
-          "fieldIds": ["address", "city", "state", "zip-code"]
+          "fieldIds": [
+            "address",
+            "city",
+            "state",
+            "zip-code"
+          ]
         }
       ]
     }

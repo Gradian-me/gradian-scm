@@ -36,11 +36,11 @@ export const FormContent: React.FC<FormContentProps> = ({
           key={field.name}
           className={cn(
             layout?.columns && layout.columns > 1 ? 'space-y-3' : '',
-            (field.layout?.hidden || (field as any).ui?.className === 'hidden') ? 'hidden' : ''
+            field.layout?.hidden ? 'hidden' : ''
           )}
           style={{
-            order: (field as any).ui?.order || field.layout?.order,
-            width: (field as any).ui?.width || field.layout?.width,
+            order: (field as any).order ?? field.layout?.order,
+            width: field.layout?.width,
           }}
         >
           <FormElementFactory

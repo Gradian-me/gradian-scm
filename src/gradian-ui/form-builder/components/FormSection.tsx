@@ -67,13 +67,13 @@ export const FormSection: React.FC<FormSectionProps> = ({
           key={field.id}
           className={cn(
             'space-y-2',
-            (field.ui?.width === '50%' || field.layout?.width === '50%') && 'md:col-span-1',
-            (field.ui?.width === '33.33%' || field.layout?.width === '33.33%') && 'md:col-span-1',
-            (field.ui?.width === '100%' || field.layout?.width === '100%') && 'col-span-full',
-            (field.ui?.colSpan || field.layout?.colSpan) && `col-span-${field.ui?.colSpan || field.layout?.colSpan}`,
-            (field.ui?.rowSpan || field.layout?.rowSpan) && `row-span-${field.ui?.rowSpan || field.layout?.rowSpan}`
+            (field.layout?.width === '50%') && 'md:col-span-1',
+            (field.layout?.width === '33.33%' || field.layout?.width === '33.3%') && 'md:col-span-1',
+            (field.layout?.width === '100%') && 'col-span-full',
+            (field.colSpan ?? field.layout?.colSpan) && `col-span-${field.colSpan ?? field.layout?.colSpan}`,
+            field.layout?.rowSpan && `row-span-${field.layout.rowSpan}`
           )}
-          style={{ order: field.ui?.order || field.layout?.order }}
+          style={{ order: field.order ?? field.layout?.order }}
         >
           <FormElementFactory
             field={field}

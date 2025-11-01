@@ -72,13 +72,18 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
   // Helper function to determine column span based on width
   const getColSpan = (field: any): number => {
-    // First check for explicit colSpan
-    if (field.ui?.colSpan || field.layout?.colSpan) {
-      return field.ui?.colSpan || field.layout?.colSpan;
+    // First check for explicit colSpan at field level
+    if (field.colSpan != null) {
+      return field.colSpan;
+    }
+    
+    // Fallback to layout.colSpan for backward compatibility
+    if (field.layout?.colSpan != null) {
+      return field.layout.colSpan;
     }
 
     // Then check for width percentages and convert to colSpan
-    const width = field.ui?.width || field.layout?.width;
+    const width = field.layout?.width;
     
     if (width === '100%') {
       return columns; // Full width spans all columns
@@ -169,9 +174,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           className={cn(
             'space-y-2',
             colSpanClass,
-            (field.ui?.rowSpan || field.layout?.rowSpan) && `row-span-${field.ui?.rowSpan || field.layout?.rowSpan}`
+            field.layout?.rowSpan && `row-span-${field.layout.rowSpan}`
           )}
-          style={{ order: field.ui?.order || field.layout?.order }}
+          style={{ order: field.order ?? field.layout?.order }}
         >
           <FormElementFactory
             field={field as any}

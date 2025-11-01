@@ -8,8 +8,8 @@ const getFieldValue = (field: FormField, data: any): any => {
   if (!field || !data) return null;
 
   // Handle source path if specified
-  if (field.ui?.source) {
-    const path = field.ui.source.split('.');
+  if (field.source) {
+    const path = field.source.split('.');
     let value = data;
     for (const key of path) {
       value = value?.[key];
@@ -19,8 +19,8 @@ const getFieldValue = (field: FormField, data: any): any => {
   }
 
   // Handle compute function if specified
-  if (field.ui?.compute && typeof field.ui.compute === 'function') {
-    return field.ui.compute(data);
+  if (field.compute && typeof field.compute === 'function') {
+    return field.compute(data);
   }
 
   // Default: use field name
