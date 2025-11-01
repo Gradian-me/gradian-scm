@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `${schema.plural_name || 'Entities'} Management - Gradian SCM`,
+    title: `${schema.plural_name || 'Entities'} | Gradian App`,
     description: schema.description || `Manage ${schema.plural_name?.toLowerCase() || 'entities'} in your supply chain`,
   };
 }

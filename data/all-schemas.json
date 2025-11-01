@@ -4836,5 +4836,798 @@
         "variant": "outline"
       }
     }
+  },
+  {
+    "id": "cpm",
+    "name": "cpm",
+    "title": "Create New Performance Review Period",
+    "description": "Create a new corporate performance management review period with employee assessments",
+    "singular_name": "Performance Review Period",
+    "plural_name": "Performance Review Periods",
+    "cardMetadata": [
+      {
+        "id": "period-info",
+        "title": "Period Information",
+        "colSpan": 1,
+        "fieldIds": ["period-type", "period-start-date", "period-end-date", "review-status"]
+      },
+      {
+        "id": "summary-info",
+        "title": "Summary",
+        "colSpan": 1,
+        "fieldIds": ["total-employees", "average-score"]
+      }
+    ],
+    "fields": [
+      {
+        "id": "period-name",
+        "name": "name",
+        "label": "Period Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "e.g., Q1 2024 Performance Review",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 3
+        },
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "period-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter period description and objectives",
+        "required": false,
+        "role": "subtitle",
+        "ui": {
+          "colSpan": 2,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "period-type",
+        "name": "periodType",
+        "label": "Period Type",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select period type",
+        "required": true,
+        "role": "badge",
+        "options": [
+          { "label": "Monthly", "value": "monthly", "icon": "Calendar", "color": "primary" },
+          { "label": "Quarterly", "value": "quarterly", "icon": "Calendar", "color": "primary" },
+          { "label": "Semi-Annual", "value": "semi-annual", "icon": "Calendar", "color": "default" },
+          { "label": "Annual", "value": "annual", "icon": "Calendar", "color": "default" },
+          { "label": "Custom", "value": "custom", "icon": "Calendar", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "period-start-date",
+        "name": "startDate",
+        "label": "Start Date",
+        "sectionId": "basic-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select start date",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "period-end-date",
+        "name": "endDate",
+        "label": "End Date",
+        "sectionId": "basic-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select end date",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "review-status",
+        "name": "status",
+        "label": "Review Status",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Draft", "value": "DRAFT", "icon": "Edit", "color": "default" },
+          { "label": "In Progress", "value": "IN_PROGRESS", "icon": "PlayCircle", "color": "primary" },
+          { "label": "Under Review", "value": "UNDER_REVIEW", "icon": "Eye", "color": "warning" },
+          { "label": "Completed", "value": "COMPLETED", "icon": "CheckCircle", "color": "success" },
+          { "label": "Archived", "value": "ARCHIVED", "icon": "Archive", "color": "default" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "review-manager",
+        "name": "reviewManager",
+        "label": "Review Manager",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter review manager name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "department",
+        "name": "department",
+        "label": "Department",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select department",
+        "required": false,
+        "options": [
+          { "label": "IT", "value": "IT" },
+          { "label": "Supply Chain", "value": "Supply Chain" },
+          { "label": "Finance", "value": "Finance" },
+          { "label": "Operations", "value": "Operations" },
+          { "label": "Human Resources", "value": "Human Resources" },
+          { "label": "Marketing", "value": "Marketing" },
+          { "label": "Sales", "value": "Sales" },
+          { "label": "Procurement", "value": "Procurement" }
+        ],
+        "ui": {
+          "colSpan": 1,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "employee-name",
+        "name": "employeeName",
+        "label": "Employee Name",
+        "sectionId": "employee-assessments",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter employee name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "employee-id",
+        "name": "employeeId",
+        "label": "Employee ID",
+        "sectionId": "employee-assessments",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter employee ID",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "employee-role",
+        "name": "employeeRole",
+        "label": "Role/Position",
+        "sectionId": "employee-assessments",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter employee role",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "performance-rating",
+        "name": "performanceRating",
+        "label": "Overall Performance Rating",
+        "sectionId": "employee-assessments",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select rating",
+        "required": true,
+        "role": "status",
+        "options": [
+          { "label": "Outstanding", "value": "OUTSTANDING", "icon": "Star", "color": "success" },
+          { "label": "Exceeds Expectations", "value": "EXCEEDS", "icon": "TrendingUp", "color": "success" },
+          { "label": "Meets Expectations", "value": "MEETS", "icon": "CheckCircle", "color": "default" },
+          { "label": "Below Expectations", "value": "BELOW", "icon": "TrendingDown", "color": "warning" },
+          { "label": "Unsatisfactory", "value": "UNSATISFACTORY", "icon": "XCircle", "color": "destructive" }
+        ],
+        "validation": {
+          "required": true
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 4,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "performance-score",
+        "name": "performanceScore",
+        "label": "Performance Score",
+        "sectionId": "employee-assessments",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter score (0-100)",
+        "required": true,
+        "defaultValue": 0,
+        "role": "rating",
+        "validation": {
+          "required": true,
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 5,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "goals-achieved",
+        "name": "goalsAchieved",
+        "label": "Goals Achieved",
+        "sectionId": "employee-assessments",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter number of goals achieved",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 6,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "total-goals",
+        "name": "totalGoals",
+        "label": "Total Goals",
+        "sectionId": "employee-assessments",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter total number of goals",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 7,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "key-achievements",
+        "name": "keyAchievements",
+        "label": "Key Achievements",
+        "sectionId": "employee-assessments",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "List key achievements and accomplishments",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 8,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "areas-for-improvement",
+        "name": "areasForImprovement",
+        "label": "Areas for Improvement",
+        "sectionId": "employee-assessments",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "List areas that need improvement",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 9,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "manager-feedback",
+        "name": "managerFeedback",
+        "label": "Manager Feedback",
+        "sectionId": "employee-assessments",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter manager's feedback and comments",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 10,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "employee-feedback",
+        "name": "employeeFeedback",
+        "label": "Employee Self-Assessment",
+        "sectionId": "employee-assessments",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter employee's self-assessment feedback",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 11,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "review-date",
+        "name": "reviewDate",
+        "label": "Review Date",
+        "sectionId": "employee-assessments",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select review date",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 12,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "reviewer-name",
+        "name": "reviewerName",
+        "label": "Reviewed By",
+        "sectionId": "employee-assessments",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter reviewer name",
+        "required": false,
+        "ui": {
+          "colSpan": 1,
+          "order": 13,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "total-employees",
+        "name": "totalEmployees",
+        "label": "Total Employees",
+        "sectionId": "summary",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Total number of employees in period",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "average-score",
+        "name": "averageScore",
+        "label": "Average Performance Score",
+        "sectionId": "summary",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Average score across all employees",
+        "required": false,
+        "defaultValue": 0,
+        "role": "rating",
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 2,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "completion-rate",
+        "name": "completionRate",
+        "label": "Completion Rate (%)",
+        "sectionId": "summary",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Percentage of completed reviews",
+        "required": false,
+        "defaultValue": 0,
+        "validation": {
+          "min": 0,
+          "max": 100
+        },
+        "ui": {
+          "colSpan": 1,
+          "order": 3,
+          "variant": "outlined",
+          "size": "md"
+        }
+      },
+      {
+        "id": "notes",
+        "name": "notes",
+        "label": "Period Notes",
+        "sectionId": "additional-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Additional notes about this performance period",
+        "required": false,
+        "ui": {
+          "colSpan": 2,
+          "order": 1,
+          "variant": "outlined",
+          "size": "md"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Period Information",
+        "description": "Basic information about the performance review period",
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4
+      },
+      {
+        "id": "employee-assessments",
+        "title": "Employee Assessments",
+        "description": "Performance assessments for each employee in this period",
+        "isRepeatingSection": true,
+        "initialState": "expanded",
+        "columns": 2,
+        "gap": 4,
+        "repeatingConfig": {
+          "minItems": 1,
+          "maxItems": 500,
+          "addButtonText": "Add Employee Assessment",
+          "removeButtonText": "Remove Assessment",
+          "emptyMessage": "No employee assessments added yet"
+        }
+      },
+      {
+        "id": "summary",
+        "title": "Period Summary",
+        "description": "Summary statistics for this performance period",
+        "initialState": "expanded",
+        "columns": 3,
+        "gap": 4
+      },
+      {
+        "id": "additional-information",
+        "title": "Additional Information",
+        "description": "Additional notes and information",
+        "initialState": "collapsed",
+        "columns": 2,
+        "gap": 4
+      }
+    ],
+    "detailPageMetadata": {
+      "layout": {
+        "mainColumns": 2,
+        "sidebarColumns": 1,
+        "gap": 6
+      },
+      "header": {
+        "showBackButton": true,
+        "showActions": true,
+        "actions": ["edit", "delete"]
+      },
+      "componentRenderers": [
+        {
+          "id": "average-performance-kpi",
+          "componentType": "kpi",
+          "dataPath": "averageScore",
+          "config": {
+            "id": "average-performance-kpi",
+            "name": "Average Performance Score KPI",
+            "title": "Average Score",
+            "format": "number",
+            "precision": 1,
+            "color": "#3B82F6",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "total-employees-kpi",
+          "componentType": "kpi",
+          "dataPath": "totalEmployees",
+          "config": {
+            "id": "total-employees-kpi",
+            "name": "Total Employees KPI",
+            "title": "Total Employees",
+            "format": "number",
+            "precision": 0,
+            "color": "#10B981",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "completion-rate-kpi",
+          "componentType": "kpi",
+          "dataPath": "completionRate",
+          "config": {
+            "id": "completion-rate-kpi",
+            "name": "Completion Rate KPI",
+            "title": "Completion Rate",
+            "format": "percentage",
+            "precision": 1,
+            "color": "#8B5CF6",
+            "trend": {
+              "enabled": true,
+              "period": "month",
+              "showPercentage": true,
+              "showArrow": true
+            },
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "outstanding-count-kpi",
+          "componentType": "kpi",
+          "dataPath": "employeeAssessments",
+          "config": {
+            "id": "outstanding-count-kpi",
+            "name": "Outstanding Employees KPI",
+            "title": "Outstanding",
+            "format": "number",
+            "precision": 0,
+            "color": "#10B981",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "exceeds-count-kpi",
+          "componentType": "kpi",
+          "dataPath": "employeeAssessments",
+          "config": {
+            "id": "exceeds-count-kpi",
+            "name": "Exceeds Expectations KPI",
+            "title": "Exceeds Expectations",
+            "format": "number",
+            "precision": 0,
+            "color": "#3B82F6",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "meets-count-kpi",
+          "componentType": "kpi",
+          "dataPath": "employeeAssessments",
+          "config": {
+            "id": "meets-count-kpi",
+            "name": "Meets Expectations KPI",
+            "title": "Meets Expectations",
+            "format": "number",
+            "precision": 0,
+            "color": "#F59E0B",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        },
+        {
+          "id": "below-count-kpi",
+          "componentType": "kpi",
+          "dataPath": "employeeAssessments",
+          "config": {
+            "id": "below-count-kpi",
+            "name": "Below Expectations KPI",
+            "title": "Below Expectations",
+            "format": "number",
+            "precision": 0,
+            "color": "#EF4444",
+            "styling": {
+              "variant": "card",
+              "size": "md"
+            }
+          },
+          "colSpan": 1
+        }
+      ],
+      "sections": [
+        {
+          "id": "period-overview",
+          "title": "Period Overview",
+          "description": "Basic period information",
+          "colSpan": 2,
+          "fieldIds": ["period-name", "period-description"],
+          "layout": {
+            "columns": 2,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "summary-section",
+          "title": "Performance Summary",
+          "description": "Summary statistics and metrics",
+          "colSpan": 2,
+          "fieldIds": ["total-employees", "average-score", "completion-rate"],
+          "layout": {
+            "columns": 3,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        },
+        {
+          "id": "period-quick-info",
+          "title": "Quick Information",
+          "description": "Period overview and key details",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": ["period-type", "period-start-date", "period-end-date", "department", "review-manager"],
+          "layout": {
+            "columns": 1,
+            "gap": 3
+          },
+          "styling": {
+            "variant": "card"
+          }
+        },
+        {
+          "id": "period-status-section",
+          "title": "Status",
+          "description": "Current review status",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": ["review-status"],
+          "layout": {
+            "columns": 1,
+            "gap": 2
+          },
+          "styling": {
+            "variant": "card"
+          }
+        },
+        {
+          "id": "additional-details",
+          "title": "Additional Information",
+          "description": "Additional notes and information",
+          "colSpan": 2,
+          "fieldIds": ["notes"],
+          "layout": {
+            "columns": 1,
+            "gap": 4
+          },
+          "styling": {
+            "variant": "default"
+          }
+        }
+      ]
+    },
+    "actions": {
+      "submit": {
+        "label": "Create Performance Review Period",
+        "variant": "default",
+        "loading": "Creating..."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "variant": "outline"
+      }
+    }
   }
 ]

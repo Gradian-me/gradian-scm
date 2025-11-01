@@ -4,7 +4,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Setting up Gradian SCM Database...\n');
+console.log('🚀 Setting up Gradian App Database...\n');
 
 // Check if .env file exists
 const envPath = path.join(process.cwd(), '.env');

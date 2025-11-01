@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `${schema.singular_name || 'Entity'} Details - Gradian SCM`,
+    title: `${schema.singular_name || 'Entity'} Details | Gradian App`,
     description: `View details for ${schema.singular_name?.toLowerCase() || 'entity'}`,
   };
 }

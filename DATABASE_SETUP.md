@@ -1,6 +1,6 @@
 # Database Setup and Configuration Guide
 
-This guide explains how to set up and configure the Gradian SCM system to use either mock data or PostgreSQL database.
+This guide explains how to set up and configure the Gradian App to use either mock data or PostgreSQL database.
 
 ## Overview
 

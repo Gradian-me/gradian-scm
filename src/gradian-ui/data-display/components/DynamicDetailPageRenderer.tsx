@@ -113,7 +113,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           {onBack && (
             <Button onClick={onBack} variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
+              {schema.plural_name || 'Back'}
             </Button>
           )}
         </div>
@@ -163,7 +163,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 onClick={onBack}
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                {schema.plural_name || 'Back'}
               </Button>
             )}
 
