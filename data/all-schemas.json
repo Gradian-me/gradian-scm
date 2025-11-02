@@ -745,6 +745,35 @@
           },
           "colSpan": 2,
           "columnArea": "main"
+        },
+        {
+          "id": "working-days-table",
+          "schemaId": "vendors",
+          "sectionId": "section-1762088953746",
+          "title": "Working Days",
+          "description": "List of working days for this vendor",
+          "columns": [
+            "field-1762089019358"
+          ],
+          "tableProperties": {
+            "sortingEnabled": true,
+            "paginationEnabled": true,
+            "paginationPageSize": 10,
+            "showAsCards": true,
+            "cardColumns": 2,
+            "aggregationColumns": 3,
+            "aggregations": [
+              {
+                "column": "field-1762089019358",
+                "aggregationTypes": [
+                  "count",
+                  "countdistinct"
+                ]
+              }
+            ]
+          },
+          "colSpan": 2,
+          "columnArea": "main"
         }
       ],
       "sections": [
