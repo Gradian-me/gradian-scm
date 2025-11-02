@@ -1,16 +1,16 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bell, PanelLeftOpen, Plus } from 'lucide-react';
 import { useState } from 'react';
+import { GoToTop } from '../../gradian-ui/layout';
 import { Sidebar } from '../../gradian-ui/layout/sidebar';
-import { motion, AnimatePresence } from 'framer-motion';
+import { IconRenderer } from '../../shared/utils';
+import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Plus, Menu, Bell, PanelRight, PanelRightOpen, PanelLeftOpen } from 'lucide-react';
-import { IconRenderer } from '../../shared/utils/icon-renderer';
 import { DepartmentSelector } from './DepartmentSelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
-import { Badge } from '../ui/badge';
-import { GoToTop } from '../../gradian-ui/layout';
 
 interface MainLayoutProps {
   children: React.ReactNode;
