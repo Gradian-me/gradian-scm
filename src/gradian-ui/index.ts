@@ -14,6 +14,9 @@ export * from './analytics';
 export * from './data-display';
 export type { CardConfig } from './data-display/card/types';
 
+// Schema Manager
+export * from './schema-manager';
+
 // Shared Types and Utilities
 export * from './shared/types';
 export * from './shared/utils';

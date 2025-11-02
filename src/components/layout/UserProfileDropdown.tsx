@@ -13,12 +13,14 @@ interface UserProfileDropdownProps {
   userName?: string;
   userAvatar?: string;
   userInitials?: string;
+  userId?: string;
 }
 
 export function UserProfileDropdown({ 
   userName = "Mahyar Abidi", 
   userAvatar = "/avatars/mahyar.jpg", 
-  userInitials = "MA" 
+  userInitials = "MA",
+  userId = "mahyar" // Default user ID
 }: UserProfileDropdownProps) {
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
@@ -28,7 +30,7 @@ export function UserProfileDropdown({
   }, []);
 
   const handleProfileClick = () => {
-    router.push('/settings/profile');
+    router.push(`/profiles/${userId}`);
   };
 
   const handleSettingsClick = () => {

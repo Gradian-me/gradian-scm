@@ -1,4 +1,5 @@
-import { FormSchema, FormField } from '../../types/form-schema';
+import { FormSchema as BuilderFormSchema, FormField as BuilderFormField } from '../../types/form-schema';
+import { FormSchema, FormField } from '../../../../shared/types/form-schema';
 
 /**
  * Apply default properties to a field if they are not specified

@@ -63,3 +63,57 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * POST - Create a new schema
+ * Example: POST /api/schemas - creates a new schema
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const newSchema = await request.json();
+
+    // Read the schemas JSON file
+    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    
+    if (!fs.existsSync(dataPath)) {
+      return NextResponse.json(
+        { success: false, error: 'Schemas file not found' },
+        { status: 404 }
+      );
+    }
+
+    const fileContents = fs.readFileSync(dataPath, 'utf8');
+    const schemas = JSON.parse(fileContents);
+
+    // Check if schema with same ID already exists
+    const existingSchema = schemas.find((s: any) => s.id === newSchema.id);
+    
+    if (existingSchema) {
+      return NextResponse.json(
+        { success: false, error: `Schema with ID "${newSchema.id}" already exists` },
+        { status: 409 }
+      );
+    }
+
+    // Add the new schema
+    schemas.push(newSchema);
+
+    // Write back to file
+    fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
+
+    return NextResponse.json({
+      success: true,
+      data: newSchema,
+      message: `Schema "${newSchema.id}" created successfully`
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating schema:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to create schema' 
+      },
+      { status: 500 }
+    );
+  }
+}
+

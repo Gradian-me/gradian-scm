@@ -12,10 +12,7 @@ export const getDefaultConfig = (config: FormConfig): FormConfig => {
   const enhancedConfig = { ...config };
   
   // Get singular name for dynamic labels
-  const singularName = (config as any).singular_name || 
-                      config.name?.endsWith('s') ? 
-                        config.name.slice(0, -1) : 
-                        config.name || 'Item';
+  const singularName = (config as any).singular_name || 'Item';
   
   // Add default actions if not provided
   if (!enhancedConfig.actions) {

@@ -13,6 +13,11 @@ export const getIconComponent = (iconName?: string): React.ComponentType<any> =>
   return IconComponent || Text;
 };
 
+export const isValidLucideIcon = (iconName?: string): boolean => {
+  if (!iconName) return false;
+  return !!(LucideIcons as any)[iconName];
+};
+
 export const IconRenderer: React.FC<IconRendererProps> = ({ iconName, className = "h-4 w-4" }) => {
   const IconComponent = getIconComponent(iconName);
   return <IconComponent className={className} />;

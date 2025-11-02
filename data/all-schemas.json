@@ -1,8 +1,6 @@
 [
   {
     "id": "vendors",
-    "name": "vendors",
-    "title": "Create New Vendor",
     "description": "Add a new vendor to your supply chain management system",
     "singular_name": "Vendor",
     "plural_name": "Vendors",
@@ -110,6 +108,22 @@
         },
         "colSpan": 1,
         "order": 5
+      },
+      {
+        "id": "expiration-date",
+        "name": "expirationDate",
+        "label": "Expiration Date",
+        "sectionId": "basic-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select expiration date",
+        "required": true,
+        "role": "expiration",
+        "validation": {
+          "required": false
+        },
+        "colSpan": 1,
+        "order": 6
       },
       {
         "id": "country",
@@ -663,7 +677,13 @@
           "sectionId": "contacts",
           "title": "Contact Persons",
           "description": "List of all contact persons for this vendor",
-          "columns": ["contact-name", "contact-email", "contact-phone", "contact-position", "contact-age"],
+          "columns": [
+            "contact-name",
+            "contact-email",
+            "contact-phone",
+            "contact-position",
+            "contact-age"
+          ],
           "tableProperties": {
             "sortingEnabled": true,
             "paginationEnabled": true,
@@ -674,21 +694,33 @@
             "aggregations": [
               {
                 "column": "contact-name",
-                "aggregationTypes": ["count", "countdistinct"]
+                "aggregationTypes": [
+                  "count",
+                  "countdistinct"
+                ]
               },
               {
                 "column": "contact-email",
-                "aggregationTypes": ["count"]
+                "aggregationTypes": [
+                  "count"
+                ]
               },
               {
                 "column": "contact-age",
-                "aggregationTypes": ["sum", "avg", "min", "max"],
+                "aggregationTypes": [
+                  "sum",
+                  "avg",
+                  "min",
+                  "max"
+                ],
                 "unit": "years",
                 "precision": 1
               },
               {
                 "column": "contact-age",
-                "aggregationTypes": ["stdev"],
+                "aggregationTypes": [
+                  "stdev"
+                ],
                 "unit": "years",
                 "precision": 2
               }

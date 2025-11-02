@@ -48,6 +48,10 @@ export interface CheckboxProps extends FormElementProps {
   indeterminate?: boolean;
 }
 
+export interface SwitchProps extends FormElementProps {
+  checked?: boolean;
+}
+
 export interface RadioProps extends FormElementProps {
   options: Array<{ label: string; value: any; disabled?: boolean }>;
   direction?: 'horizontal' | 'vertical';

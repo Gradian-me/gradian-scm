@@ -10,19 +10,9 @@ export type ExtendedFormSchema = FormSchema & {
  * Safely cast an ExtendedFormSchema to FormSchema for components that require it
  */
 export const asFormSchema = (schema: ExtendedFormSchema): FormSchema => {
-  // Ensure title is present (required by FormSchema)
-  if (!schema.title && schema.singular_name) {
-    schema.title = `Create New ${schema.singular_name}`;
-  } else if (!schema.title) {
-    schema.title = schema.name || 'Form';
-  }
-  
   // Add default actions if not present
   if (!schema.actions) {
-    const singularName = schema.singular_name || 
-                        (schema.name?.endsWith('s') ? 
-                          schema.name.slice(0, -1) : 
-                          schema.name || 'Item');
+    const singularName = schema.singular_name || 'Item';
     
     schema.actions = {
       submit: {

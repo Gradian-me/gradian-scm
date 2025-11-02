@@ -19,7 +19,7 @@ import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
 import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
 import { GoToTop } from '../../layout/go-to-top';
-import { Rating } from '../../form-builder';
+import { Rating, Countdown } from '../../form-builder';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -45,6 +45,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   const avatar = getSingleValueByRole(schema, data, 'avatar') || data.name || '?';
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
+  const expiration = getSingleValueByRole(schema, data, 'expiration') || data.expirationDate;
 
   // Find status field options
   const statusField = schema.fields?.find(f => f.role === 'status');
@@ -56,6 +57,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     avatar,
     status,
     rating,
+    expiration,
     statusOptions
   };
 };
@@ -190,7 +192,17 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               )}
 
               {showActions && (onEdit || onDelete) && (
-                <div className="flex space-x-2">
+                <div className="flex items-center space-x-2">
+                  {headerInfo.expiration && (
+                    <div className="mr-2">
+                      <Countdown
+                        expireDate={headerInfo.expiration}
+                        includeTime={true}
+                        size="sm"
+                        showIcon={true}
+                      />
+                    </div>
+                  )}
                   {onEdit && (
                     <Button variant="outline" onClick={onEdit} className="px-4 py-2 gap-2">
                       <Edit className="h-4 w-4  " />

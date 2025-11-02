@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import React, { KeyboardEvent } from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { Avatar, Rating } from '../../form-builder/form-elements';
-import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
+import { Avatar, Rating, Countdown } from '../../form-builder/form-elements';
+import { CardSection } from '../../form-builder/types/form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
 import { CardWrapper } from '../card/components/CardWrapper';
@@ -66,9 +67,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const statusOptions = findStatusFieldOptions();
 
-  // Check if rating and status fields exist in schema
+  // Check if rating, status, and expiration fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
   const hasStatusField = schema?.fields?.some(field => field.role === 'status') || false;
+  const hasExpirationField = schema?.fields?.some(field => field.role === 'expiration') || false;
 
   // Filter out performance section from cardMetadata
   const filteredSections = cardMetadata.filter(section => 
@@ -122,6 +124,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     badgeField: combinedBadgeField,
     badgeValues,
     metricsField: data.performanceMetrics || null,
+    expirationField: getSingleValueByRole(schema, data, 'expiration') || data.expirationDate,
     sections: filteredSections,
     statusOptions
   };
@@ -310,6 +313,23 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <div className="w-full border-t border-gray-100 mb-3"></div>
               )}
               
+              {/* Expiration Countdown */}
+              {hasExpirationField && cardConfig.expirationField && (
+                <motion.div
+                  initial={disableAnimation ? false : { opacity: 0, y: 10 }}
+                  animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.4 }}
+                  className="w-full mb-3"
+                >
+                  <Countdown
+                    expireDate={cardConfig.expirationField}
+                    includeTime={true}
+                    size="sm"
+                    showIcon={true}
+                  />
+                </motion.div>
+              )}
+              
               {/* Content Sections */}
               <div className="flex-1">
                 <motion.div
@@ -401,6 +421,16 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         animate={!disableAnimation}
                       />
                     )
+                  )}
+                  {hasExpirationField && cardConfig.expirationField && (
+                    <div className="mt-2">
+                      <Countdown
+                        expireDate={cardConfig.expirationField}
+                        includeTime={true}
+                        size="sm"
+                        showIcon={true}
+                      />
+                    </div>
                   )}
                 </div>
               </div>

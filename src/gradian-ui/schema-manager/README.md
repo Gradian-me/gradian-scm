@@ -225,12 +225,22 @@ const TenderList = () => {
 schema-manager/
 ├── index.ts              # Main exports
 ├── types/
+│   ├── builder.ts       # Builder component types
 │   └── index.ts         # TypeScript types
 ├── utils/
 │   ├── schema-to-zod.ts    # Generates Zod schemas
-│   └── schema-to-store.ts  # Generates UI hooks
+│   ├── schema-to-store.ts  # Generates UI hooks
+│   └── builder-utils.ts    # Builder utilities
 ├── hooks/
-│   └── useSchemaManager.ts # Main hook
+│   ├── useSchemaManager.ts # Main hook
+│   └── useSchemaBuilder.ts # Builder hook
+├── components/
+│   ├── SchemaBuilder.tsx   # Main builder
+│   ├── FieldEditor.tsx     # Field editor
+│   ├── SectionEditor.tsx   # Section editor
+│   └── index.ts            # Component exports
+├── docs/
+│   └── SCHEMA_BUILDER.md   # Builder documentation
 └── README.md            # This file
 ```
 
@@ -277,8 +287,75 @@ Apply to any domain:
 
 Just add `ui` config to your schema and you're done!
 
+## Schema Builder
+
+The Schema Builder is a complete visual editor for creating and managing schemas.
+
+### Quick Start
+
+```tsx
+import { SchemaBuilder } from '@/gradian-ui/schema-manager';
+
+export default function BuilderPage({ params }) {
+  const { schemaId } = params;
+  return <SchemaBuilder schemaId={schemaId} />;
+}
+```
+
+### Features
+
+- **Visual Editor**: Create schemas through UI
+- **Field Management**: Add/edit/delete fields with full configuration
+- **Section Management**: Organize fields into sections
+- **Drag-and-Drop**: Reorder fields visually
+- **Validation**: Built-in schema validation
+- **Export/Import**: JSON import/export
+- **Auto-Save**: Save changes automatically
+
+### Components
+
+#### SchemaBuilder
+Main builder component with tabs and full functionality.
+
+#### FieldEditor
+Individual field configuration with expandable details.
+
+#### SectionEditor
+Section management with embedded field listing.
+
+### Hook
+
+```tsx
+const { state, actions } = useSchemaBuilder({
+  apiBaseUrl: '/api/schemas',
+  onSave: async (schema) => { /* custom save */ },
+});
+
+// Use it
+await actions.loadSchema('vendors');
+await actions.saveSchema();
+actions.addField('section-123');
+```
+
+### Utilities
+
+```tsx
+import { 
+  getFieldsForSection,
+  validateSchema,
+  createEmptySchema,
+  exportSchemaToJson,
+  importSchemaFromJson,
+  FIELD_TYPES,
+  ROLES
+} from '@/gradian-ui/schema-manager';
+```
+
+See `docs/SCHEMA_BUILDER.md` for complete documentation.
+
 ## See Also
 
+- `SCHEMA_BUILDER.md` - Complete builder guide
 - `SCHEMA_TO_ZOD_GUIDE.md` - Validation generation
 - `SCHEMA_TO_STORE_GUIDE.md` - UI hook generation
 

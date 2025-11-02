@@ -2,6 +2,8 @@
 
 import { FormSchema } from '../../form-builder/types/form-schema';
 
+export * from './builder';
+
 export interface SchemaManagerConfig {
   entityName: string;
   schema: FormSchema;

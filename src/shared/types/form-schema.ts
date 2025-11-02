@@ -12,7 +12,7 @@ export interface FormField {
   required?: boolean;
   disabled?: boolean;
   readonly?: boolean;
-  role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel';
+  role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel' | 'expiration';
   validation?: {
     required?: boolean;
     minLength?: number;
@@ -34,6 +34,7 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
+  icon?: string;
   columns?: number; // Default: 2 if not specified
   gap?: number;
   styling?: {
@@ -133,11 +134,10 @@ export interface DetailPageMetadata {
 
 export interface FormSchema {
   id: string;
-  name: string;
-  title: string;
   description?: string;
-  singular_name?: string;
-  plural_name?: string;
+  singular_name: string;
+  plural_name: string;
+  icon?: string;
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];

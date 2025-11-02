@@ -104,8 +104,6 @@ export const getSchemaMetadata = (schemaId: string) => {
   
   return {
     id: schema.id,
-    name: schema.name,
-    title: schema.title,
     description: schema.description,
     singularName: schema.singular_name,
     pluralName: schema.plural_name,
