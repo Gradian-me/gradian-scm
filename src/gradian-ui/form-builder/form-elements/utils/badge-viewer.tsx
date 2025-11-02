@@ -118,7 +118,6 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
       itemColor && "border text-white"
     );
     
-    if (animate) {
       return (
         <motion.div
           key={itemId}
@@ -143,18 +142,6 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
           </Badge>
         </motion.div>
       );
-    }
-    
-    return (
-      <Badge 
-        key={itemId} 
-        variant={itemColor ? undefined : badgeVariant} 
-        className={badgeClasses}
-        style={badgeStyle}
-      >
-        {badgeContent}
-      </Badge>
-    );
   };
 
   // Render +X more indicator with optional animation
@@ -167,7 +154,6 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
       </Badge>
     );
     
-    if (animate) {
       return (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -180,9 +166,6 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
           {moreBadge}
         </motion.div>
       );
-    }
-    
-    return moreBadge;
   };
 
   return (
