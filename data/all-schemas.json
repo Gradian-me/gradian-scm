@@ -548,6 +548,16 @@
         },
         "colSpan": 1,
         "order": 7
+      },
+      {
+        "id": "field-1762089019358",
+        "name": "day",
+        "label": "Day",
+        "sectionId": "section-1762088953746",
+        "type": "text",
+        "component": "text",
+        "order": 1,
+        "placeholder": "Enter Working Days"
       }
     ],
     "sections": [
@@ -585,6 +595,13 @@
         "description": "Additional business information and categories",
         "initialState": "expanded",
         "columns": 3
+      },
+      {
+        "id": "section-1762088953746",
+        "title": "Working Days",
+        "columns": 2,
+        "icon": "Calendar",
+        "isRepeatingSection": true
       }
     ],
     "detailPageMetadata": {
