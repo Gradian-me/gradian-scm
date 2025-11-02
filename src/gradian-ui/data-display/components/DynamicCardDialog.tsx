@@ -76,9 +76,7 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
   onEdit,
   onDelete
 }) => {
-  console.log('DynamicCardDialog render:', { isOpen, data });
   if (!isOpen || !data) {
-    console.log('DynamicCardDialog not rendering due to:', { isOpen, hasData: !!data });
     return null;
   }
   
