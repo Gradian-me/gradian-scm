@@ -53,7 +53,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
 
   const fieldClasses = cn(
     'w-full',
-    hasError && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+    hasError && 'border-red-500 focus:border-red-500 focus:ring-red-500 data-[state=open]:border-red-500 data-[state=open]:ring-red-500',
     styling?.className
   );
 
@@ -92,6 +92,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
             options={selectOptions}
             variant="default"
             size={styling?.size || 'md'}
+            className={fieldClasses}
           />
         );
 

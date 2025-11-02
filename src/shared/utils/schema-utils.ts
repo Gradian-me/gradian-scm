@@ -22,7 +22,7 @@ export const asFormSchema = (schema: ExtendedFormSchema): SharedFormSchema => {
   
   // Add default actions if not present
   if (!schema.actions) {
-    schema.actions = ['submit', 'cancel', 'reset'];
+    schema.actions = ['cancel', 'reset', 'submit'];
   }
   
   // Add default validation settings if not present
@@ -61,7 +61,7 @@ export const asFormBuilderSchema = (schema: ExtendedFormSchema): FormBuilderForm
       mode: 'onChange' as const,
       showErrors: true,
     },
-    actions: schema.actions || ['submit', 'cancel', 'reset'],
+    actions: schema.actions || ['cancel', 'reset', 'submit'],
   } as FormBuilderFormSchema;
   
   return formBuilderSchema;

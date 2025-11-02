@@ -1,9 +1,12 @@
 // Utility to provide default form configuration
+// NOTE: This utility is for the deprecated FormWrapper component.
+// Active forms use action-config.tsx for default action configurations.
 
 import { FormConfig } from '../types';
 
 /**
  * Provides default form configuration values when not specified in the schema
+ * @deprecated This is for the deprecated FormWrapper component. Use action-config.tsx instead.
  * @param config The original form configuration
  * @returns The form configuration with defaults applied
  */
@@ -22,12 +25,12 @@ export const getDefaultConfig = (config: FormConfig): FormConfig => {
         variant: 'primary',
       },
       reset: {
-        label: 'Reset Form',
+        label: 'Reset',
         variant: 'secondary',
       },
       cancel: {
         label: 'Cancel',
-        variant: 'secondary', // Changed from 'ghost' to 'secondary'
+        variant: 'secondary', // Note: ghost variant not in FormConfig type
       }
     };
   } else {
@@ -45,7 +48,7 @@ export const getDefaultConfig = (config: FormConfig): FormConfig => {
     
     if (!enhancedConfig.actions.reset) {
       enhancedConfig.actions.reset = {
-        label: 'Reset Form',
+        label: 'Reset',
         variant: 'secondary',
       };
     }
@@ -53,7 +56,7 @@ export const getDefaultConfig = (config: FormConfig): FormConfig => {
     if (!enhancedConfig.actions.cancel) {
       enhancedConfig.actions.cancel = {
         label: 'Cancel',
-        variant: 'secondary', // Changed from 'ghost' to 'secondary'
+        variant: 'secondary',
       };
     }
   }

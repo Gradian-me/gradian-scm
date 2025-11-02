@@ -84,7 +84,12 @@ async function loadSchemasFromServer(): Promise<FormSchema[]> {
     return loadAllSchemas();
   } else {
     // Client side - fetch from API
-    const response = await fetch(config.schemaApi.basePath);
+    const response = await fetch(config.schemaApi.basePath, {
+      // Add cache-control headers to ensure fresh data
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    });
     const result = await response.json();
     
     if (!result.success) {

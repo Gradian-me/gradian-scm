@@ -1,6 +1,7 @@
 // Form Footer Component
 
 import React from 'react';
+import { X, RotateCcw, Save } from 'lucide-react';
 import { FormFooterProps } from '../types';
 import { FormActions } from './FormActions';
 import { cn } from '../../../shared/utils';
@@ -20,14 +21,14 @@ export const FormFooter: React.FC<FormFooterProps> = ({
 }) => {
   const defaultActions: any[] = [];
 
-  if (onSubmit) {
+  if (showCancel && onCancel) {
     defaultActions.push({
-      type: 'submit' as const,
-      label: 'Submit',
-      variant: 'primary' as const,
+      type: 'cancel' as const,
+      label: 'Cancel',
+      variant: 'ghost' as const,
+      icon: <X className="h-4 w-4" />,
       disabled: disabled || loading,
-      loading,
-      onClick: onSubmit,
+      onClick: onCancel,
     });
   }
 
@@ -35,19 +36,22 @@ export const FormFooter: React.FC<FormFooterProps> = ({
     defaultActions.push({
       type: 'reset' as const,
       label: 'Reset',
-      variant: 'secondary' as const,
+      variant: 'outline' as const,
+      icon: <RotateCcw className="h-4 w-4" />,
       disabled: disabled || loading,
       onClick: onReset,
     });
   }
 
-  if (showCancel && onCancel) {
+  if (onSubmit) {
     defaultActions.push({
-      type: 'cancel' as const,
-      label: 'Cancel',
-      variant: 'ghost' as const,
+      type: 'submit' as const,
+      label: 'Submit',
+      variant: 'default' as const,
+      icon: <Save className="h-4 w-4" />,
       disabled: disabled || loading,
-      onClick: onCancel,
+      loading,
+      onClick: onSubmit,
     });
   }
 
@@ -61,14 +65,14 @@ export const FormFooter: React.FC<FormFooterProps> = ({
     // If it's an object, convert it to array format
     const actionsArray: any[] = [];
     
-    if (actionsConfig.submit) {
+    if (actionsConfig.cancel && showCancel) {
       actionsArray.push({
-        type: 'submit' as const,
-        label: actionsConfig.submit.label || 'Submit',
-        variant: actionsConfig.submit.variant || 'primary',
-        disabled: actionsConfig.submit.disabled || disabled || loading,
-        loading,
-        onClick: onSubmit,
+        type: 'cancel' as const,
+        label: actionsConfig.cancel.label || 'Cancel',
+        variant: actionsConfig.cancel.variant || 'ghost',
+        icon: actionsConfig.cancel.icon || <X className="h-4 w-4" />,
+        disabled: actionsConfig.cancel.disabled || disabled || loading,
+        onClick: onCancel || actionsConfig.cancel.onClick,
       });
     }
     
@@ -76,19 +80,22 @@ export const FormFooter: React.FC<FormFooterProps> = ({
       actionsArray.push({
         type: 'reset' as const,
         label: actionsConfig.reset.label || 'Reset',
-        variant: actionsConfig.reset.variant || 'secondary',
+        variant: actionsConfig.reset.variant || 'outline',
+        icon: actionsConfig.reset.icon || <RotateCcw className="h-4 w-4" />,
         disabled: actionsConfig.reset.disabled || disabled || loading,
         onClick: onReset,
       });
     }
     
-    if (actionsConfig.cancel && showCancel) {
+    if (actionsConfig.submit) {
       actionsArray.push({
-        type: 'cancel' as const,
-        label: actionsConfig.cancel.label || 'Cancel',
-        variant: actionsConfig.cancel.variant || 'ghost',
-        disabled: actionsConfig.cancel.disabled || disabled || loading,
-        onClick: onCancel || actionsConfig.cancel.onClick,
+        type: 'submit' as const,
+        label: actionsConfig.submit.label || 'Submit',
+        variant: actionsConfig.submit.variant || 'default',
+        icon: actionsConfig.submit.icon || <Save className="h-4 w-4" />,
+        disabled: actionsConfig.submit.disabled || disabled || loading,
+        loading,
+        onClick: onSubmit,
       });
     }
     

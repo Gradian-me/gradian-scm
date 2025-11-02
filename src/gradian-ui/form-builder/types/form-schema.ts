@@ -262,6 +262,7 @@ export interface FormWrapperProps {
   schema: FormSchema;
   onSubmit: (data: FormData) => void | Promise<void>;
   onReset?: () => void;
+  onCancel?: () => void;
   onFieldChange?: (fieldName: string, value: any) => void;
   initialValues?: FormData;
   validationMode?: 'onChange' | 'onBlur' | 'onSubmit';
@@ -290,6 +291,7 @@ export interface FormSectionProps {
   initialState?: 'expanded' | 'collapsed'; // New prop for initial state
   isExpanded?: boolean; // Controlled expanded state
   onToggleExpanded?: () => void; // Callback to toggle expanded state
+  addItemError?: string | null; // Error message to display under the Add button
 }
 
 export interface RepeatingSectionProps {

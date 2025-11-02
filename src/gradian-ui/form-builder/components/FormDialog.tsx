@@ -126,14 +126,14 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         className={dialogClasses}
         {...(closeOnOutsideClick ? {} : { onInteractOutside: (e) => e.preventDefault() })}
       >
-        <DialogHeader className="px-2 md:px-4 pt-6 pb-2 shrink-0">
+        <DialogHeader className="px-2 md:px-4 pt-2 md:pt-6 pb-1 md:pb-2 shrink-0">
           {title && <DialogTitle>{title}</DialogTitle>}
-          {description && <DialogDescription className="mt-0.5">{description}</DialogDescription>}
+          {description && <DialogDescription className="mt-0.5 hidden md:block">{description}</DialogDescription>}
         </DialogHeader>
 
         {/* Form Actions */}
         {actionConfigs.length > 0 && (
-          <div className="px-6 pb-2 shrink-0 bg-white border-b border-gray-200 relative z-20">
+          <div className="px-2 md:px-6 pb-1 md:pb-2 shrink-0 bg-white border-b border-gray-200 relative z-20">
             <div className="flex justify-end space-x-3">
               {actionConfigs.map((config) => {
                 if (config.type === 'submit') {
@@ -145,7 +145,14 @@ export const FormDialog: React.FC<FormDialogProps> = ({
                       onClick={handleFormSubmitClick}
                       disabled={disabled || isSubmitting}
                     >
-                      {isSubmitting ? config.loading : config.label}
+                      <div className="flex items-center gap-2">
+                        {!isSubmitting && config.icon}
+                        {isSubmitting ? (
+                          config.loading
+                        ) : (
+                          <span className="hidden md:inline">{config.label}</span>
+                        )}
+                      </div>
                     </Button>
                   );
                 } else if (config.type === 'cancel') {
@@ -157,7 +164,10 @@ export const FormDialog: React.FC<FormDialogProps> = ({
                       onClick={handleCancel}
                       disabled={disabled}
                     >
-                      {config.label}
+                      <div className="flex items-center gap-2">
+                        {config.icon}
+                        <span className="hidden md:inline">{config.label}</span>
+                      </div>
                     </Button>
                   );
                 } else if (config.type === 'reset') {
@@ -169,7 +179,10 @@ export const FormDialog: React.FC<FormDialogProps> = ({
                       onClick={handleResetClick}
                       disabled={disabled}
                     >
-                      {config.label}
+                      <div className="flex items-center gap-2">
+                        {config.icon}
+                        <span className="hidden md:inline">{config.label}</span>
+                      </div>
                     </Button>
                   );
                 }
@@ -181,7 +194,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         
         {/* Form Content */}
         <ScrollArea 
-          className="flex-1 px-6 py-1" 
+          className="flex-1 px-2 md:px-6 py-1" 
           style={{ maxHeight: 'calc(90vh - 300px)' }}
           data-scroll-container="form-dialog-scroll"
         >
@@ -198,6 +211,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
               schema={schema}
               onSubmit={handleSubmit}
               onReset={onReset}
+              onCancel={onClose}
               onFieldChange={onFieldChange}
               initialValues={initialValues}
               validationMode={validationMode}
@@ -215,7 +229,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         />
 
         {showCloseButton && (
-          <DialogFooter className="px-6 pb-6 pt-3 border-t shrink-0">
+          <DialogFooter className="px-2 md:px-6 pb-4 md:pb-6 pt-2 md:pt-3 border-t shrink-0">
             <Button
               type="button"
               variant="outline"

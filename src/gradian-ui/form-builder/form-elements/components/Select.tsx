@@ -46,7 +46,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   // Check if color is a valid badge variant, custom color, or Tailwind classes
   const isValidBadgeVariant = (color?: string): boolean => {
     if (!color) return false;
-    const validVariants = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient'];
+    const validVariants = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
     return validVariants.includes(color);
   };
 

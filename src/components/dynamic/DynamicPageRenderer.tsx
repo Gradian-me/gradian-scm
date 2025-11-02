@@ -502,6 +502,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           schema={asFormBuilderSchema(schema)}
           onSubmit={isCreateModalOpen ? handleCreateEntity : handleUpdateEntity}
           onReset={() => formState.reset()}
+          onCancel={isCreateModalOpen ? closeCreateModal : closeEditModal}
           initialValues={isCreateModalOpen ? formState.values : currentEntity || formState.values}
           error={formError}
           onErrorDismiss={() => setFormError(null)}

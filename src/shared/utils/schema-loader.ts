@@ -113,10 +113,8 @@ export function loadAllSchemas(): FormSchema[] {
     // Process each schema to convert patterns
     const processedSchemas = schemas.map(processSchema);
     
-    // Log loaded schemas for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[Schema Loader] Loaded ${processedSchemas.length} schemas:`, processedSchemas.map(s => s.id));
-    }
+    // Log loaded schemas for debugging (in both dev and production for dynamic schema tracking)
+    console.log(`[Schema Loader] Loaded ${processedSchemas.length} schemas:`, processedSchemas.map(s => s.id));
     
     return processedSchemas;
   } catch (error) {

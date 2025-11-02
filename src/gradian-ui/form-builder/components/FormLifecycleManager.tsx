@@ -272,6 +272,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   schema,
   onSubmit,
   onReset,
+  onCancel,
   onFieldChange,
   initialValues = {},
   validationMode = 'onSubmit',
@@ -293,7 +294,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     isSubmitting: false,
   });
   
-  const [addItemError, setAddItemError] = React.useState<string | null>(null);
+  const [addItemErrors, setAddItemErrors] = React.useState<Record<string, string | null>>({});
   
   // State to track which sections are expanded
   const [expandedSections, setExpandedSections] = React.useState<Record<string, boolean>>(() => {
@@ -451,8 +452,8 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     const section = schema.sections.find(s => s.id === sectionId);
     if (!section?.isRepeatingSection) return;
     
-    // Clear any previous add item error
-    setAddItemError(null);
+    // Clear any previous add item error for this section
+    setAddItemErrors(prev => ({ ...prev, [sectionId]: null }));
     
     // Validate existing items before allowing a new one
     const items = state.values[sectionId] || [];
@@ -497,14 +498,14 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     if (hasErrors) {
       const errorMessage = `Please fix validation errors in existing items before adding a new one. Fields with errors: ${errorFields.slice(0, 3).join(', ')}${errorFields.length > 3 ? ` and ${errorFields.length - 3} more...` : ''}`;
       
-      setAddItemError(errorMessage);
+      setAddItemErrors(prev => ({ ...prev, [sectionId]: errorMessage }));
       
       loggingCustom(LogType.FORM_DATA, 'warn', 
         `Cannot add new item to "${section.title}": Please fix validation errors in existing items first.`
       );
       
       // Clear the error after 5 seconds
-      setTimeout(() => setAddItemError(null), 5000);
+      setTimeout(() => setAddItemErrors(prev => ({ ...prev, [sectionId]: null })), 5000);
       
       return;
     }
@@ -711,6 +712,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           repeatingItems={section.isRepeatingSection ? (state.values[section.id] || []) : undefined}
           onAddRepeatingItem={section.isRepeatingSection ? () => addRepeatingItem(section.id) : undefined}
           onRemoveRepeatingItem={section.isRepeatingSection ? (index: number) => removeRepeatingItem(section.id, index) : undefined}
+          addItemError={section.isRepeatingSection ? addItemErrors[section.id] : undefined}
         />
       );
     });
@@ -759,18 +761,6 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     <>
       {children || (
         <>
-          {/* Add Item Error Alert */}
-          {addItemError && (
-            <div className="mb-4">
-              <FormAlert 
-                type="warning" 
-                message={addItemError} 
-                onDismiss={() => setAddItemError(null)}
-                dismissible={true}
-              />
-            </div>
-          )}
-          
           {/* Error Alert - always shown when there are errors */}
           {(error || firstValidationError) && (
             <div className="mb-4">
@@ -799,10 +789,14 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                           submit();
                         }}
                       >
-                        {state.isSubmitting 
-                          ? config.loading || 'Submitting...'
-                          : config.label
-                        }
+                        <div className="flex items-center gap-2">
+                          {!state.isSubmitting && config.icon}
+                          {state.isSubmitting ? (
+                            config.loading || 'Submitting...'
+                          ) : (
+                            <span className="hidden md:inline">{config.label}</span>
+                          )}
+                        </div>
                       </Button>
                     );
                   } else if (config.type === 'cancel') {
@@ -813,11 +807,14 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                         variant={config.variant}
                         onClick={(e) => {
                           e.preventDefault();
-                          reset();
+                          onCancel?.();
                         }}
                         disabled={disabled}
                       >
-                        {config.label}
+                        <div className="flex items-center gap-2">
+                          {config.icon}
+                          <span className="hidden md:inline">{config.label}</span>
+                        </div>
                       </Button>
                     );
                   } else if (config.type === 'reset') {
@@ -829,7 +826,10 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                         onClick={reset}
                         disabled={disabled}
                       >
-                        {config.label}
+                        <div className="flex items-center gap-2">
+                          {config.icon}
+                          <span className="hidden md:inline">{config.label}</span>
+                        </div>
                       </Button>
                     );
                   }
@@ -851,7 +851,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                 className="flex items-center gap-2"
               >
                 <ChevronsUp className="h-4 w-4" />
-                Collapse All
+                <span className="hidden md:inline">Collapse All</span>
               </Button>
               <Button
                 type="button"
@@ -862,7 +862,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                 className="flex items-center gap-2"
               >
                 <ChevronsDown className="h-4 w-4" />
-                Expand All
+                <span className="hidden md:inline">Expand All</span>
               </Button>
             </div>
           )}

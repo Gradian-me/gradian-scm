@@ -1,4 +1,6 @@
 // Form Wrapper Component
+// DEPRECATED: This component is deprecated in favor of SchemaFormWrapper
+// Use SchemaFormWrapper from FormLifecycleManager instead
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 import { FormWrapperProps, FormState, FormContextType, FormConfig } from '../types';

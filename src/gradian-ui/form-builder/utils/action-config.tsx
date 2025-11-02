@@ -2,11 +2,15 @@
  * Utility functions for generating action configurations dynamically
  */
 
+import React from 'react';
+import { X, RotateCcw, Save } from 'lucide-react';
+
 export interface ActionConfig {
   type: 'submit' | 'cancel' | 'reset';
   label: string;
   variant: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link' | 'gradient';
   loading?: string;
+  icon?: React.ReactNode;
 }
 
 /**
@@ -22,19 +26,22 @@ export const getActionConfig = (
       type: 'submit',
       label: isEditMode ? `Update ${singularName}` : `Create ${singularName}`,
       variant: 'default',
-      loading: isEditMode ? `Updating ${singularName}...` : `Creating ${singularName}...`
+      loading: isEditMode ? `Updating ${singularName}...` : `Creating ${singularName}...`,
+      icon: <Save className="h-4 w-4" />
     },
     cancel: {
       type: 'cancel',
       label: 'Cancel',
-      variant: 'outline',
-      loading: undefined
+      variant: 'ghost',
+      loading: undefined,
+      icon: <X className="h-4 w-4" />
     },
     reset: {
       type: 'reset',
-      label: 'Reset Form',
+      label: 'Reset',
       variant: 'outline',
-      loading: undefined
+      loading: undefined,
+      icon: <RotateCcw className="h-4 w-4" />
     }
   };
 
@@ -54,4 +61,5 @@ export const getSingularName = (schema: { singular_name?: string; name?: string 
 export const isEditMode = (initialValues: any): boolean => {
   return !!(initialValues && (initialValues.id || initialValues._id || initialValues.Id));
 };
+
 

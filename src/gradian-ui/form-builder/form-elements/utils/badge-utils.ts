@@ -21,7 +21,7 @@ export interface BadgeMetadata {
 /**
  * Badge color type
  */
-export type BadgeColor = "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
+export type BadgeColor = "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info" | "muted";
 
 /**
  * Find badge option from options array by value

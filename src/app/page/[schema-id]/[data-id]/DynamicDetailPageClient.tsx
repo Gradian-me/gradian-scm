@@ -181,8 +181,8 @@ export function DynamicDetailPageClient({
             onSubmit={handleUpdate}
             onReset={() => {
               formState.reset();
-              closeEditModal();
             }}
+            onCancel={closeEditModal}
             initialValues={currentEntity || data || {}}
           />
         </Modal>

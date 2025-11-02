@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/button';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '../../shared/utils';
 import { getFieldsForSection } from '../form-elements/utils/field-resolver';
+import { FormAlert } from '../../../components/ui/form-alert';
 
 export const AccordionFormSection: React.FC<FormSectionProps> = ({
   section,
@@ -25,6 +26,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   initialState = 'expanded', // New prop for initial state
   isExpanded: controlledIsExpanded, // Controlled expanded state
   onToggleExpanded, // Callback to toggle expanded state
+  addItemError, // Error message to display under the Add button
 }) => {
   // Get fields for this section from the schema
   const fields = getFieldsForSection(schema, section.id);
@@ -283,18 +285,27 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
               )}
 
               {onAddRepeatingItem && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="outline"
-                    onClick={onAddRepeatingItem}
-                    disabled={disabled}
-                    className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    {section.repeatingConfig?.addButtonText || `Add ${title}`}
-                  </Button>
+                <div className="space-y-2">
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      onClick={onAddRepeatingItem}
+                      disabled={disabled}
+                      className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      {section.repeatingConfig?.addButtonText || `Add ${title}`}
+                    </Button>
+                  </div>
+                  {addItemError && (
+                    <FormAlert 
+                      type="warning" 
+                      message={addItemError}
+                      dismissible={false}
+                    />
+                  )}
                 </div>
               )}
             </div>

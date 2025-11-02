@@ -77,7 +77,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
             {action.icon && !action.loading && (
               <span>{action.icon}</span>
             )}
-            <span>{action.label}</span>
+            <span className="hidden md:inline">{action.label}</span>
           </div>
         </button>
       ))}
