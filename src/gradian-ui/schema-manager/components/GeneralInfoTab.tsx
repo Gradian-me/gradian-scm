@@ -35,7 +35,7 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             disabled={readonly}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="singular-name">Singular Name</Label>
             <Input 

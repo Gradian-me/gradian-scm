@@ -84,10 +84,10 @@ export function SectionFields({
       <Button
         variant="outline"
         onClick={onAddField}
-        className="w-full flex items-center justify-center px-3 py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 text-xs"
+        className="w-full flex items-center justify-center px-3 py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 text-xs sm:text-sm"
       >
-        <Plus className="w-4 h-4 mr-1.5" />
-        Add Field
+        <Plus className="w-4 h-4 mr-1 sm:mr-1.5" />
+        <span className="truncate">Add Field</span>
       </Button>
     </div>
   );

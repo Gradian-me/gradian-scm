@@ -19,7 +19,7 @@ export function SectionContent({
   // This component is just for section configuration, not for rendering fields
   return (
     <div className="space-y-3 pt-2">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>
           <Label className="text-xs text-gray-600">Icon</Label>
           <IconInput 

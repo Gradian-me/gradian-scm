@@ -62,7 +62,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
 
       {/* Field Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Field</DialogTitle>
             <DialogDescription>
@@ -70,7 +70,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Field Label</Label>
                 <Input value={tempField.label} onChange={(e) => setTempField({ ...tempField, label: e.target.value })} />
@@ -80,7 +80,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
                 <Input value={tempField.name} onChange={(e) => setTempField({ ...tempField, name: e.target.value })} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Field Type</Label>
                 <Select
@@ -110,7 +110,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
               <Label>Placeholder</Label>
               <Input value={tempField.placeholder || ''} onChange={(e) => setTempField({ ...tempField, placeholder: e.target.value })} />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="flex items-center gap-2">
                 <Switch id={`required-${field.id}`} checked={tempField.required || false} onCheckedChange={(checked) => setTempField({ ...tempField, required: checked })} />
                 <Label htmlFor={`required-${field.id}`}>Required</Label>
@@ -133,7 +133,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
                 placeholder="Select role..."
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Column Span</Label>
                 <Input type="number" value={tempField.colSpan || 1} onChange={(e) => setTempField({ ...tempField, colSpan: parseInt(e.target.value) || 1 })} />
@@ -144,12 +144,13 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowDialog(false)} className="w-full sm:w-auto text-sm md:text-base">
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              Save Changes
+            <Button onClick={handleSave} className="w-full sm:w-auto text-sm md:text-base">
+              <span className="hidden md:inline">Save Changes</span>
+              <span className="md:hidden">Save</span>
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -27,34 +27,34 @@ export function SchemaActions({
   viewSchemaListLabel = 'View List'
 }: SchemaActionsProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between gap-2 flex-wrap">
       {onBack && (
-        <Button variant="outline" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          {backLabel}
+        <Button variant="outline" onClick={onBack} className="text-xs">
+          <ArrowLeft className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">{backLabel}</span>
         </Button>
       )}
-      <div className="flex gap-2 ml-auto">
+      <div className="flex gap-2 ml-auto flex-wrap">
         {onViewSchemaList && (
-          <Button variant="outline" onClick={onViewSchemaList}>
-            <LayoutList className="h-4 w-4 mr-2" />
-            {viewSchemaListLabel}
+          <Button variant="outline" onClick={onViewSchemaList} className="text-xs">
+            <LayoutList className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">{viewSchemaListLabel}</span>
           </Button>
         )}
         {onReset && (
-          <Button variant="outline" onClick={onReset}>
-            <RotateCcw className="h-4 w-4 mr-2" />
-            {resetLabel}
+          <Button variant="outline" onClick={onReset} className="text-xs">
+            <RotateCcw className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">{resetLabel}</span>
           </Button>
         )}
         {onSave && (
-          <Button onClick={onSave} disabled={saving}>
+          <Button onClick={onSave} disabled={saving} className="text-xs">
             {saving ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 md:mr-2 animate-spin" />
             ) : (
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4 md:mr-2" />
             )}
-            {saveLabel}
+            <span className="hidden md:inline">{saveLabel}</span>
           </Button>
         )}
       </div>

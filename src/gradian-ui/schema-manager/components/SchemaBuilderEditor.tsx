@@ -287,14 +287,15 @@ export function SchemaBuilderEditor({
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="general">
-              <Settings className="h-4 w-4 mr-2" />
-              General
+          <TabsList className="grid w-full grid-cols-2 h-auto">
+            <TabsTrigger value="general" className="text-xs sm:text-sm">
+              <Settings className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="truncate">General</span>
             </TabsTrigger>
-            <TabsTrigger value="sections">
-              <Layers className="h-4 w-4 mr-2" />
-              Sections & Fields
+            <TabsTrigger value="sections" className="text-xs sm:text-sm">
+              <Layers className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="truncate hidden sm:inline">Sections & Fields</span>
+              <span className="truncate sm:hidden">Fields</span>
             </TabsTrigger>
           </TabsList>
 
