@@ -71,7 +71,12 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
  * Formats number with proper locale formatting
  */
 export const formatNumber = (value: number, options?: Intl.NumberFormatOptions): string => {
-  return new Intl.NumberFormat('en-US', options).format(value);
+  // Always use grouping (thousand separators) unless explicitly disabled
+  const defaultOptions: Intl.NumberFormatOptions = {
+    useGrouping: true,
+    ...options,
+  };
+  return new Intl.NumberFormat('en-US', defaultOptions).format(value);
 };
 
 /**

@@ -1,0 +1,76 @@
+// Table Viewer Types
+
+export interface TableColumn<T = any> {
+  id: string;
+  label: string;
+  accessor: keyof T | ((row: T) => any);
+  sortable?: boolean;
+  align?: 'left' | 'center' | 'right';
+  width?: string | number;
+  minWidth?: number;
+  maxWidth?: number;
+  render?: (value: any, row: T, index: number) => React.ReactNode;
+  headerRender?: () => React.ReactNode;
+  cellClassName?: string | ((row: T, index: number) => string);
+  sticky?: 'left' | 'right';
+}
+
+export interface TableConfig<T = any> {
+  id: string;
+  columns: TableColumn<T>[];
+  data: T[];
+  pagination?: {
+    enabled: boolean;
+    pageSize?: number;
+    showPageSizeSelector?: boolean;
+    pageSizeOptions?: number[];
+    alwaysShow?: boolean; // If true, always show pagination even with one page (default: false)
+  };
+  sorting?: {
+    enabled: boolean;
+    defaultSort?: {
+      columnId: string;
+      direction: 'asc' | 'desc';
+    };
+    multiSort?: boolean;
+  };
+  filtering?: {
+    enabled: boolean;
+    globalSearch?: boolean;
+    columnFilters?: Record<string, any>;
+  };
+  selection?: {
+    enabled: boolean;
+    multiple?: boolean;
+    onSelectionChange?: (selectedRows: T[]) => void;
+  };
+  emptyState?: {
+    message?: string;
+    icon?: React.ReactNode;
+  };
+  loading?: boolean;
+  className?: string;
+  stickyHeader?: boolean;
+  striped?: boolean;
+  bordered?: boolean;
+  hoverable?: boolean;
+  compact?: boolean;
+}
+
+export interface TableProps<T = any> {
+  config: TableConfig<T>;
+  className?: string;
+  onRowClick?: (row: T, index: number) => void;
+  onCellClick?: (value: any, row: T, column: TableColumn<T>, index: number) => void;
+}
+
+export interface TableState {
+  page: number;
+  pageSize: number;
+  sortBy: string | null;
+  sortDirection: 'asc' | 'desc';
+  selectedRows: Set<number>;
+  globalFilter: string;
+  columnFilters: Record<string, any>;
+}
+

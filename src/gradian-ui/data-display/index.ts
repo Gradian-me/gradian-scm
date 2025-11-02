@@ -33,5 +33,9 @@ export { DynamicCardActionButtons } from './components/DynamicCardActionButtons'
 export { DynamicInfoCard } from './components/DynamicInfoCard';
 export { ComponentRenderer } from './components/ComponentRenderer';
 export { DynamicDetailPageRenderer } from './components/DynamicDetailPageRenderer';
+export { DynamicRepeatingTableViewer } from './components/DynamicRepeatingTableViewer';
+
+// Table Components
+export * from './table';
 
 export * from './types';

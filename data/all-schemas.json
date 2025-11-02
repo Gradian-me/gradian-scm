@@ -359,6 +359,22 @@
         "order": 7
       },
       {
+        "id": "contact-age",
+        "name": "age",
+        "label": "Age",
+        "sectionId": "contacts",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter age",
+        "required": false,
+        "validation": {
+          "min": 0,
+          "max": 150
+        },
+        "colSpan": 1,
+        "order": 8
+      },
+      {
         "id": "categories",
         "name": "categories",
         "label": "Business Categories",
@@ -638,6 +654,48 @@
             }
           },
           "colSpan": 1
+        }
+      ],
+      "tableRenderers": [
+        {
+          "id": "contacts-table",
+          "schemaId": "vendors",
+          "sectionId": "contacts",
+          "title": "Contact Persons",
+          "description": "List of all contact persons for this vendor",
+          "columns": ["contact-name", "contact-email", "contact-phone", "contact-position", "contact-age"],
+          "tableProperties": {
+            "sortingEnabled": true,
+            "paginationEnabled": true,
+            "paginationPageSize": 10,
+            "showAsCards": true,
+            "cardColumns": 2,
+            "aggregationColumns": 3,
+            "aggregations": [
+              {
+                "column": "contact-name",
+                "aggregationTypes": ["count", "countdistinct"]
+              },
+              {
+                "column": "contact-email",
+                "aggregationTypes": ["count"]
+              },
+              {
+                "column": "contact-age",
+                "aggregationTypes": ["sum", "avg", "min", "max"],
+                "unit": "years",
+                "precision": 1
+              },
+              {
+                "column": "contact-age",
+                "aggregationTypes": ["stdev"],
+                "unit": "years",
+                "precision": 2
+              }
+            ]
+          },
+          "colSpan": 2,
+          "columnArea": "main"
         }
       ],
       "sections": [

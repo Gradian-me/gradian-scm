@@ -11,6 +11,7 @@ import { GridBuilder } from '../../layout/grid-builder';
 import { FormSchema } from '../../../shared/types/form-schema';
 import { DynamicInfoCard } from './DynamicInfoCard';
 import { ComponentRenderer } from './ComponentRenderer';
+import { DynamicRepeatingTableViewer } from './DynamicRepeatingTableViewer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { getValueByRole, getSingleValueByRole } from '../utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
@@ -127,9 +128,10 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const headerInfo = getHeaderInfo(schema, data);
   const badgeConfig = getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
 
-  // Separate sections and component renderers
+  // Separate sections, component renderers, and table renderers
   const metadataSections = detailMetadata?.sections || [];
   const componentRenderers = detailMetadata?.componentRenderers || [];
+  const tableRenderers = detailMetadata?.tableRenderers || [];
 
   // Get default sections (includes badges if schema has badge fields)
   const defaultSections = getDefaultSections(schema);
@@ -149,6 +151,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const sidebarComponents = componentRenderers.slice(mainColumns * 2);
 
   // Determine if sidebar should be shown - show if layout specifies sidebar columns or if we have sidebar sections
+  // Table renderers are always full width and rendered after all components and sections, so they don't affect sidebar
   const hasSidebarSections = sections.some(s => s.columnArea === 'sidebar');
   const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections;
 
@@ -160,6 +163,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const sectionsForSidebar = hasSidebar
     ? sections.filter((s, index) => s.columnArea === 'sidebar' || (!s.columnArea && (index >= Math.ceil(sections.length / 2) && s.colSpan !== 2)))
     : [];
+
+  // Table renderers are always full width and rendered after all components and sections
+  // No need to split them by columnArea
 
   return (
     <div className={cn("container mx-auto px-4 py-6", className)}>
@@ -399,6 +405,38 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 ))}
               </div>
             )}
+
+            {/* Table Renderers - Full Width (Always after components and sections) */}
+            {tableRenderers.length > 0 && (
+              <div className="space-y-6 mt-6">
+                {tableRenderers.map((tableConfig, index) => (
+                  <DynamicRepeatingTableViewer
+                    key={tableConfig.id}
+                    config={tableConfig}
+                    schema={schema}
+                    data={data}
+                    index={index + mainComponents.length + sectionsForMain.length}
+                    disableAnimation={disableAnimation}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Table Renderers - Full Width (Always after components and sections) */}
+        {tableRenderers.length > 0 && (
+          <div className="space-y-6 mt-6">
+            {tableRenderers.map((tableConfig, index) => (
+              <DynamicRepeatingTableViewer
+                key={tableConfig.id}
+                config={tableConfig}
+                schema={schema}
+                data={data}
+                index={index + mainComponents.length + sections.length + (hasSidebar ? sidebarComponents.length : 0)}
+                disableAnimation={disableAnimation}
+              />
+            ))}
           </div>
         )}
       </div>

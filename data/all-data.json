@@ -26,7 +26,19 @@
           "department": "",
           "isPrimary": false,
           "notes": "",
+          "age": 37.6,
           "id": "01K8QVCPJNR90EJV36R3F2E0T0"
+        },
+        {
+          "name": "Sarah Johnson",
+          "email": "sarah.johnson@example.com",
+          "phone": "09121234567",
+          "position": "Product Manager",
+          "department": "Product",
+          "isPrimary": true,
+          "notes": "Main point of contact",
+          "age": 28,
+          "id": "01K8QVCPJNR90EJV36R3F2E0T1"
         }
       ],
       "rating": 4.3,

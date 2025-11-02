@@ -87,9 +87,37 @@ export interface ComponentRendererConfig {
   colSpan?: number; // Number of columns this component should span
 }
 
+export interface RepeatingTableRendererConfig {
+  id: string;
+  schemaId: string;
+  sectionId: string;
+  columns?: string[]; // Field IDs to display as columns (if empty, show all fields from section)
+  title?: string;
+  description?: string;
+  tableProperties?: {
+    sortingEnabled?: boolean;
+    paginationEnabled?: boolean;
+    paginationPageSize?: number;
+    alwaysShowPagination?: boolean; // If true, always show pagination even with one page (default: false)
+    showAsCards?: boolean; // If true, show table rows as cards in responsive mode
+    cardColumns?: 1 | 2 | 3; // Number of columns for key-value pairs in cards (default: 1)
+    aggregationAlignment?: 'start' | 'center' | 'end'; // Alignment for aggregation values (default: 'end')
+    aggregationColumns?: 1 | 2 | 3; // Number of columns for aggregation grid (default: 3, 1 = full width)
+    aggregations?: Array<{
+      column: string; // Column ID (field ID)
+      aggregationTypes: Array<'sum' | 'avg' | 'min' | 'max' | 'first' | 'last' | 'count' | 'countdistinct' | 'stdev'>;
+      unit?: string; // Unit to display after the value (e.g., "USD", "%", "kg")
+      precision?: number; // Number of decimal places (default: 2)
+    }>;
+  };
+  colSpan?: number; // Number of columns this table should span
+  columnArea?: 'main' | 'sidebar'; // Which area to place this table in (main or sidebar)
+}
+
 export interface DetailPageMetadata {
   sections?: DetailPageSection[]; // Info card sections with key-value pairs
   componentRenderers?: ComponentRendererConfig[]; // Custom components to render (e.g., KPIIndicator)
+  tableRenderers?: RepeatingTableRendererConfig[]; // Repeating section tables to render
   layout?: {
     mainColumns?: number; // Number of columns for main content area (default: 2)
     sidebarColumns?: number; // Number of columns for sidebar (default: 1)
