@@ -72,7 +72,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   const hasExpirationField = schema?.fields?.some(field => field.role === 'expiration') || false;
 
   // Filter out performance section from cardMetadata
-  const filteredSections = cardMetadata.filter(section => 
+  const filteredSections = cardMetadata.filter(section =>
     section.id !== 'performance'
   ) || [];
 
@@ -88,7 +88,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     if (value && Array.isArray(value)) {
       allBadgeValues.push(...value);
     }
-    
+
     // Collect options from all fields
     if (field.options && Array.isArray(field.options)) {
       field.options.forEach((opt: any) => {
@@ -97,7 +97,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
         }
       });
     }
-    
+
     // Use first badge field as base, but combine options from all
     if (!combinedBadgeField && field) {
       combinedBadgeField = { ...field, options: Array.from(allOptions.values()) };
@@ -110,8 +110,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   }
 
   // Fallback if no badge fields found
-  const badgeValues = allBadgeValues.length > 0 
-    ? allBadgeValues 
+  const badgeValues = allBadgeValues.length > 0
+    ? allBadgeValues
     : (getArrayValuesByRole(schema, data, 'badge') || data.categories || []);
 
   const cardConfig = {
@@ -288,14 +288,14 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   )
                 )}
               </div>
-              
+
               {/* Performance Metrics */}
               {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, y: 10 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
                   transition={disableAnimation ? {} : { duration: 0.3, delay: 0.35 }}
-                  className="w-full mb-3 border-t border-gray-100 pt-2 mt-2"
+                  className="w-full mb-2 border-t border-gray-100 pt-2 mt-2"
                 >
                   <div className="text-xs text-gray-500 mb-1">Performance:</div>
                   <DynamicMetricRenderer
@@ -306,12 +306,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                 </motion.div>
               )}
-              
+
               {/* Separator after metrics */}
               {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
                 <div className="w-full border-t border-gray-100 mb-3"></div>
               )}
-              
+
               {/* Expiration Countdown */}
               {hasExpirationField && cardConfig.expirationField && (
                 <motion.div
@@ -328,7 +328,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   />
                 </motion.div>
               )}
-              
+
               {/* Content Sections */}
               <div className="flex-1">
                 <motion.div
@@ -338,10 +338,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
                   {filteredSections.map((section) => (
-                    <div 
-                      key={section.id || Math.random()} 
+                    <div
+                      key={section.id || Math.random()}
                       className={cn(
-                        "overflow-hidden", 
+                        "overflow-hidden",
                         section.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
                       )}
                     >
@@ -379,7 +379,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       "text-base font-semibold truncate",
                       !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
                     )}
-                    whileHover={disableAnimation ? undefined : { 
+                    whileHover={disableAnimation ? undefined : {
                       x: 2,
                       transition: { type: "spring", stiffness: 400, damping: 25 }
                     }}
@@ -394,7 +394,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       "text-xs text-gray-500 truncate",
                       !disableAnimation && "group-hover:text-gray-700 transition-colors duration-200"
                     )}
-                    whileHover={disableAnimation ? undefined : { 
+                    whileHover={disableAnimation ? undefined : {
                       x: 2,
                       transition: { type: "spring", stiffness: 400, damping: 25 }
                     }}
@@ -421,58 +421,70 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       />
                     )
                   )}
-                  {hasExpirationField && cardConfig.expirationField && (
-                    <div className="mt-2">
-                      <Countdown
-                        expireDate={cardConfig.expirationField}
-                        includeTime={true}
-                        size="sm"
-                        showIcon={true}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
-              {(hasRatingField || hasStatusField) && (
-                <div className="flex flex-col items-end space-y-1 ml-auto mr-4">
-                  {hasRatingField && (
-                    <motion.div
-                      initial={disableAnimation ? false : { opacity: 0, y: -10 }}
-                      animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
-                      whileHover={disableAnimation ? undefined : { 
-                        scale: 1.02,
-                        transition: { type: "spring", stiffness: 300, damping: 30 }
-                      }}
-                    >
-                      <Rating
-                        value={Number(cardConfig.ratingField) || 0}
-                        size="sm"
-                        showValue={true}
-                      />
-                    </motion.div>
-                  )}
-                  {hasStatusField && (
-                    <motion.div
-                      initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
-                      animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
-                      whileHover={disableAnimation ? undefined : { 
-                        scale: 1.02,
-                        transition: { type: "spring", stiffness: 300, damping: 30 }
-                      }}
-                    >
-                      {(() => {
-                        const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
-                        return (
-                          <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
-                            {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                            <span className="text-xs">{badgeConfig.label}</span>
-                          </Badge>
-                        );
-                      })()}
-                    </motion.div>
-                  )}
+              {(hasRatingField || hasStatusField || hasExpirationField) && (
+                <div className="flex flex-row items-center justify-between space-y-1 ms-auto me-2">
+                  <div className="flex items-center gap-2">
+                    {hasExpirationField && cardConfig.expirationField && (
+                      <motion.div
+                        initial={disableAnimation ? false : { opacity: 0, y: -10 }}
+                        animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                        whileHover={disableAnimation ? undefined : {
+                          scale: 1.02,
+                          transition: { type: "spring", stiffness: 300, damping: 30 }
+                        }}
+                      >
+                        <Countdown
+                          expireDate={cardConfig.expirationField}
+                          includeTime={true}
+                          size="sm"
+                          showIcon={true}
+                        />
+                      </motion.div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {hasRatingField && (
+                      <motion.div
+                        initial={disableAnimation ? false : { opacity: 0, y: -10 }}
+                        animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
+                        whileHover={disableAnimation ? undefined : {
+                          scale: 1.02,
+                          transition: { type: "spring", stiffness: 300, damping: 30 }
+                        }}
+                      >
+                        <Rating
+                          value={Number(cardConfig.ratingField) || 0}
+                          size="sm"
+                          showValue={true}
+                        />
+                      </motion.div>
+                    )}
+                    {hasStatusField && (
+                      <motion.div
+                        initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
+                        animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
+                        whileHover={disableAnimation ? undefined : {
+                          scale: 1.02,
+                          transition: { type: "spring", stiffness: 300, damping: 30 }
+                        }}
+                      >
+                        {(() => {
+                          const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
+                          return (
+                            <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                              {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                              <span className="text-xs">{badgeConfig.label}</span>
+                            </Badge>
+                          );
+                        })()}
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
               )}
 

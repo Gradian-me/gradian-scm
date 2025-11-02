@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="/odometer-theme-plaza.css" />
+        <link rel="stylesheet" href="/odometer-theme-minimal.css" />
       </head>
       <body
         className={`${inter.variable} font-sans antialiased`}

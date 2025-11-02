@@ -101,54 +101,57 @@ export const Countdown: React.FC<CountdownProps> = ({
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className="flex items-center gap-2">
         {showIcon && <Clock className={`${size === 'sm' ? 'h-3 w-3' : size === 'md' ? 'h-4 w-4' : 'h-5 w-5'} text-blue-600`} />}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
           {timeLeft.days > 0 && (
             <>
-              <div className="inline-block min-w-[24px]">
+              <div className="inline-block relative">
                 <Odometer 
-                  value={timeLeft.days} 
-                  theme="plaza" 
-                  animation="count"
+                  value={100 + timeLeft.days} 
+                  theme="minimal"
                 />
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gray-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>d</span>
             </>
           )}
+          
           {(timeLeft.days > 0 || timeLeft.hours > 0) && (
             <>
-              <div className="inline-block min-w-[24px]">
+              <div className="inline-block relative">
                 <Odometer 
-                  value={timeLeft.hours} 
-                  theme="plaza" 
-                  animation="count"
+                  value={100 + timeLeft.hours} 
+                  theme="minimal"
                 />
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gray-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>h</span>
             </>
           )}
+          
           {(timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0) && (
             <>
-              <div className="inline-block min-w-[24px]">
+              <div className="inline-block relative">
                 <Odometer 
-                  value={timeLeft.minutes} 
-                  theme="plaza" 
-                  animation="count"
+                  value={100 + timeLeft.minutes} 
+                  theme="minimal"
                 />
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gray-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>m</span>
             </>
           )}
+          
           {includeTime && (
-            <>
-              <div className="inline-block min-w-[24px]">
+            <React.Fragment>
+              <div className="inline-block relative">
                 <Odometer 
-                  value={timeLeft.seconds} 
-                  theme="plaza" 
-                  animation="count"
+                  value={100 + timeLeft.seconds} 
+                  theme="minimal"
                 />
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gray-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>s</span>
-            </>
+            </React.Fragment>
           )}
         </div>
       </div>
