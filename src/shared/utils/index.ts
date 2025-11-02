@@ -5,3 +5,4 @@ export * from './api';
 export * from './validation';
 export * from './logging-custom';
 export * from './schema-utils';
+export * from './icon-renderer';

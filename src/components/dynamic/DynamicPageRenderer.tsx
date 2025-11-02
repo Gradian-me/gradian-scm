@@ -366,6 +366,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     return (
       <MainLayout 
         title={pluralName}
+        icon={schema.icon}
       >
         <LoadingState size="lg" text={`Loading ${pluralName.toLowerCase()}...`} />
       </MainLayout>
@@ -375,6 +376,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   return (
     <MainLayout 
       title={pluralName}
+      icon={schema.icon}
     >
       {/* Individual entity loading indicator */}
       <div 

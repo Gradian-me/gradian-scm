@@ -5,6 +5,7 @@ import { Sidebar } from '../../gradian-ui/layout/sidebar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/button';
 import { Plus, Menu, Bell, PanelRight, PanelRightOpen, PanelLeftOpen } from 'lucide-react';
+import { IconRenderer } from '../../shared/utils/icon-renderer';
 import { DepartmentSelector } from './DepartmentSelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
@@ -15,6 +16,7 @@ interface MainLayoutProps {
   children: React.ReactNode;
   title: string;
   subtitle?: string;
+  icon?: string;
   showCreateButton?: boolean;
   createButtonText?: string;
   onCreateClick?: () => void;
@@ -24,6 +26,7 @@ export function MainLayout({
   children, 
   title,
   subtitle,
+  icon,
   showCreateButton = false, 
   createButtonText = "Create",
   onCreateClick 
@@ -114,14 +117,22 @@ export function MainLayout({
             
             {/* Title */}
             <div className="flex flex-col">
-              <motion.h1
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="text-xl md:text-2xl font-semibold text-gray-900"
+                className="flex items-center gap-2"
               >
-                {title}
-              </motion.h1>
+                {icon && (
+                  <IconRenderer 
+                    iconName={icon} 
+                    className="h-5 w-5 md:h-6 md:w-6 text-violet-600" 
+                  />
+                )}
+                <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                  {title}
+                </h1>
+              </motion.div>
               {subtitle && (
                 <motion.p
                   initial={{ opacity: 0, x: -20 }}
