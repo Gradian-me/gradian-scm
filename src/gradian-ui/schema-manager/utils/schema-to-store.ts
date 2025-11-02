@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useFormState } from '../../shared/hooks';
-import { FormSchema } from '../../form-builder/types/form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 import { 
   generateValidationRulesFromForm, 
   extractInitialValuesFromForm 

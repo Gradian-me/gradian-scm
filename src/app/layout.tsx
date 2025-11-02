@@ -20,6 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="/odometer-theme-plaza.css" />
+      </head>
       <body
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning={true}

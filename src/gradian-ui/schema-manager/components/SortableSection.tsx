@@ -2,7 +2,6 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,14 +17,14 @@ export interface SortableSectionProps {
   onUpdate: (updates: Partial<FormSection>) => void;
 }
 
-export const SortableSection = ({ 
+export function SortableSection({ 
   section, 
   children, 
   isExpanded, 
   onToggle, 
   onDelete,
   onUpdate
-}: SortableSectionProps) => {
+}: SortableSectionProps) {
   const {
     attributes,
     listeners,
@@ -43,47 +42,48 @@ export const SortableSection = ({
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <Card className={`transition-all duration-200 ${isDragging ? 'shadow-lg ring-2 ring-violet-400' : ''}`}>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3 flex-1">
+      <div className={`bg-white rounded-md border transition-all duration-200 ${isDragging ? 'shadow-lg ring-2 ring-violet-400' : 'border-gray-200'}`}>
+        <div className="px-3 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <button
                 {...attributes}
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-1 -ml-1"
+                className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-0.5"
               >
-                <GripVertical className="h-5 w-5" />
+                <GripVertical className="h-4 w-4" />
               </button>
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 min-w-0 space-y-1">
                 <Input
                   value={section.title}
                   onChange={(e) => onUpdate({ title: e.target.value })}
-                  className="text-lg font-semibold"
+                  className="text-sm font-medium h-8 border-none bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                   placeholder="Section title..."
                 />
                 <Textarea
                   value={section.description || ''}
                   onChange={(e) => onUpdate({ description: e.target.value })}
                   placeholder="Section description..."
-                  rows={2}
+                  rows={1}
+                  className="text-xs border-none bg-transparent px-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon" onClick={onToggle}>
-                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onToggle}>
+                {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               </Button>
-              <Button variant="ghost" size="icon" onClick={onDelete} className="text-red-600">
-                <Trash2 className="h-4 w-4" />
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-600 hover:text-red-700" onClick={onDelete}>
+                <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
-        </CardHeader>
+        </div>
         {isExpanded && (
-          <CardContent>{children}</CardContent>
+          <div className="px-3 pb-3 border-t border-gray-100">{children}</div>
         )}
-      </Card>
+      </div>
     </div>
   );
-};
+}
 

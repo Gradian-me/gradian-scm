@@ -137,7 +137,11 @@ export interface FormSchema {
   description?: string;
   singular_name: string;
   plural_name: string;
+  // Compatibility aliases for form-builder FormSchema
+  name?: string; // Alias for singular_name
+  title?: string; // Alias for plural_name
   icon?: string;
+  showInNavigation?: boolean;
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];

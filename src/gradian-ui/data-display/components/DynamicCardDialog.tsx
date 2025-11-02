@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../components/ui/dialog';
 import { DynamicCardRenderer } from './DynamicCardRenderer';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
-import { FormSchema } from '../../form-builder/types/form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 
 export interface DynamicCardDialogProps {

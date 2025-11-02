@@ -2,7 +2,7 @@
 // Generates Zod validation schemas from FormSchema definitions
 
 import { z } from 'zod';
-import { FormSchema, FormField } from '../../form-builder/types/form-schema';
+import { FormSchema, FormField } from '../../../shared/types/form-schema';
 
 // Define ValidationRule type based on FormField validation property
 type ValidationRule = NonNullable<FormField['validation']>;

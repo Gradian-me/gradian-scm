@@ -173,7 +173,11 @@ export function DynamicDetailPageClient({
         >
           <SchemaFormWrapper
             key={`edit-${dataId}`}
-            schema={schema}
+            schema={{
+              ...schema,
+              name: schema.singular_name,
+              title: schema.plural_name
+            }}
             onSubmit={handleUpdate}
             onReset={() => {
               formState.reset();

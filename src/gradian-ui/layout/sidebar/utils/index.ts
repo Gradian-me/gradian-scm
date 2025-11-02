@@ -28,26 +28,6 @@ export const defaultNavigationItems: NavigationItem[] = [
     icon: LayoutDashboard,
   },
   {
-    name: 'Vendors',
-    href: '/vendors',
-    icon: Users,
-  },
-  {
-    name: 'Tenders/Quotations',
-    href: '/tenders',
-    icon: FileText,
-  },
-  {
-    name: 'Users',
-    href: '/users',
-    icon: User,
-  },
-  {
-    name: 'Projects',
-    href: '/projects',
-    icon: Folder,
-  },
-  {
     name: 'Tender Calendar',
     href: '/calendar',
     icon: Calendar,
@@ -58,20 +38,10 @@ export const defaultNavigationItems: NavigationItem[] = [
     icon: BarChart3,
   },
   {
-    name: 'Notifications',
-    href: '/notifications',
-    icon: Bell,
-  },
-  {
     name: 'ERP Integration',
     href: '/erp',
     icon: Database,
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
-  },
+  }
 ];
 
 /**

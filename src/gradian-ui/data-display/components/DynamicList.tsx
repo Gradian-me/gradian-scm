@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
 import { GridBuilder } from '../../layout/grid-builder';
 import { DynamicCard } from './DynamicCard';
-import { ListMetadata, CardSection, FormSchema } from '../../form-builder/types/form-schema';
+import { CardSection, FormSchema } from '../../../shared/types/form-schema';
+import { ListMetadata } from '../../form-builder/types/form-schema';
 import { cn } from '../../shared/utils';
 
 interface DynamicListProps {

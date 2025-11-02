@@ -758,6 +758,7 @@
           ]
         }
       ]
-    }
+    },
+    "showInNavigation": true
   }
 ]

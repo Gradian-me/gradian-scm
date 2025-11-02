@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarNavigationProps } from '../types';
 import { isActiveNavigationItem } from '../utils';
 import { cn } from '../../../shared/utils';
+import { SidebarNavigationDynamic } from './SidebarNavigationDynamic';
 
 export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   items,
@@ -62,6 +63,12 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
           );
         })}
       </nav>
+      
+      {/* Dynamic Schema Navigation */}
+      <SidebarNavigationDynamic
+        isCollapsed={isCollapsed}
+        isMobile={isMobile}
+      />
     </ScrollArea>
   );
 };

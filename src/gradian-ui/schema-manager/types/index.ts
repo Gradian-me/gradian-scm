@@ -1,6 +1,6 @@
 // Schema Manager Types
 
-import { FormSchema } from '../../form-builder/types/form-schema';
+import { FormSchema } from '../../../shared/types/form-schema';
 
 export * from './builder';
 

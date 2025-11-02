@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '../card';
 import { Badge } from '../../../components/ui/badge';
-import { CardSection, FormSchema } from '../../form-builder/types/form-schema';
+import { CardSection, FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 import { 
   getValueByRole, 
