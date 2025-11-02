@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Layers, Loader2, ArrowLeft } from 'lucide-react';
 import { FormSchema, FormField, FormSection } from '@/shared/types/form-schema';
@@ -31,6 +32,7 @@ export function SchemaBuilderEditor({
   title,
   subtitle = 'Schema Builder'
 }: SchemaBuilderEditorProps) {
+  const router = useRouter();
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [originalSchema, setOriginalSchema] = useState<FormSchema | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,12 @@ export function SchemaBuilderEditor({
     setSchema(JSON.parse(JSON.stringify(originalSchema)));
     setExpandedSection(null);
     setShowResetDialog(false);
+  };
+
+  const handleViewSchemaList = () => {
+    if (schemaId) {
+      router.push(`/page/${schemaId}`);
+    }
   };
 
   const updateSchema = (updates: Partial<FormSchema>) => {
@@ -274,6 +282,7 @@ export function SchemaBuilderEditor({
           onBack={onBack}
           onSave={handleSave}
           onReset={() => setShowResetDialog(true)}
+          onViewSchemaList={handleViewSchemaList}
           saving={saving}
         />
 

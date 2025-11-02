@@ -2,31 +2,19 @@
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { IconInput } from '@/components/ui/icon-input';
 import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
-import { Plus } from 'lucide-react';
-import { FormSection, FormField } from '@/shared/types/form-schema';
+import { FormSection } from '@/shared/types/form-schema';
 
 interface SectionContentProps {
   section: FormSection;
-  fields: FormField[];
-  sections: FormSection[];
   onUpdate: (updates: Partial<FormSection>) => void;
-  onAddField: () => void;
-  onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
-  onFieldDelete: (fieldId: string) => void;
 }
 
 export function SectionContent({
   section,
-  fields,
-  sections,
-  onUpdate,
-  onAddField,
-  onFieldUpdate,
-  onFieldDelete
+  onUpdate
 }: SectionContentProps) {
   // This component is just for section configuration, not for rendering fields
   return (
@@ -73,21 +61,6 @@ export function SectionContent({
             Repeating Section
           </Label>
         </div>
-      </div>
-      
-      <div className="pt-3 border-t border-gray-100">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-semibold text-gray-600">Fields ({fields.length})</h4>
-        </div>
-        
-        <Button
-          variant="outline"
-          onClick={onAddField}
-          className="w-full flex items-center justify-center px-3 py-2 border-2 border-dashed border-gray-300 rounded text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 text-xs"
-        >
-          <Plus className="w-4 h-4 mr-1.5" />
-          Add Field
-        </Button>
       </div>
     </div>
   );

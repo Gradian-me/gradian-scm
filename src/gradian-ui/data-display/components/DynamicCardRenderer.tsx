@@ -424,7 +424,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 </div>
               </div>
               {(hasRatingField || hasStatusField || hasExpirationField) && (
-                <div className="flex flex-row items-center justify-between space-y-1 ms-auto me-2">
+                <div className="flex flex-row items-center justify-between space-y-1 ms-auto gap-2">
                   <div className="flex items-center gap-2">
                     {hasExpirationField && cardConfig.expirationField && (
                       <motion.div
@@ -445,7 +445,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       </motion.div>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-end gap-2 flex-col">
                     {hasRatingField && (
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, y: -10 }}

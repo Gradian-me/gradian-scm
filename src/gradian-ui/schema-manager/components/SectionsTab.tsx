@@ -4,9 +4,8 @@ import { Button } from '@/components/ui/button';
 import { ChevronsUp, Plus } from 'lucide-react';
 import { FormSection, FormField } from '@/shared/types/form-schema';
 import { SectionContent } from './SectionContent';
+import { SectionFields } from './SectionFields';
 import { SortableSection } from './SortableSection';
-import { SortableField } from './SortableField';
-import { FieldEditorContent } from './FieldEditorContent';
 import {
   DndContext,
   closestCenter,
@@ -64,17 +63,15 @@ export function SectionsTab({
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">Sections ({sections.length})</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={onCollapseAll}>
-            <ChevronsUp className="h-4 w-4 mr-2" />
-            Collapse
-          </Button>
-          <Button onClick={onAddSection}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Section
-          </Button>
+        <div className="flex items-start gap-2">
+          <h3 className="text-base font-semibold">Sections</h3>
+          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+            {sections.length}
+          </span>
         </div>
+        <Button variant="outline" className="h-11 w-11 p-0 rounded-xl" title="Collapse All" size="sm" onClick={onCollapseAll}>
+          <ChevronsUp className="h-4 w-4" />
+        </Button>
       </div>
 
       <DndContext
@@ -98,43 +95,30 @@ export function SectionsTab({
                   onDelete={() => onDeleteSection(section.id)}
                   onUpdate={(updates) => onUpdateSection(section.id, updates)}
                 >
-                  {fields.length > 0 && (
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragEnd={(e) => onFieldDragEnd(e, section.id)}
-                    >
-                      <SortableContext
-                        items={fields.map(f => f.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
-                        <div className="space-y-2 mb-3">
-                          {fields.map((field) => (
-                            <SortableField key={field.id} id={field.id}>
-                              <FieldEditorContent
-                                field={field}
-                                onUpdate={(updates) => onFieldUpdate(field.id, updates)}
-                                onDelete={() => onFieldDelete(field.id)}
-                                sections={sections}
-                              />
-                            </SortableField>
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  )}
                   <SectionContent
+                    section={section}
+                    onUpdate={(updates) => onUpdateSection(section.id, updates)}
+                  />
+                  <SectionFields
                     section={section}
                     fields={fields}
                     sections={sections}
-                    onUpdate={(updates) => onUpdateSection(section.id, updates)}
                     onAddField={() => onAddField(section.id)}
                     onFieldUpdate={onFieldUpdate}
                     onFieldDelete={onFieldDelete}
+                    onFieldDragEnd={onFieldDragEnd}
                   />
                 </SortableSection>
               );
             })}
+            <Button
+              variant="outline"
+              onClick={onAddSection}
+              className="w-full flex items-center justify-center px-3 py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 text-xs"
+            >
+              <Plus className="w-4 h-4 mr-1.5" />
+              Add Section
+            </Button>
           </div>
         </SortableContext>
       </DndContext>

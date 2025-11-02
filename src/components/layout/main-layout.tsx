@@ -1,7 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, PanelLeftOpen, Plus } from 'lucide-react';
+import { Bell, PanelLeftOpen, PencilRuler, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { GoToTop } from '../../gradian-ui/layout';
 import { Sidebar } from '../../gradian-ui/layout/sidebar';
@@ -20,6 +21,8 @@ interface MainLayoutProps {
   showCreateButton?: boolean;
   createButtonText?: string;
   onCreateClick?: () => void;
+  editSchemaPath?: string;
+  isAdmin?: boolean;
 }
 
 export function MainLayout({ 
@@ -29,8 +32,11 @@ export function MainLayout({
   icon,
   showCreateButton = false, 
   createButtonText = "Create",
-  onCreateClick 
+  onCreateClick,
+  editSchemaPath,
+  isAdmin = false
 }: MainLayoutProps) {
+  const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notificationCount] = useState(3);
@@ -49,6 +55,12 @@ export function MainLayout({
 
   const handleUserProfileClick = () => {
     window.location.href = '/settings/profile';
+  };
+
+  const handleEditSchemaClick = () => {
+    if (editSchemaPath) {
+      router.push(editSchemaPath);
+    }
   };
 
   return (
@@ -132,6 +144,18 @@ export function MainLayout({
                 <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
                   {title}
                 </h1>
+                {isAdmin && editSchemaPath && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleEditSchemaClick}
+                    className="h-8 w-8 p-0 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                    aria-label="Edit schema"
+                    title="Edit schema"
+                  >
+                    <PencilRuler className="h-4 w-4" />
+                  </Button>
+                )}
               </motion.div>
               {subtitle && (
                 <motion.p

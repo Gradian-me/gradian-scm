@@ -362,11 +362,16 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const pluralName = schema.plural_name || 'Entities';
   const singularName = schema.singular_name || 'Entity';
 
+  // Check if user is admin (mock implementation - replace with actual auth context)
+  const isAdmin = true; // TODO: Replace with actual user profile check
+
   if (isLoading) {
     return (
       <MainLayout 
         title={pluralName}
         icon={schema.icon}
+        editSchemaPath={schema.id ? `/builder/schemas/${schema.id}` : undefined}
+        isAdmin={isAdmin}
       >
         <LoadingState size="lg" text={`Loading ${pluralName.toLowerCase()}...`} />
       </MainLayout>
@@ -377,6 +382,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     <MainLayout 
       title={pluralName}
       icon={schema.icon}
+      editSchemaPath={schema.id ? `/builder/schemas/${schema.id}` : undefined}
+      isAdmin={isAdmin}
     >
       {/* Individual entity loading indicator */}
       <div 

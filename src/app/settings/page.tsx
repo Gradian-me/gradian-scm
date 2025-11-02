@@ -30,6 +30,7 @@ export default function SettingsPage() {
       role: 'Supply Chain Manager',
       department: 'Supply Chain',
       phone: '+1-555-0123',
+      isAdmin: true
     },
     notifications: {
       emailNotifications: true,

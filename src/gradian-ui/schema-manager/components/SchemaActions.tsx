@@ -1,26 +1,30 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Save, ArrowLeft, RotateCcw, Loader2 } from 'lucide-react';
+import { Save, ArrowLeft, RotateCcw, Loader2, LayoutList } from 'lucide-react';
 
 interface SchemaActionsProps {
   onBack?: () => void;
   onSave?: () => void;
   onReset?: () => void;
+  onViewSchemaList?: () => void;
   saving?: boolean;
   backLabel?: string;
   saveLabel?: string;
   resetLabel?: string;
+  viewSchemaListLabel?: string;
 }
 
 export function SchemaActions({ 
   onBack, 
   onSave, 
-  onReset, 
+  onReset,
+  onViewSchemaList,
   saving = false,
   backLabel = 'Back',
   saveLabel = 'Save Schema',
-  resetLabel = 'Reset'
+  resetLabel = 'Reset',
+  viewSchemaListLabel = 'View List'
 }: SchemaActionsProps) {
   return (
     <div className="flex items-center justify-between">
@@ -31,6 +35,12 @@ export function SchemaActions({
         </Button>
       )}
       <div className="flex gap-2 ml-auto">
+        {onViewSchemaList && (
+          <Button variant="outline" onClick={onViewSchemaList}>
+            <LayoutList className="h-4 w-4 mr-2" />
+            {viewSchemaListLabel}
+          </Button>
+        )}
         {onReset && (
           <Button variant="outline" onClick={onReset}>
             <RotateCcw className="h-4 w-4 mr-2" />

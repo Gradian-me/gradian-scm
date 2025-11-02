@@ -100,8 +100,8 @@ export const Countdown: React.FC<CountdownProps> = ({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className="flex items-center gap-2">
-        {showIcon && <Clock className={`${size === 'sm' ? 'h-3 w-3' : size === 'md' ? 'h-4 w-4' : 'h-5 w-5'} text-blue-600`} />}
-        <div className="flex items-center gap-1 border border-gray-200 rounded-md px-3 py-2 bg-gray-50">
+        {showIcon && <Clock className={`${size === 'sm' ? 'h-3 w-3' : size === 'md' ? 'h-4 w-4' : 'h-5 w-5'} text-pink-600`} />}
+        <div className="flex items-center gap-1 border border-gray-200 rounded-md px-2 py-1 bg-gray-50">
           {timeLeft.days > 0 && (
             <>
               <div className="inline-block relative">
@@ -157,7 +157,7 @@ export const Countdown: React.FC<CountdownProps> = ({
       </div>
       
       {/* Expiration date display */}
-      <div className="flex items-center gap-1.5 text-gray-500">
+      <div className="flex items-end gap-1.5 text-gray-500">
         <Calendar className="h-3 w-3" />
         <span className={`${sizeClasses[size]}`}>
           Expires: {formatDate(new Date(expireDate), { 

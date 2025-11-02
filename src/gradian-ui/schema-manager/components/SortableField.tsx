@@ -27,7 +27,7 @@ export function SortableField({ id, children }: SortableFieldProps) {
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <div className={`flex items-center gap-2 bg-white rounded border p-2 hover:border-violet-300 transition-all duration-200 ${isDragging ? 'border-violet-400 shadow-md' : 'border-gray-100'}`}>
+      <div className={`flex items-center gap-2 bg-white rounded-xl border p-1.5 hover:border-violet-300 transition-all duration-200 ${isDragging ? 'border-violet-400 shadow-md' : 'border-gray-100'}`}>
         <button
           {...attributes}
           {...listeners}

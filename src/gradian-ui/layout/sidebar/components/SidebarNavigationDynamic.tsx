@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Separator } from '@/components/ui/separator';
+import { FormSchema } from '@/shared/types/form-schema';
+import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { AnimatePresence, motion } from 'framer-motion';
+import { LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Separator } from '@/components/ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import React, { useEffect, useState } from 'react';
 import { cn } from '../../../shared/utils';
-import { FormSchema } from '@/shared/types/form-schema';
-import { Brain } from 'lucide-react';
 
 interface SidebarNavigationDynamicProps {
   isCollapsed: boolean;
@@ -62,14 +62,14 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
       <Separator className="my-4 bg-gray-700" />
       
       <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="intelligent-systems" className="border-none">
+        <AccordionItem value="applications" className="border-none">
           <AccordionTrigger className={cn(
             "px-3 py-2 text-gray-300 hover:text-white",
             "hover:bg-gray-800 rounded-lg transition-colors",
             "data-[state=open]:text-white"
           )}>
             <div className="flex items-center space-x-3 flex-1">
-              <Brain className="h-5 w-5 shrink-0" />
+              <LayoutGrid className="h-5 w-5 shrink-0" />
               <AnimatePresence>
                 {(!isCollapsed || isMobile) && (
                   <motion.span
@@ -79,7 +79,7 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
                     transition={{ duration: 0.3 }}
                     className="text-xs font-medium"
                   >
-                    Intelligent Systems
+                    Applications
                   </motion.span>
                 )}
               </AnimatePresence>

@@ -42,8 +42,8 @@ export function SortableSection({
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <div className={`bg-white rounded-md border transition-all duration-200 ${isDragging ? 'shadow-lg ring-2 ring-violet-400' : 'border-gray-200'}`}>
-        <div className="px-3 py-2">
+      <div className={`bg-white rounded-xl border transition-all duration-200 ${isDragging ? 'shadow-lg ring-2 ring-violet-400' : 'border-gray-200'}`}>
+        <div className="px-3 py-1.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <button
@@ -57,7 +57,7 @@ export function SortableSection({
                 <Input
                   value={section.title}
                   onChange={(e) => onUpdate({ title: e.target.value })}
-                  className="text-sm font-medium h-8 border-none bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="text-sm font-medium h-7"
                   placeholder="Section title..."
                 />
                 <Textarea
@@ -65,7 +65,7 @@ export function SortableSection({
                   onChange={(e) => onUpdate({ description: e.target.value })}
                   placeholder="Section description..."
                   rows={1}
-                  className="text-xs border-none bg-transparent px-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="text-xs resize-none"
                 />
               </div>
             </div>
@@ -80,7 +80,7 @@ export function SortableSection({
           </div>
         </div>
         {isExpanded && (
-          <div className="px-3 pb-3 border-t border-gray-100">{children}</div>
+          <div className="px-3 pb-2.5 border-t border-gray-100">{children}</div>
         )}
       </div>
     </div>
