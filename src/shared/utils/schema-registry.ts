@@ -77,11 +77,11 @@ function processSchema(schema: any): FormSchema {
  * @returns Array of FormSchema objects
  */
 async function loadSchemasFromServer(): Promise<FormSchema[]> {
-  // Check if we're on the server side
-  if (typeof window === 'undefined') {
-    // Server side - use dynamic import to avoid bundling fs in client
-    const { loadAllSchemas } = await import('./schema-loader');
-    return loadAllSchemas();
+    // Check if we're on the server side
+    if (typeof window === 'undefined') {
+      // Server side - use dynamic import to avoid bundling fs in client
+      const { loadAllSchemas } = await import('./schema-loader');
+      return await loadAllSchemas();
   } else {
     // Client side - fetch from API
     const response = await fetch(config.schemaApi.basePath, {
@@ -115,9 +115,9 @@ export async function fetchSchemaById(schemaId: string): Promise<FormSchema | nu
   try {
     // Check if we're on the server side
     if (typeof window === 'undefined') {
-      // Server side - use direct file access for better performance
+      // Server side - use API endpoint (configured via NEXT_PUBLIC_SCHEMA_API_BASE)
       const { loadSchemaById } = await import('./schema-loader');
-      const schema = loadSchemaById(schemaId);
+      const schema = await loadSchemaById(schemaId);
       return schema ? processSchema(schema) : null;
     } else {
       // Client side - fetch from API

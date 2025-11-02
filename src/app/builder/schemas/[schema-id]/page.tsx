@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SchemaBuilderEditor } from '@/gradian-ui/schema-manager';
 import { FormSchema } from '@/shared/types/form-schema';
+import { config } from '@/lib/config';
 
 export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema-id': string }> }) {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   }, [params]);
 
   const fetchSchema = async (id: string): Promise<FormSchema> => {
-    const response = await fetch(`/api/schemas/${id}`);
+    const response = await fetch(`${config.schemaApi.basePath}/${id}`);
     const result = await response.json();
 
     if (result.success) {
@@ -30,7 +31,7 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   };
 
   const saveSchema = async (id: string, schema: FormSchema): Promise<void> => {
-    const response = await fetch(`/api/schemas/${id}`, {
+    const response = await fetch(`${config.schemaApi.basePath}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(schema),

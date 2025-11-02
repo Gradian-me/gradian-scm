@@ -22,6 +22,7 @@ import { FormSchema } from '@/shared/types/form-schema';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { config } from '@/lib/config';
 
 interface SchemaCardProps {
   schema: FormSchema;
@@ -119,7 +120,7 @@ export default function SchemaBuilderPage() {
   const fetchSchemas = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/schemas');
+      const response = await fetch(config.schemaApi.basePath);
       const result = await response.json();
       
       if (result.success) {
@@ -138,7 +139,7 @@ export default function SchemaBuilderPage() {
     if (!deleteDialog.schema) return;
 
     try {
-      const response = await fetch(`/api/schemas/${deleteDialog.schema.id}`, {
+      const response = await fetch(`${config.schemaApi.basePath}/${deleteDialog.schema.id}`, {
         method: 'DELETE',
       });
 
@@ -173,7 +174,7 @@ export default function SchemaBuilderPage() {
         sections: [],
       };
 
-      const response = await fetch('/api/schemas', {
+      const response = await fetch(config.schemaApi.basePath, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

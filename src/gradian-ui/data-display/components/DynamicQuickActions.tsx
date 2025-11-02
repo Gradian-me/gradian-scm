@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { config } from '@/lib/config';
+import { asFormBuilderSchema } from '@/shared/utils/schema-utils';
 
 export interface DynamicQuickActionsProps {
   actions: QuickAction[];
@@ -28,9 +29,10 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
   disableAnimation = false
 }) => {
   const router = useRouter();
-  const [openDialogSchema, setOpenDialogSchema] = useState<FormSchema | null>(null);
+  const [openDialogSchema, setOpenDialogSchema] = useState<FormBuilderSchema | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoadingSchema, setIsLoadingSchema] = useState(false);
+  const [dialogKey, setDialogKey] = useState<string>('');
 
   if (!actions || actions.length === 0) {
     return null;
@@ -81,33 +83,41 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
         
         // Deep clone the schema to avoid mutation issues
         const rawSchema = result.data as FormSchema;
-        const schema: FormSchema = JSON.parse(JSON.stringify(rawSchema));
-        
-        // Ensure schema has required properties for form-builder compatibility
-        if (!schema.name) {
-          schema.name = schema.singular_name;
-        }
+        const clonedSchema: FormSchema = JSON.parse(JSON.stringify(rawSchema));
         
         // Process validation patterns (create new field objects to avoid mutation)
-        if (schema.fields && Array.isArray(schema.fields)) {
-          schema.fields = schema.fields.map(field => {
+        if (clonedSchema.fields && Array.isArray(clonedSchema.fields)) {
+          clonedSchema.fields = clonedSchema.fields.map(field => {
             const processedField = { ...field };
-            if (processedField.validation?.pattern && typeof processedField.validation.pattern === 'string') {
-              try {
-                processedField.validation = {
-                  ...processedField.validation,
-                  pattern: new RegExp(processedField.validation.pattern)
-                };
-              } catch (error) {
-                console.warn(`Invalid pattern for field ${field.id}: ${processedField.validation.pattern}`);
+            // Handle pattern validation - convert string to RegExp if needed
+            if (processedField.validation?.pattern) {
+              if (typeof processedField.validation.pattern === 'string') {
+                try {
+                  processedField.validation = {
+                    ...processedField.validation,
+                    pattern: new RegExp(processedField.validation.pattern)
+                  };
+                } catch (error) {
+                  console.warn(`Invalid pattern for field ${field.id}: ${processedField.validation.pattern}`);
+                  // Remove invalid pattern
+                  const { pattern, ...rest } = processedField.validation;
+                  processedField.validation = rest;
+                }
               }
             }
             return processedField;
           });
         }
         
+        // Convert to form-builder schema format using the utility
+        const formBuilderSchema = asFormBuilderSchema(clonedSchema);
+        
+        // Generate a unique key to force complete remount of the dialog
+        const uniqueKey = `create-${formBuilderSchema.id}-${Date.now()}`;
+        
         // Set both states together - React will batch them
-        setOpenDialogSchema(schema);
+        setOpenDialogSchema(formBuilderSchema);
+        setDialogKey(uniqueKey);
         setIsDialogOpen(true);
       } catch (error) {
         console.error('Error loading schema for dialog:', error);
@@ -120,10 +130,20 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
 
   const handleDialogClose = useCallback(() => {
     setIsDialogOpen(false);
-    setOpenDialogSchema(null);
+    // Clear schema and key after a short delay to ensure dialog closes first
+    setTimeout(() => {
+      setOpenDialogSchema(null);
+      setDialogKey('');
+    }, 100);
   }, []);
 
   const handleDialogSubmit = useCallback(async (formData: Record<string, any>) => {
+    // Prevent submission if form is empty (initial mount)
+    if (!formData || Object.keys(formData).length === 0) {
+      console.warn('Form submission prevented: form is empty');
+      return;
+    }
+
     try {
       // If passItemAsReference is true, include the current item as reference
       const enrichedData = data?.id ? {
@@ -175,16 +195,17 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
       </motion.div>
 
       {/* Form Dialog - Only render when both schema and open state are ready */}
-      {openDialogSchema && isDialogOpen && (
+      {openDialogSchema && isDialogOpen && dialogKey && (
         <FormDialog
-          key={`create-${openDialogSchema.id}`}
+          key={dialogKey}
           isOpen={isDialogOpen}
           onClose={handleDialogClose}
-          schema={openDialogSchema as FormBuilderSchema}
+          schema={openDialogSchema}
           onSubmit={handleDialogSubmit}
           initialValues={{}}
-          title={`Create ${openDialogSchema.singular_name}`}
-          description={`Add a new ${openDialogSchema.singular_name.toLowerCase()} to your system`}
+          validationMode="onSubmit"
+          title={`Create ${openDialogSchema.name || 'Item'}`}
+          description={`Add a new ${(openDialogSchema.name || 'item').toLowerCase()} to your system`}
           size="lg"
           closeOnOutsideClick={true}
         />

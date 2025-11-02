@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Separator } from '@/components/ui/separator';
 import { FormSchema } from '@/shared/types/form-schema';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { config } from '@/lib/config';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
 
   const fetchSchemas = async () => {
     try {
-      const response = await fetch('/api/schemas');
+      const response = await fetch(config.schemaApi.basePath);
       const result = await response.json();
       
       if (result.success) {

@@ -1,5 +1,5 @@
 // Schema Registry - SERVER SIDE ONLY
-// Server-side functions that use file system access
+// Server-side functions that use API endpoint access
 
 import 'server-only';
 
@@ -12,14 +12,14 @@ let cacheTimestamp: number = 0;
 const CACHE_TTL_MS = process.env.NODE_ENV === 'production' ? 0 : 5000; // No cache in production to allow dynamic updates
 
 /**
- * Get all schemas (cached) - synchronous version for server-side only
+ * Get all schemas (cached) - async version for server-side only
  * @returns Record of schema ID to FormSchema
  */
-export const getAllSchemasSync = (): Record<string, FormSchema> => {
+export const getAllSchemasSync = async (): Promise<Record<string, FormSchema>> => {
   // Always reload if cache is expired or if we're in production (to support dynamic schema updates)
   const now = Date.now();
   if (!schemasCache || CACHE_TTL_MS === 0 || now - cacheTimestamp > CACHE_TTL_MS) {
-    schemasCache = loadSchemasAsRecord();
+    schemasCache = await loadSchemasAsRecord();
     cacheTimestamp = now;
   }
   return schemasCache;
@@ -37,8 +37,8 @@ export const clearSchemaCache = (): void => {
  * @param schemaId - The ID of the schema to check
  * @returns True if schema exists, false otherwise
  */
-export const schemaExists = (schemaId: string): boolean => {
-  const schemas = getAllSchemasSync();
+export const schemaExists = async (schemaId: string): Promise<boolean> => {
+  const schemas = await getAllSchemasSync();
   return schemaId in schemas;
 };
 
@@ -47,13 +47,14 @@ export const schemaExists = (schemaId: string): boolean => {
  * @param schemaId - The ID of the schema to find
  * @returns The schema if found, or null if not found
  */
-export const findSchemaById = (schemaId: string): FormSchema | null => {
-  if (!schemaExists(schemaId)) {
+export const findSchemaById = async (schemaId: string): Promise<FormSchema | null> => {
+  const exists = await schemaExists(schemaId);
+  if (!exists) {
     console.warn(`Schema with ID "${schemaId}" not found`);
     return null;
   }
   
-  const schemas = getAllSchemasSync();
+  const schemas = await getAllSchemasSync();
   return schemas[schemaId];
 };
 
@@ -63,8 +64,8 @@ export const findSchemaById = (schemaId: string): FormSchema | null => {
  * @returns The schema
  * @throws Error if schema not found
  */
-export const getSchemaById = (schemaId: string): FormSchema => {
-  const schema = findSchemaById(schemaId);
+export const getSchemaById = async (schemaId: string): Promise<FormSchema> => {
+  const schema = await findSchemaById(schemaId);
   
   if (!schema) {
     throw new Error(`Schema with ID "${schemaId}" not found`);
@@ -77,8 +78,8 @@ export const getSchemaById = (schemaId: string): FormSchema => {
  * Get all available schema IDs (Server-side only)
  * @returns Array of schema IDs
  */
-export const getAvailableSchemaIds = (): string[] => {
-  const schemas = getAllSchemasSync();
+export const getAvailableSchemaIds = async (): Promise<string[]> => {
+  const schemas = await getAllSchemasSync();
   return Object.keys(schemas);
 };
 
@@ -86,8 +87,8 @@ export const getAvailableSchemaIds = (): string[] => {
  * Get all schemas (Server-side only)
  * @returns Array of all schemas
  */
-export const getAllSchemasArray = (): FormSchema[] => {
-  return loadAllSchemas();
+export const getAllSchemasArray = async (): Promise<FormSchema[]> => {
+  return await loadAllSchemas();
 };
 
 /**
@@ -95,8 +96,8 @@ export const getAllSchemasArray = (): FormSchema[] => {
  * @param schemaId - The ID of the schema
  * @returns Metadata about the schema
  */
-export const getSchemaMetadata = (schemaId: string) => {
-  const schema = findSchemaById(schemaId);
+export const getSchemaMetadata = async (schemaId: string) => {
+  const schema = await findSchemaById(schemaId);
   
   if (!schema) {
     return null;
@@ -115,7 +116,7 @@ export const getSchemaMetadata = (schemaId: string) => {
  * @param schemaId - The ID to validate
  * @returns True if valid, false otherwise
  */
-export const isValidSchemaId = (schemaId: string): boolean => {
-  return schemaExists(schemaId);
+export const isValidSchemaId = async (schemaId: string): Promise<boolean> => {
+  return await schemaExists(schemaId);
 };
 

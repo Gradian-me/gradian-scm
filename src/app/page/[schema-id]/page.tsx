@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const schemaIds = getAvailableSchemaIds();
+  const schemaIds = await getAvailableSchemaIds();
   
   return schemaIds.map((schemaId) => ({
     'schema-id': schemaId,

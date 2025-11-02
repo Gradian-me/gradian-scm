@@ -3,14 +3,13 @@
 
 import { useState, useCallback } from 'react';
 import { FormSchema, FormField, FormSection } from '../../../shared/types/form-schema';
+import { config as appConfig } from '../../../lib/config';
 import { 
   SchemaBuilderState, 
   SchemaBuilderActions, 
   SchemaBuilderConfig,
   UseSchemaBuilderReturn 
 } from '../types/builder';
-
-const API_BASE = '/api/schemas';
 
 export function useSchemaBuilder(
   config?: SchemaBuilderConfig
@@ -28,7 +27,7 @@ export function useSchemaBuilder(
   const loadSchema = useCallback(async (schemaId: string) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await fetch(`${config?.apiBaseUrl || API_BASE}/${schemaId}`);
+      const response = await fetch(`${config?.apiBaseUrl || appConfig.schemaApi.basePath}/${schemaId}`);
       const result = await response.json();
       
       if (result.success) {
@@ -61,7 +60,7 @@ export function useSchemaBuilder(
         await config.onSave(state.schema);
       } else {
         const response = await fetch(
-          `${config?.apiBaseUrl || API_BASE}/${state.schema.id}`,
+          `${config?.apiBaseUrl || appConfig.schemaApi.basePath}/${state.schema.id}`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -92,7 +91,7 @@ export function useSchemaBuilder(
         await config.onDelete(state.schema.id);
       } else {
         const response = await fetch(
-          `${config?.apiBaseUrl || API_BASE}/${state.schema.id}`,
+          `${config?.apiBaseUrl || appConfig.schemaApi.basePath}/${state.schema.id}`,
           { method: 'DELETE' }
         );
         const result = await response.json();
