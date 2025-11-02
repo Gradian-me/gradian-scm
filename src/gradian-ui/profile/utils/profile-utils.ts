@@ -81,7 +81,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
       name: 'fullName',
       label: 'Full Name',
       value: user.fullName,
-      type: 'text',
+      type: 'text' as const,
       format: 'default'
     },
     {
@@ -89,7 +89,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
       name: 'email',
       label: 'Email',
       value: user.email,
-      type: 'email',
+      type: 'email' as const,
       format: 'email'
     },
     {
@@ -97,10 +97,10 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
       name: 'phone',
       label: 'Phone',
       value: user.phone,
-      type: 'tel',
+      type: 'tel' as const,
       format: 'phone'
     }
-  ].filter(field => field.value); // Only include fields with values
+  ].filter(field => field.value) as ProfileField[]; // Only include fields with values
   
   if (basicFields.length > 0) {
     sections.push({
@@ -121,7 +121,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
         name: 'jobTitle',
         label: 'Job Title',
         value: user.jobTitle,
-        type: 'text',
+        type: 'text' as const,
         format: 'default'
       },
       {
@@ -129,7 +129,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
         name: 'department',
         label: 'Department',
         value: user.department,
-        type: 'text',
+        type: 'text' as const,
         format: 'default'
       },
       {
@@ -137,10 +137,10 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
         name: 'role',
         label: 'Role',
         value: user.role,
-        type: 'badge',
+        type: 'badge' as const,
         format: 'default'
       }
-    ].filter(field => field.value);
+    ].filter(field => field.value) as ProfileField[];
     
     if (professionalFields.length > 0) {
       sections.push({
@@ -165,7 +165,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
         name: 'location',
         label: 'Location',
         value: user.location,
-        type: 'text',
+        type: 'text' as const,
         format: 'default',
         icon: 'MapPin'
       }],
@@ -185,7 +185,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
         name: 'bio',
         label: 'Bio',
         value: user.bio,
-        type: 'text',
+        type: 'text' as const,
         format: 'default'
       }],
       colSpan: 2,
@@ -200,7 +200,7 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
       name: 'joinedAt',
       label: 'Joined',
       value: user.joinedAt,
-      type: 'date',
+      type: 'date' as const,
       format: 'date'
     },
     {
@@ -208,10 +208,10 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
       name: 'lastLogin',
       label: 'Last Login',
       value: user.lastLogin,
-      type: 'date',
+      type: 'date' as const,
       format: 'date'
     }
-  ].filter(field => field.value);
+  ].filter(field => field.value) as ProfileField[];
   
   if (activityFields.length > 0) {
     sections.push({

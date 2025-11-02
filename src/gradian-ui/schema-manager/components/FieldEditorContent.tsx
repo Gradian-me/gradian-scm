@@ -86,7 +86,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
                 <Select
                   value={tempField.type}
                   onValueChange={(value) => setTempField({ ...tempField, type: value as any, component: value as any })}
-                  options={FIELD_TYPES}
+                  options={[...FIELD_TYPES]}
                 />
               </div>
               <div>
@@ -94,7 +94,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
                 <Select
                   value={tempField.component}
                   onValueChange={(value) => setTempField({ ...tempField, component: value as any })}
-                  options={FIELD_TYPES}
+                  options={[...FIELD_TYPES]}
                 />
               </div>
             </div>
@@ -129,7 +129,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
               <Select
                 value={tempField.role || ''}
                 onValueChange={(value) => setTempField({ ...tempField, role: value as any })}
-                options={ROLES}
+                options={[...ROLES]}
                 placeholder="Select role..."
               />
             </div>

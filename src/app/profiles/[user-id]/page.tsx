@@ -17,7 +17,7 @@ export default function ProfilePage() {
   
   if (loading) {
     return (
-      <MainLayout>
+      <MainLayout title="User Profile">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
         </div>
@@ -27,7 +27,7 @@ export default function ProfilePage() {
   
   if (error || !profile) {
     return (
-      <MainLayout>
+      <MainLayout title="User Profile">
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Not Found</h2>
           <p className="text-gray-600">{error || 'Unable to load user profile'}</p>
@@ -39,7 +39,7 @@ export default function ProfilePage() {
   const sections = userProfileToSections(profile);
   
   return (
-    <MainLayout>
+    <MainLayout title={profile.fullName}>
       <div className="space-y-6">
         {/* Profile Header */}
         <motion.div 
@@ -71,7 +71,7 @@ export default function ProfilePage() {
               </div>
               
               <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="primary" className="text-sm">
+                <Badge variant="default" className="text-sm">
                   {profile.role}
                 </Badge>
                 {profile.department && (

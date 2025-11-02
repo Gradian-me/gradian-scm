@@ -43,12 +43,13 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
   };
 
   const getClampStyles = () => {
-    const baseSize = {
+    const sizeMap = {
       sm: { min: 1.25, max: 1.75 }, // 1.25rem - 1.75rem (20px - 28px)
       md: { min: 1.5, max: 2.25 },  // 1.5rem - 2.25rem (24px - 36px)
       lg: { min: 2, max: 3 },       // 2rem - 3rem (32px - 48px)
       xl: { min: 2.5, max: 4 },     // 2.5rem - 4rem (40px - 64px)
-    }[styling.size];
+    };
+    const baseSize = sizeMap[styling.size || 'md'];
 
     // Use container query units (cqw) for truly container-based clamping
     // cqw = container query width (1 cqw = 1% of container width)

@@ -174,9 +174,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           className={cn(
             'space-y-2',
             colSpanClass,
-            field.layout?.rowSpan && `row-span-${field.layout.rowSpan}`
+            (field as any).layout?.rowSpan && `row-span-${(field as any).layout.rowSpan}`
           )}
-          style={{ order: field.order ?? field.layout?.order }}
+          style={{ order: field.order ?? (field as any).layout?.order }}
         >
           <FormElementFactory
             field={field as any}

@@ -60,7 +60,7 @@ try {
 // Test 8: Verify RegExp patterns are properly converted
 console.log('\nTest 8: Verify RegExp conversion:');
 const vendorSchema = getSchemaById('vendors');
-const emailField = vendorSchema.sections[0]?.fields.find(f => f.id === 'email-address');
+const emailField = vendorSchema.fields.find(f => f.id === 'email-address');
 console.log('✓ Email field found:', emailField !== undefined);
 console.log('✓ Pattern is RegExp:', emailField?.validation?.pattern instanceof RegExp);
 console.log('✓ Pattern source:', emailField?.validation?.pattern?.source);

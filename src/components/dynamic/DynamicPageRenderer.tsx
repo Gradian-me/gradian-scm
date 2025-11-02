@@ -16,7 +16,7 @@ import { Spinner } from '../ui/spinner';
 import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, GoToTop } from '../../gradian-ui';
 import { FormSchema } from '../../shared/types/form-schema';
 import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
-import { asFormSchema } from '../../shared/utils/schema-utils';
+import { asFormSchema, asFormBuilderSchema } from '../../shared/utils/schema-utils';
 import { useDynamicEntity } from '../../shared/hooks';
 
 interface DynamicPageRendererProps {
@@ -492,7 +492,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
         )}
         <SchemaFormWrapper
           key={isCreateModalOpen ? 'create' : `edit-${currentEntity?.id || 'none'}`}
-          schema={asFormSchema(schema)}
+          schema={asFormBuilderSchema(schema)}
           onSubmit={isCreateModalOpen ? handleCreateEntity : handleUpdateEntity}
           onReset={() => formState.reset()}
           initialValues={isCreateModalOpen ? formState.values : currentEntity || formState.values}

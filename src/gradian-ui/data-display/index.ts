@@ -38,4 +38,34 @@ export { DynamicRepeatingTableViewer } from './components/DynamicRepeatingTableV
 // Table Components
 export * from './table';
 
-export * from './types';
+// Export types but exclude TableColumn to avoid conflict (use TableColumn from ./table instead)
+export type {
+  DataDisplayWrapperProps,
+  DataDisplayConfig,
+  DataDisplayView,
+  DataDisplayFilterConfig,
+  DataDisplaySearchConfig,
+  DataDisplayActionConfig,
+  DataDisplayPaginationConfig,
+  DataDisplayLayoutConfig,
+  DataDisplayStylingConfig,
+  DataDisplayBehaviorConfig,
+  DataDisplayFilters,
+  DataDisplayState,
+  DataDisplayFilterPaneProps,
+  DataDisplayViewSwitchProps,
+  DataDisplayContainerProps,
+  DataDisplayPaginationProps,
+  DataDisplayEmptyStateProps,
+  DataDisplayLoadingStateProps,
+  DataDisplayErrorStateProps,
+  EmptyStateProps,
+  LoadingStateProps,
+  SearchBarProps,
+  FilterOption,
+  FilterConfig,
+  FilterBarProps,
+  ModalProps,
+  // TableColumn is excluded - use the one from ./table instead
+  DataTableProps,
+} from './types';

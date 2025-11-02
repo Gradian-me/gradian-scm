@@ -22,7 +22,7 @@ export const applyFieldUIDefaults = (field: FormField): FormField => {
 /**
  * Get all fields for a specific section from the schema
  */
-export const getFieldsForSection = (schema: FormSchema, sectionId: string): FormField[] => {
+export const getFieldsForSection = (schema: FormSchema | BuilderFormSchema, sectionId: string): FormField[] => {
   if (!schema?.fields) {
     return [];
   }

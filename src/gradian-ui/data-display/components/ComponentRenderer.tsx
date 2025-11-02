@@ -109,7 +109,7 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
   const componentData = extractComponentData(config, schema, data);
 
   // Merge config.props with extracted data
-  const componentProps = {
+  const componentProps: Record<string, any> = {
     ...config.props,
     ...componentData,
     // Add config if it's a KPI component
@@ -130,9 +130,9 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
         return (
           <KPIIndicator
             config={config.config}
-            value={componentProps.value || componentProps.currentValue || 0}
-            previousValue={componentProps.previousValue}
-            target={componentProps.target}
+            value={(componentProps.value as number) || (componentProps.currentValue as number) || 0}
+            previousValue={componentProps.previousValue as number | undefined}
+            target={componentProps.target as number | undefined}
             {...componentProps}
           />
         );

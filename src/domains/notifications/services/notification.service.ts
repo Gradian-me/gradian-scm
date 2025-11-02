@@ -28,7 +28,7 @@ async function getNotificationsFromAPI(filters?: NotificationFilters): Promise<N
     if (filters?.priority) params.priority = filters.priority;
     if (filters?.isRead !== undefined) params.isRead = filters.isRead.toString();
 
-    const response = await apiRequest<{ data: any[] }>(
+    const response = await apiRequest<any[]>(
       '/api/notifications',
       {
         method: 'GET',
@@ -146,7 +146,7 @@ export class NotificationService {
 
   static async createNotification(notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>): Promise<Notification> {
     try {
-      const response = await apiRequest<{ data: any }>(
+      const response = await apiRequest<any>(
         '/api/notifications',
         {
           method: 'POST',
@@ -166,7 +166,7 @@ export class NotificationService {
 
   static async updateNotification(id: string, updates: Partial<Notification>): Promise<Notification | null> {
     try {
-      const response = await apiRequest<{ data: any }>(
+      const response = await apiRequest<any>(
         `/api/notifications/${id}`,
         {
           method: 'PUT',

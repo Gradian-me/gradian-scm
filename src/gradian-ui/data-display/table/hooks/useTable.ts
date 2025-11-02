@@ -46,7 +46,7 @@ export function useTable<T = any>({ config, onStateChange }: UseTableOptions<T>)
     (columnId: string) => {
       setState(prev => {
         const newSortBy = prev.sortBy === columnId ? prev.sortBy : columnId;
-        const newDirection =
+        const newDirection: 'asc' | 'desc' =
           prev.sortBy === columnId && prev.sortDirection === 'asc' ? 'desc' : 'asc';
         const newState = {
           ...prev,

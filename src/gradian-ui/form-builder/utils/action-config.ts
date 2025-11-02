@@ -44,8 +44,8 @@ export const getActionConfig = (
 /**
  * Get singular name from schema
  */
-export const getSingularName = (schema: { singular_name?: string }): string => {
-  return schema.singular_name || 'Item';
+export const getSingularName = (schema: { singular_name?: string; name?: string }): string => {
+  return schema.singular_name || schema.name || 'Item';
 };
 
 /**
