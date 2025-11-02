@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Gradian Supply Chain Management",
@@ -22,9 +15,10 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="stylesheet" href="/odometer-theme-minimal.css" />
+        <link rel="stylesheet" href="/fonts/estedad/estedad.css" />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased`}
+        className="font-sans antialiased"
         suppressHydrationWarning={true}
       >
         {children}

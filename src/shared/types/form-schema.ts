@@ -115,10 +115,22 @@ export interface RepeatingTableRendererConfig {
   columnArea?: 'main' | 'sidebar'; // Which area to place this table in (main or sidebar)
 }
 
+export interface QuickAction {
+  id: string;
+  label: string;
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'gradient';
+  icon?: string; // Icon name to display before the label
+  action: 'goToUrl' | 'openUrl' | 'openFormDialog';
+  targetSchema?: string; // Required for openFormDialog action
+  targetUrl?: string; // Required for goToUrl and openUrl actions
+  passItemAsReference?: boolean; // Default: false - if true, pass current schema item as reference to target URL
+}
+
 export interface DetailPageMetadata {
   sections?: DetailPageSection[]; // Info card sections with key-value pairs
   componentRenderers?: ComponentRendererConfig[]; // Custom components to render (e.g., KPIIndicator)
   tableRenderers?: RepeatingTableRendererConfig[]; // Repeating section tables to render
+  quickActions?: QuickAction[]; // Quick action buttons shown in sidebar before badges
   layout?: {
     mainColumns?: number; // Number of columns for main content area (default: 2)
     sidebarColumns?: number; // Number of columns for sidebar (default: 1)

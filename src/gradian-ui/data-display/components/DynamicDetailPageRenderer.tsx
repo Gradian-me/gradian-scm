@@ -18,6 +18,7 @@ import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
 import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
+import { DynamicQuickActions } from './DynamicQuickActions';
 import { GoToTop } from '../../layout/go-to-top';
 import { Rating, Countdown } from '../../form-builder';
 
@@ -134,6 +135,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const metadataSections = detailMetadata?.sections || [];
   const componentRenderers = detailMetadata?.componentRenderers || [];
   const tableRenderers = detailMetadata?.tableRenderers || [];
+  const quickActions = detailMetadata?.quickActions || [];
 
   // Get default sections (includes badges if schema has badge fields)
   const defaultSections = getDefaultSections(schema);
@@ -152,10 +154,10 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const mainComponents = componentRenderers.filter((comp, index) => index < mainColumns * 2);
   const sidebarComponents = componentRenderers.slice(mainColumns * 2);
 
-  // Determine if sidebar should be shown - show if layout specifies sidebar columns or if we have sidebar sections
+  // Determine if sidebar should be shown - show if layout specifies sidebar columns or if we have sidebar sections or quick actions
   // Table renderers are always full width and rendered after all components and sections, so they don't affect sidebar
   const hasSidebarSections = sections.some(s => s.columnArea === 'sidebar');
-  const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections;
+  const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections || quickActions.length > 0;
 
   // Split sections between main and sidebar if needed
   // Use columnArea property if specified, otherwise use fallback logic
@@ -338,6 +340,16 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 sidebarColumns === 2 && "md:col-span-2",
                 !sidebarColumns && "md:col-span-1"
               )}>
+                {/* Quick Actions - shown first in sidebar before badges */}
+                {quickActions.length > 0 && (
+                  <DynamicQuickActions
+                    actions={quickActions}
+                    schema={schema}
+                    data={data}
+                    disableAnimation={disableAnimation}
+                  />
+                )}
+
                 {/* Sidebar Component Renderers */}
                 {sidebarComponents.map((compConfig, index) => (
                   <ComponentRenderer

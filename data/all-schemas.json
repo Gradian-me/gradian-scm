@@ -305,6 +305,33 @@
       }
     ],
     "detailPageMetadata": {
+      "quickActions": [
+        {
+          "id": "create-purchase-order",
+          "label": "Create Purchase Order",
+          "icon": "FilePlus",
+          "variant": "default",
+          "action": "openFormDialog",
+          "targetSchema": "purchase-orders"
+        },
+        {
+          "id": "view-vendors",
+          "label": "View Vendors",
+          "icon": "Users",
+          "variant": "outline",
+          "action": "goToUrl",
+          "targetUrl": "/page/vendors"
+        },
+        {
+          "id": "export-inquiry",
+          "label": "Export Inquiry",
+          "icon": "Download",
+          "variant": "secondary",
+          "action": "openUrl",
+          "targetUrl": "/api/export/inquiries",
+          "passItemAsReference": true
+        }
+      ],
       "componentRenderers": [
         {
           "id": "total-items-kpi",
@@ -1047,6 +1074,42 @@
       }
     ],
     "detailPageMetadata": {
+      "quickActions": [
+        {
+          "id": "create-inquiry",
+          "label": "Create Inquiry",
+          "icon": "ShoppingCart",
+          "variant": "default",
+          "action": "openFormDialog",
+          "targetSchema": "inquiries"
+        },
+        {
+          "id": "view-inquiries",
+          "label": "View Inquiries",
+          "icon": "FileSearch",
+          "variant": "outline",
+          "action": "goToUrl",
+          "targetUrl": "/page/inquiries"
+        },
+        {
+          "id": "view-location",
+          "label": "View on Map",
+          "icon": "MapPin",
+          "variant": "secondary",
+          "action": "openUrl",
+          "targetUrl": "https://www.google.com/maps/search/",
+          "passItemAsReference": false
+        },
+        {
+          "id": "view-vendor-details",
+          "label": "View Full Details",
+          "icon": "ExternalLink",
+          "variant": "ghost",
+          "action": "goToUrl",
+          "targetUrl": "/page/vendors",
+          "passItemAsReference": true
+        }
+      ],
       "componentRenderers": [
         {
           "id": "on-time-delivery-kpi",
