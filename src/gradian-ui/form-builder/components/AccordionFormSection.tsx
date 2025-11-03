@@ -372,13 +372,20 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   const shouldExcludeIds = section.repeatingConfig?.isUnique === true;
 
   // Render entity summary (for relation-based sections) - Beautiful card UI
-  const renderEntitySummary = (entity: any, index: number) => {
+  const renderEntitySummary = (entity: any, index: number, actionButtons?: React.ReactNode) => {
     if (!targetSchemaData) {
       // Fallback if schema not loaded yet
       const displayField = entity.name || entity.title || entity.id || `Item ${index + 1}`;
       return (
-        <div className="text-sm text-gray-900">
-          {displayField}
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-sm text-gray-900">
+            {displayField}
+          </div>
+          {actionButtons && (
+            <div className="flex gap-1">
+              {actionButtons}
+            </div>
+          )}
         </div>
       );
     }
@@ -428,63 +435,69 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     const hasStatusField = targetSchemaData.fields?.some(f => f.role === 'status') || false;
 
     return (
-      <div className="flex items-start gap-3 w-full">
-        {/* Avatar */}
-        <Avatar
-          fallback={getInitials(avatarField)}
-          size="md"
-          variant="primary"
-          className="border border-gray-200 flex-shrink-0"
-        >
-          {getInitials(avatarField)}
-        </Avatar>
-        
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-semibold text-gray-900 truncate">
-                {title}
-              </h4>
-              {subtitle && (
-                <p className="text-xs text-gray-500 truncate mt-0.5">
-                  {subtitle}
-                </p>
-              )}
-              
-              {/* Badges */}
-              {combinedBadgeField && badgeValues.length > 0 && (
-                <div className="mt-2">
-                  <BadgeViewer
-                    field={combinedBadgeField}
-                    value={badgeValues}
-                    maxBadges={2}
-                    badgeVariant="outline"
-                    animate={false}
-                  />
-                </div>
-              )}
-            </div>
+      <div className="flex items-start justify-between gap-3 w-full">
+        {/* Left side: Avatar, Title, Subtitle */}
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <Avatar
+            fallback={getInitials(avatarField)}
+            size="md"
+            variant="primary"
+            className="border border-gray-200 shrink-0"
+          >
+            {getInitials(avatarField)}
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-semibold text-gray-900 truncate">
+              {title}
+            </h4>
+            {subtitle && (
+              <p className="text-xs text-gray-500 truncate mt-0.5">
+                {subtitle}
+              </p>
+            )}
             
-            {/* Rating and Status */}
-            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-              {hasRatingField && (
-                <Rating
-                  value={Number(ratingField) || 0}
-                  size="sm"
-                  showValue={true}
+            {/* Badges */}
+            {combinedBadgeField && badgeValues.length > 0 && (
+              <div className="mt-2">
+                <BadgeViewer
+                  field={combinedBadgeField}
+                  value={badgeValues}
+                  maxBadges={2}
+                  badgeVariant="outline"
+                  animate={false}
                 />
-              )}
-              {hasStatusField && statusField && (() => {
-                const badgeConfig = getBadgeConfig(statusField, statusOptions);
-                return (
-                  <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
-                    {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                    <span>{badgeConfig.label}</span>
-                  </Badge>
-                );
-              })()}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Right side: Buttons, Rating and Status */}
+        <div className="flex items-start gap-2 shrink-0">
+          {actionButtons && (
+            <div className="flex gap-1">
+              {actionButtons}
             </div>
+          )}
+          
+          {/* Rating and Status */}
+          <div className="flex flex-col items-end gap-1.5">
+            {hasRatingField && (
+              <Rating
+                value={Number(ratingField) || 0}
+                size="sm"
+                showValue={true}
+              />
+            )}
+            {hasStatusField && statusField && (() => {
+              const badgeConfig = getBadgeConfig(statusField, statusOptions);
+              return (
+                <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
+                  {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                  <span>{badgeConfig.label}</span>
+                </Badge>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -583,23 +596,31 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                           className="rounded-xl bg-white border border-gray-100 overflow-hidden"
                         >
                           <div className="px-4 sm:px-6 py-4">
-                            <div className="flex items-start gap-3 w-full">
-                              {/* Avatar Skeleton */}
-                              <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                              
-                              {/* Content */}
-                              <div className="flex-1 min-w-0 space-y-2">
-                                <Skeleton className="h-4 w-2/3" />
-                                <Skeleton className="h-3 w-1/2" />
+                            <div className="flex items-start justify-between gap-3 w-full">
+                              {/* Left side: Avatar, Title, Subtitle */}
+                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                                {/* Avatar Skeleton */}
+                                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                                
+                                {/* Content */}
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <Skeleton className="h-4 w-2/3" />
+                                  <Skeleton className="h-3 w-1/2" />
+                                </div>
                               </div>
                               
-                              {/* Rating Skeleton */}
-                              <Skeleton className="h-4 w-12 shrink-0" />
+                              {/* Right side: Buttons, Rating */}
+                              <div className="flex items-start gap-2 shrink-0">
+                                {/* Button Skeletons */}
+                                <div className="flex gap-1">
+                                  <Skeleton className="h-8 w-8 rounded" />
+                                  <Skeleton className="h-8 w-8 rounded" />
+                                </div>
+                                
+                                {/* Rating Skeleton */}
+                                <Skeleton className="h-4 w-12" />
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center justify-end gap-2 px-4 sm:px-6 pb-4 border-t border-gray-50 pt-3">
-                            <Skeleton className="h-8 w-16" />
-                            <Skeleton className="h-8 w-20" />
                           </div>
                         </div>
                       ))}
@@ -612,43 +633,45 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                               <div className="space-y-3">
                                 {itemsToDisplay.map((entity, index) => {
                                   const relation = relations.find(r => r.targetId === (entity as any).id);
+                                  const actionButtons = (
+                                    <>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          if (relation) handleEditEntity((entity as any).id, relation.id);
+                                        }}
+                                        className="h-8 w-8"
+                                        title="Edit"
+                                        disabled={disabled}
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                      {relation && (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={(e) => handleDeleteClick(relation.id, e)}
+                                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                          title="Delete"
+                                          disabled={disabled}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      )}
+                                    </>
+                                  );
                                   return (
                                     <div
                                       key={(entity as any).id || `entity-${index}`}
                                       className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
                                     >
                                       <div className="px-4 sm:px-6 py-4">
-                                        {renderEntitySummary(entity, index + 1)}
-                                      </div>
-                                      <div className="flex items-center justify-end gap-2 px-4 sm:px-6 pb-4 border-t border-gray-100 pt-3 mt-3">
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (relation) handleEditEntity((entity as any).id, relation.id);
-                                          }}
-                                          className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                                          disabled={disabled}
-                                        >
-                                          <Edit className="w-4 h-4 mr-2" />
-                                          Edit
-                                        </Button>
-                                        {relation && (
-                                          <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={(e) => handleDeleteClick(relation.id, e)}
-                                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
-                                            disabled={disabled}
-                                          >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            Delete
-                                          </Button>
-                                        )}
+                                        {renderEntitySummary(entity, index + 1, actionButtons)}
                                       </div>
                                     </div>
                                   );
