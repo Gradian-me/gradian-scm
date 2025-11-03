@@ -143,9 +143,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     setFilteredItems(filtered);
   }, [searchQuery, items, schema]);
 
-  const handleSelect = (item: any) => {
-    onSelect(item);
-    onClose();
+  const handleSelect = async (item: any) => {
+    // Prevent form submission
+    try {
+      await onSelect(item);
+      onClose();
+    } catch (error) {
+      console.error('Error in handleSelect:', error);
+      // Don't close on error
+    }
   };
 
   const handleViewList = () => {
@@ -161,7 +167,11 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       return (
         <div
           key={item.id || index}
-          onClick={() => handleSelect(item)}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSelect(item);
+          }}
           className="p-4 rounded-lg border border-gray-200 hover:border-violet-300 hover:shadow-md cursor-pointer transition-all"
         >
           <div className="font-medium text-sm text-gray-900">{displayName}</div>
@@ -287,8 +297,23 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const schemaName = schema?.plural_name || schema?.singular_name || schemaId;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      // Only close if explicitly set to false (not opening)
+      if (!open) {
+        onClose();
+      }
+    }}>
+      <DialogContent className="max-w-3xl w-full h-full rounded-none md:rounded-2xl md:max-h-[70vh] flex flex-col" onPointerDownOutside={(e) => {
+        // Prevent closing on outside click during loading
+        if (isLoading) {
+          e.preventDefault();
+        }
+      }} onEscapeKeyDown={(e) => {
+        // Prevent closing on escape during loading
+        if (isLoading) {
+          e.preventDefault();
+        }
+      }}>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -297,10 +322,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             </div>
             {canViewList && (
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
-                onClick={handleViewList}
-                className="flex items-center gap-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleViewList();
+                }}
+                className="flex items-center gap-2 me-4"
               >
                 <List className="h-4 w-4" />
                 View All
@@ -343,7 +373,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
         {/* Footer */}
         <div className="flex justify-end pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+          >
             Cancel
           </Button>
         </div>

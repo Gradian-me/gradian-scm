@@ -538,9 +538,11 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                   {/* Select button for canSelectFromData or mustSelectFromData */}
                   {(addType === 'canSelectFromData' || addType === 'mustSelectFromData') && targetSchema && (
                     <Button
+                      type="button"
                       variant="outline"
                       size="sm"
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         setIsPickerOpen(true);
                       }}
