@@ -8,11 +8,19 @@ const getLogFlag = (logType: LogType): boolean => {
 
 /**
  * Custom logging function that checks if logging is enabled for the given log type
+ * Only logs in development mode (npm run dev), not in production (npm start)
  * @param logType - The type of logging from LogType enum
  * @param level - The log level (log, info, warn, error, debug)
  * @param message - The message to log
  */
 export const loggingCustom = (logType: LogType, level: LogLevel, message: string) => {
+  // Only log in development mode
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (!isDevelopment) {
+    return;
+  }
+
+  // Check if logging is enabled for this log type
   if (!getLogFlag(logType)) {
     return;
   }

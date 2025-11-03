@@ -7,8 +7,6 @@ import { FormSchema } from '../../../../shared/types/form-schema';
 import { useDynamicEntity } from '../../../../shared/hooks/use-dynamic-entity';
 import { apiRequest } from '../../../../shared/utils/api';
 import { MainLayout } from '../../../../components/layout/main-layout';
-import { SchemaFormWrapper } from '../../../../gradian-ui/form-builder';
-import { Modal } from '../../../../gradian-ui/data-display';
 
 interface DynamicDetailPageClientProps {
   schema: FormSchema;
@@ -73,13 +71,7 @@ export function DynamicDetailPageClient({
 
   // Use the dynamic entity hook for CRUD operations
   const {
-    updateEntity,
     deleteEntity,
-    formState,
-    openEditModal,
-    closeEditModal,
-    isEditModalOpen,
-    currentEntity,
   } = useDynamicEntity(schema);
 
   // Fetch entity data
@@ -113,11 +105,9 @@ export function DynamicDetailPageClient({
   }, [router, schemaId]);
 
   const handleEdit = useCallback(() => {
-    if (data) {
-      // Set form values and open modal
-      openEditModal(data);
-    }
-  }, [data, openEditModal]);
+    // Edit is now handled by DynamicDetailPageRenderer's FormModal
+    // This callback can be used for external handling if needed
+  }, []);
 
   const handleDelete = useCallback(async () => {
     if (data && window.confirm(`Are you sure you want to delete this ${entityName.toLowerCase()}?`)) {
@@ -130,19 +120,6 @@ export function DynamicDetailPageClient({
     }
   }, [data, dataId, entityName, deleteEntity, router, schemaId]);
 
-  const handleUpdate = useCallback(async (updatedData: any) => {
-    try {
-      await updateEntity(dataId, updatedData);
-      // Refresh the data
-      const response = await apiRequest<any>(`/api/data/${schemaId}/${dataId}`);
-      if (response.success && response.data) {
-        setData(response.data);
-      }
-      closeEditModal();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update entity');
-    }
-  }, [dataId, schemaId, updateEntity, closeEditModal]);
 
   const pageTitle = data 
     ? (data.name || data.title || dataId)
@@ -160,33 +137,6 @@ export function DynamicDetailPageClient({
         onDelete={handleDelete}
         disableAnimation={false}
       />
-      
-      {/* Edit Modal */}
-      {isEditModalOpen && data && (
-        <Modal
-          isOpen={isEditModalOpen}
-          onClose={closeEditModal}
-          title={`Edit ${entityName}`}
-          description={`Update ${entityName.toLowerCase()} information`}
-          size="xl"
-          showCloseButton={false}
-        >
-          <SchemaFormWrapper
-            key={`edit-${dataId}`}
-            schema={{
-              ...schema,
-              name: schema.singular_name,
-              title: schema.plural_name
-            }}
-            onSubmit={handleUpdate}
-            onReset={() => {
-              formState.reset();
-            }}
-            onCancel={closeEditModal}
-            initialValues={currentEntity || data || {}}
-          />
-        </Modal>
-      )}
     </MainLayout>
   );
 }

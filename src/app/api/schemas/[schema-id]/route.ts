@@ -5,6 +5,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+// Cache for loaded schemas
+let cachedSchemas: any[] | null = null;
+let cacheTimestamp: number | null = null;
+const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
+
+/**
+ * Load schemas with caching
+ */
+function loadSchemas(): any[] {
+  const now = Date.now();
+  
+  // Return cache if valid
+  if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
+    return cachedSchemas;
+  }
+  
+  // Read and cache schemas
+  const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return [];
+  }
+  
+  const fileContents = fs.readFileSync(dataPath, 'utf8');
+  cachedSchemas = JSON.parse(fileContents);
+  cacheTimestamp = now;
+  
+  return cachedSchemas || [];
+}
+
 /**
  * GET - Get a specific schema by ID
  * Example: 
@@ -25,18 +55,15 @@ export async function GET(
       );
     }
 
-    // Read the schemas JSON file
-    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    // Load schemas (with caching)
+    const schemas = loadSchemas();
     
-    if (!fs.existsSync(dataPath)) {
+    if (!schemas || schemas.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Schemas file not found' },
+        { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
     }
-
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    const schemas = JSON.parse(fileContents);
 
     // Find the specific schema
     const schema = schemas.find((s: any) => s.id === schemaId);
@@ -84,18 +111,15 @@ export async function PUT(
 
     const updatedSchema = await request.json();
 
-    // Read the schemas JSON file
-    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    // Load schemas (with caching)
+    const schemas = loadSchemas();
     
-    if (!fs.existsSync(dataPath)) {
+    if (!schemas || schemas.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Schemas file not found' },
+        { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
     }
-
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    const schemas = JSON.parse(fileContents);
 
     // Find the schema index
     const schemaIndex = schemas.findIndex((s: any) => s.id === schemaId);
@@ -111,7 +135,12 @@ export async function PUT(
     schemas[schemaIndex] = { ...schemas[schemaIndex], ...updatedSchema };
 
     // Write back to file
+    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
     fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
+    
+    // Clear cache to force reload on next request
+    cachedSchemas = null;
+    cacheTimestamp = null;
 
     return NextResponse.json({
       success: true,
@@ -147,18 +176,15 @@ export async function DELETE(
       );
     }
 
-    // Read the schemas JSON file
-    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    // Load schemas (with caching)
+    const schemas = loadSchemas();
     
-    if (!fs.existsSync(dataPath)) {
+    if (!schemas || schemas.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Schemas file not found' },
+        { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
     }
-
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    const schemas = JSON.parse(fileContents);
 
     // Find the schema index
     const schemaIndex = schemas.findIndex((s: any) => s.id === schemaId);
@@ -174,7 +200,12 @@ export async function DELETE(
     const deletedSchema = schemas.splice(schemaIndex, 1)[0];
 
     // Write back to file
+    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
     fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
+    
+    // Clear cache to force reload on next request
+    cachedSchemas = null;
+    cacheTimestamp = null;
 
     return NextResponse.json({
       success: true,

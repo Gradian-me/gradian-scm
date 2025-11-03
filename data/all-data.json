@@ -130,5 +130,60 @@
       ]
     }
   ],
-  "inquiries": []
+  "inquiries": [
+    {
+      "number": "CGN-2025-09",
+      "inquiryDate": "2025-11-03T09:38",
+      "inquiryDeadlineDate": "2025-11-05T11:30",
+      "state": "1",
+      "description": "Test Description",
+      "inquiry-items": [
+        {
+          "partCode": "5052",
+          "partName": "Himedia Feed Alpha",
+          "quantity": 120,
+          "unit": "4",
+          "demandDate": "2026-02-26T09:39",
+          "minimumExpirationDate": "2026-07-22T09:39",
+          "description": "",
+          "id": "01K945ABFQ3VDR3WJBSNYYK480"
+        }
+      ],
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "status": "ACTIVE",
+      "rating": 5,
+      "id": "01K945BGN1YV7RG3XKG169CGS1",
+      "createdAt": "2025-11-03T06:09:31.312Z",
+      "updatedAt": "2025-11-03T06:09:31.312Z"
+    }
+  ],
+  "contacts": [
+    {
+      "name": "Mahyar",
+      "last_name": "Abidi",
+      "email": "abidi.mahyar@gmail.com",
+      "phone_number": "+989126184264",
+      "categories": [
+        "general"
+      ],
+      "contacts": [
+        {
+          "name": "Mahyar",
+          "email": "abidi.mahyar@gmail.com",
+          "position": "Primary Contact",
+          "isPrimary": true,
+          "department": "",
+          "notes": ""
+        }
+      ],
+      "status": "ACTIVE",
+      "rating": 5,
+      "id": "01K946PTRWDY2CVGJCCNSXY1EV",
+      "createdAt": "2025-11-03T06:33:10.697Z",
+      "updatedAt": "2025-11-03T07:53:42.005Z"
+    }
+  ]
 }

@@ -21,6 +21,8 @@ import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
 import { DynamicQuickActions } from './DynamicQuickActions';
 import { GoToTop } from '../../layout/go-to-top';
 import { Rating, Countdown } from '../../form-builder';
+import { FormModal } from '../../form-builder';
+import { useState, useCallback } from 'react';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -88,7 +90,17 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   className,
   customComponents = {}
 }) => {
+  const [editEntityId, setEditEntityId] = useState<string | null>(null);
   const detailMetadata = schema.detailPageMetadata;
+
+  // Handle edit - use EditModal component
+  const handleEdit = useCallback(() => {
+    if (data?.id && schema?.id) {
+      setEditEntityId(data.id);
+      // Call original onEdit if provided (for external handling)
+      onEdit?.();
+    }
+  }, [data?.id, schema?.id, onEdit]);
 
   // Default layout values (can be overridden in detailPageMetadata if needed)
   const mainColumns = 2 as 1 | 2 | 3;
@@ -195,18 +207,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
               {showActions && (onEdit || onDelete) && (
                 <div className="flex items-center space-x-2">
-                  {headerInfo.expiration && (
-                    <div className="mr-2">
-                      <Countdown
-                        expireDate={headerInfo.expiration}
-                        includeTime={true}
-                        size="sm"
-                        showIcon={true}
-                      />
-                    </div>
-                  )}
                   {onEdit && (
-                    <Button variant="outline" onClick={onEdit} className="px-4 py-2 gap-2">
+                    <Button variant="outline" onClick={handleEdit} className="px-4 py-2 gap-2">
                       <Edit className="h-4 w-4  " />
                       <span className='hidden md:block'>Edit</span>
                     </Button>
@@ -221,7 +223,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               )}
 
             </div>
-            <div className="flex items-center space-x-2 justify-between py-4 w-full">
+            <div className="flex items-center space-x-2 justify-between py-4 w-full flex-row flex-wrap gap-2">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
@@ -234,34 +236,46 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   )}
                 </div>
               </div>
-              <div className="flex items-end flex-col justify-end gap-2">
-                {headerInfo.rating > 0 && (
-                  <Rating
-                    value={headerInfo.rating}
-                    maxValue={5}
-                    size="md"
-                    showValue={true}
-                  />
+              <div className="flex items-center space-x-2 flex-row flex-wrap">
+                {headerInfo.expiration && (
+                  <div className="mr-2">
+                    <Countdown
+                      expireDate={headerInfo.expiration}
+                      includeTime={true}
+                      size="sm"
+                      showIcon={true}
+                    />
+                  </div>
                 )}
-                {headerInfo.status && (
-                  <motion.div
-                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
-                    animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
-                    transition={disableAnimation ? {} : {
-                      duration: 0.3,
-                      delay: 0.2,
-                      ease: [0.25, 0.46, 0.45, 0.94]
-                    }}
-                    whileHover={disableAnimation ? undefined : { scale: 1.05 }}
-                  >
-                    <Badge variant={badgeConfig.color}>
-                      {badgeConfig.icon && (
-                        <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
-                      )}
-                      {badgeConfig.label}
-                    </Badge>
-                  </motion.div>
-                )}
+                <div className="flex items-end flex-col justify-end gap-2">
+                  {headerInfo.rating > 0 && (
+                    <Rating
+                      value={headerInfo.rating}
+                      maxValue={5}
+                      size="md"
+                      showValue={true}
+                    />
+                  )}
+                  {headerInfo.status && (
+                    <motion.div
+                      initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
+                      animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
+                      transition={disableAnimation ? {} : {
+                        duration: 0.3,
+                        delay: 0.2,
+                        ease: [0.25, 0.46, 0.45, 0.94]
+                      }}
+                      whileHover={disableAnimation ? undefined : { scale: 1.05 }}
+                    >
+                      <Badge variant={badgeConfig.color}>
+                        {badgeConfig.icon && (
+                          <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
+                        )}
+                        {badgeConfig.label}
+                      </Badge>
+                    </motion.div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -467,6 +481,27 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
       {/* Go to Top Button */}
       <GoToTop threshold={100} />
+
+      {/* Edit Modal - using unified FormModal */}
+      {editEntityId && schema?.id && data?.id && (
+        <FormModal
+          key={`edit-${editEntityId}-${schema.id}`}
+          schemaId={schema.id}
+          entityId={editEntityId}
+          mode="edit"
+          onSuccess={() => {
+            // Reset edit state and refresh the page to get updated data
+            setEditEntityId(null);
+            // Refresh the page to get updated data
+            if (typeof window !== 'undefined') {
+              window.location.reload();
+            }
+          }}
+          onClose={() => {
+            setEditEntityId(null);
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -353,7 +353,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             </>
           ) : (
             // List view layout
-            <div className="flex items-center space-x-4 w-full flex-wrap gap-2">
+            <div className="flex items-center space-x-4 w-full flex-wrap gap-2 justify-between">
               <div className="flex items-center gap-2">
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}

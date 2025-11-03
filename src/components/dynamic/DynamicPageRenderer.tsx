@@ -13,11 +13,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '../layout/main-layout';
 import { Spinner } from '../ui/spinner';
-import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, Modal, SchemaFormWrapper, GoToTop } from '../../gradian-ui';
+import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, GoToTop } from '../../gradian-ui';
 import { FormSchema } from '../../shared/types/form-schema';
 import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
-import { asFormSchema, asFormBuilderSchema } from '../../shared/utils/schema-utils';
+import { asFormSchema } from '../../shared/utils/schema-utils';
 import { useDynamicEntity } from '../../shared/hooks';
+import { FormModal } from '../../gradian-ui/form-builder';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -63,37 +64,37 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedEntityForDetail, setSelectedEntityForDetail] = useState<any | null>(null);
   const [searchTermLocal, setSearchTermLocal] = useState('');
+  const [editEntityId, setEditEntityId] = useState<string | null>(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  // Use the dynamic entity hook
+  // Use the dynamic entity hook for entity management
   const {
     entities,
     currentEntity,
     isLoading,
     error,
     selectedEntity,
-    isCreateModalOpen,
-    isEditModalOpen,
-    isModalOpen,
-    modalTitle,
     currentFilters,
     formState,
     fetchEntities,
     fetchEntityById,
     createEntity,
-    updateEntity,
     deleteEntity,
     setFilters,
     setCurrentEntity,
     clearError,
     handleSearch,
     handleFilterChange,
-    openCreateModal,
-    closeCreateModal,
-    openEditModal,
-    closeEditModal,
-    handleEditEntity: defaultHandleEditEntity,
     handleDeleteEntity,
   } = useDynamicEntity(schema);
+
+
+  // Handle opening create modal
+  const handleOpenCreateModal = useCallback(() => {
+    if (schema?.id) {
+      setCreateModalOpen(true);
+    }
+  }, [schema?.id]);
 
   // Custom handleViewEntity that opens the detail dialog (card click)
   const handleViewEntity = useCallback((entity: any) => {
@@ -133,174 +134,25 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFilters.search, currentFilters.status, currentFilters.category]);
 
-  const handleCreateEntity = async (data: any) => {
-    setFormError(null);
-    setIsSubmitting(true);
-    
-    try {
-      // Email validation function
-      const isValidEmail = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-      };
 
-      // Validate primary email if exists
-      if (data.email && !isValidEmail(data.email)) {
-        setFormError(`Invalid email format: ${data.email}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Validate emails in contacts if exists
-      if (data.contacts && Array.isArray(data.contacts)) {
-        for (const contact of data.contacts) {
-          if (contact.email && !isValidEmail(contact.email)) {
-            setFormError(`Invalid email format: ${contact.email}`);
-            setIsSubmitting(false);
-            return;
-          }
-        }
-      }
-
-      // Transform form data to match the expected schema
-      const transformedData = {
-        ...data,
-        categories: data.categories || ['general'],
-        contacts: data.contacts ? data.contacts.map((contact: any) => ({
-          ...contact,
-          isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
-          email: contact.email ? contact.email.trim() : contact.email,
-          department: contact.department || "",
-          notes: contact.notes || ""
-        })) : data.email ? [{
-          name: data.primaryContactName || data.name,
-          email: data.primaryContactEmail || data.email,
-          phone: data.primaryContactPhone || data.phone,
-          position: data.primaryContactPosition || 'Primary Contact',
-          isPrimary: true,
-        }] : [],
-        status: data.status || 'ACTIVE',
-        rating: data.rating ? Number(data.rating) : 5,
-      };
-      
-      const result = await createEntity(transformedData);
-      if (result.success) {
-        closeCreateModal();
-      } else {
-        console.error(`Failed to create ${entityName}:`, result.error);
-        setFormError(result.error || `Failed to create ${entityName}. Please try again.`);
-      }
-      
-      setIsSubmitting(false);
-    } catch (error) {
-      console.error(`Error creating ${entityName}:`, error);
-      setFormError(error instanceof Error ? error.message : `Failed to create ${entityName}. Please try again.`);
-      setIsSubmitting(false);
+  // Handle edit entity - set entity ID to trigger FormModal
+  const handleEditEntity = useCallback(async (entity: any) => {
+    if (!entity?.id || !schema?.id) {
+      console.error('Missing entity ID or schema ID for edit');
+      return;
     }
-  };
-
-  // Custom handleEditEntity that fetches fresh data
-  const handleEditEntity = async (entity: any) => {
+    
     try {
       setIsEditLoading(prev => ({ ...prev, [entity.id]: true }));
       
-      // Fetch the latest data from API
-      const freshEntity = await fetchEntityById(entity.id);
-      
-      if (freshEntity) {
-        setCurrentEntity(freshEntity);
-        setIsEditLoading(prev => ({ ...prev, [entity.id]: false }));
-        openEditModal(freshEntity);
-      } else {
-        setIsEditLoading(prev => ({ ...prev, [entity.id]: false }));
-        setCurrentEntity(entity);
-        openEditModal(entity);
-      }
+      // Set entity ID to trigger FormModal component
+      setEditEntityId(entity.id);
     } catch (error) {
-      console.error('Failed to fetch entity data:', error);
+      console.error('Failed to open edit modal:', error);
+    } finally {
       setIsEditLoading(prev => ({ ...prev, [entity.id]: false }));
-      setCurrentEntity(entity);
-      openEditModal(entity);
     }
-  };
-
-  const handleUpdateEntity = async (data: any) => {
-    setFormError(null);
-    setIsSubmitting(true);
-    
-    try {
-      if (!selectedEntity?.id) {
-        console.error(`No ${entityName} selected for update`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Email validation function
-      const isValidEmail = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-      };
-
-      // Validate primary email if exists
-      if (data.email && !isValidEmail(data.email)) {
-        setFormError(`Invalid email format: ${data.email}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Validate emails in contacts if exists
-      if (data.contacts && Array.isArray(data.contacts)) {
-        for (const contact of data.contacts) {
-          if (contact.email && !isValidEmail(contact.email)) {
-            setFormError(`Invalid email format: ${contact.email}`);
-            setIsSubmitting(false);
-            return;
-          }
-        }
-      }
-      
-      // Clean up emails before submission
-      if (data.email) {
-        data.email = data.email.trim();
-      }
-
-      // Transform form data to match the expected schema
-      const transformedData = {
-        ...data,
-        categories: data.categories || ['general'],
-        contacts: data.contacts ? data.contacts.map((contact: any) => ({
-          ...contact,
-          isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
-          email: contact.email ? contact.email.trim() : contact.email,
-          department: contact.department || "",
-          notes: contact.notes || ""
-        })) : data.email ? [{
-          name: data.primaryContactName || data.name,
-          email: data.primaryContactEmail || data.email,
-          phone: data.primaryContactPhone || data.phone,
-          position: data.primaryContactPosition || 'Primary Contact',
-          isPrimary: true,
-        }] : [],
-        status: data.status || 'ACTIVE',
-        rating: data.rating ? Number(data.rating) : 5,
-      };
-      
-      const result = await updateEntity(selectedEntity.id, transformedData);
-      
-      if (result.success) {
-        closeEditModal();
-      } else {
-        console.error(`Failed to update ${entityName}:`, result.error);
-        setFormError(result.error || `Failed to update ${entityName}. Please try again.`);
-      }
-      
-      setIsSubmitting(false);
-    } catch (error) {
-      console.error(`Error updating ${entityName}:`, error);
-      setFormError(error instanceof Error ? error.message : `Failed to update ${entityName}. Please try again.`);
-      setIsSubmitting(false);
-    }
-  };
+  }, [schema?.id]);
 
   const filteredEntities = useMemo(() => {
     if (!entities) return [];
@@ -400,7 +252,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           onSearchChange={setSearchTermLocal}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onAddNew={openCreateModal}
+          onAddNew={handleOpenCreateModal}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
         />
@@ -454,7 +306,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   : `Get started by adding your first ${singularName.toLowerCase()}.`
               }
               action={
-                <Button onClick={openCreateModal}>
+                <Button onClick={handleOpenCreateModal}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add {singularName}
                 </Button>
@@ -477,38 +329,123 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
         onDelete={handleDeleteEntity}
       />
 
-      {/* Create/Edit Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={isCreateModalOpen ? closeCreateModal : closeEditModal}
-        title={modalTitle}
-        description={isCreateModalOpen ? `Add a new ${singularName.toLowerCase()} to your system` : `Edit ${singularName.toLowerCase()} information`}
-        size="xl"
-        showCloseButton={false}
-      >
-        {/* Loading indicator for form submission */}
-        {isSubmitting && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-50 rounded-lg">
-            <div className="flex flex-col items-center space-y-3 bg-white p-6 rounded-xl shadow-lg border border-blue-100">
-              <Spinner size="lg" variant="primary" />
-              <span className="text-lg font-medium text-blue-700">
-                {isCreateModalOpen ? `Creating ${entityName.toLowerCase()}...` : `Updating ${entityName.toLowerCase()}...`}
-              </span>
-            </div>
-          </div>
-        )}
-        <SchemaFormWrapper
-          key={isCreateModalOpen ? 'create' : `edit-${currentEntity?.id || 'none'}`}
-          schema={asFormBuilderSchema(schema)}
-          onSubmit={isCreateModalOpen ? handleCreateEntity : handleUpdateEntity}
-          onReset={() => formState.reset()}
-          onCancel={isCreateModalOpen ? closeCreateModal : closeEditModal}
-          initialValues={isCreateModalOpen ? formState.values : currentEntity || formState.values}
-          error={formError}
-          onErrorDismiss={() => setFormError(null)}
-          disabled={isSubmitting}
+      {/* Create Modal - using unified FormModal */}
+      {createModalOpen && schema?.id && (
+        <FormModal
+          schemaId={schema.id}
+          mode="create"
+          enrichData={(formData) => {
+            // Email validation function
+            const isValidEmail = (email: string) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return emailRegex.test(email);
+            };
+
+            // Validate primary email if exists
+            if (formData.email && !isValidEmail(formData.email)) {
+              throw new Error(`Invalid email format: ${formData.email}`);
+            }
+
+            // Validate emails in contacts if exists
+            if (formData.contacts && Array.isArray(formData.contacts)) {
+              for (const contact of formData.contacts) {
+                if (contact.email && !isValidEmail(contact.email)) {
+                  throw new Error(`Invalid email format: ${contact.email}`);
+                }
+              }
+            }
+
+            // Transform form data to match the expected schema
+            return {
+              ...formData,
+              categories: formData.categories || ['general'],
+              contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
+                ...contact,
+                isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+                email: contact.email ? contact.email.trim() : contact.email,
+                department: contact.department || "",
+                notes: contact.notes || ""
+              })) : formData.email ? [{
+                name: formData.primaryContactName || formData.name,
+                email: formData.primaryContactEmail || formData.email,
+                phone: formData.primaryContactPhone || formData.phone,
+                position: formData.primaryContactPosition || 'Primary Contact',
+                isPrimary: true,
+              }] : [],
+              status: formData.status || 'ACTIVE',
+              rating: formData.rating ? Number(formData.rating) : 5,
+            };
+          }}
+          onSuccess={async () => {
+            // Refresh entities list after successful creation
+            await fetchEntities();
+            setCreateModalOpen(false);
+          }}
+          onClose={() => {
+            setCreateModalOpen(false);
+          }}
         />
-      </Modal>
+      )}
+
+      {/* Edit Modal - using unified FormModal */}
+      {editEntityId && schema?.id && (
+        <FormModal
+          key={`edit-${editEntityId}-${schema.id}`}
+          schemaId={schema.id}
+          entityId={editEntityId}
+          mode="edit"
+          enrichData={(formData) => {
+            // Email validation function
+            const isValidEmail = (email: string) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              return emailRegex.test(email);
+            };
+
+            // Validate primary email if exists
+            if (formData.email && !isValidEmail(formData.email)) {
+              throw new Error(`Invalid email format: ${formData.email}`);
+            }
+
+            // Validate emails in contacts if exists
+            if (formData.contacts && Array.isArray(formData.contacts)) {
+              for (const contact of formData.contacts) {
+                if (contact.email && !isValidEmail(contact.email)) {
+                  throw new Error(`Invalid email format: ${contact.email}`);
+                }
+              }
+            }
+
+            // Transform form data to match the expected schema
+            return {
+              ...formData,
+              categories: formData.categories || ['general'],
+              contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
+                ...contact,
+                isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+                email: contact.email ? contact.email.trim() : contact.email,
+                department: contact.department || "",
+                notes: contact.notes || ""
+              })) : formData.email ? [{
+                name: formData.primaryContactName || formData.name,
+                email: formData.primaryContactEmail || formData.email,
+                phone: formData.primaryContactPhone || formData.phone,
+                position: formData.primaryContactPosition || 'Primary Contact',
+                isPrimary: true,
+              }] : [],
+              status: formData.status || 'ACTIVE',
+              rating: formData.rating ? Number(formData.rating) : 5,
+            };
+          }}
+          onSuccess={async () => {
+            // Refresh entities list after successful update
+            await fetchEntities();
+            setEditEntityId(null);
+          }}
+          onClose={() => {
+            setEditEntityId(null);
+          }}
+        />
+      )}
       
       {/* Go to Top Button */}
       <GoToTop threshold={100} />

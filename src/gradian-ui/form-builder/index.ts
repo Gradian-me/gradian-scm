@@ -25,6 +25,10 @@ export { AccordionFormSection } from './components/AccordionFormSection';
 export { RepeatingSection } from './components/RepeatingSection';
 export { SchemaFormWrapper } from './components/FormLifecycleManager';
 export { FormDialog } from './components/FormDialog';
+export { FormModal } from './components/FormModal';
+export type { FormModalProps } from './components/FormModal';
+export { useFormModal } from './hooks/use-form-modal';
+export type { UseFormModalOptions, UseFormModalReturn, FormModalMode } from './hooks/use-form-modal';
 
 // Re-export CardConfig from form-schema with alias to avoid conflict
 export type { CardConfig as FormCardConfig } from './types/form-schema';

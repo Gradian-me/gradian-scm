@@ -6,6 +6,9 @@ import { getAvailableSchemaIds } from '../../../shared/utils/schema-registry.ser
 import { fetchSchemaById } from '../../../shared/utils/schema-registry';
 import { FormSchema } from '../../../shared/types/form-schema';
 
+// Enable ISR (Incremental Static Regeneration) with 60 second revalidation
+export const revalidate = 60;
+
 interface PageProps {
   params: Promise<{
     'schema-id': string;

@@ -5,6 +5,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+// Cache for loaded schemas
+let cachedSchemas: any[] | null = null;
+let cacheTimestamp: number | null = null;
+const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
+
+/**
+ * Load schemas with caching
+ */
+function loadSchemas(): any[] {
+  const now = Date.now();
+  
+  // Return cache if valid
+  if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
+    return cachedSchemas;
+  }
+  
+  // Read and cache schemas
+  const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+  
+  if (!fs.existsSync(dataPath)) {
+    return [];
+  }
+  
+  const fileContents = fs.readFileSync(dataPath, 'utf8');
+  cachedSchemas = JSON.parse(fileContents);
+  cacheTimestamp = now;
+  
+  return cachedSchemas || [];
+}
+
 /**
  * GET - Get all schemas or a specific schema by ID
  * Example: 
@@ -16,18 +46,15 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const schemaId = searchParams.get('id');
 
-    // Read the schemas JSON file
-    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    // Load schemas (with caching)
+    const schemas = loadSchemas();
     
-    if (!fs.existsSync(dataPath)) {
+    if (!schemas || schemas.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Schemas file not found' },
+        { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
     }
-
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    const schemas = JSON.parse(fileContents);
 
     // If specific schema ID requested, return only that schema
     if (schemaId) {
@@ -71,18 +98,15 @@ export async function POST(request: NextRequest) {
   try {
     const newSchema = await request.json();
 
-    // Read the schemas JSON file
-    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    // Load schemas (with caching)
+    const schemas = loadSchemas();
     
-    if (!fs.existsSync(dataPath)) {
+    if (!schemas || schemas.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Schemas file not found' },
+        { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
     }
-
-    const fileContents = fs.readFileSync(dataPath, 'utf8');
-    const schemas = JSON.parse(fileContents);
 
     // Check if schema with same ID already exists
     const existingSchema = schemas.find((s: any) => s.id === newSchema.id);
@@ -98,7 +122,12 @@ export async function POST(request: NextRequest) {
     schemas.push(newSchema);
 
     // Write back to file
-    fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
+    const schemaFilePath = path.join(process.cwd(), 'data', 'all-schemas.json');
+    fs.writeFileSync(schemaFilePath, JSON.stringify(schemas, null, 2), 'utf8');
+    
+    // Clear cache to force reload on next request
+    cachedSchemas = null;
+    cacheTimestamp = null;
 
     return NextResponse.json({
       success: true,

@@ -25,7 +25,6 @@
       }
     ],
     "fields": [
-      
       {
         "id": "item-part-code",
         "name": "partCode",
@@ -393,12 +392,12 @@
           "title": "Inquiry Items",
           "description": "List of all items in this inquiry",
           "columns": [
-            "item-row-number",
+            "item-part-code",
+            "item-part-name",
             "item-quantity",
-            "item-major-unit-quantity",
-            "item-unit-ref",
+            "item-unit",
             "item-demand-date",
-            "item-state",
+            "item-minimum-expiration-date",
             "item-description"
           ],
           "tableProperties": {
@@ -1312,5 +1311,68 @@
     },
     "showInNavigation": true,
     "icon": "User"
+  },
+  {
+    "id": "contacts",
+    "description": "Schema for Contact",
+    "singular_name": "Contact",
+    "plural_name": "Contacts",
+    "fields": [
+      {
+        "id": "field-1762151430232",
+        "name": "name",
+        "label": "Name",
+        "sectionId": "section-1762151413279",
+        "type": "text",
+        "component": "text",
+        "order": 1,
+        "placeholder": "Enter contact name",
+        "required": true,
+        "role": "title"
+      },
+      {
+        "id": "field-1762151456340",
+        "name": "last_name",
+        "label": "Last Name",
+        "sectionId": "section-1762151413279",
+        "type": "text",
+        "component": "text",
+        "order": 2,
+        "required": true,
+        "role": "title"
+      },
+      {
+        "id": "field-1762151478649",
+        "name": "email",
+        "label": "Email",
+        "sectionId": "section-1762151413279",
+        "type": "email",
+        "component": "email",
+        "order": 3,
+        "placeholder": "Enter contact email",
+        "required": false,
+        "role": "subtitle"
+      },
+      {
+        "id": "field-1762151519711",
+        "name": "phone_number",
+        "label": "Phone Number",
+        "sectionId": "section-1762151413279",
+        "type": "tel",
+        "component": "tel",
+        "order": 4,
+        "required": true,
+        "role": "tel"
+      }
+    ],
+    "sections": [
+      {
+        "id": "section-1762151413279",
+        "title": "Contact Information",
+        "columns": 2
+      }
+    ],
+    "icon": "Contact",
+    "showInNavigation": true
   }
 ]

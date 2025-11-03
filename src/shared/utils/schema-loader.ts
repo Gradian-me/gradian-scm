@@ -194,8 +194,10 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
       const startTime = Date.now();
 
       const response = await fetch(fetchUrl, {
-        // Use cache for internal requests but allow revalidation
-        cache: 'no-store', // Always fetch fresh data, then cache it ourselves
+        // Use Next.js cache for static rendering compatibility
+        // We still have our own in-memory cache for additional performance
+        cache: 'force-cache',
+        next: { revalidate: 60 }, // Revalidate every 60 seconds
         headers: {
           'Content-Type': 'application/json',
         },
@@ -320,7 +322,8 @@ export async function loadSchemaById(schemaId: string): Promise<FormSchema | nul
     const startTime = Date.now();
 
     const response = await fetch(fetchUrl, {
-      cache: 'no-store',
+      cache: 'force-cache',
+      next: { revalidate: 60 }, // Revalidate every 60 seconds
       headers: {
         'Content-Type': 'application/json',
       },

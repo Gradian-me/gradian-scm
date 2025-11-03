@@ -11,8 +11,8 @@ import { isValidSchemaId, getSchemaById } from '@/shared/utils/schema-registry.s
 /**
  * Create controller instance for the given schema
  */
-function createController(schemaId: string) {
-  const schema = getSchemaById(schemaId);
+async function createController(schemaId: string) {
+  const schema = await getSchemaById(schemaId);
   const repository = new BaseRepository<BaseEntity>(schemaId);
   const service = new BaseService<BaseEntity>(repository, schema.singular_name || 'Entity');
   const controller = new BaseController<BaseEntity>(service, schema.singular_name || 'Entity');
@@ -32,14 +32,14 @@ export async function GET(
     const { 'schema-id': schemaId } = await params;
 
     // Validate schema ID
-    if (!isValidSchemaId(schemaId)) {
+    if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
         { success: false, error: `Invalid schema ID: ${schemaId}` },
         { status: 404 }
       );
     }
 
-    const controller = createController(schemaId);
+    const controller = await createController(schemaId);
     return await controller.getAll(request);
   } catch (error) {
     return NextResponse.json(
@@ -64,14 +64,14 @@ export async function POST(
     const { 'schema-id': schemaId } = await params;
 
     // Validate schema ID
-    if (!isValidSchemaId(schemaId)) {
+    if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
         { success: false, error: `Invalid schema ID: ${schemaId}` },
         { status: 404 }
       );
     }
 
-    const controller = createController(schemaId);
+    const controller = await createController(schemaId);
     return await controller.create(request);
   } catch (error) {
     return NextResponse.json(
