@@ -1,7 +1,7 @@
 // Form Section Component
 
 import React from 'react';
-import { FormSectionProps } from '../types/form-schema';
+import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormElementFactory } from './FormElementFactory';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { cn } from '../../shared/utils';

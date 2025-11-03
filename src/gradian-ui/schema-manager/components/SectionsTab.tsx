@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { ChevronsUp, Plus } from 'lucide-react';
-import { FormSection, FormField } from '@/shared/types/form-schema';
+import { FormSection, FormField } from '../types/form-schema';
 import { SectionContent } from './SectionContent';
 import { SectionFields } from './SectionFields';
 import { SortableSection } from './SortableSection';

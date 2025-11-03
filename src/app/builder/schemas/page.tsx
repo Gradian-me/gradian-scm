@@ -20,7 +20,7 @@ import {
   LayoutList
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

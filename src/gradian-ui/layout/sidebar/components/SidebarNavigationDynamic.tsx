@@ -2,7 +2,7 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Separator } from '@/components/ui/separator';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { config } from '@/lib/config';
 import { AnimatePresence, motion } from 'framer-motion';

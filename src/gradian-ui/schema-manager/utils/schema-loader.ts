@@ -5,9 +5,9 @@
 import 'server-only';
 
 import { FormSchema, FormField } from '../types/form-schema';
-import { config } from '../../lib/config';
-import { loggingCustom } from './logging-custom';
-import { LogType } from '../constants/application-variables';
+import { config } from '@/lib/config';
+import { loggingCustom } from '@/shared/utils/logging-custom';
+import { LogType } from '@/shared/constants/application-variables';
 
 // Cache for loaded schemas
 let cachedSchemas: FormSchema[] | null = null;

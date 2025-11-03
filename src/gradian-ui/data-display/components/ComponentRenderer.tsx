@@ -4,9 +4,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { KPIIndicator } from '../../analytics/indicators/kpi-indicator/components/KPIIndicator';
-import { ComponentRendererConfig } from '../../../shared/types/form-schema';
+import { ComponentRendererConfig, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
-import { FormSchema } from '../../../shared/types/form-schema';
 import { cn } from '../../shared/utils';
 
 export interface ComponentRendererProps {

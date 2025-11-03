@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { IconInput } from '@/components/ui/icon-input';
 import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
-import { FormSection } from '@/shared/types/form-schema';
+import { FormSection } from '../types/form-schema';
 
 interface SectionContentProps {
   section: FormSection;

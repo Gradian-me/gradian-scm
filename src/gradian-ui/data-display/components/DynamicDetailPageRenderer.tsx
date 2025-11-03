@@ -8,7 +8,7 @@ import { Button } from '../../../components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
 import { Badge } from '../../../components/ui/badge';
 import { GridBuilder } from '../../layout/grid-builder';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { DynamicInfoCard } from './DynamicInfoCard';
 import { ComponentRenderer } from './ComponentRenderer';
 import { DynamicRepeatingTableViewer } from './DynamicRepeatingTableViewer';

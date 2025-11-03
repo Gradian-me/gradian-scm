@@ -1,8 +1,7 @@
 // Shared utilities index
 export * from './api';
-// Note: schema-registry exports removed to prevent client-side bundling issues
-// Import directly from './schema-registry' (client) or './schema-registry.server' (server)
+// Note: schema-related utilities have been moved to gradian-ui/schema-manager/utils
+// Import schema utilities from '@/gradian-ui/schema-manager/utils' instead
 export * from './validation';
 export * from './logging-custom';
-export * from './schema-utils';
 export * from './icon-renderer';

@@ -2,9 +2,9 @@
 // Renders any entity page based on schema ID
 import { notFound } from 'next/navigation';
 import { DynamicPageRenderer } from '../../../components/dynamic/DynamicPageRenderer';
-import { getAvailableSchemaIds } from '../../../shared/utils/schema-registry.server';
-import { fetchSchemaById } from '../../../shared/utils/schema-registry';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { getAvailableSchemaIds } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
+import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
 // Enable ISR (Incremental Static Regeneration) with 60 second revalidation
 export const revalidate = 60;

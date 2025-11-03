@@ -15,26 +15,21 @@ The dynamic schema system allows you to define entity schemas once and automatic
 
 ### 1. Define a Schema
 
-Add your schema to `all-schemas.ts`:
+Add your schema to `data/all-schemas.json`:
 
-```typescript
-export const myEntitySchema: FormSchema = {
-  id: 'my-entities',
-  name: 'my-entities',
-  title: 'Create New My Entity',
-  description: 'Add a new entity',
-  singular_name: 'My Entity',
-  plural_name: 'My Entities',
-  sections: [
+```json
+{
+  "id": "my-entities",
+  "singular_name": "My Entity",
+  "plural_name": "My Entities",
+  "description": "Add a new entity",
+  "sections": [
+    // ... define your sections
+  ],
+  "fields": [
     // ... define your fields
   ]
-};
-
-// Register in the ALL_SCHEMAS object
-export const ALL_SCHEMAS: Record<string, FormSchema> = {
-  vendors: vendorSchema,
-  myEntities: myEntitySchema, // Add your schema here
-};
+}
 ```
 
 ### 2. Access the Dynamic Page
@@ -47,13 +42,20 @@ Once registered, your entity page will be automatically available at:
 ### 3. Use Schema Utilities
 
 ```typescript
-import { getSchemaById, findSchemaById } from '@/shared/utils/schema-registry';
+// Server-side
+import { getSchemaById, findSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 
-// Get schema (throws error if not found)
-const schema = getSchemaById('vendors');
+// Client-side
+import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 
-// Find schema (returns null if not found)
-const maybeSchema = findSchemaById('vendors');
+// Get schema (throws error if not found) - Server-side only
+const schema = await getSchemaById('vendors');
+
+// Find schema (returns null if not found) - Server-side only
+const maybeSchema = await findSchemaById('vendors');
+
+// Fetch schema (works on both client and server)
+const fetchedSchema = await fetchSchemaById('vendors');
 ```
 
 ## Benefits
@@ -66,8 +68,9 @@ const maybeSchema = findSchemaById('vendors');
 
 ## Files
 
-- `all-schemas.ts` - Central schema registry
-- `../utils/schema-registry.ts` - Helper utilities for finding schemas
+- `data/all-schemas.json` - Central schema registry (JSON format)
+- `@/gradian-ui/schema-manager/utils/schema-registry.server.ts` - Server-side schema utilities
+- `@/gradian-ui/schema-manager/utils/schema-registry.ts` - Client-side schema utilities
 - `../../components/dynamic/DynamicPageRenderer.tsx` - Universal page renderer
 - `../../shared/hooks/use-dynamic-entity.ts` - Generic entity hook
 - `../../app/page/[schema-id]/page.tsx` - Dynamic route handler

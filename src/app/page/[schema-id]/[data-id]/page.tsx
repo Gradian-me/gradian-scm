@@ -1,8 +1,8 @@
 // Dynamic Detail Page Route
 // Renders detail page for any entity based on schema ID and data ID
 import { notFound } from 'next/navigation';
-import { FormSchema } from '../../../../shared/types/form-schema';
-import { fetchSchemaById } from '../../../../shared/utils/schema-registry';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { DynamicDetailPageClient } from './DynamicDetailPageClient';
 
 interface PageProps {

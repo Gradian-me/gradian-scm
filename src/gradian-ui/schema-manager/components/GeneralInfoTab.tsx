@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { IconInput } from '@/components/ui/icon-input';
 import { Switch } from '@/components/ui/switch';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '../types/form-schema';
 
 interface GeneralInfoTabProps {
   schema: FormSchema;

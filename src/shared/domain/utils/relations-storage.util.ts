@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { DataStorageError } from '../errors/domain.errors';
-import { DataRelation } from '@/shared/types/form-schema';
+import { DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { ulid } from 'ulid';
 
 const RELATIONS_FILE_PATH = path.join(process.cwd(), 'data', 'all-data-relations.json');

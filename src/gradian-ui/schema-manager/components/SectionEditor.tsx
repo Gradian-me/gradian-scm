@@ -10,7 +10,7 @@ import { Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { SectionEditorProps } from '../types/builder';
 import { FieldEditor } from './FieldEditor';
 import { useMemo, useState, useEffect } from 'react';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '../types/form-schema';
 
 export function SectionEditor({
   section,
@@ -281,6 +281,25 @@ export function SectionEditor({
                         : 'Users can only select from existing data. Only "Select" button will be shown.'}
                     </p>
                   </div>
+                  {(section.repeatingConfig?.addType === 'canSelectFromData' || section.repeatingConfig?.addType === 'mustSelectFromData') && (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="isUnique"
+                          checked={section.repeatingConfig?.isUnique || false}
+                          onChange={(e) => updateRepeatingConfig({ isUnique: e.target.checked })}
+                          className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                        />
+                        <Label htmlFor="isUnique" className="font-normal cursor-pointer">
+                          Unique Selection
+                        </Label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        If enabled, each item can only be selected once. Already selected items will be excluded from the picker.
+                      </p>
+                    </>
+                  )}
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-sm text-blue-800">
                       <strong>Relation-based section:</strong> Fields are managed in the target schema "{section.repeatingConfig?.targetSchema}". 

@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar } from './Avatar';
 import { Badge } from '@/components/ui/badge';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '@/shared/utils/api';
 import { getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../utils/field-resolver';
 import { getInitials, getBadgeConfig } from '@/gradian-ui/data-display/utils';
@@ -31,6 +31,7 @@ export interface PopupPickerProps {
   title?: string;
   description?: string;
   excludeIds?: string[]; // IDs to exclude from selection (already selected items)
+  includeIds?: string[]; // IDs to include in selection (only show these items)
   canViewList?: boolean; // If true, shows a button to navigate to the list page
   viewListUrl?: string; // Custom URL for the list page (defaults to /page/{schemaId})
 }
@@ -44,6 +45,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   title,
   description,
   excludeIds = [],
+  includeIds,
   canViewList = false,
   viewListUrl,
 }) => {
@@ -82,14 +84,27 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       
       const fetchItems = async () => {
         try {
-          const response = await apiRequest<any[]>(`/api/data/${schemaId}`);
+          // Build query params
+          const queryParams = new URLSearchParams();
+          
+          // Add includeIds if provided
+          if (includeIds && includeIds.length > 0) {
+            queryParams.append('includeIds', includeIds.join(','));
+          }
+          
+          // Add excludeIds if provided
+          if (excludeIds && excludeIds.length > 0) {
+            queryParams.append('excludeIds', excludeIds.join(','));
+          }
+          
+          const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+          const response = await apiRequest<any[]>(url);
+          
           if (response.success && response.data) {
-            // Filter out excluded IDs
-            const filtered = Array.isArray(response.data)
-              ? response.data.filter((item: any) => !excludeIds.includes(item.id))
-              : [];
-            setItems(filtered);
-            setFilteredItems(filtered);
+            // Items are already filtered by the API
+            const itemsArray = Array.isArray(response.data) ? response.data : [];
+            setItems(itemsArray);
+            setFilteredItems(itemsArray);
           } else {
             setError(response.error || 'Failed to fetch items');
           }
@@ -102,7 +117,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
       fetchItems();
     }
-  }, [schemaId, isOpen, excludeIds]);
+  }, [schemaId, isOpen, excludeIds, includeIds]);
 
   // Filter items based on search query
   useEffect(() => {

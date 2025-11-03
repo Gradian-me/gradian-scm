@@ -30,9 +30,29 @@ export class BaseController<T extends BaseEntity> {
       filters.category = searchParams.get('category') || undefined;
     }
 
+    // Handle includeIds - can be comma-separated string or multiple params
+    if (searchParams.has('includeIds')) {
+      const includeIdsParam = searchParams.get('includeIds');
+      if (includeIdsParam) {
+        filters.includeIds = includeIdsParam.split(',').map(id => id.trim());
+      }
+    } else if (searchParams.getAll('includeIds[]').length > 0) {
+      filters.includeIds = searchParams.getAll('includeIds[]');
+    }
+
+    // Handle excludeIds - can be comma-separated string or multiple params
+    if (searchParams.has('excludeIds')) {
+      const excludeIdsParam = searchParams.get('excludeIds');
+      if (excludeIdsParam) {
+        filters.excludeIds = excludeIdsParam.split(',').map(id => id.trim());
+      }
+    } else if (searchParams.getAll('excludeIds[]').length > 0) {
+      filters.excludeIds = searchParams.getAll('excludeIds[]');
+    }
+
     // Add any other query params as filters
     searchParams.forEach((value, key) => {
-      if (!['search', 'status', 'category'].includes(key)) {
+      if (!['search', 'status', 'category', 'includeIds', 'excludeIds', 'includeIds[]', 'excludeIds[]'].includes(key)) {
         filters[key] = value;
       }
     });

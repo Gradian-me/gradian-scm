@@ -7,7 +7,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '../../../../components/ui/badge';
 import { cn } from '../../../../lib/utils';
-import { FormField } from '../../types/form-schema';
+import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { findBadgeOption, getBadgeMetadata, BadgeOption } from './badge-utils';
 import { IconRenderer } from '../../../../shared/utils/icon-renderer';
 

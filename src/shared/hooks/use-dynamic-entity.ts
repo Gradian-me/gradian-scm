@@ -2,7 +2,7 @@
 // Generic hook for managing any entity based on schema
 
 import { useState, useCallback } from 'react';
-import { FormSchema } from '../types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '../utils/api';
 
 interface EntityFilters {

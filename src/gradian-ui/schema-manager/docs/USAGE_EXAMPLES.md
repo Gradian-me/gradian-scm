@@ -6,7 +6,7 @@
 
 ```typescript
 // domains/vendor/schemas/vendor-form.schema.ts
-import { FormSchema } from '../../../gradian-ui/form-builder/types/form-schema';
+import { FormSchema } from '../types/form-schema';
 
 export const vendorFormSchema: FormSchema = {
   id: 'vendor-form',

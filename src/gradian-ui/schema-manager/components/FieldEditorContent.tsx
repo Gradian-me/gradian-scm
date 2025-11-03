@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Edit, Trash2 } from 'lucide-react';
-import { FormField, FormSection } from '@/shared/types/form-schema';
+import { FormField, FormSection } from '../types/form-schema';
 import { FIELD_TYPES, ROLES } from '../constants';
 
 interface FieldEditorContentProps {

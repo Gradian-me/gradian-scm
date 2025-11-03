@@ -142,9 +142,16 @@ export const useFormState = <T extends Record<string, any>>(
       }
     }
 
-    if (value && rule.pattern && !rule.pattern.test(value.toString())) {
-      setErrors(prev => ({ ...prev, [field]: 'Invalid format' }));
-      return false;
+    if (value && rule.pattern) {
+      // Handle pattern as either string or RegExp
+      const pattern = typeof rule.pattern === 'string' 
+        ? new RegExp(rule.pattern) 
+        : rule.pattern;
+      
+      if (!pattern.test(value.toString())) {
+        setErrors(prev => ({ ...prev, [field]: 'Invalid format' }));
+        return false;
+      }
     }
 
     if (value && rule.custom) {

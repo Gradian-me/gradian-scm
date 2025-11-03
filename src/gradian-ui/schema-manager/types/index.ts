@@ -1,8 +1,9 @@
 // Schema Manager Types
 
-import { FormSchema } from '../../../shared/types/form-schema';
-
 export * from './builder';
+export * from './form-schema';
+
+import { FormSchema } from './form-schema';
 
 export interface SchemaManagerConfig {
   entityName: string;

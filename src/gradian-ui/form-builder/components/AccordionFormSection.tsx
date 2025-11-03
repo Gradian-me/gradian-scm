@@ -1,7 +1,7 @@
 // Accordion Form Section Component
 
 import React, { useState, useEffect } from 'react';
-import { FormSectionProps } from '../types/form-schema';
+import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormElementFactory } from './FormElementFactory';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -10,7 +10,7 @@ import { cn } from '../../shared/utils';
 import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../form-elements/utils/field-resolver';
 import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/shared/utils/api';
-import { DataRelation, FormSchema } from '@/shared/types/form-schema';
+import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormModal } from './FormModal';
 import { Avatar, Rating, PopupPicker, ConfirmationMessage } from '../form-elements';
 import { Badge } from '../../../components/ui/badge';
@@ -366,7 +366,10 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   };
 
   // Get already selected IDs to exclude from picker
+  // If isUnique is set in repeatingConfig, exclude all IDs that are already related to the source entity
+  // to ensure each item can only be selected once
   const selectedIds = relations.map(r => r.targetId);
+  const shouldExcludeIds = section.repeatingConfig?.isUnique === true;
 
   // Render entity summary (for relation-based sections) - Beautiful card UI
   const renderEntitySummary = (entity: any, index: number) => {
@@ -747,7 +750,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                         onSelect={handleSelectFromPicker}
                         title={`Select ${targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}`}
                         description={`Choose an existing ${targetSchemaData?.singular_name || 'item'} to link to this record`}
-                        excludeIds={selectedIds}
+                        excludeIds={shouldExcludeIds ? selectedIds : undefined}
                         canViewList={true}
                         viewListUrl={`/page/${targetSchema}`}
                       />

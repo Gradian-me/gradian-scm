@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { FormSection, FormField } from '@/shared/types/form-schema';
+import { FormSection, FormField } from '../types/form-schema';
 import { SortableField } from './SortableField';
 import { FieldEditorContent } from './FieldEditorContent';
 import {

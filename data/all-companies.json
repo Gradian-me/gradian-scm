@@ -1,0 +1,28 @@
+[
+  {
+    "name": "CinnaGen",
+    "logo": "https://www.cinnagen.com/img/Logo.svg",
+    "address": "Iran, Tehran, Shahrake Gharb, Farahzadi Blvd, Sepehr Street, No. 34",
+    "country": "Iran",
+    "city": "Tehran",
+    "zipCode": "1468943381",
+    "registrationCode": "",
+    "nationalId": "",
+    "id": "01K94V4PJSFKCXS6AVX07P86N5",
+    "createdAt": "2025-11-03T12:30:16.678Z",
+    "updatedAt": "2025-11-03T12:44:20.602Z"
+  },
+  {
+    "name": "AryoGen",
+    "logo": "https://www.aryogen.com/wp-content/uploads/2023/09/Aryogen-web-logo.png",
+    "address": "No. 140, 24th Km Tehran-Karaj Makhsous road",
+    "country": "Iran",
+    "city": "Alborz",
+    "zipCode": "3164819712",
+    "registrationCode": "",
+    "nationalId": "",
+    "id": "01K94V8K0RJS7D9K43F2VBTSVG",
+    "createdAt": "2025-11-03T12:32:24.097Z",
+    "updatedAt": "2025-11-03T12:32:24.097Z"
+  }
+]

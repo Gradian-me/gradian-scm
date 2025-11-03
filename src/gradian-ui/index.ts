@@ -15,7 +15,7 @@ export * from './data-display';
 export type { CardConfig } from './data-display/card/types';
 
 // Schema Manager (exclude FormField to avoid conflict with form-builder)
-export type { FormSchema, FormSection } from '../shared/types/form-schema';
+export type { FormSchema, FormSection } from './schema-manager/types/form-schema';
 export * from './schema-manager/components';
 export * from './schema-manager/hooks';
 export * from './schema-manager/utils';

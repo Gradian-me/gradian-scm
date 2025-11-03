@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Layers,
   Palette,
-  Settings
+  Settings,
+  Building2
 } from 'lucide-react';
 
 interface BuilderOption {
@@ -54,6 +55,20 @@ const builderOptions: BuilderOption[] = [
       'Set visual indicators',
       'Configure icons and colors',
       'Manage relation metadata',
+    ],
+  },
+  {
+    id: 'companies',
+    title: 'Companies',
+    description: 'Manage company information including registration, address, and contact details',
+    icon: Building2,
+    href: '/builder/companies',
+    color: '#10B981',
+    features: [
+      'Company registration details',
+      'Address and location data',
+      'National ID and registration codes',
+      'Company logo management',
     ],
   },
 ];

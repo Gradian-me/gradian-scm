@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { GripVertical, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import { FormSection } from '@/shared/types/form-schema';
+import { FormSection } from '../types/form-schema';
 
 export interface SortableSectionProps {
   section: FormSection;

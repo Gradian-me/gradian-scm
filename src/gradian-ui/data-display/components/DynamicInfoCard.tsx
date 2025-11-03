@@ -6,7 +6,7 @@ import React from 'react';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { CardContent, CardHeader, CardTitle, CardWrapper } from '../card/components/CardWrapper';
-import { DetailPageSection, FormSchema } from '../../../shared/types/form-schema';
+import { DetailPageSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
 import { isBadgeSection, getBadgeFields } from '../../schema-manager/utils/badge-utils';

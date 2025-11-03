@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SchemaBuilderEditor } from '@/gradian-ui/schema-manager';
-import { FormSchema } from '@/shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { config } from '@/lib/config';
 
 export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema-id': string }> }) {

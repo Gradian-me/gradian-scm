@@ -5,7 +5,7 @@ import React, { KeyboardEvent } from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Avatar, Rating, Countdown } from '../../form-builder/form-elements';
-import { CardSection, FormSchema } from '../../../shared/types/form-schema';
+import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
 import { CardWrapper } from '../card/components/CardWrapper';

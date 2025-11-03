@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { DynamicDetailPageRenderer } from '../../../../gradian-ui/data-display/components/DynamicDetailPageRenderer';
-import { FormSchema } from '../../../../shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useDynamicEntity } from '../../../../shared/hooks/use-dynamic-entity';
 import { apiRequest } from '../../../../shared/utils/api';
 import { MainLayout } from '../../../../components/layout/main-layout';

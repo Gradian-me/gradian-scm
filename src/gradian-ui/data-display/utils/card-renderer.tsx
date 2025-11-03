@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById, getFieldValue } from '../../form-builder/form-elements/utils/field-resolver';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';

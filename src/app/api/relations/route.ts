@@ -10,7 +10,7 @@ import {
   getRelationsByType,
   getRelationsForSection,
 } from '@/shared/domain/utils/relations-storage.util';
-import { DataRelation } from '@/shared/types/form-schema';
+import { DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { handleDomainError } from '@/shared/domain/errors/domain.errors';
 
 /**

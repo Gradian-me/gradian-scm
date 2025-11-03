@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Layers, Loader2, ArrowLeft } from 'lucide-react';
-import { FormSchema, FormField, FormSection } from '@/shared/types/form-schema';
+import { FormSchema, FormField, FormSection } from '../types/form-schema';
 import { GeneralInfoTab } from './GeneralInfoTab';
 import { SectionsTab } from './SectionsTab';
 import { SchemaActions } from './SchemaActions';

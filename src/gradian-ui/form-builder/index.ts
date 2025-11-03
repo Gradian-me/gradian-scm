@@ -18,7 +18,7 @@ export type {
   FormWrapperProps,
   FormSectionProps,
   RepeatingSectionProps
-} from './types/form-schema';
+} from '@/gradian-ui/schema-manager/types/form-schema';
 
 export { FormSection as FormSectionComponent } from './components/FormSection';
 export { AccordionFormSection } from './components/AccordionFormSection';
@@ -31,4 +31,4 @@ export { useFormModal } from './hooks/use-form-modal';
 export type { UseFormModalOptions, UseFormModalReturn, FormModalMode } from './hooks/use-form-modal';
 
 // Re-export CardConfig from form-schema with alias to avoid conflict
-export type { CardConfig as FormCardConfig } from './types/form-schema';
+export type { CardConfig as FormCardConfig } from '@/gradian-ui/schema-manager/types/form-schema';

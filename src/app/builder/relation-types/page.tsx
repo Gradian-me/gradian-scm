@@ -25,6 +25,7 @@ import { IconInput } from '@/components/ui/icon-input';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { ColorPicker } from '@/gradian-ui/form-builder/form-elements';
 import { FormAlert } from '@/components/ui/form-alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 interface RelationTypeCardProps {
   relationType: RelationType;

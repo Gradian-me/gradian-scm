@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { cn } from '../../shared/utils';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { renderFieldValue } from './card-field-renderer';

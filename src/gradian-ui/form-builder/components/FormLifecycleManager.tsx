@@ -10,7 +10,7 @@ import {
   FormData, 
   FormErrors, 
   FormTouched 
-} from '../types/form-schema';
+} from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormSection } from './FormSection';
 import { AccordionFormSection } from './AccordionFormSection';
 import { RepeatingSection } from './RepeatingSection';
@@ -375,10 +375,21 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         const items = state.values[section.id] || [];
         const { minItems, maxItems } = section.repeatingConfig;
         
+        // Check if this is a relation-based repeating section
+        const isRelationBased = section.repeatingConfig.targetSchema && section.repeatingConfig.relationTypeId;
+        const hasEntityId = !!(state.values?.id);
+        
+        // For relation-based sections, only enforce minItems after the entity has been saved (has an ID)
+        // This allows users to save the form first, then add related items
         if (minItems !== undefined && items.length < minItems) {
-          const errorMessage = `At least ${minItems} item(s) are required`;
-          newErrors[section.id] = errorMessage;
-          isValid = false;
+          // Skip minItems validation for relation-based sections if entity hasn't been saved yet
+          if (isRelationBased && !hasEntityId) {
+            // Allow saving without items for relation-based sections on initial save
+          } else {
+            const errorMessage = `At least ${minItems} item(s) are required`;
+            newErrors[section.id] = errorMessage;
+            isValid = false;
+          }
         }
         
         if (maxItems !== undefined && items.length > maxItems) {
@@ -601,9 +612,18 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         const items = state.values[section.id] || [];
         const { minItems, maxItems } = section.repeatingConfig;
         
+        // Check if this is a relation-based repeating section
+        const isRelationBased = section.repeatingConfig.targetSchema && section.repeatingConfig.relationTypeId;
+        const hasEntityId = !!(state.values?.id);
+        
         if (minItems !== undefined && items.length < minItems) {
-          sectionValid = false;
-          sectionErrors.push(`At least ${minItems} item(s) required, found ${items.length}`);
+          // Skip minItems validation for relation-based sections if entity hasn't been saved yet
+          if (isRelationBased && !hasEntityId) {
+            // Allow saving without items for relation-based sections on initial save
+          } else {
+            sectionValid = false;
+            sectionErrors.push(`At least ${minItems} item(s) required, found ${items.length}`);
+          }
         }
         
         if (maxItems !== undefined && items.length > maxItems) {

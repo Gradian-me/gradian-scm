@@ -46,8 +46,15 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
     }
   }
 
-  if (value && rules.pattern && !rules.pattern.test(value.toString())) {
-    return { isValid: false, error: 'Invalid format' };
+  if (value && rules.pattern) {
+    // Handle pattern as either string or RegExp
+    const pattern = typeof rules.pattern === 'string' 
+      ? new RegExp(rules.pattern) 
+      : rules.pattern;
+    
+    if (!pattern.test(value.toString())) {
+      return { isValid: false, error: 'Invalid format' };
+    }
   }
 
   if (value && rules.custom) {

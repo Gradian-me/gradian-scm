@@ -1,7 +1,7 @@
 // Form Element Factory Component
 
 import React from 'react';
-import { FormField } from '../types/form-schema';
+import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';

@@ -2,7 +2,7 @@
 // Works with any schema that includes UI configuration
 
 import { useMemo } from 'react';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '../types/form-schema';
 import { generateSchemasFromForm } from '../utils/schema-to-zod';
 import { createEntityUIHook } from '../utils/schema-to-store';
 import type { GeneratedSchemas, SchemaManager, SchemaManagerConfig } from '../types';

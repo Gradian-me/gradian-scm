@@ -1,7 +1,7 @@
 // Schema Builder Types
 // Types for the schema builder UI components
 
-import { FormSchema, FormField, FormSection } from '../../../shared/types/form-schema';
+import { FormSchema, FormField, FormSection } from './form-schema';
 
 export interface SchemaBuilderConfig {
   apiBaseUrl?: string;

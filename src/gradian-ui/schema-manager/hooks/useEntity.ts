@@ -2,7 +2,7 @@
 // Automatically resolves entity files based on naming conventions
 
 import { useSchemaManager } from './useSchemaManager';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '../types/form-schema';
 
 /**
  * Hook that takes an entity name and automatically resolves all related files

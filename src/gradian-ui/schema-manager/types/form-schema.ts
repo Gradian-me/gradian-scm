@@ -1,4 +1,5 @@
-// Form Schema Types for Dynamic Form Rendering
+// Unified Form Schema Types
+// This is the single source of truth for all form schema types
 
 export interface FormField {
   id: string;
@@ -20,7 +21,7 @@ export interface FormField {
     required?: boolean;
     minLength?: number;
     maxLength?: number;
-    pattern?: RegExp;
+    pattern?: RegExp | string;
     min?: number;
     max?: number;
     custom?: (value: any) => { isValid: boolean; error?: string };
@@ -29,7 +30,9 @@ export interface FormField {
   defaultValue?: any;
   colSpan?: number; // Number of columns this field should span
   order?: number; // Order for field display
-  // Keep layout and styling for backward compatibility
+  source?: string; // Data path for nested values (e.g., "user.profile.name")
+  compute?: (data: any) => any; // Function to compute field value from data
+  // Keep layout and styling for backward compatibility (form-builder)
   layout?: {
     width?: string;
     rowSpan?: number;
@@ -46,7 +49,7 @@ export interface FormField {
     dependsOn: string;
     condition: (value: any) => boolean;
   };
-  // @deprecated - Use ui property instead. Kept for backward compatibility.
+  // @deprecated - Use compute property instead. Kept for backward compatibility.
   display?: {
     icon?: string;
     type?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
@@ -64,9 +67,10 @@ export interface FormSection {
   id: string;
   title: string;
   description?: string;
+  icon?: string;
   columns?: number; // Default: 2 if not specified
   gap?: number;
-  // Keep layout for backward compatibility
+  // Keep layout for backward compatibility (form-builder)
   layout?: {
     columns?: number;
     gap?: number;
@@ -88,8 +92,17 @@ export interface FormSection {
     relationTypeId?: string; // Relation type ID for relation-based repeating sections
     deleteType?: 'relationOnly' | 'itemAndRelation'; // Default: 'itemAndRelation'
     addType?: 'addOnly' | 'canSelectFromData' | 'mustSelectFromData'; // Default: 'addOnly'
+    isUnique?: boolean; // If true, each item can only be selected once (excludes already selected items)
   };
-  initialState?: 'expanded' | 'collapsed'; // New property for initial state
+  initialState?: 'expanded' | 'collapsed';
+}
+
+// Card-related types
+export interface CardSection {
+  id: string;
+  title: string;
+  colSpan?: number;
+  fieldIds: string[];
 }
 
 export interface CardConfig {
@@ -107,13 +120,6 @@ export interface CardConfig {
       label: string;
     }>;
   }>;
-}
-
-export interface CardSection {
-  id: string;
-  title: string;
-  colSpan?: number;
-  fieldIds: string[];
 }
 
 export interface CardMetadata {
@@ -194,16 +200,109 @@ export interface ListMetadata {
   };
 }
 
-export interface FormSchema {
+// Detail page types
+export interface DetailPageSection {
   id: string;
-  name: string;
   title: string;
   description?: string;
+  colSpan?: number; // Number of columns this section should span in the grid
+  fieldIds: string[]; // Field IDs to display as key-value pairs
+  columnArea?: 'main' | 'sidebar'; // Which area to place this section in (main or sidebar)
+  layout?: {
+    columns?: number; // Number of columns for the key-value grid inside the card (default: 2)
+    gap?: number;
+  };
+  styling?: {
+    variant?: 'default' | 'card' | 'minimal';
+    className?: string;
+  };
+}
+
+export interface ComponentRendererConfig {
+  id: string;
+  componentType: 'kpi' | 'chart' | 'metric' | 'custom'; // Type of component to render
+  componentName?: string; // Name of the custom component (for 'custom' type)
+  fieldIds?: string[]; // Field IDs to extract data from
+  dataPath?: string; // Path to data in the object (e.g., 'performanceMetrics.onTimeDelivery')
+  config?: any; // Component-specific configuration (e.g., KPIIndicator config)
+  props?: Record<string, any>; // Additional props to pass to the component
+  colSpan?: number; // Number of columns this component should span
+}
+
+export interface RepeatingTableRendererConfig {
+  id: string;
+  schemaId: string;
+  sectionId: string;
+  columns?: string[]; // Field IDs to display as columns (if empty, show all fields from section)
+  title?: string;
+  description?: string;
+  tableProperties?: {
+    sortingEnabled?: boolean;
+    paginationEnabled?: boolean;
+    paginationPageSize?: number;
+    alwaysShowPagination?: boolean; // If true, always show pagination even with one page (default: false)
+    showAsCards?: boolean; // If true, show table rows as cards in responsive mode
+    cardColumns?: 1 | 2 | 3; // Number of columns for key-value pairs in cards (default: 1)
+    aggregationAlignment?: 'start' | 'center' | 'end'; // Alignment for aggregation values (default: 'end')
+    aggregationColumns?: 1 | 2 | 3; // Number of columns for aggregation grid (default: 3, 1 = full width)
+    aggregations?: Array<{
+      column: string; // Column ID (field ID)
+      aggregationTypes: Array<'sum' | 'avg' | 'min' | 'max' | 'first' | 'last' | 'count' | 'countdistinct' | 'stdev'>;
+      unit?: string; // Unit to display after the value (e.g., "USD", "%", "kg")
+      precision?: number; // Number of decimal places (default: 2)
+    }>;
+  };
+  colSpan?: number; // Number of columns this table should span
+  columnArea?: 'main' | 'sidebar'; // Which area to place this table in (main or sidebar)
+}
+
+export interface QuickAction {
+  id: string;
+  label: string;
+  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'gradient';
+  icon?: string; // Icon name to display before the label
+  action: 'goToUrl' | 'openUrl' | 'openFormDialog';
+  targetSchema?: string; // Required for openFormDialog action
+  targetUrl?: string; // Required for goToUrl and openUrl actions
+  passItemAsReference?: boolean; // Default: false - if true, pass current schema item as reference to target URL
+}
+
+export interface DetailPageMetadata {
+  sections?: DetailPageSection[]; // Info card sections with key-value pairs
+  componentRenderers?: ComponentRendererConfig[]; // Custom components to render (e.g., KPIIndicator)
+  tableRenderers?: RepeatingTableRendererConfig[]; // Repeating section tables to render
+  quickActions?: QuickAction[]; // Quick action buttons shown in sidebar before badges
+  layout?: {
+    mainColumns?: number; // Number of columns for main content area (default: 2)
+    sidebarColumns?: number; // Number of columns for sidebar (default: 1)
+    // totalColumns is calculated automatically as mainColumns + sidebarColumns
+    gap?: number;
+  };
+  header?: {
+    showBackButton?: boolean;
+    showActions?: boolean;
+    actions?: Array<'edit' | 'delete' | 'export'>;
+  };
+}
+
+// Main FormSchema interface - supports both naming conventions
+export interface FormSchema {
+  id: string;
+  description?: string;
+  // Primary naming (used in data storage)
+  singular_name: string;
+  plural_name: string;
+  // Compatibility aliases for form-builder FormSchema
+  name?: string; // Alias for singular_name
+  title?: string; // Alias for plural_name
+  icon?: string;
+  showInNavigation?: boolean;
   fields: FormField[]; // All fields at schema level, each with a sectionId
-  cardConfig?: CardConfig;
-  cardMetadata?: CardSection[];
-  listMetadata?: ListMetadata;
   sections: FormSection[]; // Sections no longer contain fields
+  cardMetadata?: CardSection[];
+  cardConfig?: CardConfig; // Form-builder specific
+  listMetadata?: ListMetadata; // Form-builder specific
+  detailPageMetadata?: DetailPageMetadata;
   layout?: {
     direction?: 'column' | 'row';
     gap?: number;
@@ -214,15 +313,16 @@ export interface FormSchema {
     size?: 'sm' | 'md' | 'lg';
     className?: string;
   };
+  actions?: Array<'submit' | 'cancel' | 'reset'>;
+  showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
   validation?: {
     mode?: 'onChange' | 'onBlur' | 'onSubmit';
     showErrors?: boolean;
     showSuccess?: boolean;
   };
-  actions?: Array<'submit' | 'cancel' | 'reset'>;
-  showActionsInModal?: boolean; // If true, actions will be rendered by Modal component, not in the form itself
 }
 
+// Form state and data types
 export interface FormData {
   [key: string]: any;
 }
@@ -244,6 +344,7 @@ export interface FormState {
   isSubmitting: boolean;
 }
 
+// Form builder specific interfaces
 export interface FormActions {
   setValue: (fieldName: string, value: any) => void;
   setError: (fieldName: string, error: string) => void;
@@ -313,3 +414,16 @@ export interface RepeatingSectionProps {
   onFocus: (fieldName: string) => void;
   disabled?: boolean;
 }
+
+// Relation data interface for all-data-relations.json
+export interface DataRelation {
+  id: string;
+  sourceSchema: string;
+  sourceId: string;
+  targetSchema: string;
+  targetId: string;
+  relationTypeId: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

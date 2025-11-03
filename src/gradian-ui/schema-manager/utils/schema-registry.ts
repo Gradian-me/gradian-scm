@@ -3,7 +3,7 @@
 // For server-only functions, import from './schema-registry.server'
 
 import { FormSchema, FormField } from '../types/form-schema';
-import { config } from '../../lib/config';
+import { config } from '@/lib/config';
 
 /**
  * Convert a pattern string to RegExp
@@ -80,6 +80,8 @@ async function loadSchemasFromServer(): Promise<FormSchema[]> {
     // Check if we're on the server side
     if (typeof window === 'undefined') {
       // Server side - use dynamic import to avoid bundling fs in client
+      // Direct import path works here since we're already inside server-side check
+      // @ts-expect-error - schema-loader is server-only, but we're on server
       const { loadAllSchemas } = await import('./schema-loader');
       return await loadAllSchemas();
   } else {
@@ -116,6 +118,8 @@ export async function fetchSchemaById(schemaId: string): Promise<FormSchema | nu
     // Check if we're on the server side
     if (typeof window === 'undefined') {
       // Server side - use API endpoint (configured via NEXT_PUBLIC_SCHEMA_API_BASE)
+      // Direct import path works here since we're already inside server-side check
+      // @ts-expect-error - schema-loader is server-only, but we're on server
       const { loadSchemaById } = await import('./schema-loader');
       const schema = await loadSchemaById(schemaId);
       return schema ? processSchema(schema) : null;
@@ -180,3 +184,4 @@ export async function schemaExistsAsync(schemaId: string): Promise<boolean> {
 // - schemaExists, getAllSchemasArray, getSchemaMetadata
 // - isValidSchemaId, clearSchemaCache
 // ============================================================================
+

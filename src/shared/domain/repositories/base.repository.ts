@@ -20,6 +20,26 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
 
     let filtered = [...entities];
 
+    // Include IDs filter - only show items with these IDs
+    if (filters.includeIds) {
+      const includeIds = Array.isArray(filters.includeIds) 
+        ? filters.includeIds 
+        : typeof filters.includeIds === 'string' 
+          ? filters.includeIds.split(',').map(id => id.trim())
+          : [];
+      filtered = filtered.filter((entity: any) => includeIds.includes(entity.id));
+    }
+
+    // Exclude IDs filter - exclude items with these IDs
+    if (filters.excludeIds) {
+      const excludeIds = Array.isArray(filters.excludeIds)
+        ? filters.excludeIds
+        : typeof filters.excludeIds === 'string'
+          ? filters.excludeIds.split(',').map(id => id.trim())
+          : [];
+      filtered = filtered.filter((entity: any) => !excludeIds.includes(entity.id));
+    }
+
     // Search filter (searches across common text fields)
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -58,7 +78,7 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
 
     // Apply any other custom filters
     Object.keys(filters).forEach(key => {
-      if (!['search', 'status', 'category', 'page', 'limit', 'sortBy', 'sortOrder'].includes(key)) {
+      if (!['search', 'status', 'category', 'page', 'limit', 'sortBy', 'sortOrder', 'includeIds', 'excludeIds'].includes(key)) {
         filtered = filtered.filter((entity: any) => entity[key] === filters[key]);
       }
     });

@@ -1,7 +1,7 @@
 // Schema Builder Utilities
 // Utility functions for schema builder operations
 
-import { FormSchema, FormField, FormSection } from '../../../shared/types/form-schema';
+import { FormSchema, FormField, FormSection } from '../types/form-schema';
 
 export const FIELD_TYPES: Array<{
   value: FormField['type'];

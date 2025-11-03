@@ -2,11 +2,11 @@
 // Can be used to open create or edit modals for any schema ID
 
 import { useState, useCallback } from 'react';
-import { FormSchema } from '../../../shared/types/form-schema';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '../../../shared/utils/api';
 import { config } from '@/lib/config';
-import { asFormBuilderSchema } from '../../../shared/utils/schema-utils';
-import type { FormSchema as FormBuilderSchema } from '../types/form-schema';
+import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
+import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
 /**
  * Reconstruct RegExp objects from serialized schema

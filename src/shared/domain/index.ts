@@ -19,6 +19,3 @@ export * from './errors/domain.errors';
 // Utilities
 export * from './utils/data-storage.util';
 
-// Validators
-export * from './validators/schema.validator';
-

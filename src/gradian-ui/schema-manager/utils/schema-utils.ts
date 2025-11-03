@@ -1,5 +1,5 @@
-import { FormSchema as SharedFormSchema } from '../../shared/types/form-schema';
-import { FormSchema as FormBuilderFormSchema } from '../../gradian-ui/form-builder/types/form-schema';
+import { FormSchema as SharedFormSchema } from '../types/form-schema';
+import { FormSchema as FormBuilderFormSchema } from '../types/form-schema';
 
 // Extended form schema with additional properties
 export type ExtendedFormSchema = SharedFormSchema & {

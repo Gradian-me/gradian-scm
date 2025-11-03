@@ -2,7 +2,7 @@
 // Generates Zod validation schemas from FormSchema definitions
 
 import { z } from 'zod';
-import { FormSchema, FormField } from '../../../shared/types/form-schema';
+import { FormSchema, FormField } from '../types/form-schema';
 
 // Define ValidationRule type based on FormField validation property
 type ValidationRule = NonNullable<FormField['validation']>;
@@ -151,10 +151,16 @@ export const generateZodSchemaFromForm = <T extends FormSchema>(
       const itemSchema = z.object(nestedShape);
       let arraySchema = z.array(itemSchema);
       
+      // Check if this is a relation-based repeating section
+      const isRelationBased = section.repeatingConfig?.targetSchema && section.repeatingConfig?.relationTypeId;
+      
       if (section.repeatingConfig) {
         const { minItems, maxItems } = section.repeatingConfig;
         
-        if (minItems !== undefined) {
+        // For relation-based sections in create mode, skip minItems constraint
+        // This allows saving the form first, then adding related items
+        // In update mode, enforce minItems to ensure data integrity after initial save
+        if (minItems !== undefined && !(isRelationBased && mode === 'create')) {
           arraySchema = arraySchema.min(
             minItems,
             `At least ${minItems} ${minItems === 1 ? 'item is' : 'items are'} required`
@@ -170,7 +176,12 @@ export const generateZodSchemaFromForm = <T extends FormSchema>(
       }
       
       // Use section id as the key (e.g., 'contacts')
+      // For relation-based sections in create mode, make it optional to allow saving without items initially
+      // In update mode, keep it optional to allow partial updates, but minItems will be enforced if provided
       if (mode === 'update') {
+        shape[section.id] = arraySchema.optional();
+      } else if (isRelationBased && mode === 'create') {
+        // Relation-based sections in create mode: optional to allow saving first
         shape[section.id] = arraySchema.optional();
       } else {
         shape[section.id] = arraySchema;

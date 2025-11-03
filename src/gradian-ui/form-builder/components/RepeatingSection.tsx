@@ -1,7 +1,7 @@
 // Repeating Section Component
 
 import React from 'react';
-import { RepeatingSectionProps } from '../types/form-schema';
+import { RepeatingSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';

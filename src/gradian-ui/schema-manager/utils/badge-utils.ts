@@ -1,4 +1,4 @@
-import { FormSchema, FormField, DetailPageSection } from '../../../shared/types/form-schema';
+import { FormSchema, FormField, DetailPageSection } from '../types/form-schema';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 
 /**

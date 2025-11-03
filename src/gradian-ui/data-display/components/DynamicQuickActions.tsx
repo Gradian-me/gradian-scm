@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { QuickAction, FormSchema } from '@/shared/types/form-schema';
+import { QuickAction, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
