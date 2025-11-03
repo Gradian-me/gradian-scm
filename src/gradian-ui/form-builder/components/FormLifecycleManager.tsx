@@ -23,6 +23,8 @@ import { LogType } from '../../../shared/constants/application-variables';
 import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
 import { ChevronsDown, ChevronsUp } from 'lucide-react';
 import { GoToTopForm } from '../form-elements/go-to-top-form';
+import { FormModal } from './FormModal';
+import { apiRequest } from '@/shared/utils/api';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -448,10 +450,50 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     onReset?.();
   }, [initialValues, onReset, schema]);
 
+  // State for relation-based repeating sections
+  const [relationModalState, setRelationModalState] = React.useState<{
+    isOpen: boolean;
+    sectionId: string;
+    targetSchema?: string;
+    relationTypeId?: string;
+  }>({ isOpen: false, sectionId: '' });
+  
+  // Trigger to refresh relation-based sections (increments when relations are created)
+  const [refreshRelationsTrigger, setRefreshRelationsTrigger] = React.useState(0);
+
   const addRepeatingItem = useCallback((sectionId: string) => {
     const section = schema.sections.find(s => s.id === sectionId);
     if (!section?.isRepeatingSection) return;
     
+    // Check if this is a relation-based repeating section
+    const isRelationBased = section.repeatingConfig?.targetSchema && section.repeatingConfig?.relationTypeId;
+    
+    if (isRelationBased) {
+      // For relation-based sections, open FormModal for target schema
+      const currentEntityId = state.values?.id;
+      
+      if (!currentEntityId) {
+        // Entity must be saved first
+        setAddItemErrors(prev => ({ 
+          ...prev, 
+          [sectionId]: 'Please save the form first before adding related items' 
+        }));
+        setTimeout(() => setAddItemErrors(prev => ({ ...prev, [sectionId]: null })), 5000);
+        return;
+      }
+      
+      // Open modal for creating new entity in target schema
+      setRelationModalState({
+        isOpen: true,
+        sectionId,
+        targetSchema: section.repeatingConfig.targetSchema,
+        relationTypeId: section.repeatingConfig.relationTypeId,
+      });
+      
+      return;
+    }
+    
+    // Traditional inline fields repeating section
     // Clear any previous add item error for this section
     setAddItemErrors(prev => ({ ...prev, [sectionId]: null }));
     
@@ -713,6 +755,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           onAddRepeatingItem={section.isRepeatingSection ? () => addRepeatingItem(section.id) : undefined}
           onRemoveRepeatingItem={section.isRepeatingSection ? (index: number) => removeRepeatingItem(section.id, index) : undefined}
           addItemError={section.isRepeatingSection ? addItemErrors[section.id] : undefined}
+          refreshRelationsTrigger={section.isRepeatingSection && section.repeatingConfig?.targetSchema ? refreshRelationsTrigger : undefined}
         />
       );
     });
@@ -871,6 +914,55 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
             {renderSections()}
           </div>
         </>
+      )}
+      
+      {/* FormModal for relation-based repeating sections */}
+      {relationModalState.isOpen && relationModalState.targetSchema && (
+        <FormModal
+          schemaId={relationModalState.targetSchema}
+          mode="create"
+          enrichData={(formData) => {
+            // enrichData is called with form data before submission
+            return formData;
+          }}
+          onSuccess={async (createdEntity) => {
+            // After successful entity creation, create the relation
+            const currentEntityId = state.values?.id;
+            const targetEntityId = createdEntity?.id || (createdEntity as any)?.data?.id;
+            
+            if (currentEntityId && relationModalState.relationTypeId && targetEntityId && relationModalState.targetSchema) {
+              try {
+                const relationResponse = await apiRequest('/api/relations', {
+                  method: 'POST',
+                  body: {
+                    sourceSchema: schema.id,
+                    sourceId: currentEntityId,
+                    targetSchema: relationModalState.targetSchema,
+                    targetId: targetEntityId,
+                    relationTypeId: relationModalState.relationTypeId,
+                  },
+                });
+                
+                if (!relationResponse.success) {
+                  console.error('Failed to create relation:', relationResponse.error);
+                  // Could show an error message here
+                } else {
+                  loggingCustom(LogType.FORM_DATA, 'info', 'Relation created successfully');
+                  // Trigger refresh of relation-based sections
+                  setRefreshRelationsTrigger(prev => prev + 1);
+                }
+              } catch (error) {
+                console.error('Error creating relation:', error);
+              }
+            }
+            
+            // Close modal and clear state
+            setRelationModalState({ isOpen: false, sectionId: '' });
+          }}
+          onClose={() => {
+            setRelationModalState({ isOpen: false, sectionId: '' });
+          }}
+        />
       )}
     </>
   );

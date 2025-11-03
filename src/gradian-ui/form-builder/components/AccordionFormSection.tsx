@@ -1,14 +1,30 @@
 // Accordion Form Section Component
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormSectionProps } from '../types/form-schema';
 import { FormElementFactory } from './FormElementFactory';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { cn } from '../../shared/utils';
-import { getFieldsForSection } from '../form-elements/utils/field-resolver';
+import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../form-elements/utils/field-resolver';
 import { FormAlert } from '../../../components/ui/form-alert';
+import { apiRequest } from '@/shared/utils/api';
+import { DataRelation, FormSchema } from '@/shared/types/form-schema';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { FormModal } from './FormModal';
+import { Avatar, Rating } from '../form-elements';
+import { Badge } from '../../../components/ui/badge';
+import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { getInitials, getBadgeConfig } from '../../data-display/utils';
+import { BadgeViewer } from '../form-elements/utils/badge-viewer';
 
 export const AccordionFormSection: React.FC<FormSectionProps> = ({
   section,
@@ -27,6 +43,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   isExpanded: controlledIsExpanded, // Controlled expanded state
   onToggleExpanded, // Callback to toggle expanded state
   addItemError, // Error message to display under the Add button
+  refreshRelationsTrigger, // Trigger to refresh relations
 }) => {
   // Get fields for this section from the schema
   const fields = getFieldsForSection(schema, section.id);
@@ -38,6 +55,86 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     styling, 
     isRepeatingSection 
   } = section;
+  
+  // Check if this is a relation-based repeating section
+  const isRelationBased = isRepeatingSection && section.repeatingConfig?.targetSchema && section.repeatingConfig?.relationTypeId;
+  const targetSchema = section.repeatingConfig?.targetSchema;
+  const relationTypeId = section.repeatingConfig?.relationTypeId;
+  
+  // State for relation-based sections
+  const [relatedEntities, setRelatedEntities] = useState<any[]>([]);
+  const [relations, setRelations] = useState<DataRelation[]>([]);
+  const [isLoadingRelations, setIsLoadingRelations] = useState(false);
+  const [editEntityId, setEditEntityId] = useState<string | null>(null);
+  const [editRelationId, setEditRelationId] = useState<string | null>(null);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    open: boolean;
+    relationId: string | null;
+  }>({ open: false, relationId: null });
+  const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
+  
+  // Get current entity ID from form values (for creating relations)
+  const currentEntityId = values?.id || (values as any)?.[schema.id]?.id;
+  const sourceSchemaId = schema.id;
+  
+  // Fetch target schema
+  useEffect(() => {
+    if (targetSchema) {
+      const fetchTargetSchema = async () => {
+        try {
+          const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
+          if (response.success && response.data) {
+            setTargetSchemaData(response.data);
+          }
+        } catch (error) {
+          console.error('Error fetching target schema:', error);
+        }
+      };
+      fetchTargetSchema();
+    }
+  }, [targetSchema]);
+
+  // Fetch relations and related entities function
+  const fetchRelations = React.useCallback(async () => {
+    if (!isRelationBased || !currentEntityId || !targetSchema || !relationTypeId) {
+      return;
+    }
+    
+    setIsLoadingRelations(true);
+    try {
+      // Fetch relations
+      const relationsResponse = await apiRequest<DataRelation[]>(
+        `/api/relations?sourceSchema=${sourceSchemaId}&sourceId=${currentEntityId}&relationTypeId=${relationTypeId}&targetSchema=${targetSchema}`
+      );
+      
+      if (relationsResponse.success && relationsResponse.data) {
+        // API returns { success: true, data: DataRelation[], count: number }
+        const relationsList = Array.isArray(relationsResponse.data) 
+          ? relationsResponse.data 
+          : [];
+        setRelations(relationsList);
+        
+        // Fetch related entities
+        const entitiesPromises = relationsList.map(async (relation: DataRelation) => {
+          const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
+          return entityResponse.success && entityResponse.data ? entityResponse.data : null;
+        });
+        
+        const entities = await Promise.all(entitiesPromises);
+        setRelatedEntities(entities.filter(e => e !== null));
+      }
+    } catch (error) {
+      console.error('Error fetching relations:', error);
+    } finally {
+      setIsLoadingRelations(false);
+    }
+  }, [isRelationBased, currentEntityId, targetSchema, relationTypeId, sourceSchemaId]);
+  
+  // Fetch relations and related entities for relation-based sections
+  useEffect(() => {
+    fetchRelations();
+  }, [fetchRelations, refreshRelationsTrigger]); // Also refresh when trigger changes
+  
   
   // Use controlled state if provided, otherwise use internal state
   const [internalIsExpanded, setInternalIsExpanded] = useState(initialState === 'expanded');
@@ -195,7 +292,390 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     });
   };
 
+  // Handler for removing a relation-based item
+  const handleRemoveRelation = async (relationId: string) => {
+    try {
+      const relation = relations.find(r => r.id === relationId);
+      const deleteType = section.repeatingConfig?.deleteType || 'itemAndRelation';
+      
+      // First, delete the relation
+      const relationResponse = await apiRequest(`/api/relations/${relationId}`, {
+        method: 'DELETE',
+      });
+      
+      if (relationResponse.success) {
+        // If deleteType is 'itemAndRelation', also delete the target item
+        if (deleteType === 'itemAndRelation' && relation && targetSchema) {
+          const itemResponse = await apiRequest(`/api/data/${targetSchema}/${relation.targetId}`, {
+            method: 'DELETE',
+          });
+          
+          if (!itemResponse.success) {
+            console.error('Failed to delete target item:', itemResponse.error);
+            // Relation was deleted but item deletion failed - still refresh to show updated state
+          }
+        }
+        
+        // Refresh relations to get updated data
+        fetchRelations();
+      }
+      setDeleteConfirmDialog({ open: false, relationId: null });
+    } catch (error) {
+      console.error('Error removing relation:', error);
+      setDeleteConfirmDialog({ open: false, relationId: null });
+    }
+  };
+  
+  // Handler to open delete confirmation
+  const handleDeleteClick = (relationId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteConfirmDialog({ open: true, relationId });
+  };
+
+  // Handler for editing a related entity
+  const handleEditEntity = (entityId: string, relationId: string) => {
+    setEditEntityId(entityId);
+    setEditRelationId(relationId);
+  };
+
+  // Render entity summary (for relation-based sections) - Beautiful card UI
+  const renderEntitySummary = (entity: any, index: number) => {
+    if (!targetSchemaData) {
+      // Fallback if schema not loaded yet
+      const displayField = entity.name || entity.title || entity.id || `Item ${index + 1}`;
+      return (
+        <div className="text-sm text-gray-900">
+          {displayField}
+        </div>
+      );
+    }
+
+    // Extract data similar to DynamicCardRenderer
+    const title = getValueByRole(targetSchemaData, entity, 'title') || entity.name || `Item ${index + 1}`;
+    const subtitle = getSingleValueByRole(targetSchemaData, entity, 'subtitle', entity.email) || entity.email || '';
+    const avatarField = getSingleValueByRole(targetSchemaData, entity, 'avatar', entity.name) || entity.name || '?';
+    const statusField = getSingleValueByRole(targetSchemaData, entity, 'status') || entity.status || '';
+    const ratingField = getSingleValueByRole(targetSchemaData, entity, 'rating') || entity.rating || 0;
+    
+    // Get badge fields
+    const badgeFields = getFieldsByRole(targetSchemaData, 'badge');
+    const allBadgeValues: any[] = [];
+    const allOptions = new Map<string, any>();
+    let combinedBadgeField: any = null;
+
+    badgeFields.forEach(field => {
+      const value = entity[field.name];
+      if (value && Array.isArray(value)) {
+        allBadgeValues.push(...value);
+      }
+      if (field.options && Array.isArray(field.options)) {
+        field.options.forEach((opt: any) => {
+          if (!allOptions.has(opt.value)) {
+            allOptions.set(opt.value, opt);
+          }
+        });
+      }
+      if (!combinedBadgeField && field) {
+        combinedBadgeField = { ...field, options: Array.from(allOptions.values()) };
+      }
+    });
+
+    if (combinedBadgeField && allOptions.size > 0) {
+      combinedBadgeField.options = Array.from(allOptions.values());
+    }
+
+    const badgeValues = allBadgeValues.length > 0
+      ? allBadgeValues
+      : (getArrayValuesByRole(targetSchemaData, entity, 'badge') || []);
+
+    // Find status field options
+    const statusFieldDef = targetSchemaData.fields?.find(f => f.role === 'status');
+    const statusOptions = statusFieldDef?.options;
+    const hasRatingField = targetSchemaData.fields?.some(f => f.role === 'rating') || false;
+    const hasStatusField = targetSchemaData.fields?.some(f => f.role === 'status') || false;
+
+    return (
+      <div className="flex items-start gap-3 w-full">
+        {/* Avatar */}
+        <Avatar
+          fallback={getInitials(avatarField)}
+          size="md"
+          variant="primary"
+          className="border border-gray-200 flex-shrink-0"
+        >
+          {getInitials(avatarField)}
+        </Avatar>
+        
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-gray-900 truncate">
+                {title}
+              </h4>
+              {subtitle && (
+                <p className="text-xs text-gray-500 truncate mt-0.5">
+                  {subtitle}
+                </p>
+              )}
+              
+              {/* Badges */}
+              {combinedBadgeField && badgeValues.length > 0 && (
+                <div className="mt-2">
+                  <BadgeViewer
+                    field={combinedBadgeField}
+                    value={badgeValues}
+                    maxBadges={2}
+                    badgeVariant="outline"
+                    animate={false}
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Rating and Status */}
+            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              {hasRatingField && (
+                <Rating
+                  value={Number(ratingField) || 0}
+                  size="sm"
+                  showValue={true}
+                />
+              )}
+              {hasStatusField && statusField && (() => {
+                const badgeConfig = getBadgeConfig(statusField, statusOptions);
+                return (
+                  <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
+                    {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                    <span>{badgeConfig.label}</span>
+                  </Badge>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (isRepeatingSection) {
+    // For relation-based sections
+    if (isRelationBased) {
+      const itemsToDisplay = relatedEntities;
+      const itemsCount = itemsToDisplay.length;
+      
+      return (
+        <>
+          <Card className={cn(
+            'border border-gray-200 rounded-2xl bg-gray-50/50',
+            styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent',
+            styling?.variant === 'card' && 'shadow-sm bg-white'
+          )}>
+            <CardHeader 
+              className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
+              onClick={toggleExpanded}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+                    <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                      {itemsCount}
+                    </span>
+                    {sectionError && (
+                      <span className="text-sm text-red-600 mt-0.5" role="alert">
+                        • {sectionError}
+                      </span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetchRelations();
+                      }}
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                      title="Refresh relations"
+                    >
+                      <RefreshCw className={`h-3 w-3 ${isLoadingRelations ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                  {description && (
+                    <p className="text-xs text-gray-600 mt-1">{description}</p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="p-1 h-6 w-6 hover:bg-gray-200"
+                  onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            
+            {isExpanded && (
+              <CardContent className="px-6 pb-6">
+                <div className="space-y-4">
+                  {isLoadingRelations ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>Loading...</p>
+                    </div>
+                  ) : itemsCount === 0 ? (
+                    <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                      <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
+                    </div>
+                  ) : (
+                              <div className="space-y-3">
+                                {itemsToDisplay.map((entity, index) => {
+                                  const relation = relations.find(r => r.targetId === (entity as any).id);
+                                  return (
+                                    <div
+                                      key={(entity as any).id || `entity-${index}`}
+                                      className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                                    >
+                                      <div className="px-4 sm:px-6 py-4">
+                                        {renderEntitySummary(entity, index + 1)}
+                                      </div>
+                                      <div className="flex items-center justify-end gap-2 px-4 sm:px-6 pb-4 border-t border-gray-100 pt-3 mt-3">
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            if (relation) handleEditEntity((entity as any).id, relation.id);
+                                          }}
+                                          className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                                          disabled={disabled}
+                                        >
+                                          <Edit className="w-4 h-4 mr-2" />
+                                          Edit
+                                        </Button>
+                                        {relation && (
+                                          <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => handleDeleteClick(relation.id, e)}
+                                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
+                                            disabled={disabled}
+                                          >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Delete
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                  )}
+
+                  {onAddRepeatingItem && (
+                    <div className="space-y-2">
+                      <div className="flex justify-center">
+                        <Button
+                          variant="outline"
+                          onClick={onAddRepeatingItem}
+                          disabled={disabled || !currentEntityId}
+                          className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          {section.repeatingConfig?.addButtonText || `Add ${title}`}
+                        </Button>
+                      </div>
+                      {addItemError && (
+                        <FormAlert 
+                          type="warning" 
+                          message={addItemError}
+                          dismissible={false}
+                        />
+                      )}
+                      {!currentEntityId && (
+                        <FormAlert 
+                          type="info" 
+                          message="Please save the form first before adding related items"
+                          dismissible={false}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            )}
+          </Card>
+          
+                    {/* Edit Modal for related entities */}
+                    {editEntityId && targetSchema && (
+                      <FormModal
+                        schemaId={targetSchema}
+                        mode="edit"
+                        entityId={editEntityId}
+                        onSuccess={() => {
+                          setEditEntityId(null);
+                          setEditRelationId(null);
+                          // Refresh relations using the shared fetch function
+                          fetchRelations();
+                        }}
+                        onClose={() => {
+                          setEditEntityId(null);
+                          setEditRelationId(null);
+                        }}
+                      />
+                    )}
+                    
+                    {/* Delete Confirmation Dialog */}
+                    <Dialog open={deleteConfirmDialog.open} onOpenChange={(open) => setDeleteConfirmDialog({ open, relationId: deleteConfirmDialog.relationId })}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>
+                            {section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove Relation' : 'Delete Item'}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {section.repeatingConfig?.deleteType === 'relationOnly' 
+                              ? 'Are you sure you want to remove this relation? The related item will remain but will no longer be linked to this record.'
+                              : 'Are you sure you want to delete this item and its relation? This action cannot be undone.'}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setDeleteConfirmDialog({ open: false, relationId: null })}
+                            type="button"
+                          >
+                            Cancel
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            onClick={() => {
+                              if (deleteConfirmDialog.relationId) {
+                                handleRemoveRelation(deleteConfirmDialog.relationId);
+                              }
+                            }}
+                            type="button"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+        </>
+      );
+    }
+    
+    // For traditional inline fields repeating sections
     return (
       <Card className={cn(
         'border border-gray-200 rounded-2xl bg-gray-50/50',

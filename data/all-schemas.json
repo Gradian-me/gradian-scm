@@ -743,120 +743,6 @@
         "order": 4
       },
       {
-        "id": "contact-name",
-        "name": "name",
-        "label": "Full Name",
-        "sectionId": "contacts",
-        "type": "text",
-        "component": "text",
-        "placeholder": "Enter full name",
-        "required": true,
-        "validation": {
-          "required": true,
-          "minLength": 2
-        },
-        "colSpan": 1,
-        "order": 1
-      },
-      {
-        "id": "contact-email",
-        "name": "email",
-        "label": "Email Address",
-        "sectionId": "contacts",
-        "type": "email",
-        "component": "email",
-        "placeholder": "Enter email address",
-        "required": true,
-        "validation": {
-          "required": true,
-          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
-        },
-        "colSpan": 1,
-        "order": 2
-      },
-      {
-        "id": "contact-phone",
-        "name": "phone",
-        "label": "Phone Number",
-        "sectionId": "contacts",
-        "type": "tel",
-        "component": "text",
-        "placeholder": "Enter phone number",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 3
-      },
-      {
-        "id": "contact-position",
-        "name": "position",
-        "label": "Position",
-        "sectionId": "contacts",
-        "type": "text",
-        "component": "text",
-        "placeholder": "Enter position/title",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 4
-      },
-      {
-        "id": "contact-department",
-        "name": "department",
-        "label": "Department",
-        "sectionId": "contacts",
-        "type": "text",
-        "component": "text",
-        "placeholder": "Enter department",
-        "required": false,
-        "colSpan": 1,
-        "order": 5
-      },
-      {
-        "id": "contact-is-primary",
-        "name": "isPrimary",
-        "label": "Primary Contact",
-        "sectionId": "contacts",
-        "type": "checkbox",
-        "component": "checkbox",
-        "placeholder": "Mark as primary contact",
-        "required": false,
-        "colSpan": 1,
-        "order": 6
-      },
-      {
-        "id": "contact-notes",
-        "name": "notes",
-        "label": "Notes",
-        "sectionId": "contacts",
-        "type": "textarea",
-        "component": "textarea",
-        "placeholder": "Additional notes about this contact",
-        "required": false,
-        "colSpan": 2,
-        "order": 7
-      },
-      {
-        "id": "contact-age",
-        "name": "age",
-        "label": "Age",
-        "sectionId": "contacts",
-        "type": "number",
-        "component": "number",
-        "placeholder": "Enter age",
-        "required": false,
-        "validation": {
-          "min": 0,
-          "max": 150
-        },
-        "colSpan": 1,
-        "order": 8
-      },
-      {
         "id": "categories",
         "name": "categories",
         "label": "Business Categories",
@@ -1054,7 +940,11 @@
           "maxItems": 5,
           "addButtonText": "Add Contact Person",
           "removeButtonText": "Remove Contact",
-          "emptyMessage": "No contact persons added yet"
+          "emptyMessage": "No contact persons added yet",
+          "targetSchema": "contacts",
+          "relationTypeId": "HAS_CONTACT",
+          "deleteType": "relationOnly",
+          "basedOnSourceID": true
         }
       },
       {
@@ -1374,13 +1264,5 @@
     ],
     "icon": "Contact",
     "showInNavigation": true
-  },
-  {
-    "id": "customer",
-    "description": "Schema for Customer",
-    "singular_name": "Customer",
-    "plural_name": "Customers",
-    "fields": [],
-    "sections": []
   }
 ]

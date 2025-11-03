@@ -29,26 +29,26 @@ export function SchemaActions({
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap">
       {onBack && (
-        <Button variant="outline" onClick={onBack} className="text-xs">
+        <Button variant="outline" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">{backLabel}</span>
         </Button>
       )}
       <div className="flex gap-2 ml-auto flex-wrap">
         {onViewSchemaList && (
-          <Button variant="outline" onClick={onViewSchemaList} className="text-xs">
+          <Button variant="outline" onClick={onViewSchemaList}>
             <LayoutList className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">{viewSchemaListLabel}</span>
           </Button>
         )}
         {onReset && (
-          <Button variant="outline" onClick={onReset} className="text-xs">
+          <Button variant="outline" onClick={onReset}>
             <RotateCcw className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">{resetLabel}</span>
           </Button>
         )}
         {onSave && (
-          <Button onClick={onSave} disabled={saving} className="text-xs">
+          <Button onClick={onSave} disabled={saving}>
             {saving ? (
               <Loader2 className="h-4 w-4 md:mr-2 animate-spin" />
             ) : (

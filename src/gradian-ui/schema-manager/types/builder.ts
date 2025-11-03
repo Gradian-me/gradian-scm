@@ -43,6 +43,7 @@ export interface SectionEditorProps {
   onFieldMove?: (fieldId: string, direction: 'up' | 'down') => void;
   sections: FormSection[];
   config?: SchemaBuilderConfig;
+  currentSchemaId?: string; // Current schema ID to filter out from target schema list
 }
 
 export interface FieldEditorProps {

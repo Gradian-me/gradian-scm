@@ -17,7 +17,7 @@
     "id": "HAS_ADDRESS",
     "label": "Has Address",
     "description": "Defines the addresses of entities",
-    "color": "#0033ff",
+    "color": "#ff9500",
     "icon": "MapPinHouse"
   }
 ]

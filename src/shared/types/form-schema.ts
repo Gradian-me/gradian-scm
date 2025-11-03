@@ -49,6 +49,9 @@ export interface FormSection {
     removeButtonText?: string;
     emptyMessage?: string;
     itemTitle?: (index: number) => string;
+    targetSchema?: string; // Schema ID for relation-based repeating sections
+    relationTypeId?: string; // Relation type ID for relation-based repeating sections
+    deleteType?: 'relationOnly' | 'itemAndRelation'; // Default: 'itemAndRelation'
   };
   initialState?: 'expanded' | 'collapsed';
 }
@@ -187,4 +190,16 @@ export interface FormState {
   dirty: boolean;
   isValid: boolean;
   isSubmitting: boolean;
+}
+
+// Relation data interface for all-data-relations.json
+export interface DataRelation {
+  id: string;
+  sourceSchema: string;
+  sourceId: string;
+  targetSchema: string;
+  targetId: string;
+  relationTypeId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -84,6 +84,9 @@ export interface FormSection {
     removeButtonText?: string;
     emptyMessage?: string;
     itemTitle?: (index: number) => string;
+    targetSchema?: string; // Schema ID for relation-based repeating sections
+    relationTypeId?: string; // Relation type ID for relation-based repeating sections
+    deleteType?: 'relationOnly' | 'itemAndRelation'; // Default: 'itemAndRelation'
   };
   initialState?: 'expanded' | 'collapsed'; // New property for initial state
 }
@@ -292,6 +295,7 @@ export interface FormSectionProps {
   isExpanded?: boolean; // Controlled expanded state
   onToggleExpanded?: () => void; // Callback to toggle expanded state
   addItemError?: string | null; // Error message to display under the Add button
+  refreshRelationsTrigger?: number; // Trigger to refresh relations (increments when relations change)
 }
 
 export interface RepeatingSectionProps {
