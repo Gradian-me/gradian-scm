@@ -1272,6 +1272,16 @@
     "singular_name": "Company",
     "plural_name": "Companies",
     "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-builder",
+        "label": "Back to Builder",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder"
+      }
+    ],
     "cardMetadata": [
       {
         "id": "company-info",
@@ -1459,6 +1469,16 @@
     "singular_name": "Relation Type",
     "plural_name": "Relation Types",
     "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-builder",
+        "label": "Back to Builder",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder"
+      }
+    ],
     "cardMetadata": [
       {
         "id": "relation-type-info",
@@ -1583,20 +1603,8 @@
           "description": "Basic relation type information",
           "colSpan": 2,
           "fieldIds": [
-            "relation-type-id",
             "relation-type-label",
             "relation-type-description"
-          ]
-        },
-        {
-          "id": "relation-type-visual",
-          "title": "Visual Properties",
-          "description": "Visual style configuration",
-          "colSpan": 1,
-          "columnArea": "sidebar",
-          "fieldIds": [
-            "relation-type-color",
-            "relation-type-icon"
           ]
         }
       ]

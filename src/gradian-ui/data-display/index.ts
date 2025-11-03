@@ -34,6 +34,7 @@ export { DynamicInfoCard } from './components/DynamicInfoCard';
 export { ComponentRenderer } from './components/ComponentRenderer';
 export { DynamicDetailPageRenderer } from './components/DynamicDetailPageRenderer';
 export { DynamicRepeatingTableViewer } from './components/DynamicRepeatingTableViewer';
+export { DynamicPageRenderer } from './components/DynamicPageRenderer';
 
 // Table Components
 export * from './table';

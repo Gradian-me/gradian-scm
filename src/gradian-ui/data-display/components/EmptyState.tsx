@@ -3,7 +3,8 @@
 import React from 'react';
 import { EmptyStateProps } from '../types';
 import { cn } from '../../shared/utils';
-import { Button } from '../../form-builder/form-elements/components/Button';
+// Note: EmptyState receives action as a prop (usually a Button component)
+// The caller should use Button from @/components/ui/button for consistency
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   icon,

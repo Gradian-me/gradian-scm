@@ -11,16 +11,18 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MainLayout } from '../layout/main-layout';
-import { Spinner } from '../ui/spinner';
-import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, GoToTop } from '../../gradian-ui';
+import { MainLayout } from '@/components/layout/main-layout';
+import { Spinner } from '@/components/ui/spinner';
+import { Button as UIButton } from '@/components/ui/button';
+import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, GoToTop } from '../../index';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
+import { DynamicFilterPane } from '@/shared/components/DynamicFilterPane';
 import { asFormSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
-import { useDynamicEntity } from '../../shared/hooks';
-import { FormModal, ConfirmationMessage } from '../../gradian-ui/form-builder';
-import { getValueByRole } from '../../gradian-ui/form-builder/form-elements/utils/field-resolver';
-import { Skeleton } from '../ui/skeleton';
+import { useDynamicEntity } from '@/shared/hooks';
+import { FormModal, ConfirmationMessage } from '../../form-builder';
+import { getValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
+import { Skeleton } from '@/components/ui/skeleton';
+import { IconRenderer } from '@/shared/utils/icon-renderer';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -59,6 +61,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const router = useRouter();
   // Reconstruct RegExp objects in the schema
   const schema = reconstructRegExp(rawSchema) as FormSchema;
+  
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [formError, setFormError] = useState<string | null>(null);
   const [isEditLoading, setIsEditLoading] = useState<Record<string, boolean>>({});
@@ -260,6 +263,57 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
         Loading {entityName.toLowerCase()} data...
       </div>
       <div className="space-y-6">
+        {/* Custom Buttons */}
+        {schema?.customButtons && Array.isArray(schema.customButtons) && schema.customButtons.length > 0 && (
+          <div className="flex flex-row gap-2 flex-wrap">
+            {schema.customButtons.map((action) => {
+              const handleCustomAction = () => {
+                if (action.action === 'goToUrl' && action.targetUrl) {
+                  router.push(action.targetUrl);
+                } else if (action.action === 'openUrl' && action.targetUrl) {
+                  window.open(action.targetUrl, '_blank', 'noopener,noreferrer');
+                } else if (action.action === 'openFormDialog' && action.targetSchema) {
+                  // Handle form dialog opening - could be implemented later
+                  console.log('Open form dialog for schema:', action.targetSchema);
+                }
+              };
+
+              // Map QuickAction variants to UI Button variants (matches builder page style)
+              // UI Button supports: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+              const buttonVariant = (() => {
+                const variant = action.variant;
+                
+                // Direct mapping - UI Button already supports these variants
+                if (variant === 'outline' || variant === 'default' || variant === 'destructive' || 
+                    variant === 'secondary' || variant === 'ghost' || variant === 'link') {
+                  return variant as 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+                }
+                // Map 'gradient' to 'default' (UI Button doesn't support gradient)
+                if (variant === 'gradient') {
+                  return 'default' as const;
+                }
+                // Default to 'outline' if variant is undefined or unknown
+                return 'outline' as const;
+              })();
+
+              return (
+                <UIButton
+                  key={action.id}
+                  variant={buttonVariant}
+                  size="sm"
+                  onClick={handleCustomAction}
+                  className="whitespace-nowrap"
+                >
+                  {action.icon && (
+                    <IconRenderer iconName={action.icon} className="h-4 w-4 mr-2" />
+                  )}
+                  {action.label}
+                </UIButton>
+              );
+            })}
+          </div>
+        )}
+
         {/* Search and Filters */}
         <DynamicFilterPane
           searchTerm={searchTermLocal}
@@ -343,7 +397,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           )}
         </div>
 
-        {filteredEntities.length === 0 && (
+        {!isLoading && filteredEntities.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -358,10 +412,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   : `Get started by adding your first ${singularName.toLowerCase()}.`
               }
               action={
-                <Button onClick={handleOpenCreateModal}>
+                <UIButton onClick={handleOpenCreateModal}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add {singularName}
-                </Button>
+                </UIButton>
               }
             />
           </motion.div>

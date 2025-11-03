@@ -4,7 +4,7 @@ import React from 'react';
 import { SearchBarProps } from '../types';
 import { cn } from '../../shared/utils';
 import { Input } from '../../form-builder/form-elements/components/Input';
-import { Button } from '../../form-builder/form-elements/components/Button';
+import { Button } from '@/components/ui/button';
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = 'Search...',
@@ -44,8 +44,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       </div>
       {showSearchButton && (
         <Button
-          variant="primary"
-          size="md"
+          variant="default"
+          size="default"
           onClick={() => onSearch?.(value || '')}
           className="ml-2"
         >

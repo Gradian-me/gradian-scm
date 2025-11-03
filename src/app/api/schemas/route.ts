@@ -11,6 +11,14 @@ let cacheTimestamp: number | null = null;
 const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
 
 /**
+ * Clear schema cache (useful for development)
+ */
+export function clearSchemaCache() {
+  cachedSchemas = null;
+  cacheTimestamp = null;
+}
+
+/**
  * Load schemas with caching
  */
 function loadSchemas(): any[] {

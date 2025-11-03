@@ -11,13 +11,27 @@ let cacheTimestamp: number | null = null;
 const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
 
 /**
+ * Clear schema cache (useful for development)
+ */
+export function clearSchemaCache() {
+  cachedSchemas = null;
+  cacheTimestamp = null;
+}
+
+/**
  * Load schemas with caching
  */
 function loadSchemas(): any[] {
   const now = Date.now();
   
-  // Return cache if valid
-  if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
+  // For development: reduce cache time or disable caching
+  // Return cache if valid (but check if we're in dev mode)
+  if (process.env.NODE_ENV === 'development') {
+    // In development, use shorter cache or disable entirely
+    if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < 10000) {
+      return cachedSchemas;
+    }
+  } else if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
     return cachedSchemas;
   }
   

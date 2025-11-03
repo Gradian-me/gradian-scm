@@ -71,7 +71,7 @@ const fetchedSchema = await fetchSchemaById('vendors');
 - `data/all-schemas.json` - Central schema registry (JSON format)
 - `@/gradian-ui/schema-manager/utils/schema-registry.server.ts` - Server-side schema utilities
 - `@/gradian-ui/schema-manager/utils/schema-registry.ts` - Client-side schema utilities
-- `../../components/dynamic/DynamicPageRenderer.tsx` - Universal page renderer
+- `@/gradian-ui/data-display/components/DynamicPageRenderer.tsx` - Universal page renderer
 - `../../shared/hooks/use-dynamic-entity.ts` - Generic entity hook
 - `../../app/page/[schema-id]/page.tsx` - Dynamic route handler
 

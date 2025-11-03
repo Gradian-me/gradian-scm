@@ -1,83 +1,55 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { 
-  FileText, 
-  Link2, 
+  FileText,
   ArrowRight,
   Layers,
   Palette,
   Settings,
-  Building2
+  RefreshCw
 } from 'lucide-react';
-
-interface BuilderOption {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  href: string;
-  color: string;
-  stats?: {
-    label: string;
-    value: number;
-  }[];
-  features: string[];
-}
-
-const builderOptions: BuilderOption[] = [
-  {
-    id: 'schemas',
-    title: 'Schema Builder',
-    description: 'Create and manage dynamic form schemas for entities like inquiries, vendors, and purchase orders',
-    icon: FileText,
-    href: '/builder/schemas',
-    color: '#8B5CF6',
-    features: [
-      'Define fields and sections',
-      'Configure validation rules',
-      'Set up form layouts',
-      'Manage metadata',
-    ],
-  },
-  {
-    id: 'relation-types',
-    title: 'Relation Types',
-    description: 'Define and manage relationships between entities in your supply chain',
-    icon: Link2,
-    href: '/page/relation-types',
-    color: '#4E79A7',
-    features: [
-      'Create entity relationships',
-      'Set visual indicators',
-      'Configure icons and colors',
-      'Manage relation metadata',
-    ],
-  },
-  {
-    id: 'companies',
-    title: 'Companies',
-    description: 'Manage company information including registration, address, and contact details',
-    icon: Building2,
-    href: '/page/companies',
-    color: '#10B981',
-    features: [
-      'Company registration details',
-      'Address and location data',
-      'National ID and registration codes',
-      'Company logo management',
-    ],
-  },
-];
+import { builderOptions } from './add-builders';
 
 export default function BuilderPage() {
   const router = useRouter();
+  const [isClearingCache, setIsClearingCache] = useState(false);
 
   const handleCardClick = (href: string) => {
     router.push(href);
+  };
+
+  const handleClearCache = async () => {
+    setIsClearingCache(true);
+
+    const toastId = toast.loading('Clearing schema cache...');
+
+    try {
+      const response = await fetch('/api/schemas/clear-cache', {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Schema cache cleared successfully!', { id: toastId });
+      } else {
+        toast.error(data.error || 'Failed to clear cache', { id: toastId });
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to clear cache',
+        { id: toastId }
+      );
+    } finally {
+      setIsClearingCache(false);
+    }
   };
 
   return (
@@ -91,12 +63,34 @@ export default function BuilderPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-3xl"
         >
-          <p className="text-gray-600 text-lg">
-            Use the builders below to configure your supply chain management system.
-            Define schemas for your entities and establish relationships between them.
-          </p>
+          <div className="flex items-start justify-between gap-4 mb-4 w-full flex-wrap">
+            <p className="text-gray-600 text-lg max-w-4xl">
+              Use the builders below to configure your supply chain management system.
+              Define schemas for your entities and establish relationships between them.
+            </p>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearCache}
+                disabled={isClearingCache}
+                className="whitespace-nowrap"
+              >
+                {isClearingCache ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Clearing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Clear Cache
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </motion.div>
 
         {/* Builder Cards Grid */}

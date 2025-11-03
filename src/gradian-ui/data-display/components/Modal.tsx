@@ -4,7 +4,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../../../components/ui/dialog';
 import { ModalProps } from '../types';
 import { cn } from '../../shared/utils';
-import { Button } from '../../form-builder/form-elements/components/Button';
+import { Button } from '@/components/ui/button';
 
 export const Modal: React.FC<ModalProps> = ({
   isOpen,

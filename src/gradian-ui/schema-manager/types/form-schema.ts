@@ -321,6 +321,7 @@ export interface FormSchema {
     showErrors?: boolean;
     showSuccess?: boolean;
   };
+  customButtons?: QuickAction[]; // Custom buttons shown above filter pane in list page
 }
 
 // Form state and data types

@@ -26,6 +26,7 @@ let fetchPromise: Promise<FormSchema[]> | null = null;
 export function clearSchemaCache(): void {
   cachedSchemas = null;
   cacheTimestamp = null;
+  fetchPromise = null; // Clear any pending fetch promises
 }
 
 /**
@@ -194,10 +195,9 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
       const startTime = Date.now();
 
       const response = await fetch(fetchUrl, {
-        // Use Next.js cache for static rendering compatibility
-        // We still have our own in-memory cache for additional performance
-        cache: 'force-cache',
-        next: { revalidate: 60 }, // Revalidate every 60 seconds
+        // Use no-store to ensure fresh data when cache is cleared
+        // The in-memory cache provides performance, Next.js cache would persist stale data
+        cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -322,8 +322,7 @@ export async function loadSchemaById(schemaId: string): Promise<FormSchema | nul
     const startTime = Date.now();
 
     const response = await fetch(fetchUrl, {
-      cache: 'force-cache',
-      next: { revalidate: 60 }, // Revalidate every 60 seconds
+      cache: 'no-store', // Use no-store to ensure fresh data
       headers: {
         'Content-Type': 'application/json',
       },

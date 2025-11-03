@@ -4,7 +4,7 @@ import React from 'react';
 import { FilterBarProps } from '../types';
 import { cn } from '../../shared/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../form-builder/form-elements/components/Select';
-import { Button } from '../../form-builder/form-elements/components/Button';
+import { Button } from '@/components/ui/button';
 
 export const FilterBar: React.FC<FilterBarProps> = ({
   filters = [],
