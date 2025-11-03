@@ -225,7 +225,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         {/* Go to Top Button for Form Dialog */}
         <GoToTopForm 
           threshold={100}
-          className="z-[100]"
+          className="z-100"
         />
 
         {showCloseButton && (
