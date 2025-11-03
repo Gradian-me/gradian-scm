@@ -17,4 +17,5 @@ export * from './components/Countdown';
 export * from './components/ColorPicker';
 export * from './components/PopupPicker';
 export * from './components/ConfirmationMessage';
+export * from './components/AddButtonFull';
 export * from './go-to-top-form';

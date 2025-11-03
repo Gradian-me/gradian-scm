@@ -1,8 +1,7 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { FormSection, FormField } from '../types/form-schema';
+import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
 import { SortableField } from './SortableField';
 import { FieldEditorContent } from './FieldEditorContent';
 import {
@@ -81,14 +80,13 @@ export function SectionFields({
         </DndContext>
       )}
 
-      <Button
-        variant="outline"
+      <AddButtonFull
+        label="Add Field"
         onClick={onAddField}
-        className="w-full flex items-center justify-center px-3 py-2 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 text-xs sm:text-sm"
-      >
-        <Plus className="w-4 h-4 mr-1 sm:mr-1.5" />
-        <span className="truncate">Add Field</span>
-      </Button>
+        iconSize="w-4 h-4"
+        textSize="text-xs sm:text-sm"
+        className="px-3 py-2 rounded-xl"
+      />
     </div>
   );
 }

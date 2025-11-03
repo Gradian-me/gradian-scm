@@ -5,14 +5,14 @@ import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema'
 import { FormElementFactory } from './FormElementFactory';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { ChevronDown, ChevronRight, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Trash2, RefreshCw, X } from 'lucide-react';
 import { cn } from '../../shared/utils';
 import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../form-elements/utils/field-resolver';
 import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/shared/utils/api';
 import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormModal } from './FormModal';
-import { Avatar, Rating, PopupPicker, ConfirmationMessage } from '../form-elements';
+import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull } from '../form-elements';
 import { Badge } from '../../../components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
@@ -37,6 +37,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   onToggleExpanded, // Callback to toggle expanded state
   addItemError, // Error message to display under the Add button
   refreshRelationsTrigger, // Trigger to refresh relations
+  isAddingItem = false, // Whether the add item modal is currently open (for loading state)
 }) => {
   // Get fields for this section from the schema
   const fields = getFieldsForSection(schema, section.id);
@@ -683,17 +684,12 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                   {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
                     <div className="space-y-2">
                       <div className="flex justify-center">
-                        <Button
-                          variant="outline"
+                        <AddButtonFull
+                          label={section.repeatingConfig?.addButtonText || `Add ${title}`}
                           onClick={onAddRepeatingItem}
                           disabled={disabled || !currentEntityId}
-                          className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                          </svg>
-                          {section.repeatingConfig?.addButtonText || `Add ${title}`}
-                        </Button>
+                          loading={isAddingItem}
+                        />
                       </div>
                       {addItemError && (
                         <FormAlert 
@@ -851,15 +847,14 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                         </div>
                         {onRemoveRepeatingItem && (
                           <Button
+                            type="button"
                             variant="ghost"
                             size="sm"
                             onClick={() => onRemoveRepeatingItem(index)}
                             className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
                             disabled={disabled}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <X className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
@@ -876,17 +871,12 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
               {onAddRepeatingItem && (
                 <div className="space-y-2">
                   <div className="flex justify-center">
-                    <Button
-                      variant="outline"
+                    <AddButtonFull
+                      label={section.repeatingConfig?.addButtonText || `Add ${title}`}
                       onClick={onAddRepeatingItem}
                       disabled={disabled}
-                      className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      {section.repeatingConfig?.addButtonText || `Add ${title}`}
-                    </Button>
+                      loading={isAddingItem}
+                    />
                   </div>
                   {addItemError && (
                     <FormAlert 

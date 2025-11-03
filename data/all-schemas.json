@@ -26,143 +26,6 @@
     ],
     "fields": [
       {
-        "id": "item-part-code",
-        "name": "partCode",
-        "label": "Part Code",
-        "sectionId": "inquiry-items",
-        "type": "text",
-        "component": "text",
-        "placeholder": "Enter part code",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 2
-      },
-      {
-        "id": "item-part-name",
-        "name": "partName",
-        "label": "Part Name",
-        "sectionId": "inquiry-items",
-        "type": "text",
-        "component": "text",
-        "placeholder": "Enter part name",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 2
-      },
-      {
-        "id": "item-quantity",
-        "name": "quantity",
-        "label": "Quantity",
-        "sectionId": "inquiry-items",
-        "type": "number",
-        "component": "number",
-        "placeholder": "Enter quantity",
-        "required": true,
-        "validation": {
-          "required": true,
-          "min": 0
-        },
-        "colSpan": 1,
-        "order": 2
-      },
-      {
-        "id": "item-unit",
-        "name": "unit",
-        "label": "Unit",
-        "sectionId": "inquiry-items",
-        "type": "select",
-        "component": "select",
-        "placeholder": "Select unit",
-        "required": true,
-        "options": [
-          {
-            "label": "Piece",
-            "value": "1"
-          },
-          {
-            "label": "Box",
-            "value": "2"
-          },
-          {
-            "label": "Pallet",
-            "value": "3"
-          },
-          {
-            "label": "Kilogram",
-            "value": "4"
-          },
-          {
-            "label": "Liter",
-            "value": "5"
-          },
-          {
-            "label": "Meter",
-            "value": "6"
-          },
-          {
-            "label": "Square Meter",
-            "value": "7"
-          },
-          {
-            "label": "Cubic Meter",
-            "value": "8"
-          }
-        ],
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 4
-      },
-      {
-        "id": "item-demand-date",
-        "name": "demandDate",
-        "label": "Demand Date",
-        "sectionId": "inquiry-items",
-        "type": "datetime-local",
-        "component": "datetime-local",
-        "placeholder": "Select demand date and time",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 5
-      },
-      {
-        "id": "item-minimum-expiration-date",
-        "name": "minimumExpirationDate",
-        "label": "Minimum Expiration Date",
-        "sectionId": "inquiry-items",
-        "type": "datetime-local",
-        "component": "datetime-local",
-        "placeholder": "Select minimum expiration date and time",
-        "required": true,
-        "validation": {
-          "required": true
-        },
-        "colSpan": 1,
-        "order": 5
-      },
-      {
-        "id": "item-description",
-        "name": "description",
-        "label": "Description",
-        "sectionId": "inquiry-items",
-        "type": "textarea",
-        "component": "textarea",
-        "placeholder": "Enter item description",
-        "required": false,
-        "colSpan": 2,
-        "order": 7
-      },
-      {
         "id": "inquiry-number",
         "name": "number",
         "label": "Inquiry Number",
@@ -299,7 +162,12 @@
           "maxItems": 100,
           "addButtonText": "Add Item",
           "removeButtonText": "Remove Item",
-          "emptyMessage": "No items added yet"
+          "emptyMessage": "No items added yet",
+          "targetSchema": "inquiry-items",
+          "relationTypeId": "HAS_INQUIRY_ITEM",
+          "deleteType": "itemAndRelation",
+          "addType": "canSelectFromData",
+          "isUnique": true
         }
       }
     ],
@@ -387,8 +255,8 @@
       "tableRenderers": [
         {
           "id": "inquiry-items-table",
-          "schemaId": "inquiries",
-          "sectionId": "inquiry-items",
+          "schemaId": "inquiry-items",
+          "sectionId": "item-information",
           "title": "Inquiry Items",
           "description": "List of all items in this inquiry",
           "columns": [
@@ -466,6 +334,162 @@
     },
     "showInNavigation": true,
     "icon": "FileSearch"
+  },
+  {
+    "id": "inquiry-items",
+    "description": "Items in an inquiry",
+    "singular_name": "Inquiry Item",
+    "plural_name": "Inquiry Items",
+    "fields": [
+      {
+        "id": "item-part-code",
+        "name": "partCode",
+        "label": "Part Code",
+        "sectionId": "item-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter part code",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "item-part-name",
+        "name": "partName",
+        "label": "Part Name",
+        "sectionId": "item-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter part name",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "item-quantity",
+        "name": "quantity",
+        "label": "Quantity",
+        "sectionId": "item-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter quantity",
+        "required": true,
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 3
+      },
+      {
+        "id": "item-unit",
+        "name": "unit",
+        "label": "Unit",
+        "sectionId": "item-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select unit",
+        "required": true,
+        "options": [
+          {
+            "label": "Piece",
+            "value": "1"
+          },
+          {
+            "label": "Box",
+            "value": "2"
+          },
+          {
+            "label": "Pallet",
+            "value": "3"
+          },
+          {
+            "label": "Kilogram",
+            "value": "4"
+          },
+          {
+            "label": "Liter",
+            "value": "5"
+          },
+          {
+            "label": "Meter",
+            "value": "6"
+          },
+          {
+            "label": "Square Meter",
+            "value": "7"
+          },
+          {
+            "label": "Cubic Meter",
+            "value": "8"
+          }
+        ],
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 4
+      },
+      {
+        "id": "item-demand-date",
+        "name": "demandDate",
+        "label": "Demand Date",
+        "sectionId": "item-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select demand date and time",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 5
+      },
+      {
+        "id": "item-minimum-expiration-date",
+        "name": "minimumExpirationDate",
+        "label": "Minimum Expiration Date",
+        "sectionId": "item-information",
+        "type": "datetime-local",
+        "component": "datetime-local",
+        "placeholder": "Select minimum expiration date and time",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 6
+      },
+      {
+        "id": "item-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "item-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter item description",
+        "required": false,
+        "colSpan": 2,
+        "order": 7
+      }
+    ],
+    "sections": [
+      {
+        "id": "item-information",
+        "title": "Item Information",
+        "description": "Details about the inquiry item",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "showInNavigation": false,
+    "icon": "Package"
   },
   {
     "id": "vendors",

@@ -104,7 +104,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, style, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-gray-500", className)}
+    className={cn("hidden md:block text-sm text-gray-500", className)}
     style={{
       color: '#6B7280', // text-gray-500 equivalent
       ...style,

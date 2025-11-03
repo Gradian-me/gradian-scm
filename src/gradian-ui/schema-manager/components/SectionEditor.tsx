@@ -6,9 +6,10 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { SectionEditorProps } from '../types/builder';
 import { FieldEditor } from './FieldEditor';
+import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
 import { useMemo, useState, useEffect } from 'react';
 import { FormSchema } from '../types/form-schema';
 
@@ -316,10 +317,13 @@ export function SectionEditor({
           <div className="pt-4 border-t space-y-4">
             <div className="flex justify-between items-center">
               <h4 className="text-sm font-semibold text-gray-700">Fields ({fields.length})</h4>
-              <Button variant="outline" size="sm" onClick={onAddField}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Field
-              </Button>
+              <AddButtonFull
+                label="Add Field"
+                onClick={onAddField}
+                iconSize="w-4 h-4"
+                fullWidth={false}
+                className="px-3 py-2 rounded-xl text-xs sm:text-sm"
+              />
             </div>
 
             {fields.length === 0 ? (

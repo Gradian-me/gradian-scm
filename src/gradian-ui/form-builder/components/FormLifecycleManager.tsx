@@ -776,6 +776,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           onRemoveRepeatingItem={section.isRepeatingSection ? (index: number) => removeRepeatingItem(section.id, index) : undefined}
           addItemError={section.isRepeatingSection ? addItemErrors[section.id] : undefined}
           refreshRelationsTrigger={section.isRepeatingSection && section.repeatingConfig?.targetSchema ? refreshRelationsTrigger : undefined}
+          isAddingItem={section.isRepeatingSection && relationModalState.isOpen && relationModalState.sectionId === section.id}
         />
       );
     });
