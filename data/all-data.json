@@ -46,7 +46,7 @@
       "rating": 4.3,
       "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
       "createdAt": "2025-10-29T11:24:37.540Z",
-      "updatedAt": "2025-11-02T13:14:52.465Z",
+      "updatedAt": "2025-11-02T16:47:47.209Z",
       "performanceMetrics": [
         {
           "id": "onTimeDelivery",
@@ -116,8 +116,7 @@
       "certifications": [
         "iso9001",
         "fda",
-        "iso14001",
-        "ce"
+        "iso14001"
       ],
       "section-1762088953746": [
         {
