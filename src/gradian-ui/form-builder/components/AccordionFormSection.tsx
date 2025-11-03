@@ -11,17 +11,10 @@ import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByR
 import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/shared/utils/api';
 import { DataRelation, FormSchema } from '@/shared/types/form-schema';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { FormModal } from './FormModal';
-import { Avatar, Rating } from '../form-elements';
+import { Avatar, Rating, PopupPicker, ConfirmationMessage } from '../form-elements';
 import { Badge } from '../../../components/ui/badge';
+import { Skeleton } from '../../../components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
 import { BadgeViewer } from '../form-elements/utils/badge-viewer';
@@ -72,10 +65,14 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     relationId: string | null;
   }>({ open: false, relationId: null });
   const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   
   // Get current entity ID from form values (for creating relations)
   const currentEntityId = values?.id || (values as any)?.[schema.id]?.id;
   const sourceSchemaId = schema.id;
+  
+  // Get addType from config (default: 'addOnly')
+  const addType = section.repeatingConfig?.addType || 'addOnly';
   
   // Fetch target schema
   useEffect(() => {
@@ -339,6 +336,38 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     setEditRelationId(relationId);
   };
 
+  // Handler for selecting an item from popup picker
+  const handleSelectFromPicker = async (selectedItem: any) => {
+    if (!currentEntityId || !relationTypeId || !targetSchema || !selectedItem?.id) {
+      return;
+    }
+
+    try {
+      const relationResponse = await apiRequest('/api/relations', {
+        method: 'POST',
+        body: {
+          sourceSchema: sourceSchemaId,
+          sourceId: currentEntityId,
+          targetSchema: targetSchema,
+          targetId: selectedItem.id,
+          relationTypeId: relationTypeId,
+        },
+      });
+
+      if (relationResponse.success) {
+        // Refresh relations to show the newly added item
+        fetchRelations();
+      } else {
+        console.error('Failed to create relation:', relationResponse.error);
+      }
+    } catch (error) {
+      console.error('Error creating relation from picker:', error);
+    }
+  };
+
+  // Get already selected IDs to exclude from picker
+  const selectedIds = relations.map(r => r.targetId);
+
   // Render entity summary (for relation-based sections) - Beautiful card UI
   const renderEntitySummary = (entity: any, index: number) => {
     if (!targetSchemaData) {
@@ -477,56 +506,98 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
               onClick={toggleExpanded}
             >
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-                    <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
-                      {itemsCount}
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                    {itemsCount}
+                  </span>
+                  {sectionError && (
+                    <span className="text-sm text-red-600 mt-0.5" role="alert">
+                      • {sectionError}
                     </span>
-                    {sectionError && (
-                      <span className="text-sm text-red-600 mt-0.5" role="alert">
-                        • {sectionError}
-                      </span>
-                    )}
+                  )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      fetchRelations();
+                    }}
+                    className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+                    title="Refresh relations"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${isLoadingRelations ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Select button for canSelectFromData or mustSelectFromData */}
+                  {(addType === 'canSelectFromData' || addType === 'mustSelectFromData') && targetSchema && (
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetchRelations();
+                        setIsPickerOpen(true);
                       }}
-                      className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
-                      title="Refresh relations"
+                      disabled={disabled || !currentEntityId}
+                      className="text-xs"
                     >
-                      <RefreshCw className={`h-3 w-3 ${isLoadingRelations ? 'animate-spin' : ''}`} />
+                      Select {targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}
                     </Button>
-                  </div>
-                  {description && (
-                    <p className="text-xs text-gray-600 mt-1">{description}</p>
                   )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-6 w-6 hover:bg-gray-200"
+                    onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 h-6 w-6 hover:bg-gray-200"
-                  onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
               </div>
+              {description && (
+                <p className="text-xs text-gray-600 mt-1">{description}</p>
+              )}
             </CardHeader>
             
             {isExpanded && (
               <CardContent className="px-6 pb-6">
                 <div className="space-y-4">
                   {isLoadingRelations ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>Loading...</p>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                        >
+                          <div className="px-4 sm:px-6 py-4">
+                            <div className="flex items-start gap-3 w-full">
+                              {/* Avatar Skeleton */}
+                              <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                              
+                              {/* Content */}
+                              <div className="flex-1 min-w-0 space-y-2">
+                                <Skeleton className="h-4 w-2/3" />
+                                <Skeleton className="h-3 w-1/2" />
+                              </div>
+                              
+                              {/* Rating Skeleton */}
+                              <Skeleton className="h-4 w-12 shrink-0" />
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-end gap-2 px-4 sm:px-6 pb-4 border-t border-gray-50 pt-3">
+                            <Skeleton className="h-8 w-16" />
+                            <Skeleton className="h-8 w-20" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : itemsCount === 0 ? (
                     <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
@@ -580,7 +651,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                               </div>
                   )}
 
-                  {onAddRepeatingItem && (
+                  {/* Add button - only show if addType is 'addOnly' or 'canSelectFromData' */}
+                  {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
                     <div className="space-y-2">
                       <div className="flex justify-center">
                         <Button
@@ -636,41 +708,50 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                     )}
                     
                     {/* Delete Confirmation Dialog */}
-                    <Dialog open={deleteConfirmDialog.open} onOpenChange={(open) => setDeleteConfirmDialog({ open, relationId: deleteConfirmDialog.relationId })}>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>
-                            {section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove Relation' : 'Delete Item'}
-                          </DialogTitle>
-                          <DialogDescription>
-                            {section.repeatingConfig?.deleteType === 'relationOnly' 
-                              ? 'Are you sure you want to remove this relation? The related item will remain but will no longer be linked to this record.'
-                              : 'Are you sure you want to delete this item and its relation? This action cannot be undone.'}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <DialogFooter>
-                          <Button 
-                            variant="outline" 
-                            onClick={() => setDeleteConfirmDialog({ open: false, relationId: null })}
-                            type="button"
-                          >
-                            Cancel
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            onClick={() => {
-                              if (deleteConfirmDialog.relationId) {
-                                handleRemoveRelation(deleteConfirmDialog.relationId);
-                              }
-                            }}
-                            type="button"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                    <ConfirmationMessage
+                      isOpen={deleteConfirmDialog.open}
+                      onOpenChange={(open) => setDeleteConfirmDialog({ open, relationId: deleteConfirmDialog.relationId })}
+                      title={section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove Relation' : 'Delete Item'}
+                      message={
+                        section.repeatingConfig?.deleteType === 'relationOnly'
+                          ? 'Are you sure you want to remove this relation? The related item will remain but will no longer be linked to this record.'
+                          : 'Are you sure you want to delete this item and its relation? This action cannot be undone.'
+                      }
+                      variant={section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive'}
+                      buttons={[
+                        {
+                          label: 'Cancel',
+                          variant: 'outline',
+                          action: () => setDeleteConfirmDialog({ open: false, relationId: null }),
+                        },
+                        {
+                          label: section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove' : 'Delete',
+                          variant: section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive',
+                          icon: 'Trash2',
+                          action: () => {
+                            if (deleteConfirmDialog.relationId) {
+                              handleRemoveRelation(deleteConfirmDialog.relationId);
+                            }
+                          },
+                        },
+                      ]}
+                    />
+                    
+                    {/* Popup Picker for selecting existing items */}
+                    {targetSchema && (addType === 'canSelectFromData' || addType === 'mustSelectFromData') && (
+                      <PopupPicker
+                        isOpen={isPickerOpen}
+                        onClose={() => setIsPickerOpen(false)}
+                        schemaId={targetSchema}
+                        schema={targetSchemaData || undefined}
+                        onSelect={handleSelectFromPicker}
+                        title={`Select ${targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}`}
+                        description={`Choose an existing ${targetSchemaData?.singular_name || 'item'} to link to this record`}
+                        excludeIds={selectedIds}
+                        canViewList={true}
+                        viewListUrl={`/page/${targetSchema}`}
+                      />
+                    )}
         </>
       );
     }

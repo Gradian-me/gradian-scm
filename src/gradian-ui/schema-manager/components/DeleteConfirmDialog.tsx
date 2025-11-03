@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 
 interface DeleteConfirmDialogProps {
   open: boolean;
@@ -20,27 +11,30 @@ interface DeleteConfirmDialogProps {
 
 export function DeleteConfirmDialog({ open, onOpenChange, type, onConfirm }: DeleteConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete {type === 'field' ? 'Field' : 'Section'}</DialogTitle>
-          <DialogDescription>
-            {type === 'field' 
-              ? 'Are you sure you want to delete this field?'
-              : 'Are you sure you want to delete this section? All fields in this section will be removed.'}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button variant="destructive" onClick={onConfirm}>
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ConfirmationMessage
+      isOpen={open}
+      onOpenChange={onOpenChange}
+      title={`Delete ${type === 'field' ? 'Field' : 'Section'}`}
+      message={
+        type === 'field'
+          ? 'Are you sure you want to delete this field?'
+          : 'Are you sure you want to delete this section? All fields in this section will be removed.'
+      }
+      variant="destructive"
+      buttons={[
+        {
+          label: 'Cancel',
+          variant: 'outline',
+          action: () => onOpenChange(false),
+        },
+        {
+          label: 'Delete',
+          variant: 'destructive',
+          icon: 'Trash2',
+          action: onConfirm,
+        },
+      ]}
+    />
   );
 }
 

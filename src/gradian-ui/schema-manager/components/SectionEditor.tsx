@@ -260,6 +260,27 @@ export function SectionEditor({
                         : 'Both the relation and the item will be permanently deleted.'}
                     </p>
                   </div>
+                  <div>
+                    <Label>Add Type</Label>
+                    <select
+                      value={section.repeatingConfig?.addType || 'addOnly'}
+                      onChange={(e) => updateRepeatingConfig({ 
+                        addType: e.target.value as 'addOnly' | 'canSelectFromData' | 'mustSelectFromData' 
+                      })}
+                      className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
+                    >
+                      <option value="addOnly">Add only (create new items)</option>
+                      <option value="canSelectFromData">Can select from existing data</option>
+                      <option value="mustSelectFromData">Must select from existing data</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {section.repeatingConfig?.addType === 'addOnly' 
+                        ? 'Users can only create new items. No selection from existing data.'
+                        : section.repeatingConfig?.addType === 'canSelectFromData'
+                        ? 'Users can create new items or select from existing data. Both "Add" and "Select" buttons will be shown.'
+                        : 'Users can only select from existing data. Only "Select" button will be shown.'}
+                    </p>
+                  </div>
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-sm text-blue-800">
                       <strong>Relation-based section:</strong> Fields are managed in the target schema "{section.repeatingConfig?.targetSchema}". 

@@ -18,7 +18,9 @@ import { FormSchema } from '../../shared/types/form-schema';
 import { DynamicFilterPane } from '../../shared/components/DynamicFilterPane';
 import { asFormSchema } from '../../shared/utils/schema-utils';
 import { useDynamicEntity } from '../../shared/hooks';
-import { FormModal } from '../../gradian-ui/form-builder';
+import { FormModal, ConfirmationMessage } from '../../gradian-ui/form-builder';
+import { getValueByRole } from '../../gradian-ui/form-builder/form-elements/utils/field-resolver';
+import { Skeleton } from '../ui/skeleton';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -66,6 +68,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const [searchTermLocal, setSearchTermLocal] = useState('');
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    open: boolean;
+    entity: any | null;
+  }>({ open: false, entity: null });
 
   // Use the dynamic entity hook for entity management
   const {
@@ -108,6 +114,26 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       router.push(`/page/${schema.id}/${entity.id}`);
     }
   }, [router, schema?.id]);
+
+  // Handle delete with confirmation dialog
+  const handleDeleteWithConfirmation = useCallback((entity: any) => {
+    setDeleteConfirmDialog({ open: true, entity });
+  }, []);
+
+  // Confirm and execute delete
+  const confirmDelete = useCallback(async () => {
+    if (!deleteConfirmDialog.entity) return;
+
+    try {
+      await handleDeleteEntity(deleteConfirmDialog.entity);
+      setDeleteConfirmDialog({ open: false, entity: null });
+      // Refresh entities after deletion
+      fetchEntities();
+    } catch (error) {
+      console.error('Error deleting entity:', error);
+      setDeleteConfirmDialog({ open: false, entity: null });
+    }
+  }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities]);
 
   useEffect(() => {
     fetchEntities();
@@ -217,18 +243,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   // Check if user is admin (mock implementation - replace with actual auth context)
   const isAdmin = true; // TODO: Replace with actual user profile check
 
-  if (isLoading) {
-    return (
-      <MainLayout 
-        title={pluralName}
-        icon={schema.icon}
-        editSchemaPath={schema.id ? `/builder/schemas/${schema.id}` : undefined}
-        isAdmin={isAdmin}
-      >
-        <LoadingState size="lg" text={`Loading ${pluralName.toLowerCase()}...`} />
-      </MainLayout>
-    );
-  }
 
   return (
     <MainLayout 
@@ -253,42 +267,80 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onAddNew={handleOpenCreateModal}
+          onRefresh={fetchEntities}
+          isRefreshing={isLoading}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
         />
 
         {/* Entities List */}
         <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" : "space-y-4"}>
-          {filteredEntities.map((entity: any, index: number) => (
-            <div key={entity.id} className="relative">
-              {isEditLoading[entity.id] && (
-                <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
-                  <div className="flex flex-col items-center space-y-2">
-                    <Spinner size="lg" variant="primary" />
-                    <span className="text-sm font-medium text-violet-600">Loading...</span>
+          {isLoading ? (
+            // Skeleton cards while loading
+            Array.from({ length: 8 }).map((_, index) => (
+              <div key={`skeleton-${index}`} className="rounded-xl bg-white border border-gray-100 overflow-hidden">
+                <div className="p-4 sm:p-6">
+                  {/* Header with avatar and title */}
+                  <div className="flex items-start gap-3 mb-3">
+                    <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  </div>
+                  
+                  {/* Badges */}
+                  <div className="flex gap-2 mb-3">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                  </div>
+                  
+                  {/* Metrics */}
+                  <div className="space-y-1.5 mb-3">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-4/5" />
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-50">
+                    <Skeleton className="h-7 w-14" />
+                    <Skeleton className="h-7 w-14" />
                   </div>
                 </div>
-              )}
-              <DynamicCardRenderer
-                key={entity.id}
-                schema={asFormSchema(schema)}
-                data={entity}
-                index={index}
-                viewMode={viewMode}
-                maxBadges={3}
-                maxMetrics={5}
-                onView={handleViewEntity}
-                onViewDetail={handleViewDetailPage}
-                onEdit={(e) => {
-                  if (!isEditLoading[e.id]) {
-                    handleEditEntity(e);
-                  }
-                }}
-                onDelete={handleDeleteEntity}
-                className={isEditLoading[entity.id] ? "opacity-70" : ""}
-              />
-            </div>
-          ))}
+              </div>
+            ))
+          ) : (
+            filteredEntities.map((entity: any, index: number) => (
+              <div key={entity.id} className="relative">
+                {isEditLoading[entity.id] && (
+                  <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                    <div className="flex flex-col items-center space-y-2">
+                      <Spinner size="lg" variant="primary" />
+                      <span className="text-sm font-medium text-violet-600">Loading...</span>
+                    </div>
+                  </div>
+                )}
+                <DynamicCardRenderer
+                  key={entity.id}
+                  schema={asFormSchema(schema)}
+                  data={entity}
+                  index={index}
+                  viewMode={viewMode}
+                  maxBadges={3}
+                  maxMetrics={5}
+                  onView={handleViewEntity}
+                  onViewDetail={handleViewDetailPage}
+                  onEdit={(e) => {
+                    if (!isEditLoading[e.id]) {
+                      handleEditEntity(e);
+                    }
+                  }}
+                  onDelete={handleDeleteWithConfirmation}
+                  className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                />
+              </div>
+            ))
+          )}
         </div>
 
         {filteredEntities.length === 0 && (
@@ -326,7 +378,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
         onView={handleViewEntity}
         onViewDetail={handleViewDetailPage}
         onEdit={handleEditEntity}
-        onDelete={handleDeleteEntity}
+        onDelete={handleDeleteWithConfirmation}
       />
 
       {/* Create Modal - using unified FormModal */}
@@ -386,6 +438,38 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationMessage
+        isOpen={deleteConfirmDialog.open}
+        onOpenChange={(open) => setDeleteConfirmDialog({ open, entity: deleteConfirmDialog.entity })}
+        title={`Delete ${singularName}`}
+        message={
+          deleteConfirmDialog.entity ? (
+            <>
+              Are you sure you want to delete "{getValueByRole(schema, deleteConfirmDialog.entity, 'title') || deleteConfirmDialog.entity.name || deleteConfirmDialog.entity.title || deleteConfirmDialog.entity.id}"?
+              <br />
+              <span className="font-medium mt-2 block">This action cannot be undone.</span>
+            </>
+          ) : (
+            ''
+          )
+        }
+        variant="destructive"
+        buttons={[
+          {
+            label: 'Cancel',
+            variant: 'outline',
+            action: () => setDeleteConfirmDialog({ open: false, entity: null }),
+          },
+          {
+            label: 'Delete',
+            variant: 'destructive',
+            icon: 'Trash2',
+            action: confirmDelete,
+          },
+        ]}
+      />
 
       {/* Edit Modal - using unified FormModal */}
       {editEntityId && schema?.id && (

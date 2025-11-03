@@ -52,6 +52,7 @@ export interface FormSection {
     targetSchema?: string; // Schema ID for relation-based repeating sections
     relationTypeId?: string; // Relation type ID for relation-based repeating sections
     deleteType?: 'relationOnly' | 'itemAndRelation'; // Default: 'itemAndRelation'
+    addType?: 'addOnly' | 'canSelectFromData' | 'mustSelectFromData'; // Default: 'addOnly'
   };
   initialState?: 'expanded' | 'collapsed';
 }

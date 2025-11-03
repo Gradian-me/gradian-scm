@@ -206,10 +206,10 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
 
   const handleDeleteEntity = useCallback(async (entity: any) => {
     const id = entity.id;
-    if (confirm(`Are you sure you want to delete this ${schema.singular_name?.toLowerCase() || 'item'}?`)) {
-      await deleteEntity(id);
-    }
-  }, [deleteEntity, schema.singular_name]);
+    // Note: Confirmation should be handled by the calling component
+    // This function just executes the delete
+    await deleteEntity(id);
+  }, [deleteEntity]);
 
   const clearError = useCallback(() => {
     setError(null);

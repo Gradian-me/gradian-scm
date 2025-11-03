@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FormSchema } from '@/shared/types/form-schema';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { config } from '@/lib/config';
@@ -336,25 +336,30 @@ export default function SchemaBuilderPage() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ open, schema: deleteDialog.schema })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Schema</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{deleteDialog.schema?.plural_name}"? This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialog({ open: false, schema: null })}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmationMessage
+        isOpen={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, schema: deleteDialog.schema })}
+        title="Delete Schema"
+        message={
+          <>
+            Are you sure you want to delete "{deleteDialog.schema?.plural_name}"? This action cannot be undone.
+          </>
+        }
+        variant="destructive"
+        buttons={[
+          {
+            label: 'Cancel',
+            variant: 'outline',
+            action: () => setDeleteDialog({ open: false, schema: null }),
+          },
+          {
+            label: 'Delete',
+            variant: 'destructive',
+            icon: 'Trash2',
+            action: handleDelete,
+          },
+        ]}
+      />
     </MainLayout>
   );
 }

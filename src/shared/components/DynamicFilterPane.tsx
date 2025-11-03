@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Filter, Plus } from 'lucide-react';
+import { Filter, Plus, RefreshCw } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { SearchBar, ViewSwitcher } from '../../gradian-ui';
 
@@ -11,6 +11,8 @@ interface DynamicFilterPaneProps {
   viewMode: 'grid' | 'list';
   onViewModeChange: (mode: 'grid' | 'list') => void;
   onAddNew: () => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
   searchPlaceholder?: string;
   addButtonText?: string;
   className?: string;
@@ -22,6 +24,8 @@ export const DynamicFilterPane = ({
   viewMode,
   onViewModeChange,
   onAddNew,
+  onRefresh,
+  isRefreshing = false,
   searchPlaceholder = "Search...",
   addButtonText = "Add New",
   className = "",
@@ -46,6 +50,18 @@ export const DynamicFilterPane = ({
           <Filter className="h-4 w-4 mr-2" />
           Filters
         </Button>
+        {onRefresh && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-10 w-10 p-0"
+            onClick={onRefresh}
+            title="Refresh"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </Button>
+        )}
         <div className="border border-gray-300 rounded-md h-10 flex items-center">
           <ViewSwitcher
             currentView={viewMode}

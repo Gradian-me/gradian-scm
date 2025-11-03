@@ -933,7 +933,7 @@
         "title": "Contact Persons",
         "description": "Add contact persons for this vendor",
         "isRepeatingSection": true,
-        "initialState": "collapsed",
+        "initialState": "expanded",
         "columns": 2,
         "repeatingConfig": {
           "minItems": 1,
@@ -944,7 +944,8 @@
           "targetSchema": "contacts",
           "relationTypeId": "HAS_CONTACT",
           "deleteType": "relationOnly",
-          "basedOnSourceID": true
+          "addType": "canSelectFromData",
+          "isUnique": true
         }
       },
       {
