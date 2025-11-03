@@ -12,5 +12,12 @@
     "description": "",
     "color": "#228d0c",
     "icon": "Contact"
+  },
+  {
+    "id": "HAS_ADDRESS",
+    "label": "Has Address",
+    "description": "Defines the addresses of entities",
+    "color": "#0033ff",
+    "icon": "MapPinHouse"
   }
 ]

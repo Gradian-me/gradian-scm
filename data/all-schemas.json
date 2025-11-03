@@ -1374,5 +1374,13 @@
     ],
     "icon": "Contact",
     "showInNavigation": true
+  },
+  {
+    "id": "customer",
+    "description": "Schema for Customer",
+    "singular_name": "Customer",
+    "plural_name": "Customers",
+    "fields": [],
+    "sections": []
   }
 ]
