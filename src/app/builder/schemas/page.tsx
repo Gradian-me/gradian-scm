@@ -15,7 +15,9 @@ import {
   Layers,
   Type,
   Search,
-  Loader2
+  Loader2,
+  ArrowLeft,
+  LayoutList
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FormSchema } from '@/shared/types/form-schema';
@@ -23,6 +25,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { config } from '@/lib/config';
+import { IconRenderer } from '@/shared/utils/icon-renderer';
 
 interface SchemaCardProps {
   schema: FormSchema;
@@ -38,12 +41,20 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="hover:shadow-lg transition-all duration-200 h-full">
+      <Card className="hover:shadow-lg transition-all duration-200 h-full flex flex-col justify-between">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-xl mb-2">{schema.plural_name}</CardTitle>
               <div className="flex items-center gap-2 mb-2">
+                {schema.icon && (
+                  <IconRenderer 
+                    iconName={schema.icon} 
+                    className="h-6 w-6 text-violet-600" 
+                  />
+                )}
+                <CardTitle className="text-xl">{schema.plural_name}</CardTitle>
+              </div>
+              <div className="flex items-start gap-2 mb-2 flex-col">
                 <Badge variant="outline" className="text-xs">
                   {schema.singular_name}
                 </Badge>
@@ -60,14 +71,16 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
                 size="icon"
                 onClick={onView}
                 className="h-8 w-8"
+                title="View List"
               >
-                <Eye className="h-4 w-4" />
+                <LayoutList className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onEdit}
                 className="h-8 w-8"
+                title="Edit Schema"
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -76,6 +89,7 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
                 size="icon"
                 onClick={onDelete}
                 className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                title="Delete Schema"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -215,6 +229,16 @@ export default function SchemaBuilderPage() {
       onCreateClick={() => setCreateDialog(true)}
     >
       <div className="space-y-6">
+        {/* Back Button */}
+        <Button
+          variant="outline"
+          onClick={() => router.push('/builder')}
+          className="mb-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Builder
+        </Button>
+
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />

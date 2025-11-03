@@ -21,6 +21,9 @@ export * from './schema-manager/hooks';
 export * from './schema-manager/utils';
 export * from './schema-manager/types';
 
+// Relation Manager
+export * from './relation-manager';
+
 // Shared Types and Utilities
 export * from './shared/types';
 export * from './shared/utils';

@@ -14,4 +14,5 @@ export * from './components/Select';
 export * from './components/Rating';
 export * from './components/Avatar';
 export * from './components/Countdown';
+export * from './components/ColorPicker';
 export * from './go-to-top-form';

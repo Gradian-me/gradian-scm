@@ -14,7 +14,8 @@ import {
   Bell,
   User,
   Folder,
-  LucideIcon
+  LucideIcon,
+  Wrench
 } from 'lucide-react';
 import { NavigationItem } from '../types';
 
@@ -41,6 +42,11 @@ export const defaultNavigationItems: NavigationItem[] = [
     name: 'ERP Integration',
     href: '/erp',
     icon: Database,
+  },
+  {
+    name: 'Builder',
+    href: '/builder',
+    icon: Wrench,
   }
 ];
 

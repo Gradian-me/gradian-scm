@@ -1,0 +1,16 @@
+[
+  {
+    "id": "HAS_INQUIRY_ITEM",
+    "label": "Has Inquiry Item",
+    "description": "An inquiry contains one or more inquiry items.",
+    "color": "#1d77d7",
+    "icon": "ShoppingBasket"
+  },
+  {
+    "id": "HAS_CONTACT",
+    "label": "Has Contact",
+    "description": "",
+    "color": "#228d0c",
+    "icon": "Contact"
+  }
+]
