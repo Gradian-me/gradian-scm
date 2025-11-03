@@ -1265,5 +1265,343 @@
     ],
     "icon": "Contact",
     "showInNavigation": true
+  },
+  {
+    "id": "companies",
+    "description": "Manage company information including registration, address, and contact details",
+    "singular_name": "Company",
+    "plural_name": "Companies",
+    "isSystemSchema": true,
+    "cardMetadata": [
+      {
+        "id": "company-info",
+        "title": "Company Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "company-name",
+          "company-country",
+          "company-city"
+        ]
+      },
+      {
+        "id": "registration-info",
+        "title": "Registration",
+        "colSpan": 1,
+        "fieldIds": [
+          "company-registration-code",
+          "company-national-id"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "company-name",
+        "name": "name",
+        "label": "Company Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter company name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "colSpan": 2,
+        "order": 1
+      },
+      {
+        "id": "company-logo",
+        "name": "logo",
+        "label": "Logo URL",
+        "sectionId": "basic-information",
+        "type": "url",
+        "component": "text",
+        "placeholder": "Enter logo URL",
+        "required": false,
+        "validation": {
+          "pattern": "^https?:\\/\\/.+"
+        },
+        "colSpan": 2,
+        "order": 2
+      },
+      {
+        "id": "company-address",
+        "name": "address",
+        "label": "Address",
+        "sectionId": "address-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter full address",
+        "required": false,
+        "colSpan": 3,
+        "order": 1
+      },
+      {
+        "id": "company-country",
+        "name": "country",
+        "label": "Country",
+        "sectionId": "address-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter country",
+        "required": false,
+        "role": "location",
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "company-city",
+        "name": "city",
+        "label": "City",
+        "sectionId": "address-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter city",
+        "required": false,
+        "colSpan": 1,
+        "order": 3
+      },
+      {
+        "id": "company-zip-code",
+        "name": "zipCode",
+        "label": "ZIP Code",
+        "sectionId": "address-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter ZIP code",
+        "required": false,
+        "colSpan": 1,
+        "order": 4
+      },
+      {
+        "id": "company-registration-code",
+        "name": "registrationCode",
+        "label": "Registration Code",
+        "sectionId": "registration-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter registration code",
+        "required": false,
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "company-national-id",
+        "name": "nationalId",
+        "label": "National ID",
+        "sectionId": "registration-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter national ID",
+        "required": false,
+        "colSpan": 1,
+        "order": 2
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "Company name and logo",
+        "initialState": "expanded",
+        "columns": 2
+      },
+      {
+        "id": "address-information",
+        "title": "Address Information",
+        "description": "Company address and location details",
+        "columns": 3
+      },
+      {
+        "id": "registration-information",
+        "title": "Registration Information",
+        "description": "Company registration and identification details",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "company-overview",
+          "title": "Company Overview",
+          "description": "Basic company information",
+          "colSpan": 2,
+          "fieldIds": [
+            "company-name",
+            "company-logo",
+            "company-country",
+            "company-city"
+          ]
+        },
+        {
+          "id": "company-details",
+          "title": "Additional Details",
+          "description": "Registration and address information",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": [
+            "company-address",
+            "company-zip-code",
+            "company-registration-code",
+            "company-national-id"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "Building2"
+  },
+  {
+    "id": "relation-types",
+    "description": "Define and manage relationships between entities in your supply chain",
+    "singular_name": "Relation Type",
+    "plural_name": "Relation Types",
+    "isSystemSchema": true,
+    "cardMetadata": [
+      {
+        "id": "relation-type-info",
+        "title": "Relation Type Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "relation-type-id",
+          "relation-type-label"
+        ]
+      },
+      {
+        "id": "visual-info",
+        "title": "Visual Style",
+        "colSpan": 1,
+        "fieldIds": [
+          "relation-type-color",
+          "relation-type-icon"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "relation-type-id",
+        "name": "id",
+        "label": "Relation Type ID",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter relation type ID (e.g., HAS_INQUIRY_ITEM)",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 3,
+          "pattern": "^[A-Z_]+$"
+        },
+        "colSpan": 2,
+        "order": 1
+      },
+      {
+        "id": "relation-type-label",
+        "name": "label",
+        "label": "Label",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter display label",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "colSpan": 2,
+        "order": 2
+      },
+      {
+        "id": "relation-type-description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter description",
+        "required": false,
+        "role": "description",
+        "colSpan": 2,
+        "order": 3
+      },
+      {
+        "id": "relation-type-color",
+        "name": "color",
+        "label": "Color",
+        "sectionId": "visual-style",
+        "type": "text",
+        "component": "colorpicker",
+        "placeholder": "#000000",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "relation-type-icon",
+        "name": "icon",
+        "label": "Icon",
+        "sectionId": "visual-style",
+        "type": "text",
+        "component": "icon-input",
+        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "Relation type identification and description",
+        "initialState": "expanded",
+        "columns": 2
+      },
+      {
+        "id": "visual-style",
+        "title": "Visual Style",
+        "description": "Color and icon for visual representation",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "relation-type-overview",
+          "title": "Relation Type Overview",
+          "description": "Basic relation type information",
+          "colSpan": 2,
+          "fieldIds": [
+            "relation-type-id",
+            "relation-type-label",
+            "relation-type-description"
+          ]
+        },
+        {
+          "id": "relation-type-visual",
+          "title": "Visual Properties",
+          "description": "Visual style configuration",
+          "colSpan": 1,
+          "columnArea": "sidebar",
+          "fieldIds": [
+            "relation-type-color",
+            "relation-type-icon"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "Link2"
   }
 ]

@@ -57,10 +57,44 @@ export function writeAllData(data: Record<string, any[]>): void {
 }
 
 /**
+ * Migrate data from legacy files to all-data.json
+ */
+function migrateLegacyData(schemaId: string): void {
+  const dataDir = path.join(process.cwd(), 'data');
+  let legacyFilePath: string | null = null;
+  
+  // Check for legacy files
+  if (schemaId === 'companies') {
+    legacyFilePath = path.join(dataDir, 'all-companies.json');
+  } else if (schemaId === 'relation-types') {
+    legacyFilePath = path.join(dataDir, 'all-relation-types.json');
+  }
+  
+  if (legacyFilePath && fs.existsSync(legacyFilePath)) {
+    try {
+      // Read legacy file
+      const legacyData = JSON.parse(fs.readFileSync(legacyFilePath, 'utf-8'));
+      const allData = readAllData();
+      
+      // Migrate to all-data.json if not already present
+      if (!allData[schemaId] || allData[schemaId].length === 0) {
+        allData[schemaId] = Array.isArray(legacyData) ? legacyData : [];
+        writeAllData(allData);
+      }
+    } catch (error) {
+      console.warn(`Failed to migrate legacy data for ${schemaId}:`, error);
+    }
+  }
+}
+
+/**
  * Read data for a specific schema
  */
 export function readSchemaData<T = any>(schemaId: string): T[] {
   try {
+    // Migrate legacy data if needed
+    migrateLegacyData(schemaId);
+    
     const allData = readAllData();
     return (allData[schemaId] || []) as T[];
   } catch (error) {
@@ -86,6 +120,9 @@ export function writeSchemaData<T = any>(schemaId: string, data: T[]): void {
  */
 export function ensureSchemaCollection(schemaId: string): void {
   try {
+    // Migrate legacy data if needed
+    migrateLegacyData(schemaId);
+    
     const allData = readAllData();
     if (!allData[schemaId]) {
       allData[schemaId] = [];

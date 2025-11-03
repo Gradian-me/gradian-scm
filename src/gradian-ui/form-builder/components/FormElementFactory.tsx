@@ -7,6 +7,8 @@ import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
 import { cn } from '../../shared/utils';
 import { Select as EnhancedSelect, SelectOption } from '../form-elements/components/Select';
+import { ColorPicker } from '../form-elements/components/ColorPicker';
+import { IconInput } from '../../../components/ui/icon-input';
 
 interface FormElementFactoryProps {
   field: FormField;
@@ -40,6 +42,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
     name,
     label,
     type,
+    component,
     placeholder,
     description,
     required,
@@ -58,7 +61,33 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
   );
 
   const renderField = () => {
-    switch (type) {
+    // Check component first, then fall back to type
+    const elementType = component || type;
+    
+    switch (elementType) {
+      case 'colorpicker':
+        return (
+          <ColorPicker
+            id={fieldId}
+            value={value || '#4E79A7'}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className={fieldClasses}
+          />
+        );
+
+      case 'icon-input':
+        return (
+          <IconInput
+            id={fieldId}
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className={fieldClasses}
+            placeholder={placeholder}
+          />
+        );
+      
       case 'textarea':
         return (
           <Textarea

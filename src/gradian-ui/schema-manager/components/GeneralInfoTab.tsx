@@ -75,6 +75,17 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             Show in Navigation
           </Label>
         </div>
+        <div className="flex items-center gap-2">
+          <Switch 
+            id="is-system-schema"
+            checked={schema.isSystemSchema || false}
+            onCheckedChange={(checked) => onUpdate({ isSystemSchema: checked })}
+            disabled={readonly}
+          />
+          <Label htmlFor="is-system-schema" className="cursor-pointer">
+            Is System Schema
+          </Label>
+        </div>
       </CardContent>
     </Card>
   );

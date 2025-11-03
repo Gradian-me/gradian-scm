@@ -24,6 +24,14 @@ import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { config } from '@/lib/config';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 

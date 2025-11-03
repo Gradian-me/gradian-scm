@@ -40,7 +40,7 @@ export function SectionEditor({
   useEffect(() => {
     const fetchRelationTypes = async () => {
       try {
-        const response = await fetch('/api/relation-types');
+        const response = await fetch('/api/data/relation-types');
         if (response.ok) {
           const result = await response.json();
           if (result.success) {

@@ -48,7 +48,7 @@ const builderOptions: BuilderOption[] = [
     title: 'Relation Types',
     description: 'Define and manage relationships between entities in your supply chain',
     icon: Link2,
-    href: '/builder/relation-types',
+    href: '/page/relation-types',
     color: '#4E79A7',
     features: [
       'Create entity relationships',
@@ -62,7 +62,7 @@ const builderOptions: BuilderOption[] = [
     title: 'Companies',
     description: 'Manage company information including registration, address, and contact details',
     icon: Building2,
-    href: '/builder/companies',
+    href: '/page/companies',
     color: '#10B981',
     features: [
       'Company registration details',

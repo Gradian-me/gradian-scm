@@ -7,7 +7,7 @@ export const config = {
     basePath: process.env.NEXT_PUBLIC_SCHEMA_API_BASE || '/api/schemas',
   },
   relationTypeApi: {
-    basePath: process.env.NEXT_PUBLIC_RELATION_TYPE_API_BASE || '/api/relation-types',
+    basePath: process.env.NEXT_PUBLIC_RELATION_TYPE_API_BASE || '/api/data/relation-types',
   },
 } as const;
 

@@ -23,7 +23,7 @@ export function useRelationManager(
   const loadRelationType = useCallback(async (id: string) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const response = await fetch(`${config?.apiBaseUrl || '/api/relation-types'}/${id}`);
+      const response = await fetch(`${config?.apiBaseUrl || '/api/data/relation-types'}/${id}`);
       const result = await response.json();
       
       if (result.success) {
@@ -53,7 +53,7 @@ export function useRelationManager(
         await config.onSave(relationType);
       } else {
         const response = await fetch(
-          `${config?.apiBaseUrl || '/api/relation-types'}/${relationType.id}`,
+          `${config?.apiBaseUrl || '/api/data/relation-types'}/${relationType.id}`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -82,7 +82,7 @@ export function useRelationManager(
         await config.onDelete(id);
       } else {
         const response = await fetch(
-          `${config?.apiBaseUrl || '/api/relation-types'}/${id}`,
+          `${config?.apiBaseUrl || '/api/data/relation-types'}/${id}`,
           { method: 'DELETE' }
         );
         const result = await response.json();
