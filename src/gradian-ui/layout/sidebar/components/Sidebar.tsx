@@ -7,7 +7,7 @@ import { SidebarProps } from '../types';
 import { defaultNavigationItems } from '../utils';
 import { defaultSidebarConfig } from '../configs';
 import { SidebarHeader } from './SidebarHeader';
-import { SidebarDepartmentBadge } from './SidebarDepartmentBadge';
+import { SidebarCompanyBadge } from './SidebarCompanyBadge';
 import { SidebarNavigation } from './SidebarNavigation';
 import { SidebarUserProfile } from './SidebarUserProfile';
 
@@ -18,7 +18,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   config = defaultSidebarConfig,
   navigationItems = defaultNavigationItems,
   user,
-  department,
+  company,
   className,
 }) => {
   const width = isMobile ? 320 : (isCollapsed ? config.styling?.collapsedWidth || 80 : config.styling?.expandedWidth || 280);
@@ -41,9 +41,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onToggle={onToggle}
       />
 
-      {/* Department Badge */}
-      <SidebarDepartmentBadge
-        department={department}
+      {/* Company Badge */}
+      <SidebarCompanyBadge
+        company={company}
         isCollapsed={isCollapsed}
         isMobile={isMobile}
       />

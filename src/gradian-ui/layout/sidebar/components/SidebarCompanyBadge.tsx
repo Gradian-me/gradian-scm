@@ -3,19 +3,19 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { SidebarDepartmentBadgeProps } from '../types';
+import { SidebarCompanyBadgeProps } from '../types';
 import { cn } from '../../../shared/utils';
 
-export const SidebarDepartmentBadge: React.FC<SidebarDepartmentBadgeProps> = ({
-  department,
+export const SidebarCompanyBadge: React.FC<SidebarCompanyBadgeProps> = ({
+  company,
   isCollapsed,
   isMobile,
   className,
 }) => {
-  if (!department) return null;
+  if (!company) return null;
 
-  const displayName = department.name || 'Department';
-  const abbreviation = department.abbreviation || 
+  const displayName = company.name || 'Company';
+  const abbreviation = company.abbreviation || 
     displayName
       .split(' ')
       .map(word => word[0])
@@ -57,5 +57,5 @@ export const SidebarDepartmentBadge: React.FC<SidebarDepartmentBadgeProps> = ({
   );
 };
 
-SidebarDepartmentBadge.displayName = 'SidebarDepartmentBadge';
+SidebarCompanyBadge.displayName = 'SidebarCompanyBadge';
 

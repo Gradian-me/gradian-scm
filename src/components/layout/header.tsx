@@ -3,7 +3,7 @@
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { DepartmentSelector } from './DepartmentSelector';
+import { CompanySelector } from './CompanySelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { TestDropdown } from './TestDropdown';
@@ -40,8 +40,8 @@ export function Header({
         </motion.h1>
 
         <div className="flex items-center space-x-4">
-          {/* Department Selector Component */}
-          <DepartmentSelector />
+          {/* Company Selector Component */}
+          <CompanySelector />
 
           {/* Notifications Component */}
           <NotificationsDropdown initialCount={3} />

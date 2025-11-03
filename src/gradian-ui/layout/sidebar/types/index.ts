@@ -35,9 +35,9 @@ export interface SidebarProps extends BaseComponentProps {
   user?: SidebarUser;
   
   /**
-   * Department badge information
+   * Company badge information
    */
-  department?: DepartmentBadge;
+  company?: CompanyBadge;
 }
 
 export interface SidebarConfig {
@@ -136,21 +136,21 @@ export interface SidebarUser {
   email?: string;
 }
 
-export interface DepartmentBadge {
+export interface CompanyBadge {
   /**
-   * Department name
+   * Company name
    */
   name: string;
   
   /**
-   * Department abbreviation (for collapsed state)
+   * Company abbreviation (for collapsed state)
    */
   abbreviation?: string;
   
   /**
-   * Department ID
+   * Company ID
    */
-  id?: string;
+  id?: string | number;
 }
 
 export interface SidebarHeaderProps extends BaseComponentProps {
@@ -174,8 +174,8 @@ export interface SidebarUserProfileProps extends BaseComponentProps {
   isMobile: boolean;
 }
 
-export interface SidebarDepartmentBadgeProps extends BaseComponentProps {
-  department?: DepartmentBadge;
+export interface SidebarCompanyBadgeProps extends BaseComponentProps {
+  company?: CompanyBadge;
   isCollapsed: boolean;
   isMobile: boolean;
 }
