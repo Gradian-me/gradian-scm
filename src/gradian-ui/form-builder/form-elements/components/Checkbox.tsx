@@ -3,6 +3,8 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { CheckboxProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Check } from "lucide-react";
 
 export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
   (
@@ -22,11 +24,14 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
     },
     ref
   ) => {
-    const checkboxRef = useRef<HTMLInputElement>(null);
+    const checkboxRef = useRef<React.ElementRef<typeof CheckboxPrimitive.Root>>(null);
 
     useImperativeHandle(ref, () => ({
       focus: () => checkboxRef.current?.focus(),
-      blur: () => checkboxRef.current?.blur(),
+      blur: () => {
+        checkboxRef.current?.blur();
+        onBlur?.();
+      },
       validate: () => {
         if (!config.validation) return true;
         const result = validateField(value, config.validation);
@@ -37,53 +42,48 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
       setValue: (newValue) => onChange?.(newValue),
     }));
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.checked;
-      onChange?.(newValue);
-    };
-
-    const handleBlur = () => {
-      onBlur?.();
-    };
-
-    const handleFocus = () => {
-      onFocus?.();
+    const handleCheckedChange = (checked: boolean) => {
+      onChange?.(checked);
     };
 
     const isChecked = checked !== undefined ? checked : value;
 
     const checkboxClasses = cn(
-      'h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500',
-      'disabled:bg-gray-100 disabled:cursor-not-allowed',
-      error && 'border-red-500 focus:ring-red-500',
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+      error && "border-destructive focus-visible:ring-destructive",
       className
     );
 
     return (
       <div className="w-full">
         <div className="flex items-center">
-          <input
+          <CheckboxPrimitive.Root
             ref={checkboxRef}
             id={config.name}
             name={config.name}
-            type="checkbox"
             checked={isChecked}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            required={required || config.validation?.required}
+            onCheckedChange={handleCheckedChange}
+            onBlur={onBlur}
+            onFocus={onFocus}
             disabled={disabled}
+            required={required || config.validation?.required}
             className={checkboxClasses}
             {...props}
-          />
+          >
+            <CheckboxPrimitive.Indicator
+              className={cn("flex items-center justify-center text-current")}
+            >
+              <Check className="h-4 w-4" />
+            </CheckboxPrimitive.Indicator>
+          </CheckboxPrimitive.Root>
           {config.label && (
             <label
               htmlFor={config.name}
               className={cn(
-                'ml-2 text-sm font-medium',
-                error ? 'text-red-700' : 'text-gray-700',
-                required && 'after:content-["*"] after:ml-1 after:text-red-500',
-                disabled && 'text-gray-400'
+                'ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+                error ? 'text-destructive' : 'text-foreground',
+                required && 'after:content-["*"] after:ml-1 after:text-destructive',
+                disabled && 'opacity-50'
               )}
             >
               {config.label}
@@ -91,7 +91,7 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-sm text-destructive" role="alert">
             {error}
           </p>
         )}

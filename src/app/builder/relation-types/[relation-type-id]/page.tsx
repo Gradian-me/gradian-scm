@@ -5,9 +5,34 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { DynamicDetailPageClient } from '@/app/page/[schema-id]/[data-id]/DynamicDetailPageClient';
-import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { useEffect, useState } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+
+/**
+ * Process schema to convert string patterns to RegExp
+ */
+function processSchema(schema: any): FormSchema {
+  const processedSchema = { ...schema };
+  
+  if (processedSchema.fields && Array.isArray(processedSchema.fields)) {
+    processedSchema.fields = processedSchema.fields.map((field: any) => {
+      const processedField = { ...field };
+      
+      // Convert pattern string to RegExp
+      if (processedField.validation?.pattern && typeof processedField.validation.pattern === 'string') {
+        try {
+          processedField.validation.pattern = new RegExp(processedField.validation.pattern);
+        } catch (error) {
+          console.warn(`Invalid pattern: ${processedField.validation.pattern}`, error);
+        }
+      }
+      
+      return processedField;
+    });
+  }
+  
+  return processedSchema as FormSchema;
+}
 
 interface PageProps {
   params: Promise<{
@@ -28,20 +53,18 @@ export default function RelationTypeDetailPage({ params }: { params: PageProps['
         const id = resolvedParams['relation-type-id'];
         setRelationTypeId(id);
 
-        const loadedSchema = await fetchSchemaById('relation-types');
-        if (loadedSchema) {
-          // Serialize schema to remove RegExp and other non-serializable objects
-          const serializedSchema = JSON.parse(JSON.stringify(loadedSchema, (key, value) => {
-            if (value instanceof RegExp) {
-              return {
-                __regexp: true,
-                source: value.source,
-                flags: value.flags
-              };
-            }
-            return value;
-          }));
-          setSchema(serializedSchema);
+        const response = await fetch('/api/schemas/relation-types');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch schema');
+        }
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+          // Process the schema to convert string patterns to RegExp
+          const processedSchema = processSchema(result.data);
+          setSchema(processedSchema);
         }
       } catch (error) {
         console.error('Error loading relation type:', error);

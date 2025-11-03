@@ -5,6 +5,7 @@ import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
+import { Checkbox } from '../../../components/ui/checkbox';
 import { cn } from '../../shared/utils';
 import { Select as EnhancedSelect, SelectOption } from '../form-elements/components/Select';
 import { ColorPicker } from '../form-elements/components/ColorPicker';
@@ -134,12 +135,11 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
             <div className="grid grid-cols-2 gap-3">
               {options.map((option) => (
                 <div key={option.value} className="flex items-center space-x-2">
-                  <input
+                  <Checkbox
                     id={`${fieldId}-${option.value}`}
-                    type="checkbox"
                     checked={currentValues.includes(option.value)}
-                    onChange={(e) => {
-                      const newValues = e.target.checked
+                    onCheckedChange={(checked) => {
+                      const newValues = checked
                         ? [...currentValues, option.value]
                         : currentValues.filter(v => v !== option.value);
                       onChange(newValues);
@@ -147,7 +147,6 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = ({
                     onBlur={onBlur}
                     onFocus={onFocus}
                     disabled={disabled || option.disabled}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <Label htmlFor={`${fieldId}-${option.value}`} className="text-sm font-medium text-gray-700">
                     {option.label}

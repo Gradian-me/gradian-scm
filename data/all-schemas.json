@@ -1330,6 +1330,7 @@
         "component": "text",
         "placeholder": "Enter logo URL",
         "required": false,
+        "role": "image",
         "validation": {
           "pattern": "^https?:\\/\\/.+"
         },

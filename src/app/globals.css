@@ -70,24 +70,42 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern scrollbar */
+/* Modern minimal scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
-  border-radius: 3px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground));
+  background: hsl(var(--muted-foreground) / 0.2);
   border-radius: 3px;
+  transition: background-color 0.2s ease, width 0.2s ease, height 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--accent));
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--primary) / 0.6);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Thin scrollbar on hover for better visibility */
+:hover::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
 }
 
 /* Gradient utilities */
@@ -179,4 +197,97 @@ body {
 
 [data-sonner-toast] svg {
   color: hsl(var(--popover-foreground)) !important;
+}
+
+/* Dialog Styles - Ensure text is visible - SCOPED TO DIALOGS ONLY */
+/* Only apply colors to elements inside dialog content */
+[data-radix-dialog-content] {
+  color: hsl(var(--foreground));
+}
+
+/* Dialog titles - must be scoped to dialogs and specific */
+[data-radix-dialog-content] h2[data-radix-dialog-title],
+[role="dialog"] h2[data-radix-dialog-title],
+[data-radix-portal] [role="dialog"] h2[data-radix-dialog-title],
+[data-radix-dialog-content] [data-radix-dialog-title] {
+  color: #111827 !important; /* text-gray-900 equivalent */
+}
+
+/* Dialog title fix class - only when inside dialog content */
+[data-radix-dialog-content] .dialog-title-fix,
+[data-radix-dialog-content] h2.dialog-title-fix {
+  color: #111827 !important;
+}
+
+/* Dialog descriptions - must be scoped to dialogs and specific */
+[data-radix-dialog-content] p[data-radix-dialog-description],
+[data-radix-dialog-content] [data-radix-dialog-description],
+[role="dialog"] p[data-radix-dialog-description],
+[role="dialog"] [data-radix-dialog-description] {
+  color: #6B7280 !important; /* text-gray-500 equivalent */
+}
+
+[role="dialog"] button[aria-label="Close"],
+[role="dialog"] [data-radix-dialog-close] {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+[role="dialog"] button[aria-label="Close"]:hover,
+[role="dialog"] [data-radix-dialog-close]:hover {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Odometer Styles - Ensure text is visible */
+.odometer,
+.odometer.odometer-auto-theme,
+.odometer.odometer-theme-minimal {
+  color: #111827 !important; /* text-gray-900 */
+}
+
+.odometer .odometer-digit,
+.odometer .odometer-digit .odometer-value,
+.odometer .odometer-digit .odometer-ribbon,
+.odometer .odometer-digit .odometer-ribbon-inner {
+  color: #111827 !important; /* text-gray-900 */
+}
+
+.odometer .odometer-digit .odometer-value {
+  color: #111827 !important; /* text-gray-900 */
+}
+
+/* Number Input Steppers - Chevron-only design, no background */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Webkit number input steppers - clean chevrons only */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 0.7;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  margin-right: 4px;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: opacity 0.2s ease;
+}
+
+/* Make chevrons more visible on hover */
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:hover::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Style chevrons only - subtle gray, no background */
+input[type="number"]::-webkit-inner-spin-button {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(90%);
+  background-image: none !important;
+}
+
+input[type="number"]::-webkit-inner-spin-button:hover {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
 }

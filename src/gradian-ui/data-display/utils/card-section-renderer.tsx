@@ -25,9 +25,9 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3 }: Ren
       transition={{ duration: 0.2 }}
       className="space-y-2"
     >
-      <span className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200">
-        {section?.title || section?.id}:
-      </span>
+      <div className="text-gray-500 font-medium group-hover:text-gray-700 transition-colors duration-200 border-b border-gray-200 pb-1 mb-2">
+        {section?.title || section?.id}
+      </div>
       <div className="space-y-1">
         {fieldIds.map((fieldId: string) => {
           const field = resolveFieldById(schema, fieldId);

@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { DataDisplayFilterPaneProps } from '../types';
 import { cn } from '../../shared/utils';
 import { Search, Filter, Plus, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Checkbox } from '../../../components/ui/checkbox';
 
 export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
   config,
@@ -190,15 +191,16 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
 
       case 'checkbox':
         return (
-          <label key={id} className="flex items-center">
-            <input
-              type="checkbox"
+          <div key={id} className="flex items-center space-x-2">
+            <Checkbox
+              id={id}
               checked={Boolean(value)}
-              onChange={(e) => handleFilterChange(id, e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              onCheckedChange={(checked) => handleFilterChange(id, checked)}
             />
-            <span className="ml-2 text-sm text-gray-700">{label}</span>
-          </label>
+            <label htmlFor={id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+              {label}
+            </label>
+          </div>
         );
 
       case 'radio':

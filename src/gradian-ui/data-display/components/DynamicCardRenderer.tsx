@@ -114,9 +114,16 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     ? allBadgeValues
     : (getArrayValuesByRole(schema, data, 'badge') || data.categories || []);
 
+  // Check if subtitle role exists in schema
+  const hasSubtitleRole = schema?.fields?.some(field => field.role === 'subtitle') || false;
+  
+  // Get subtitle value only if role exists, otherwise null
+  const subtitleValue = hasSubtitleRole ? getSingleValueByRole(schema, data, 'subtitle') : null;
+  const subtitle = subtitleValue && (typeof subtitleValue === 'string' ? subtitleValue.trim() !== '' : subtitleValue != null) ? subtitleValue : null;
+  
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
-    subtitle: getSingleValueByRole(schema, data, 'subtitle', data.email) || data.email || 'No description',
+    subtitle,
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
@@ -213,19 +220,22 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                       transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
-                      className="text-md font-semibold group-hover:text-violet-700 transition-colors duration-200 truncate"
+                      className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate"
                       whileHover={{ x: 2 }}
                     >
                       {cardConfig.title}
                     </motion.h3>
+                    {cardConfig.subtitle && (
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                       transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
                       className="text-xs text-gray-500 truncate"
                       whileHover={{ x: 2 }}
-                    > <p className="text-xs text-gray-500 truncate">{cardConfig.subtitle}</p>
+                      >
+                        <p className="text-xs text-gray-500 truncate">{cardConfig.subtitle}</p>
                     </motion.div>
+                    )}
                   </div>
                 </div>
                 {(hasRatingField || hasStatusField) && (
@@ -376,7 +386,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                     transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
                     className={cn(
-                      "text-base font-semibold truncate",
+                      "text-base font-semibold text-gray-900 truncate",
                       !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
                     )}
                     whileHover={disableAnimation ? undefined : {
@@ -386,6 +396,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   >
                     {cardConfig.title}
                   </motion.h3>
+                  {cardConfig.subtitle && (
                   <motion.p
                     initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                     animate={disableAnimation ? false : { opacity: 1, x: 0 }}
@@ -401,6 +412,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   >
                     {cardConfig.subtitle}
                   </motion.p>
+                  )}
                   {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
                     <BadgeViewer
                       field={cardConfig.badgeField}

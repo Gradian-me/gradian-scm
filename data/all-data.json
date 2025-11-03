@@ -43,10 +43,10 @@
           "id": "01K8QVCPJNR90EJV36R3F2E0T1"
         }
       ],
-      "rating": 4.3,
+      "rating": 4,
       "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
       "createdAt": "2025-10-29T11:24:37.540Z",
-      "updatedAt": "2025-11-02T16:47:47.209Z",
+      "updatedAt": "2025-11-03T16:10:51.051Z",
       "performanceMetrics": [
         {
           "id": "onTimeDelivery",
@@ -116,7 +116,7 @@
       "certifications": [
         "iso9001",
         "fda",
-        "iso14001"
+        "reach"
       ],
       "section-1762088953746": [
         {
@@ -127,7 +127,8 @@
           "day": "Monday",
           "id": "01K92B9DNEAR4H93KTK58FGGE8"
         }
-      ]
+      ],
+      "establishedYear": 1800
     }
   ],
   "inquiries": [

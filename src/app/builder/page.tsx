@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,17 +9,64 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { 
   FileText,
+  Link2,
+  Building2,
   ArrowRight,
   Layers,
   Palette,
   Settings,
   RefreshCw
 } from 'lucide-react';
-import { builderOptions } from './add-builders';
+
+// Icon mapping
+const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
+  FileText,
+  Link2,
+  Building2,
+  Settings,
+};
+
+interface BuilderOption {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  href: string;
+  color: string;
+  stats?: {
+    label: string;
+    value: number;
+  }[];
+  features: string[];
+}
 
 export default function BuilderPage() {
   const router = useRouter();
   const [isClearingCache, setIsClearingCache] = useState(false);
+  const [builderOptions, setBuilderOptions] = useState<BuilderOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBuilders = async () => {
+      try {
+        const response = await fetch('/api/builders');
+        const data = await response.json();
+        
+        if (data.success) {
+          setBuilderOptions(data.data);
+        } else {
+          toast.error('Failed to load builders');
+        }
+      } catch (error) {
+        toast.error('Failed to load builders');
+        console.error('Error fetching builders:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBuilders();
+  }, []);
 
   const handleCardClick = (href: string) => {
     router.push(href);
@@ -94,9 +141,14 @@ export default function BuilderPage() {
         </motion.div>
 
         {/* Builder Cards Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <RefreshCw className="h-8 w-8 animate-spin text-violet-600" />
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {builderOptions.map((option, index) => {
-            const Icon = option.icon;
+              const Icon = iconMap[option.icon] || Settings;
             return (
               <motion.div
                 key={option.id}
@@ -203,6 +255,7 @@ export default function BuilderPage() {
             );
           })}
         </div>
+        )}
 
         {/* Help Section */}
         <motion.div

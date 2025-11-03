@@ -104,7 +104,7 @@ export const Countdown: React.FC<CountdownProps> = ({
         <div className="flex items-center gap-1 border border-gray-200 rounded-md px-2 py-1 bg-violet-50">
           {timeLeft.days > 0 && (
             <>
-              <div className="inline-block relative">
+              <div className="inline-block relative text-gray-900">
                 <Odometer 
                   value={100 + timeLeft.days} 
                   theme="minimal"
@@ -117,7 +117,7 @@ export const Countdown: React.FC<CountdownProps> = ({
           
           {(timeLeft.days > 0 || timeLeft.hours > 0) && (
             <>
-              <div className="inline-block relative">
+              <div className="inline-block relative text-gray-900">
                 <Odometer 
                   value={100 + timeLeft.hours} 
                   theme="minimal"
@@ -130,7 +130,7 @@ export const Countdown: React.FC<CountdownProps> = ({
           
           {(timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0) && (
             <>
-              <div className="inline-block relative">
+              <div className="inline-block relative text-gray-900">
                 <Odometer 
                   value={100 + timeLeft.minutes} 
                   theme="minimal"
@@ -143,7 +143,7 @@ export const Countdown: React.FC<CountdownProps> = ({
           
           {includeTime && (
             <React.Fragment>
-              <div className="inline-block relative">
+              <div className="inline-block relative text-gray-900">
                 <Odometer 
                   value={100 + timeLeft.seconds} 
                   theme="minimal"
