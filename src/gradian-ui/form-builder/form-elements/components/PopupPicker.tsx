@@ -238,7 +238,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             fallback={getInitials(avatarField)}
             size="md"
             variant="primary"
-            className="border border-gray-200 flex-shrink-0 group-hover:border-violet-300 transition-colors"
+            className="border border-gray-200 shrink-0 group-hover:border-violet-300 transition-colors"
           >
             {getInitials(avatarField)}
           </Avatar>
@@ -271,7 +271,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               </div>
 
               {/* Rating and Status */}
-              <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
                 {hasRatingField && (
                   <div className="text-xs text-gray-600 font-medium">
                     ⭐ {Number(ratingField) || 0}
