@@ -41,7 +41,7 @@ export const ROLES: Array<{
   { value: 'email', label: 'Email', description: 'Email link' },
   { value: 'location', label: 'Location', description: 'Location display' },
   { value: 'tel', label: 'Phone', description: 'Phone link' },
-  { value: 'expiration', label: 'Expiration', description: 'Expiration date/countdown' },
+  { value: 'duedate', label: 'Due Date', description: 'Due date/countdown' },
   { value: 'code', label: 'Code', description: 'Code identifier (displayed as cyan badge)' },
 ];
 

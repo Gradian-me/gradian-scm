@@ -16,7 +16,7 @@ export interface FormField {
   required?: boolean;
   disabled?: boolean;
   readonly?: boolean;
-  role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel' | 'expiration' | 'code';
+  role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel' | 'duedate' | 'code';
   validation?: {
     required?: boolean;
     minLength?: number;

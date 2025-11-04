@@ -3,8 +3,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { TextInput, Textarea } from '@/gradian-ui/form-builder/form-elements';
 import { GripVertical, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { FormSection } from '../types/form-schema';
 
@@ -54,18 +53,17 @@ export function SortableSection({
                 <GripVertical className="h-4 w-4" />
               </button>
               <div className="flex-1 min-w-0 space-y-1">
-                <Input
+                <TextInput
+                  config={{ name: 'section-title', label: 'Section Title', placeholder: 'Section title...' }}
                   value={section.title}
-                  onChange={(e) => onUpdate({ title: e.target.value })}
-                  className="text-sm font-medium h-7"
-                  placeholder="Section title..."
+                  onChange={(value) => onUpdate({ title: value })}
                 />
                 <Textarea
+                  config={{ name: 'section-description', label: 'Section Description', placeholder: 'Section description...' }}
                   value={section.description || ''}
-                  onChange={(e) => onUpdate({ description: e.target.value })}
-                  placeholder="Section description..."
+                  onChange={(value) => onUpdate({ description: value })}
                   rows={1}
-                  className="text-xs resize-none"
+                  resize="none"
                 />
               </div>
             </div>

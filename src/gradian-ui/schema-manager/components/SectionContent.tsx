@@ -1,10 +1,9 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { IconInput } from '@/components/ui/icon-input';
-import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
+import { TextInput, Select } from '@/gradian-ui/form-builder/form-elements';
 import { FormSection } from '../types/form-schema';
 
 interface SectionContentProps {
@@ -30,11 +29,11 @@ export function SectionContent({
         </div>
         <div>
           <Label className="text-xs text-gray-600">Columns</Label>
-          <Input 
-            type="number" 
-            value={section.columns || 2} 
-            onChange={(e) => onUpdate({ columns: parseInt(e.target.value) || 2 })} 
-            className="h-8 text-sm"
+          <TextInput
+            config={{ name: 'section-columns', label: '', type: 'number' }}
+            value={section.columns || 2}
+            onChange={(value) => onUpdate({ columns: parseInt(String(value)) || 2 })}
+            className="h-8 [&_input]:h-8 [&_input]:text-sm [&_label]:hidden"
           />
         </div>
         <div>

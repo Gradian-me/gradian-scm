@@ -66,10 +66,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const statusOptions = findStatusFieldOptions();
 
-  // Check if rating, status, expiration, code, and avatar fields exist in schema
+  // Check if rating, status, duedate, code, and avatar fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
   const hasStatusField = schema?.fields?.some(field => field.role === 'status') || false;
-  const hasExpirationField = schema?.fields?.some(field => field.role === 'expiration') || false;
+  const hasDuedateField = schema?.fields?.some(field => field.role === 'duedate') || false;
   const hasCodeField = schema?.fields?.some(field => field.role === 'code') || false;
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
 
@@ -163,7 +163,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     badgeField: combinedBadgeField,
     badgeValues,
     metricsField: data.performanceMetrics || null,
-    expirationField: getSingleValueByRole(schema, data, 'expiration') || data.expirationDate,
+    duedateField: getSingleValueByRole(schema, data, 'duedate') || data.duedate || data.expirationDate,
     sections: filteredSections,
     statusOptions
   };
@@ -391,8 +391,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <div className="w-full border-t border-gray-100 mb-3"></div>
               )}
 
-              {/* Expiration Countdown */}
-              {hasExpirationField && cardConfig.expirationField && (
+              {/* Due Date Countdown */}
+              {hasDuedateField && cardConfig.duedateField && (
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, y: 10 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
@@ -400,7 +400,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   className="w-full mb-3"
                 >
                   <Countdown
-                    expireDate={cardConfig.expirationField}
+                    expireDate={cardConfig.duedateField}
                     includeTime={true}
                     size="sm"
                     showIcon={true}
@@ -518,10 +518,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   )}
                 </div>
               </div>
-              {(hasRatingField || hasStatusField || hasExpirationField) && (
+              {(hasRatingField || hasStatusField || hasDuedateField) && (
                 <div className="flex flex-row items-center justify-between space-y-1 ms-auto gap-2">
                   <div className="flex items-center gap-2">
-                    {hasExpirationField && cardConfig.expirationField && (
+                    {hasDuedateField && cardConfig.duedateField && (
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, y: -10 }}
                         animate={disableAnimation ? false : { opacity: 1, y: 0 }}
@@ -532,7 +532,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         }}
                       >
                         <Countdown
-                          expireDate={cardConfig.expirationField}
+                          expireDate={cardConfig.duedateField}
                           includeTime={true}
                           size="sm"
                           showIcon={true}

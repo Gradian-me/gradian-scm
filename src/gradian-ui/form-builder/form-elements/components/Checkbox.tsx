@@ -49,8 +49,8 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
     const isChecked = checked !== undefined ? checked : value;
 
     const checkboxClasses = cn(
-      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
-      error && "border-destructive focus-visible:ring-destructive",
+      "peer h-4 w-4 shrink-0 rounded-sm border border-gray-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-violet-500 data-[state=checked]:border-violet-500 data-[state=checked]:text-white hover:border-violet-400 transition-colors",
+      error && "border-red-500 focus-visible:ring-red-500",
       className
     );
 

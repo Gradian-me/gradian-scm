@@ -92,7 +92,7 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
                     required={required || config.validation?.required}
                     disabled={disabled || option.disabled}
                     className={cn(
-                      'h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500',
+                      'h-4 w-4 text-violet-500 border-gray-300 focus:ring-violet-500 focus:ring-2 focus:ring-offset-1',
                       'disabled:bg-gray-100 disabled:cursor-not-allowed',
                       error && 'border-red-500 focus:ring-red-500'
                     )}

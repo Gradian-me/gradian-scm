@@ -48,7 +48,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   const avatar = getSingleValueByRole(schema, data, 'avatar') || data.name || '?';
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
-  const expiration = getSingleValueByRole(schema, data, 'expiration') || data.expirationDate;
+  const duedate = getSingleValueByRole(schema, data, 'duedate') || data.duedate || data.expirationDate;
 
   // Find status field options
   const statusField = schema.fields?.find(f => f.role === 'status');
@@ -60,7 +60,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     avatar,
     status,
     rating,
-    expiration,
+    duedate,
     statusOptions
   };
 };
@@ -237,10 +237,10 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 </div>
               </div>
               <div className="flex items-center space-x-2 flex-row flex-wrap">
-                {headerInfo.expiration && (
+                {headerInfo.duedate && (
                   <div className="mr-2">
                     <Countdown
-                      expireDate={headerInfo.expiration}
+                      expireDate={headerInfo.duedate}
                       includeTime={true}
                       size="sm"
                       showIcon={true}
