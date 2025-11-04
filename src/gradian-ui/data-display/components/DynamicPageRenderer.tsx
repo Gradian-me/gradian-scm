@@ -28,6 +28,7 @@ import { useCompanyStore } from '@/stores/company.store';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ImageText } from '../../form-builder/form-elements';
 import { apiRequest } from '@/shared/utils/api';
+import { useCompanies } from '@/shared/hooks/use-companies';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -150,6 +151,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
   }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities]);
 
+  // Use shared companies hook for client-side caching
+  const { companies: companiesData, isLoading: isLoadingCompaniesData } = useCompanies();
+  
   // Fetch companies data and schema for grouping
   useEffect(() => {
     const fetchCompaniesData = async () => {
@@ -157,11 +161,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       if (entities && entities.length > 0 && entities.some((e: any) => e.companyId)) {
         setIsLoadingCompanies(true);
         try {
-          // Fetch companies data
-          const companiesResponse = await apiRequest<any>('/api/data/companies');
-          if (companiesResponse.success && companiesResponse.data) {
-            setCompanies(companiesResponse.data);
-          }
+          // Use companies from shared hook (excluding "All Companies" option for grouping)
+          const companiesWithoutAll = companiesData.filter((c: any) => c.id !== -1);
+          setCompanies(companiesWithoutAll);
           
           // Fetch companies schema for getting image and title fields
           const schemaResponse = await apiRequest<any>('/api/schemas/companies');
@@ -176,10 +178,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       }
     };
 
-    if (entities) {
+    if (entities && companiesData.length > 0) {
       fetchCompaniesData();
     }
-  }, [entities]);
+  }, [entities, companiesData]);
 
   // Build filters object with company filter
   const buildFilters = useCallback(() => {

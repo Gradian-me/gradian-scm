@@ -7,6 +7,7 @@ import { BaseService } from '@/shared/domain/services/base.service';
 import { BaseController } from '@/shared/domain/controllers/base.controller';
 import { BaseEntity } from '@/shared/domain/types/base.types';
 import { isValidSchemaId, getSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
+import { loadAllCompanies, clearCompaniesCache } from '@/shared/utils/companies-loader';
 
 /**
  * Create controller instance for the given schema
@@ -37,6 +38,20 @@ export async function GET(
         { success: false, error: `Invalid schema ID: ${schemaId}` },
         { status: 404 }
       );
+    }
+
+    // Special handling for companies - use cached loader
+    if (schemaId === 'companies') {
+      try {
+        const companies = await loadAllCompanies();
+        return NextResponse.json({
+          success: true,
+          data: companies,
+        });
+      } catch (error) {
+        // If cache fails, fall through to normal controller
+        console.warn('Companies cache load failed, using controller:', error);
+      }
     }
 
     const controller = await createController(schemaId);
@@ -72,7 +87,14 @@ export async function POST(
     }
 
     const controller = await createController(schemaId);
-    return await controller.create(request);
+    const response = await controller.create(request);
+    
+    // Clear companies cache if a company was created
+    if (schemaId === 'companies') {
+      clearCompaniesCache();
+    }
+    
+    return response;
   } catch (error) {
     return NextResponse.json(
       { 

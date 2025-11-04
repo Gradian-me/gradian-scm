@@ -9,6 +9,7 @@ import { Avatar } from '@/gradian-ui/form-builder/form-elements';
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useCompanyStore } from '@/stores/company.store';
+import { useCompanies } from '@/shared/hooks/use-companies';
 
 interface Company {
   id: string | number;
@@ -24,10 +25,8 @@ interface CompanySelectorProps {
 
 export function CompanySelector({ onCompanyChange, onCompanyChangeFull }: CompanySelectorProps) {
   const { selectedCompany, setSelectedCompany } = useCompanyStore();
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const { companies, isLoading: loading } = useCompanies();
   const [isMounted, setIsMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const lastNotifiedCompanyId = useRef<string | number | null>(null);
   const onCompanyChangeFullRef = useRef(onCompanyChangeFull);
   
   // Keep ref in sync with callback
@@ -39,59 +38,29 @@ export function CompanySelector({ onCompanyChange, onCompanyChangeFull }: Compan
     setIsMounted(true);
   }, []);
 
+  // Set default company when companies are loaded
   useEffect(() => {
-    async function fetchCompanies() {
-      try {
-        const response = await fetch('/api/data/companies');
-        if (!response.ok) {
-          throw new Error('Failed to fetch companies');
-        }
-        const result = await response.json();
-        if (result.success && result.data) {
-          // Add "All Companies" option at the beginning
-          const allCompaniesOption: Company = {
-            id: -1,
-            name: 'All Companies'
-          };
-          const companiesWithAll = [allCompaniesOption, ...result.data];
-          setCompanies(companiesWithAll);
-          // Set "All Companies" as default if nothing is in store
-          if (!selectedCompany) {
-            setSelectedCompany(allCompaniesOption);
-            // Set cookie for default
-            if (typeof document !== 'undefined') {
-              document.cookie = `selectedCompanyId=; path=/; max-age=0`; // Clear for "All Companies"
-            }
-          } else {
-            // Sync cookie with store
-            if (typeof document !== 'undefined') {
-              const companyId = selectedCompany.id !== -1 ? String(selectedCompany.id) : '';
-              document.cookie = `selectedCompanyId=${companyId}; path=/; max-age=${60 * 60 * 24 * 365}`;
-            }
+    if (isMounted && companies.length > 0) {
+      // Set "All Companies" as default if nothing is in store
+      if (!selectedCompany) {
+        const allCompaniesOption = companies.find(c => c.id === -1);
+        if (allCompaniesOption) {
+          setSelectedCompany(allCompaniesOption);
+          // Set cookie for default
+          if (typeof document !== 'undefined') {
+            document.cookie = `selectedCompanyId=; path=/; max-age=0`; // Clear for "All Companies"
           }
         }
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    if (isMounted) {
-      fetchCompanies();
-    }
-  }, [isMounted]);
-
-  // Load selected company from store on mount
-  useEffect(() => {
-    if (isMounted && !selectedCompany && companies.length > 0) {
-      // Set default "All Companies" if nothing is selected
-      const allCompaniesOption = companies.find(c => c.id === -1);
-      if (allCompaniesOption) {
-        setSelectedCompany(allCompaniesOption);
+      } else {
+        // Sync cookie with store
+        if (typeof document !== 'undefined') {
+          const companyId = selectedCompany.id !== -1 ? String(selectedCompany.id) : '';
+          document.cookie = `selectedCompanyId=${companyId}; path=/; max-age=${60 * 60 * 24 * 365}`;
+        }
       }
     }
   }, [isMounted, companies, selectedCompany, setSelectedCompany]);
+
   
   const handleCompanySelect = (company: Company) => {
     console.log('Company selected:', company);

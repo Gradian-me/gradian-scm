@@ -17,6 +17,32 @@ async function clearSchemaLoaderCache() {
 }
 
 /**
+ * Clear cache from companies-loader (server-side cache)
+ */
+async function clearCompaniesLoaderCache() {
+  try {
+    // Import and call clearCompaniesCache from companies-loader
+    const { clearCompaniesCache } = await import('@/shared/utils/companies-loader');
+    clearCompaniesCache();
+  } catch (error) {
+    console.warn('Could not clear companies-loader cache:', error);
+  }
+}
+
+/**
+ * Clear all caches using the general data-loader
+ */
+async function clearAllDataLoaderCaches() {
+  try {
+    // Import and call clearAllCaches from data-loader
+    const { clearAllCaches } = await import('@/shared/utils/data-loader');
+    clearAllCaches();
+  } catch (error) {
+    console.warn('Could not clear data-loader caches:', error);
+  }
+}
+
+/**
  * Clear cache from schema-registry.server (server-side cache)
  */
 async function clearSchemaRegistryCache() {
@@ -54,29 +80,31 @@ async function clearApiRouteCaches() {
 }
 
 /**
- * POST - Clear all schema caches
+ * POST - Clear all caches (schemas, companies, and all data-loader caches)
  * Example: POST /api/schemas/clear-cache
  */
 export async function POST(request: NextRequest) {
   try {
-    // Clear all schema caches
+    // Clear all caches - this will clear schemas, companies, and any other cached routes
     await Promise.all([
-      clearSchemaLoaderCache(),
-      clearSchemaRegistryCache(),
-      clearApiRouteCaches(),
+      clearAllDataLoaderCaches(), // This clears all caches from the general loader
+      clearSchemaLoaderCache(), // Legacy schema loader cache
+      clearCompaniesLoaderCache(), // Companies loader cache
+      clearSchemaRegistryCache(), // Schema registry cache
+      clearApiRouteCaches(), // API route caches
     ]);
 
     return NextResponse.json({
       success: true,
-      message: 'Schema cache cleared successfully',
+      message: 'All caches cleared successfully',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error clearing schema cache:', error);
+    console.error('Error clearing caches:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to clear schema cache',
+        error: error instanceof Error ? error.message : 'Failed to clear caches',
       },
       { status: 500 }
     );
@@ -84,29 +112,31 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET - Clear all schema caches (for convenience)
+ * GET - Clear all caches (for convenience)
  * Example: GET /api/schemas/clear-cache
  */
 export async function GET(request: NextRequest) {
   try {
-    // Clear all schema caches
+    // Clear all caches - this will clear schemas, companies, and any other cached routes
     await Promise.all([
-      clearSchemaLoaderCache(),
-      clearSchemaRegistryCache(),
-      clearApiRouteCaches(),
+      clearAllDataLoaderCaches(), // This clears all caches from the general loader
+      clearSchemaLoaderCache(), // Legacy schema loader cache
+      clearCompaniesLoaderCache(), // Companies loader cache
+      clearSchemaRegistryCache(), // Schema registry cache
+      clearApiRouteCaches(), // API route caches
     ]);
 
     return NextResponse.json({
       success: true,
-      message: 'Schema cache cleared successfully',
+      message: 'All caches cleared successfully',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error clearing schema cache:', error);
+    console.error('Error clearing caches:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to clear schema cache',
+        error: error instanceof Error ? error.message : 'Failed to clear caches',
       },
       { status: 500 }
     );

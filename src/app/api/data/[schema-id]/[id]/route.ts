@@ -7,6 +7,7 @@ import { BaseService } from '@/shared/domain/services/base.service';
 import { BaseController } from '@/shared/domain/controllers/base.controller';
 import { BaseEntity } from '@/shared/domain/types/base.types';
 import { isValidSchemaId, getSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
+import { clearCompaniesCache } from '@/shared/utils/companies-loader';
 
 /**
  * Create controller instance for the given schema
@@ -72,7 +73,14 @@ export async function PUT(
     }
 
     const controller = await createController(schemaId);
-    return await controller.update(id, request);
+    const response = await controller.update(id, request);
+    
+    // Clear companies cache if a company was updated
+    if (schemaId === 'companies') {
+      clearCompaniesCache();
+    }
+    
+    return response;
   } catch (error) {
     return NextResponse.json(
       { 
@@ -104,7 +112,14 @@ export async function DELETE(
     }
 
     const controller = await createController(schemaId);
-    return await controller.delete(id);
+    const response = await controller.delete(id);
+    
+    // Clear companies cache if a company was deleted
+    if (schemaId === 'companies') {
+      clearCompaniesCache();
+    }
+    
+    return response;
   } catch (error) {
     return NextResponse.json(
       { 

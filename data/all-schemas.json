@@ -233,29 +233,13 @@
             }
           },
           "colSpan": 1
-        },
-        {
-          "id": "days-remaining-kpi",
-          "componentType": "kpi",
-          "dataPath": "summaryMetrics",
-          "config": {
-            "id": "days-remaining-kpi",
-            "name": "Days Remaining KPI",
-            "title": "Days Until Deadline",
-            "format": "number",
-            "precision": 0,
-            "color": "#F59E0B",
-            "trend": {
-              "enabled": false
-            }
-          },
-          "colSpan": 1
         }
       ],
       "tableRenderers": [
         {
           "id": "inquiry-items-table",
-          "schemaId": "inquiry-items",
+          "targetSchema": "inquiry-items",
+          "relationTypeId": "HAS_INQUIRY_ITEM",
           "sectionId": "item-information",
           "title": "Inquiry Items",
           "description": "List of all items in this inquiry",
