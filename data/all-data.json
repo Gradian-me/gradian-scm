@@ -105,6 +105,354 @@
       ],
       "establishedYear": 1800,
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+    },
+    {
+      "name": "Mana Pharma",
+      "email": "info@manapharma.com",
+      "phone": "+1 555 123 4567",
+      "address": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "registrationNumber": "",
+      "taxId": "",
+      "country": "",
+      "categories": [],
+      "status": "PENDING",
+      "rating": 0,
+      "id": "01K9MP000000000000000000001",
+      "createdAt": "2025-11-04T12:00:00.000Z",
+      "updatedAt": "2025-11-04T12:00:00.000Z",
+      "performanceMetrics": [
+        {
+          "id": "onTimeDelivery",
+          "label": "On Time Delivery",
+          "value": 94,
+          "unit": "%",
+          "trend": "up",
+          "icon": "Clock"
+        },
+        {
+          "id": "qualityScore",
+          "label": "Quality Score",
+          "value": 92,
+          "unit": "",
+          "trend": "same",
+          "icon": "CheckCircle"
+        },
+        {
+          "id": "totalOrders",
+          "label": "Total Orders",
+          "value": 85,
+          "unit": "",
+          "trend": "up",
+          "icon": "Package"
+        },
+        {
+          "id": "totalValue",
+          "label": "Total Value",
+          "value": 1800000,
+          "unit": "USD",
+          "trend": "up",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "averageOrderValue",
+          "label": "Average Order Value",
+          "value": 21176.47,
+          "unit": "USD",
+          "trend": "up",
+          "icon": "BarChart"
+        },
+        {
+          "id": "priceCompetitiveness",
+          "label": "Price Competitiveness",
+          "value": 89,
+          "unit": "%",
+          "trend": "same",
+          "icon": "TrendingUp"
+        },
+        {
+          "id": "responsiveness",
+          "label": "Responsiveness",
+          "value": 91,
+          "unit": "%",
+          "trend": "up",
+          "icon": "MessageSquare"
+        },
+        {
+          "id": "complianceScore",
+          "label": "Compliance Score",
+          "value": 93,
+          "unit": "",
+          "trend": "same",
+          "icon": "FileCheck"
+        }
+      ],
+      "certifications": [],
+      "establishedYear": 0,
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+    },
+    {
+      "name": "Ottana Pharmed",
+      "email": "info@ottanapharmed.com",
+      "phone": "+1 555 123 4568",
+      "address": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "registrationNumber": "",
+      "taxId": "",
+      "country": "",
+      "categories": [],
+      "status": "PENDING",
+      "rating": 0,
+      "id": "01K9OP000000000000000000001",
+      "createdAt": "2025-11-04T12:00:00.000Z",
+      "updatedAt": "2025-11-04T12:00:00.000Z",
+      "performanceMetrics": [
+        {
+          "id": "onTimeDelivery",
+          "label": "On Time Delivery",
+          "value": 96,
+          "unit": "%",
+          "trend": "up",
+          "icon": "Clock"
+        },
+        {
+          "id": "qualityScore",
+          "label": "Quality Score",
+          "value": 94,
+          "unit": "",
+          "trend": "up",
+          "icon": "CheckCircle"
+        },
+        {
+          "id": "totalOrders",
+          "label": "Total Orders",
+          "value": 120,
+          "unit": "",
+          "trend": "up",
+          "icon": "Package"
+        },
+        {
+          "id": "totalValue",
+          "label": "Total Value",
+          "value": 2200000,
+          "unit": "USD",
+          "trend": "up",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "averageOrderValue",
+          "label": "Average Order Value",
+          "value": 18333.33,
+          "unit": "USD",
+          "trend": "same",
+          "icon": "BarChart"
+        },
+        {
+          "id": "priceCompetitiveness",
+          "label": "Price Competitiveness",
+          "value": 90,
+          "unit": "%",
+          "trend": "up",
+          "icon": "TrendingUp"
+        },
+        {
+          "id": "responsiveness",
+          "label": "Responsiveness",
+          "value": 89,
+          "unit": "%",
+          "trend": "same",
+          "icon": "MessageSquare"
+        },
+        {
+          "id": "complianceScore",
+          "label": "Compliance Score",
+          "value": 95,
+          "unit": "",
+          "trend": "up",
+          "icon": "FileCheck"
+        }
+      ],
+      "certifications": [],
+      "establishedYear": 0,
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+    },
+    {
+      "name": "Exapilog",
+      "email": "info@exapilog.com",
+      "phone": "+1 555 123 4569",
+      "address": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "registrationNumber": "",
+      "taxId": "",
+      "country": "",
+      "categories": [],
+      "status": "PENDING",
+      "rating": 0,
+      "id": "01K9EX000000000000000000001",
+      "createdAt": "2025-11-04T12:00:00.000Z",
+      "updatedAt": "2025-11-04T12:00:00.000Z",
+      "performanceMetrics": [
+        {
+          "id": "onTimeDelivery",
+          "label": "On Time Delivery",
+          "value": 91,
+          "unit": "%",
+          "trend": "down",
+          "icon": "Clock"
+        },
+        {
+          "id": "qualityScore",
+          "label": "Quality Score",
+          "value": 88,
+          "unit": "",
+          "trend": "same",
+          "icon": "CheckCircle"
+        },
+        {
+          "id": "totalOrders",
+          "label": "Total Orders",
+          "value": 65,
+          "unit": "",
+          "trend": "down",
+          "icon": "Package"
+        },
+        {
+          "id": "totalValue",
+          "label": "Total Value",
+          "value": 1400000,
+          "unit": "USD",
+          "trend": "down",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "averageOrderValue",
+          "label": "Average Order Value",
+          "value": 21538.46,
+          "unit": "USD",
+          "trend": "same",
+          "icon": "BarChart"
+        },
+        {
+          "id": "priceCompetitiveness",
+          "label": "Price Competitiveness",
+          "value": 85,
+          "unit": "%",
+          "trend": "down",
+          "icon": "TrendingUp"
+        },
+        {
+          "id": "responsiveness",
+          "label": "Responsiveness",
+          "value": 86,
+          "unit": "%",
+          "trend": "down",
+          "icon": "MessageSquare"
+        },
+        {
+          "id": "complianceScore",
+          "label": "Compliance Score",
+          "value": 90,
+          "unit": "",
+          "trend": "same",
+          "icon": "FileCheck"
+        }
+      ],
+      "certifications": [],
+      "establishedYear": 0,
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+    },
+    {
+      "name": "Pharmagona",
+      "email": "info@pharmagona.com",
+      "phone": "+1 555 123 4570",
+      "address": "",
+      "city": "",
+      "state": "",
+      "zipCode": "",
+      "registrationNumber": "",
+      "taxId": "",
+      "country": "",
+      "categories": [],
+      "status": "PENDING",
+      "rating": 0,
+      "id": "01K9PG000000000000000000001",
+      "createdAt": "2025-11-04T12:00:00.000Z",
+      "updatedAt": "2025-11-04T12:00:00.000Z",
+      "performanceMetrics": [
+        {
+          "id": "onTimeDelivery",
+          "label": "On Time Delivery",
+          "value": 97,
+          "unit": "%",
+          "trend": "up",
+          "icon": "Clock"
+        },
+        {
+          "id": "qualityScore",
+          "label": "Quality Score",
+          "value": 96,
+          "unit": "",
+          "trend": "up",
+          "icon": "CheckCircle"
+        },
+        {
+          "id": "totalOrders",
+          "label": "Total Orders",
+          "value": 175,
+          "unit": "",
+          "trend": "up",
+          "icon": "Package"
+        },
+        {
+          "id": "totalValue",
+          "label": "Total Value",
+          "value": 2800000,
+          "unit": "USD",
+          "trend": "up",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "averageOrderValue",
+          "label": "Average Order Value",
+          "value": 16000,
+          "unit": "USD",
+          "trend": "same",
+          "icon": "BarChart"
+        },
+        {
+          "id": "priceCompetitiveness",
+          "label": "Price Competitiveness",
+          "value": 94,
+          "unit": "%",
+          "trend": "up",
+          "icon": "TrendingUp"
+        },
+        {
+          "id": "responsiveness",
+          "label": "Responsiveness",
+          "value": 92,
+          "unit": "%",
+          "trend": "up",
+          "icon": "MessageSquare"
+        },
+        {
+          "id": "complianceScore",
+          "label": "Compliance Score",
+          "value": 97,
+          "unit": "",
+          "trend": "up",
+          "icon": "FileCheck"
+        }
+      ],
+      "certifications": [],
+      "establishedYear": 0,
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
     }
   ],
   "inquiries": [
