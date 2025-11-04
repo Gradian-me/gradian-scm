@@ -33,19 +33,19 @@ export function TableHeader<T = any>({
   bordered,
 }: TableHeaderProps<T>) {
   const headerClasses = cn(
-    'bg-gray-50',
-    striped && 'bg-gray-50',
-    bordered && 'border-b border-gray-200'
+    'bg-gray-50/50 border-b border-gray-100',
+    striped && 'bg-gray-50/50',
+    bordered && 'border-b border-gray-100'
   );
 
   const thClasses = (column: TableColumn<T>) =>
     cn(
-      'px-4 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider',
+      'px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider',
       column.align === 'center' && 'text-center',
       column.align === 'right' && 'text-right',
       column.sortable && onSort && 'cursor-pointer select-none hover:bg-gray-100',
-      column.sticky === 'left' && 'sticky left-0 z-10 bg-gray-50',
-      column.sticky === 'right' && 'sticky right-0 z-10 bg-gray-50',
+      column.sticky === 'left' && 'sticky left-0 z-10 bg-gray-50/50',
+      column.sticky === 'right' && 'sticky right-0 z-10 bg-gray-50/50',
       stickyHeader && 'sticky top-0 z-20',
       bordered && 'border-r border-gray-200 last:border-r-0'
     );
@@ -68,7 +68,7 @@ export function TableHeader<T = any>({
     <thead className={headerClasses}>
       <tr>
         {selectionEnabled && (
-          <th className={cn('w-12 px-2', stickyHeader && 'sticky top-0 z-20 bg-gray-50')}>
+          <th className={cn('w-12 px-2 bg-gray-50/50', stickyHeader && 'sticky top-0 z-20')}>
             <input
               type="checkbox"
               checked={allSelected}

@@ -44,7 +44,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
       <div className="group w-full flex items-center justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium truncate">{field.label || 'Unnamed Field'}</span>
+            <span className="text-sm font-medium truncate text-gray-800">{field.label || 'Unnamed Field'}</span>
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">{field.type}</Badge>
             {field.required && <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Required</Badge>}
           </div>

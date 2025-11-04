@@ -26,4 +26,5 @@ export * from './components/NumberInput';
 export * from './components/DateInput';
 export * from './components/DateTimeInput';
 export * from './components/FileInput';
+export * from './components/Switch';
 export * from './go-to-top-form';

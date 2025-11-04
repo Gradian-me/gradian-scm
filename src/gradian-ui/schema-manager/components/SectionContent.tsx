@@ -1,9 +1,8 @@
 'use client';
 
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { IconInput } from '@/components/ui/icon-input';
-import { TextInput, Select } from '@/gradian-ui/form-builder/form-elements';
+import { TextInput, Select, Switch } from '@/gradian-ui/form-builder/form-elements';
 import { FormSection } from '../types/form-schema';
 
 interface SectionContentProps {
@@ -49,16 +48,14 @@ export function SectionContent({
           />
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <div className="flex items-center gap-2">
-          <Switch 
-            id={`repeating-${section.id}`} 
-            checked={section.isRepeatingSection || false} 
-            onCheckedChange={(checked) => onUpdate({ isRepeatingSection: checked })} 
+          <Switch
+            config={{ name: `repeating-${section.id}`, label: 'Repeating Section' }}
+            value={section.isRepeatingSection || false}
+            onChange={(checked: boolean) => onUpdate({ isRepeatingSection: checked })}
+            className="[&_label]:hidden"
           />
-          <Label htmlFor={`repeating-${section.id}`} className="text-xs cursor-pointer">
-            Repeating Section
-          </Label>
         </div>
       </div>
     </div>

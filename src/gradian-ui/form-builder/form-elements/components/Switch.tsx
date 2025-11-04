@@ -54,7 +54,7 @@ export const Switch = forwardRef<FormElementRef, SwitchProps>(
 
     return (
       <div className="w-full">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <RadixSwitch
             ref={switchRef}
             id={config.name}
@@ -75,7 +75,7 @@ export const Switch = forwardRef<FormElementRef, SwitchProps>(
             <Label
               htmlFor={config.name}
               className={cn(
-                'text-sm font-medium cursor-pointer',
+                'text-xs font-medium cursor-pointer',
                 error ? 'text-red-700' : 'text-gray-700',
                 required && 'after:content-["*"] after:ml-1 after:text-red-500',
                 disabled && 'text-gray-400 cursor-not-allowed'

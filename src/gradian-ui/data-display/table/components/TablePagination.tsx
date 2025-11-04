@@ -80,7 +80,7 @@ export function TablePagination({
 
   return (
     <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-white">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {showPageSizeSelector && (
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-gray-500">Rows:</span>

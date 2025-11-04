@@ -1,11 +1,10 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { IconInput } from '@/components/ui/icon-input';
 import { Switch } from '@/components/ui/switch';
+import { TextInput, Textarea } from '@/gradian-ui/form-builder/form-elements';
 import { FormSchema } from '../types/form-schema';
 
 interface GeneralInfoTabProps {
@@ -22,41 +21,43 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <Label htmlFor="schema-id">Schema ID</Label>
-          <Input id="schema-id" value={schema.id} disabled className="bg-gray-50" />
+          <TextInput
+            config={{ name: 'schema-id', label: 'Schema ID' }}
+            value={schema.id}
+            onChange={() => {}}
+            disabled
+            className="[&_input]:bg-gray-50"
+          />
         </div>
         <div>
-          <Label htmlFor="schema-description">Description</Label>
-          <Textarea 
-            id="schema-description" 
-            value={schema.description || ''} 
-            onChange={(e) => onUpdate({ description: e.target.value })} 
+          <Textarea
+            config={{ name: 'schema-description', label: 'Description' }}
+            value={schema.description || ''}
+            onChange={(value) => onUpdate({ description: value })}
             rows={3}
             disabled={readonly}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="singular-name">Singular Name</Label>
-            <Input 
-              id="singular-name" 
-              value={schema.singular_name || ''} 
-              onChange={(e) => onUpdate({ singular_name: e.target.value })}
+            <TextInput
+              config={{ name: 'singular-name', label: 'Singular Name' }}
+              value={schema.singular_name || ''}
+              onChange={(value) => onUpdate({ singular_name: value })}
               disabled={readonly}
             />
           </div>
           <div>
-            <Label htmlFor="plural-name">Plural Name</Label>
-            <Input 
-              id="plural-name" 
-              value={schema.plural_name || ''} 
-              onChange={(e) => onUpdate({ plural_name: e.target.value })}
+            <TextInput
+              config={{ name: 'plural-name', label: 'Plural Name' }}
+              value={schema.plural_name || ''}
+              onChange={(value) => onUpdate({ plural_name: value })}
               disabled={readonly}
             />
           </div>
         </div>
         <div>
-          <Label htmlFor="schema-icon">Icon</Label>
+          <Label htmlFor="schema-icon" className="text-gray-700">Icon</Label>
           <IconInput 
             id="schema-icon" 
             value={schema.icon || ''} 
@@ -71,7 +72,7 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             onCheckedChange={(checked) => onUpdate({ showInNavigation: checked })}
             disabled={readonly}
           />
-          <Label htmlFor="show-in-navigation" className="cursor-pointer">
+          <Label htmlFor="show-in-navigation" className="cursor-pointer text-gray-700">
             Show in Navigation
           </Label>
         </div>
@@ -82,7 +83,7 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             onCheckedChange={(checked) => onUpdate({ isSystemSchema: checked })}
             disabled={readonly}
           />
-          <Label htmlFor="is-system-schema" className="cursor-pointer">
+          <Label htmlFor="is-system-schema" className="cursor-pointer text-gray-700">
             Is System Schema
           </Label>
         </div>

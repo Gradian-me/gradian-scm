@@ -69,9 +69,9 @@ export const FileInput = forwardRef<FormElementRef, FileInputProps>(
     };
 
     const inputClasses = cn(
-      'w-full direction-auto px-3 py-2 border rounded-lg border-gray-300 bg-white text-sm ring-offset-background placeholder:text-gray-500 transition-colors',
+      'w-full direction-auto px-3 py-2 border rounded-lg border-gray-300 bg-white text-sm text-gray-900 ring-offset-background placeholder:text-gray-400 transition-colors',
       'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400',
-      'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100',
+      'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500',
       'file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0',
       'file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700',
       'hover:file:bg-violet-100',
