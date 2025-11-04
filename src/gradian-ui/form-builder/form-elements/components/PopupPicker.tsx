@@ -251,13 +251,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
+                  <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-violet-700 transition-colors flex-1 min-w-0">
+                    {title}
+                  </h4>
                   {/* Code Badge */}
                   {hasCodeField && codeField && (
                     <CodeBadge code={codeField} />
                   )}
-                  <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-violet-700 transition-colors flex-1 min-w-0">
-                    {title}
-                  </h4>
                 </div>
                 {subtitle && (
                   <p className="text-xs text-gray-500 truncate mt-0.5">

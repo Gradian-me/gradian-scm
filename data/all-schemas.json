@@ -67,7 +67,7 @@
         "component": "datetime-local",
         "placeholder": "Select deadline date and time",
         "required": true,
-        "role": "expiration",
+        "role": "duedate",
         "validation": {
           "required": true
         },
@@ -442,9 +442,9 @@
         "name": "demandDate",
         "label": "Demand Date",
         "sectionId": "item-information",
-        "type": "datetime-local",
-        "component": "datetime-local",
-        "placeholder": "Select demand date and time",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select demand date",
         "required": true,
         "validation": {
           "required": true
@@ -457,9 +457,9 @@
         "name": "minimumExpirationDate",
         "label": "Minimum Expiration Date",
         "sectionId": "item-information",
-        "type": "datetime-local",
-        "component": "datetime-local",
-        "placeholder": "Select minimum expiration date and time",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select minimum expiration date",
         "required": true,
         "validation": {
           "required": true
@@ -611,7 +611,7 @@
         "component": "date",
         "placeholder": "Select expiration date",
         "required": true,
-        "role": "expiration",
+        "role": "duedate",
         "validation": {
           "required": false
         },

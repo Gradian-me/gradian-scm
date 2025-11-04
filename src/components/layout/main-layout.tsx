@@ -17,7 +17,7 @@ import { UserProfileDropdown } from './UserProfileDropdown';
 interface MainLayoutProps {
   children: React.ReactNode;
   title: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   icon?: string;
   showCreateButton?: boolean;
   createButtonText?: string;

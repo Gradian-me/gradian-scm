@@ -8,7 +8,7 @@ import { Button } from '../../../components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
 import { Badge } from '../../../components/ui/badge';
 import { GridBuilder } from '../../layout/grid-builder';
-import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { FormSchema, DetailPageSection } from '@/gradian-ui/schema-manager/types/form-schema';
 import { DynamicInfoCard } from './DynamicInfoCard';
 import { ComponentRenderer } from './ComponentRenderer';
 import { DynamicRepeatingTableViewer } from './DynamicRepeatingTableViewer';
@@ -21,6 +21,7 @@ import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
 import { DynamicQuickActions } from './DynamicQuickActions';
 import { GoToTop } from '../../layout/go-to-top';
 import { Rating, Countdown } from '../../form-builder';
+import { CodeBadge } from '../../form-builder/form-elements';
 import { FormModal } from '../../form-builder';
 import { useState, useCallback } from 'react';
 
@@ -40,15 +41,127 @@ export interface DynamicDetailPageRendererProps {
 }
 
 /**
+ * Get subtitle with icon for MainLayout
+ */
+export const getPageSubtitle = (schema: FormSchema, entityName: string): React.ReactNode => {
+  if (!schema.icon) {
+    return entityName;
+  }
+  
+  return (
+    <span className="flex items-center gap-1.5">
+      <IconRenderer 
+        iconName={schema.icon} 
+        className="h-4 w-4 text-violet-600" 
+      />
+      <span>{entityName}</span>
+    </span>
+  );
+};
+
+/**
+ * Get page title for MainLayout based on schema and data
+ * Priority: 1) Field with role "title", 2) First text field (excluding code, subtitle, description), 3) id
+ */
+export const getPageTitle = (schema: FormSchema, data: any, dataId?: string): string => {
+  if (!data) return dataId || 'Loading...';
+  
+  // 1. Check if role "title" exists in schema
+  const hasTitleRole = schema?.fields?.some(field => field.role === 'title') || false;
+  
+  if (hasTitleRole) {
+    // Use title role value
+    const titleByRole = getValueByRole(schema, data, 'title');
+    if (titleByRole && titleByRole.trim() !== '') {
+      return titleByRole;
+    }
+  }
+  
+  // 2. Try to find first text field that doesn't have excluded roles (sorted by order)
+  if (schema?.fields) {
+    const excludedRoles = ['code', 'subtitle', 'description'];
+    const textFields = schema.fields
+      .filter(field => 
+        field.type === 'text' && 
+        (!field.role || !excludedRoles.includes(field.role)) &&
+        data[field.name] !== undefined && 
+        data[field.name] !== null && 
+        String(data[field.name]).trim() !== ''
+      )
+      .sort((a, b) => (a.order || 999) - (b.order || 999)); // Sort by order field
+    
+    if (textFields.length > 0) {
+      const firstTextField = textFields[0];
+      const value = data[firstTextField.name];
+      if (value && String(value).trim() !== '') {
+        return String(value);
+      }
+    }
+  }
+  
+  // 3. Fallback to id
+  return dataId || data.id || 'Details';
+};
+
+/**
  * Get header information from schema and data
  */
 const getHeaderInfo = (schema: FormSchema, data: any) => {
-  const title = getValueByRole(schema, data, 'title') || data.name || 'Details';
+  // Get title - check if role "title" exists, otherwise use first text field
+  const hasTitleRole = schema?.fields?.some(field => field.role === 'title') || false;
+  let title: string = '';
+  
+  if (hasTitleRole) {
+    // Use title role value
+    title = getValueByRole(schema, data, 'title') || data.name || 'Details';
+  } else {
+    // Find first text field that doesn't have excluded roles (sorted by order)
+    const excludedRoles = ['code', 'subtitle', 'description'];
+    const textFields = schema?.fields
+      ?.filter(field => 
+        field.type === 'text' && 
+        (!field.role || !excludedRoles.includes(field.role)) &&
+        data[field.name] !== undefined && 
+        data[field.name] !== null && 
+        String(data[field.name]).trim() !== ''
+      )
+      .sort((a, b) => (a.order || 999) - (b.order || 999)) || [];
+    
+    const firstTextField = textFields[0];
+    
+    if (firstTextField) {
+      const fieldValue = data[firstTextField.name];
+      title = fieldValue ? String(fieldValue).trim() : (data.name || 'Details');
+    } else {
+      title = data.name || 'Details';
+    }
+  }
   const subtitle = getSingleValueByRole(schema, data, 'subtitle') || data.email || '';
   const avatar = getSingleValueByRole(schema, data, 'avatar') || data.name || '?';
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
-  const duedate = getSingleValueByRole(schema, data, 'duedate') || data.duedate || data.expirationDate;
+  
+  // Get duedate value - check if it's a valid date
+  const duedateValue = getSingleValueByRole(schema, data, 'duedate', '') || data.duedate || data.expirationDate;
+  // Validate that duedate is a valid date value (not empty string, null, or undefined)
+  // Check if it's a valid string or Date object, and if string, ensure it's not empty
+  let duedate: string | Date | null = null;
+  if (duedateValue) {
+    if (duedateValue instanceof Date) {
+      duedate = duedateValue;
+    } else if (typeof duedateValue === 'string' && duedateValue.trim() !== '') {
+      // Try to parse the date string to ensure it's valid
+      const parsedDate = new Date(duedateValue);
+      if (!isNaN(parsedDate.getTime())) {
+        duedate = duedateValue;
+      }
+    }
+  }
+
+  // Get code field value - only if field with role "code" exists
+  const codeFieldExists = schema?.fields?.some(field => field.role === 'code') || false;
+  const codeValue = codeFieldExists ? (getSingleValueByRole(schema, data, 'code') || data.code || '') : '';
+  const code = codeValue && String(codeValue).trim() !== '' ? codeValue : '';
 
   // Find status field options
   const statusField = schema.fields?.find(f => f.role === 'status');
@@ -61,6 +174,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     status,
     rating,
     duedate,
+    code,
     statusOptions
   };
 };
@@ -142,6 +256,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
   const headerInfo = getHeaderInfo(schema, data);
   const badgeConfig = getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
+  
+  // Check if avatar field exists in schema
+  const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
 
   // Separate sections, component renderers, and table renderers
   const metadataSections = detailMetadata?.sections || [];
@@ -158,8 +275,65 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
     defaultSection => !metadataSections.some(metaSection => metaSection.id === defaultSection.id)
   );
 
-  // Combine sections: default sections first, then metadata sections
-  const sections = [...filteredDefaultSections, ...metadataSections];
+  // If no metadata sections are defined, create default sections from all fields
+  let sections: DetailPageSection[] = [];
+  if (metadataSections.length === 0 && (!detailMetadata || !detailMetadata.sections)) {
+    // Fields to exclude (already shown in header or special fields)
+    const excludedRoles = ['title', 'subtitle', 'avatar', 'status', 'rating', 'duedate', 'code', 'description'];
+    
+    // Get all fields that should be displayed
+    const displayableFields = schema?.fields?.filter(field => {
+      // Exclude fields with excluded roles
+      if (field.role && excludedRoles.includes(field.role)) {
+        return false;
+      }
+      // Exclude repeating section fields (they should be in table renderers)
+      if (field.sectionId) {
+        const section = schema.sections?.find(s => s.id === field.sectionId);
+        if (section?.isRepeatingSection) {
+          return false;
+        }
+      }
+      return true;
+    }) || [];
+
+    // Group fields by sectionId
+    const fieldsBySection = new Map<string, any[]>();
+    displayableFields.forEach(field => {
+      const sectionId = field.sectionId || 'default';
+      if (!fieldsBySection.has(sectionId)) {
+        fieldsBySection.set(sectionId, []);
+      }
+      fieldsBySection.get(sectionId)!.push(field);
+    });
+
+    // Create sections from grouped fields
+    fieldsBySection.forEach((fields, sectionId) => {
+      // Get section title from schema or use default
+      const schemaSection = schema.sections?.find(s => s.id === sectionId);
+      const sectionTitle = schemaSection?.title || 'Information';
+      
+      sections.push({
+        id: sectionId,
+        title: sectionTitle,
+        colSpan: 1,
+        fieldIds: fields.map(f => f.id).filter(Boolean)
+      });
+    });
+
+    // Sort sections to maintain order from schema
+    if (schema.sections) {
+      const sectionOrder = new Map(schema.sections.map((s, idx) => [s.id, idx]));
+      sections.sort((a, b) => {
+        const orderA = sectionOrder.get(a.id) ?? 999;
+        const orderB = sectionOrder.get(b.id) ?? 999;
+        return orderA - orderB;
+      });
+    }
+  } else {
+    // Use existing sections (default + metadata)
+    sections = [...filteredDefaultSections, ...metadataSections];
+  }
 
   // Group component renderers by whether they should be in the main area or sidebar
   // For now, all components go in the main area unless specified otherwise
@@ -225,12 +399,19 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
             </div>
             <div className="flex items-center space-x-2 justify-between py-4 w-full flex-row flex-wrap gap-2">
               <div className="flex items-center space-x-4">
+                {hasAvatarField && (
                 <Avatar className="h-16 w-16">
                   <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
                   <AvatarFallback>{getInitials(headerInfo.avatar)}</AvatarFallback>
                 </Avatar>
+                )}
                 <div>
-                  <h1 className="text-2xl font-bold">{headerInfo.title}</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-gray-900">{headerInfo.title}</h1>
+                    {headerInfo.code && (
+                      <CodeBadge code={headerInfo.code} />
+                    )}
+                  </div>
                   {headerInfo.subtitle && (
                     <p className="text-sm text-gray-500 mt-1">{headerInfo.subtitle}</p>
                   )}
