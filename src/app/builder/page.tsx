@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CTAButton } from '@/gradian-ui/form-builder/form-elements';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { 
@@ -17,6 +18,7 @@ import {
   Settings,
   RefreshCw
 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
@@ -157,97 +159,75 @@ export default function BuilderPage() {
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
                 <Card 
-                  className="hover:shadow-xl transition-all duration-300 cursor-pointer group h-full border-2 hover:border-violet-300 flex flex-col justify-between"
+                  className="hover:shadow-sm transition-all duration-200 cursor-pointer group h-full border border-gray-200 hover:border-violet-300"
                   onClick={() => handleCardClick(option.href)}
                 >
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <div 
-                        className="p-3 rounded-lg"
-                        style={{ backgroundColor: `${option.color}15` }}
-                      >
-                        <Icon 
-                          className="h-8 w-8" 
-                          style={{ color: option.color }}
-                        />
+                  <CardHeader className="pb-3 pt-4 px-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2.5">
+                        <div 
+                          className="p-2 rounded-md"
+                          style={{ backgroundColor: `${option.color}10` }}
+                        >
+                          <Icon 
+                            className="h-5 w-5" 
+                            style={{ color: option.color }}
+                          />
+                        </div>
+                        <CardTitle className="text-lg font-semibold">{option.title}</CardTitle>
                       </div>
                       <ArrowRight 
-                        className="h-5 w-5 text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all"
+                        className="h-4 w-4 text-gray-400 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all shrink-0"
                       />
                     </div>
-                    <CardTitle className="text-2xl mb-2">{option.title}</CardTitle>
-                    <CardDescription className="text-base leading-relaxed">
+                    <CardDescription className="text-sm text-gray-600 leading-snug">
                       {option.description}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Features List */}
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                          <Settings className="h-4 w-4" />
-                          Features
-                        </h4>
-                        <ul className="space-y-1.5">
-                          {option.features.map((feature, idx) => (
-                            <li 
-                              key={idx}
-                              className="text-sm text-gray-600 flex items-center gap-2"
-                            >
-                              <div 
-                                className="w-1.5 h-1.5 rounded-full"
-                                style={{ backgroundColor: option.color }}
-                              />
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
+                  <CardContent className="pt-0 px-4 pb-4">
+                    {/* Features List */}
+                    <Label className="text-xs text-gray-600 font-medium">Features</Label>
+                    {option.features && option.features.length > 0 && (
+                      <div className="space-y-1.5 mb-3">
+                        {option.features.map((feature, idx) => (
+                          <div 
+                            key={idx}
+                            className="text-xs text-gray-600 flex items-center gap-1.5"
+                          >
+                            <div 
+                              className="w-1 h-1 rounded-full shrink-0"
+                              style={{ backgroundColor: option.color }}
+                            />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
                       </div>
-
-                      {/* Stats */}
-                      {option.stats && option.stats.length > 0 && (
-                        <div className="flex gap-4 pt-2 border-t border-gray-200">
-                          {option.stats.map((stat, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <div 
-                                className="p-1.5 rounded"
-                                style={{ backgroundColor: `${option.color}15` }}
-                              >
-                                {stat.label === 'Sections' && <Layers className="h-4 w-4" style={{ color: option.color }} />}
-                                {stat.label === 'Fields' && <FileText className="h-4 w-4" style={{ color: option.color }} />}
-                              </div>
-                              <div>
-                                <p className="text-lg font-bold" style={{ color: option.color }}>
-                                  {stat.value}
-                                </p>
-                                <p className="text-xs text-gray-500">{stat.label}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    )}
+                    
+                    {/* Stats */}
+                    {option.stats && option.stats.length > 0 && (
+                      <div className="flex items-center gap-3 text-xs text-gray-500 pt-2 border-t border-gray-100 mb-3">
+                        {option.stats.map((stat, idx) => (
+                          <div key={idx} className="flex items-center gap-1.5">
+                            {stat.label === 'Sections' && <Layers className="h-3.5 w-3.5" />}
+                            {stat.label === 'Fields' && <FileText className="h-3.5 w-3.5" />}
+                            <span>{stat.value} {stat.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {/* CTA Button */}
-                    <div className="mt-6 pt-4 border-t border-gray-200">
-                      <button
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
-                        style={{
-                          backgroundColor: `${option.color}10`,
-                          color: option.color,
+                    <div className="pt-2 border-t border-gray-100">
+                      <CTAButton
+                        label={`Open ${option.title}`}
+                        onClick={(e?: React.MouseEvent<HTMLButtonElement>) => {
+                          e?.stopPropagation();
+                          handleCardClick(option.href);
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = option.color;
-                          e.currentTarget.style.color = 'white';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = `${option.color}10`;
-                          e.currentTarget.style.color = option.color;
-                        }}
-                      >
-                        <span>Open {option.title}</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
+                        color={option.color}
+                        icon={<Icon className="h-4 w-4" />}
+                      />
                     </div>
                   </CardContent>
                 </Card>

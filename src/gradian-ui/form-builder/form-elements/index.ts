@@ -27,4 +27,5 @@ export * from './components/DateInput';
 export * from './components/DateTimeInput';
 export * from './components/FileInput';
 export * from './components/Switch';
+export * from './components/CTAButton';
 export * from './go-to-top-form';

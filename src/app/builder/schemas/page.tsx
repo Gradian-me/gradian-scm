@@ -49,74 +49,65 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="hover:shadow-lg transition-all duration-200 h-full flex flex-col justify-between">
-        <CardHeader>
+      <Card className="hover:shadow-sm transition-all duration-200 h-full flex flex-col border border-gray-200">
+        <CardHeader className="pb-3 pt-4 px-4">
           <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5">
                 {schema.icon && (
                   <IconRenderer 
                     iconName={schema.icon} 
-                    className="h-6 w-6 text-violet-600" 
+                    className="h-5 w-5 text-violet-600 flex-shrink-0" 
                   />
                 )}
-                <CardTitle className="text-xl">{schema.plural_name}</CardTitle>
+                <CardTitle className="text-base font-semibold truncate">{schema.plural_name}</CardTitle>
               </div>
-              <div className="flex items-start gap-2 mb-2 flex-col">
-                <Badge variant="outline" className="text-xs">
-                  {schema.singular_name}
-                </Badge>
-                {schema.description && (
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {schema.description}
-                  </p>
-                )}
-              </div>
+              {schema.description && (
+                <p className="text-xs text-gray-500 line-clamp-1 mt-1">
+                  {schema.description}
+                </p>
+              )}
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 ml-2 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onView}
-                className="h-8 w-8"
+                className="h-7 w-7"
                 title="View List"
               >
-                <LayoutList className="h-4 w-4" />
+                <LayoutList className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onEdit}
-                className="h-8 w-8"
+                className="h-7 w-7"
                 title="Edit Schema"
               >
-                <Edit className="h-4 w-4" />
+                <Edit className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={onDelete}
-                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="h-7 w-7 text-red-600 hover:text-red-700 hover:bg-red-50"
                 title="Delete Schema"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-gray-500" />
-              <span className="text-gray-600">
-                {schema.sections?.length || 0} Sections
-              </span>
+        <CardContent className="pt-0 px-4 pb-4">
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <div className="flex items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5" />
+              <span>{schema.sections?.length || 0} Sections</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Type className="h-4 w-4 text-gray-500" />
-              <span className="text-gray-600">
-                {schema.fields?.length || 0} Fields
-              </span>
+            <div className="flex items-center gap-1.5">
+              <Type className="h-3.5 w-3.5" />
+              <span>{schema.fields?.length || 0} Fields</span>
             </div>
           </div>
         </CardContent>

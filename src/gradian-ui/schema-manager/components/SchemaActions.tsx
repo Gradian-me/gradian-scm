@@ -21,7 +21,7 @@ export function SchemaActions({
   onReset,
   onViewSchemaList,
   saving = false,
-  backLabel = 'Back',
+  backLabel = 'Back to Schemas',
   saveLabel = 'Save Schema',
   resetLabel = 'Reset',
   viewSchemaListLabel = 'View List'
