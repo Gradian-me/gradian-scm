@@ -16,7 +16,25 @@ interface RenderFieldValueProps {
  * Helper function to wrap content with tooltip showing field label
  */
 const withTooltip = (content: React.ReactNode, field: any): React.ReactNode => {
-  const fieldLabel = field?.label || field?.name || 'Field';
+  // Get label from field - prioritize label, then fallback to name
+  // Ensure we're getting the actual label, not the value
+  let fieldLabel = 'Field';
+  
+  if (field) {
+    // First try field.label - this is the proper label from the schema
+    if (field.label && typeof field.label === 'string' && field.label.trim() !== '') {
+      fieldLabel = field.label.trim();
+    } 
+    // Fallback to field.name if label doesn't exist or is empty
+    else if (field.name && typeof field.name === 'string' && field.name.trim() !== '') {
+      // Format the name to be more readable (convert camelCase to Title Case)
+      const formattedName = field.name
+        .replace(/([A-Z])/g, ' $1') // Add space before capital letters
+        .replace(/^./, (str: string) => str.toUpperCase()) // Capitalize first letter
+        .trim();
+      fieldLabel = formattedName;
+    }
+  }
   
   return (
     <TooltipProvider>
@@ -35,12 +53,32 @@ const withTooltip = (content: React.ReactNode, field: any): React.ReactNode => {
 };
 
 /**
+ * Format date string to remove "T" and make it more readable
+ */
+const formatDateValue = (value: any): string => {
+  if (!value) return '';
+  
+  const dateStr = String(value);
+  // Remove "T" and replace with space, also remove timezone info if present
+  return dateStr
+    .replace(/T/g, ' ') // Replace T with space
+    .replace(/\.\d{3}Z?$/i, '') // Remove milliseconds and Z if present
+    .replace(/Z$/i, '') // Remove trailing Z
+    .trim();
+};
+
+/**
  * Render a field value based on its type
  */
 export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldValueProps): React.ReactNode => {
   if (!value) return 'N/A';
   
   const fieldLabel = field?.label || field?.name || 'Field';
+  
+  // Format date values before rendering
+  const formattedValue = (field.type === 'date' || field.type === 'datetime-local') 
+    ? formatDateValue(value) 
+    : value;
   
   // Handle performanceMetrics array
   if (field.name === 'performanceMetrics') {
@@ -124,6 +162,18 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
   // Check if field has a custom icon defined
   const customIcon = field?.icon ? <IconRenderer iconName={field.icon} className="h-4 w-4 shrink-0" /> : null;
   
+  // Handle date and datetime fields
+  if (field.type === 'date' || field.type === 'datetime-local') {
+    const dateValue = formatDateValue(value);
+    return withTooltip(
+      <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
+        {customIcon || <IconRenderer iconName="Calendar" className="h-4 w-4 shrink-0" />}
+        <span>{dateValue}</span>
+      </div>,
+      field
+    );
+  }
+  
   switch (field.type) {
     case 'email':
       return withTooltip(
@@ -202,19 +252,24 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
         field
       );
     default:
+      // For default text fields, check if value looks like a date string and format it
+      const displayValue = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)
+        ? formatDateValue(value)
+        : formattedValue;
+      
       // For default text fields, use custom icon if provided
       if (customIcon) {
         return withTooltip(
           <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
             {customIcon}
-            <span>{value}</span>
+            <span>{displayValue}</span>
           </div>,
           field
         );
       }
       return withTooltip(
         <span className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {value}
+          {displayValue}
         </span>,
         field
       );

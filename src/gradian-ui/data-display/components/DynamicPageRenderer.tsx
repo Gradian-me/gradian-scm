@@ -442,7 +442,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             {Object.entries(groupedEntities.grouped).map(([companyId, companyEntities]) => {
               const companyInfo = getCompanyInfo(companyId);
               return (
-                <AccordionItem key={companyId} value={companyId} className="border border-violet-200 rounded-lg px-4 bg-gray-50 border-b border-b-violet-200">
+                <AccordionItem key={companyId} value={companyId} className="border border-violet-200 rounded-lg px-2 md:px-4 bg-gray-50 border-b border-b-violet-200">
                   <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
                     <div className="flex items-center gap-2">
                       {isLoadingCompanies ? (
@@ -465,7 +465,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-4" : "space-y-4 pt-4"}>
+                    <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4"}>
                       {companyEntities.map((entity: any, index: number) => (
                         <div key={entity.id} className="relative">
                           {isEditLoading[entity.id] && (
@@ -504,7 +504,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             
             {/* Ungrouped entities */}
             {groupedEntities.ungrouped.length > 0 && (
-              <AccordionItem value="ungrouped" className="border border-violet-200 rounded-lg px-4 bg-gray-50 border-b border-b-violet-200">
+              <AccordionItem value="ungrouped" className="border border-violet-200 rounded-lg px-2 md:px-4 bg-gray-50 border-b border-b-violet-200">
                 <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-900">Ungrouped</span>
@@ -514,7 +514,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-4" : "space-y-4 pt-4"}>
+                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4"}>
                     {groupedEntities.ungrouped.map((entity: any, index: number) => (
                       <div key={entity.id} className="relative">
                         {isEditLoading[entity.id] && (

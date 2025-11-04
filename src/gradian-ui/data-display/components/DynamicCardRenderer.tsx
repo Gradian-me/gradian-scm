@@ -66,10 +66,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const statusOptions = findStatusFieldOptions();
 
-  // Check if rating, status, and expiration fields exist in schema
+  // Check if rating, status, expiration, and avatar fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
   const hasStatusField = schema?.fields?.some(field => field.role === 'status') || false;
   const hasExpirationField = schema?.fields?.some(field => field.role === 'expiration') || false;
+  const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
 
   // Filter out performance section from cardMetadata
   const filteredSections = cardMetadata.filter(section =>
@@ -120,6 +121,34 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   // Get subtitle value only if role exists, otherwise null
   const subtitleValue = hasSubtitleRole ? getSingleValueByRole(schema, data, 'subtitle') : null;
   const subtitle = subtitleValue && (typeof subtitleValue === 'string' ? subtitleValue.trim() !== '' : subtitleValue != null) ? subtitleValue : null;
+
+  // Check if description role exists in schema OR if any field label contains "description"
+  const hasDescriptionRole = schema?.fields?.some(field => 
+    field.role === 'description' || 
+    (field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description'))
+  ) || false;
+  
+  // Get description value - try role first, then find by label containing "description"
+  let descriptionValue: any = null;
+  if (hasDescriptionRole) {
+    // First try to get by role
+    descriptionValue = getSingleValueByRole(schema, data, 'description');
+    
+    // If not found by role, find by field label containing "description"
+    if (!descriptionValue && schema?.fields) {
+      const descriptionField = schema.fields.find(field => 
+        field.label && 
+        typeof field.label === 'string' && 
+        field.label.toLowerCase().includes('description') &&
+        !field.role // Only if it doesn't already have a role
+      );
+      if (descriptionField) {
+        descriptionValue = data[descriptionField.name];
+      }
+    }
+  }
+  
+  const description = descriptionValue && (typeof descriptionValue === 'string' ? descriptionValue.trim() !== '' : descriptionValue != null) ? descriptionValue : null;
   
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
@@ -171,7 +200,15 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
       className={cardClasses}
       role="button"
       tabIndex={0}
-      onClick={() => onView && onView(data)}
+      onClick={(e) => {
+        // Only open dialog if click is not on action buttons
+        const target = e.target as HTMLElement;
+        if (!target.closest('[data-action-button]')) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (onView) onView(data);
+        }
+      }}
       aria-label={`Vendor card for ${cardConfig.title}`}
     >
       <CardWrapper
@@ -190,6 +227,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
         onKeyDown={(e: KeyboardEvent) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
+            e.stopPropagation();
             if (onView) onView(data);
           }
         }}
@@ -200,21 +238,23 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
               {/* Avatar and Status Header */}
               <div className="flex justify-between space-x-3 mb-4 flex-nowrap w-full">
                 <div className="flex items-center gap-2 truncate">
-                  <motion.div
-                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
-                    animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
-                    whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
-                  >
-                    <Avatar
-                      fallback={getInitials(cardConfig.avatarField)}
-                      size="lg"
-                      variant="primary"
-                      className="border border-gray-100"
+                  {hasAvatarField && (
+                    <motion.div
+                      initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
+                      animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                      whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                     >
-                      {getInitials(cardConfig.avatarField)}
-                    </Avatar>
-                  </motion.div>
+                      <Avatar
+                        fallback={getInitials(cardConfig.avatarField)}
+                        size="lg"
+                        variant="primary"
+                        className="border border-gray-100"
+                      >
+                        {getInitials(cardConfig.avatarField)}
+                      </Avatar>
+                    </motion.div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <motion.h3
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
@@ -276,6 +316,19 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   </div>
                 )}
               </div>
+              
+              {/* Description */}
+              {hasDescriptionRole && description && (
+                <motion.div
+                  initial={disableAnimation ? false : { opacity: 0, y: 5 }}
+                  animate={disableAnimation ? false : { opacity: 1, y: 0 }}
+                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                  className="w-full mb-2"
+                >
+                  <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+                </motion.div>
+              )}
+
               <div className="w-full items-center justify-start mb-2">
                 {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
                   <BadgeViewer
@@ -365,21 +418,23 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
             // List view layout
             <div className="flex items-center space-x-4 w-full flex-wrap gap-2 justify-between">
               <div className="flex items-center gap-2">
-                <motion.div
-                  initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
-                  animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
-                  whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
-                >
-                  <Avatar
-                    fallback={getInitials(cardConfig.avatarField)}
-                    size="md"
-                    variant="primary"
-                    className="border border-gray-100"
+                {hasAvatarField && (
+                  <motion.div
+                    initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
+                    animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                    whileHover={disableAnimation ? undefined : { scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                   >
-                    {getInitials(cardConfig.avatarField)}
-                  </Avatar>
-                </motion.div>
+                    <Avatar
+                      fallback={getInitials(cardConfig.avatarField)}
+                      size="md"
+                      variant="primary"
+                      className="border border-gray-100"
+                    >
+                      {getInitials(cardConfig.avatarField)}
+                    </Avatar>
+                  </motion.div>
+                )}
                 <div className="flex-1 min-w-0">
                   <motion.h3
                     initial={disableAnimation ? false : { opacity: 0, x: -10 }}

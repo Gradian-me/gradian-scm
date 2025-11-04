@@ -82,7 +82,7 @@ export const DynamicCardDialog: React.FC<DynamicCardDialogProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} data-test-id="dynamic-card-dialog">
-      <DialogContent className={cn("max-w-3xl max-h-[90vh] overflow-y-auto", className)} data-test-id="dynamic-card-dialog-content">
+      <DialogContent className={cn("min-w-2xl min-h-[50vh] max-w-5xl max-h-[90vh] overflow-y-auto", className)} data-test-id="dynamic-card-dialog-content">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
         </DialogHeader>

@@ -70,7 +70,7 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
   if (viewMode === 'list') {
     // List view layout
     return (
-      <div className={cn("flex items-center space-x-2", className)}>
+      <div className={cn("flex items-center space-x-2", className)} data-action-button>
         {showView && onView && (
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -82,9 +82,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onView();
               }}
               className="h-8 w-8 p-0 group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200"
+              data-action-button
             >
               <IconRenderer iconName="Eye" className="h-4 w-4" />
             </Button>
@@ -101,9 +103,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onEdit();
               }}
               className="h-8 w-8 p-0 group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200"
+              data-action-button
             >
               <IconRenderer iconName="Edit" className="h-4 w-4" />
             </Button>
@@ -120,9 +124,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onDelete();
               }}
               className="h-8 w-8 p-0 group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200"
+              data-action-button
             >
               <IconRenderer iconName="Trash2" className="h-4 w-4" />
             </Button>
@@ -134,12 +140,13 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
   
   // Grid view layout
   return (
-    <div className={cn("flex mt-auto pt-4", className)}>
+    <div className={cn("flex mt-auto pt-4", className)} data-action-button>
       <motion.div
         className="flex gap-2 flex-row w-full flex-wrap"
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
+        data-action-button
       >
         {showView && onView && (
           <motion.div
@@ -152,9 +159,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onView();
               }}
               className="w-full group-hover:bg-sky-50 group-hover:border-sky-300 group-hover:text-sky-700 transition-all duration-200 text-xs"
+              data-action-button
             >
               <IconRenderer iconName="Eye" className="h-4 w-4 mr-2" />
               View
@@ -172,9 +181,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onEdit();
               }}
               className="w-full group-hover:bg-emerald-50 group-hover:border-emerald-300 group-hover:text-emerald-700 transition-all duration-200 text-xs"
+              data-action-button
             >
               <IconRenderer iconName="Edit" className="h-4 w-4 mr-2" />
               Edit
@@ -192,9 +203,11 @@ export const DynamicCardActionButtons: React.FC<DynamicCardActionButtonsProps> =
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 onDelete();
               }}
               className="w-full group-hover:bg-red-50 group-hover:border-red-300 group-hover:text-red-700 transition-all duration-200 text-xs"
+              data-action-button
             >
               <IconRenderer iconName="Trash2" className="h-4 w-4 mr-2" />
               Delete
