@@ -236,6 +236,8 @@ export interface RepeatingTableRendererConfig {
   columns?: string[]; // Field IDs to display as columns (if empty, show all fields from section)
   title?: string;
   description?: string;
+  targetSchema?: string; // Target schema ID for relation-based tables
+  relationTypeId?: string; // Relation type ID for relation-based tables
   tableProperties?: {
     sortingEnabled?: boolean;
     paginationEnabled?: boolean;

@@ -174,12 +174,12 @@
     "detailPageMetadata": {
       "quickActions": [
         {
-          "id": "create-purchase-order",
-          "label": "Create Purchase Order",
+          "id": "create-quotation",
+          "label": "Create Quotation",
           "icon": "FilePlus",
           "variant": "default",
           "action": "openFormDialog",
-          "targetSchema": "purchase-orders"
+          "targetSchema": "quotations"
         },
         {
           "id": "view-vendors",
@@ -197,42 +197,6 @@
           "action": "openUrl",
           "targetUrl": "/api/export/inquiries",
           "passItemAsReference": true
-        }
-      ],
-      "componentRenderers": [
-        {
-          "id": "total-items-kpi",
-          "componentType": "kpi",
-          "dataPath": "summaryMetrics",
-          "config": {
-            "id": "total-items-kpi",
-            "name": "Total Items KPI",
-            "title": "Total Items",
-            "format": "number",
-            "precision": 0,
-            "color": "#3B82F6",
-            "trend": {
-              "enabled": false
-            }
-          },
-          "colSpan": 1
-        },
-        {
-          "id": "total-quantity-kpi",
-          "componentType": "kpi",
-          "dataPath": "summaryMetrics",
-          "config": {
-            "id": "total-quantity-kpi",
-            "name": "Total Quantity KPI",
-            "title": "Total Quantity",
-            "format": "number",
-            "precision": 2,
-            "color": "#10B981",
-            "trend": {
-              "enabled": false
-            }
-          },
-          "colSpan": 1
         }
       ],
       "tableRenderers": [
@@ -268,22 +232,15 @@
               {
                 "column": "item-quantity",
                 "aggregationTypes": [
-                  "sum",
-                  "avg",
-                  "min",
-                  "max"
+                  "sum"
                 ],
                 "precision": 2
               },
               {
-                "column": "item-major-unit-quantity",
+                "column": "item-part-code",
                 "aggregationTypes": [
-                  "sum",
-                  "avg",
-                  "min",
-                  "max"
-                ],
-                "precision": 2
+                  "count"
+                ]
               }
             ]
           },
@@ -291,6 +248,7 @@
           "columnArea": "main"
         }
       ],
+      "componentRenderers": [],
       "sections": [
         {
           "id": "inquiry-overview",
@@ -301,17 +259,9 @@
             "inquiry-number",
             "inquiry-date",
             "inquiry-deadline-date",
-            "inquiry-status"
-          ]
-        },
-        {
-          "id": "inquiry-notes",
-          "title": "Additional Information",
-          "description": "Additional details and notes",
-          "colSpan": 1,
-          "columnArea": "sidebar",
-          "fieldIds": [
+            "inquiry-status",
             "inquiry-description"
+
           ]
         }
       ]
@@ -364,6 +314,7 @@
         "type": "number",
         "component": "number",
         "placeholder": "Enter quantity",
+        "role": "subtitle",
         "required": true,
         "validation": {
           "required": true,

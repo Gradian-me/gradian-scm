@@ -7,6 +7,7 @@ import { apiRequest } from '../utils/api';
 import { config } from '@/lib/config';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { useCompanyStore } from '@/stores/company.store';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -146,6 +147,7 @@ export function useEditModal(
   options: UseEditModalOptions = {}
 ): UseEditModalReturn {
   const { enrichData, onSuccess, onClose } = options;
+  const { getCompanyId } = useCompanyStore();
 
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -247,7 +249,19 @@ export function useEditModal(
     
     try {
       // Enrich data if provided
-      const enrichedData = enrichData ? enrichData(formData, entityId) : formData;
+      let enrichedData = enrichData ? enrichData(formData, entityId) : formData;
+
+      // Automatically add companyId from store if not already present
+      // Only add if entity doesn't have companyId (preserve existing companyId for updates)
+      if (!enrichedData.companyId) {
+        const companyId = getCompanyId();
+        if (companyId !== null && companyId !== -1) {
+          enrichedData = {
+            ...enrichedData,
+            companyId: String(companyId),
+          };
+        }
+      }
 
       // Update entity using API
       const apiEndpoint = `/api/data/${targetSchema.id}/${entityId}`;
@@ -270,7 +284,7 @@ export function useEditModal(
       setFormError(error instanceof Error ? error.message : `Failed to update ${targetSchema.name}. Please try again.`);
       setIsSubmitting(false);
     }
-  }, [targetSchema, entityId, enrichData, closeEditModal, onSuccess]);
+  }, [targetSchema, entityId, enrichData, closeEditModal, onSuccess, getCompanyId]);
 
   const clearFormError = useCallback(() => {
     setFormError(null);

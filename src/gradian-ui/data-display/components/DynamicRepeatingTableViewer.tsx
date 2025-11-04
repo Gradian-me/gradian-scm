@@ -1,9 +1,9 @@
 // Dynamic Repeating Table Viewer Component
 // Displays repeating section data in a table format
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { FormSchema, RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
+import { FormSchema, RepeatingTableRendererConfig, DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { Table, TableColumn, TableConfig, TableAggregations } from '../table';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
@@ -11,6 +11,7 @@ import { BadgeViewer } from '../../form-builder/form-elements/utils/badge-viewer
 import { CardWrapper, CardHeader, CardTitle, CardContent } from '../card/components/CardWrapper';
 import { TableCardView } from './TableCardView';
 import { cn } from '../../shared/utils';
+import { apiRequest } from '@/shared/utils/api';
 
 export interface DynamicRepeatingTableViewerProps {
   config: RepeatingTableRendererConfig;
@@ -19,6 +20,8 @@ export interface DynamicRepeatingTableViewerProps {
   index?: number;
   disableAnimation?: boolean;
   className?: string;
+  sourceSchemaId?: string; // Source schema ID for relation-based tables
+  sourceId?: string; // Source entity ID for relation-based tables
 }
 
 /**
@@ -130,47 +133,144 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   index = 0,
   disableAnimation = false,
   className,
+  sourceSchemaId,
+  sourceId,
 }) => {
-  // Find the repeating section in the schema
+  // Check if this is a relation-based table
+  const isRelationBased = !!(config.targetSchema && config.relationTypeId);
+  const targetSchema = config.targetSchema;
+  const relationTypeId = config.relationTypeId;
+  
+  // Get source schema ID and source ID from props or from data
+  const effectiveSourceSchemaId = sourceSchemaId || schema.id;
+  const effectiveSourceId = sourceId || data?.id;
+
+  // State for relation-based tables
+  const [relatedEntities, setRelatedEntities] = useState<any[]>([]);
+  const [isLoadingRelations, setIsLoadingRelations] = useState(false);
+  const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
+  const [isLoadingTargetSchema, setIsLoadingTargetSchema] = useState(false);
+
+  // Fetch target schema for relation-based tables
+  useEffect(() => {
+    if (isRelationBased && targetSchema) {
+      setIsLoadingTargetSchema(true);
+      const fetchTargetSchema = async () => {
+        try {
+          const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
+          if (response.success && response.data) {
+            setTargetSchemaData(response.data);
+          }
+        } catch (error) {
+          console.error('Error fetching target schema:', error);
+        } finally {
+          setIsLoadingTargetSchema(false);
+        }
+      };
+      fetchTargetSchema();
+    }
+  }, [isRelationBased, targetSchema]);
+
+  // Fetch relations and related entities for relation-based tables
+  const fetchRelations = useCallback(async () => {
+    if (!isRelationBased || !effectiveSourceId || !targetSchema || !relationTypeId) {
+      return;
+    }
+    
+    setIsLoadingRelations(true);
+    try {
+      // Fetch relations
+      const relationsResponse = await apiRequest<DataRelation[]>(
+        `/api/relations?sourceSchema=${effectiveSourceSchemaId}&sourceId=${effectiveSourceId}&relationTypeId=${relationTypeId}&targetSchema=${targetSchema}`
+      );
+      
+      if (relationsResponse.success && relationsResponse.data) {
+        const relationsList = Array.isArray(relationsResponse.data) 
+          ? relationsResponse.data 
+          : [];
+        
+        // Fetch related entities
+        const entitiesPromises = relationsList.map(async (relation: DataRelation) => {
+          const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
+          return entityResponse.success && entityResponse.data ? entityResponse.data : null;
+        });
+        
+        const entities = await Promise.all(entitiesPromises);
+        setRelatedEntities(entities.filter(e => e !== null));
+      }
+    } catch (error) {
+      console.error('Error fetching relations:', error);
+    } finally {
+      setIsLoadingRelations(false);
+    }
+  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId]);
+
+  // Fetch relations when component mounts or dependencies change
+  useEffect(() => {
+    if (isRelationBased) {
+      fetchRelations();
+    }
+  }, [fetchRelations, isRelationBased]);
+
+  // Find the repeating section in the schema (for non-relation-based tables)
   const section = schema.sections?.find((s) => s.id === config.sectionId);
 
-  if (!section || !section.isRepeatingSection) {
+  // For relation-based tables, we don't need the section validation
+  // For non-relation-based tables, check section
+  if (!isRelationBased && (!section || !section.isRepeatingSection)) {
     return null;
   }
 
-  // Get the repeating section data from the main data object
-  // The section ID matches the property name in the data (e.g., "contacts")
-  const sectionData: any[] = data[config.sectionId] || [];
+  // Get the data - either from relations or from the main data object
+  let sectionData: any[] = [];
+  if (isRelationBased) {
+    sectionData = relatedEntities;
+  } else {
+    // Get the repeating section data from the main data object
+    sectionData = data[config.sectionId] || [];
+  }
 
   if (!Array.isArray(sectionData)) {
     return null;
   }
 
-  // Get fields for this repeating section
-  const sectionFields = schema.fields?.filter(
-    (f) => f.sectionId === config.sectionId
-  ) || [];
+  // Get fields - either from target schema (relation-based) or from source schema
+  let fieldsToUse: any[] = [];
+  if (isRelationBased && targetSchemaData) {
+    // Get fields from target schema
+    fieldsToUse = targetSchemaData.fields || [];
+  } else if (!isRelationBased && section) {
+    // Get fields for this repeating section from source schema
+    fieldsToUse = schema.fields?.filter(
+      (f) => f.sectionId === config.sectionId
+    ) || [];
+  }
 
-  if (sectionFields.length === 0) {
+  if (fieldsToUse.length === 0 && !isRelationBased) {
     return null;
   }
 
   // Determine which fields to display as columns
   const fieldsToDisplay = useMemo(() => {
+    const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
+    
     if (config.columns && config.columns.length > 0) {
       // Use specified columns
       return config.columns
-        .map((fieldId) => resolveFieldById(schema, fieldId))
+        .map((fieldId) => resolveFieldById(schemaToUse, fieldId))
         .filter(Boolean);
     }
-    // Use all fields from the section
-    return sectionFields;
-  }, [config.columns, schema, sectionFields]);
+    // Use all fields (from target schema for relation-based, or from section for non-relation-based)
+    return fieldsToUse;
+  }, [config.columns, isRelationBased, targetSchemaData, schema, fieldsToUse]);
 
   // Build table columns
   const columns = useMemo(
-    () => buildTableColumns(fieldsToDisplay, schema),
-    [fieldsToDisplay, schema]
+    () => {
+      const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
+      return buildTableColumns(fieldsToDisplay, schemaToUse);
+    },
+    [fieldsToDisplay, isRelationBased, targetSchemaData, schema]
   );
 
   // Get table properties with defaults
@@ -208,19 +308,21 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         enabled: false,
       },
       emptyState: {
-        message: section.repeatingConfig?.emptyMessage || 'No items found',
+        message: isRelationBased 
+          ? (config.title ? `No ${config.title.toLowerCase()} found` : 'No items found')
+          : (section?.repeatingConfig?.emptyMessage || 'No items found'),
       },
-      loading: false,
+      loading: isLoadingRelations || (isRelationBased && isLoadingTargetSchema),
       striped: true,
       hoverable: true,
       bordered: true,
     }),
-    [columns, sectionData, sortingEnabled, paginationEnabled, paginationPageSize, alwaysShowPagination, section]
+    [columns, sectionData, sortingEnabled, paginationEnabled, paginationPageSize, alwaysShowPagination, section, isRelationBased, config, isLoadingRelations, isLoadingTargetSchema]
   );
 
   const colSpan = config.colSpan || 1;
-  const title = config.title || section.title;
-  const description = config.description || section.description;
+  const title = config.title || (isRelationBased ? targetSchemaData?.plural_name || 'Related Items' : section?.title);
+  const description = config.description || (isRelationBased ? undefined : section?.description);
 
   // Track window size for responsive behavior
   const [isMobile, setIsMobile] = useState(false);

@@ -348,6 +348,18 @@
       "createdAt": "2025-11-04T03:19:07.006Z",
       "updatedAt": "2025-11-04T06:40:21.127Z",
       "description": "Test Description of Himedia Feed Alpha"
+    },
+    {
+      "partCode": "5073",
+      "partName": "HPLC Equipment Agilent 2190 ",
+      "quantity": 2,
+      "unit": "1",
+      "demandDate": "2025-11-26",
+      "minimumExpirationDate": "2025-11-25",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "id": "01K96WRHRE30636NDY6QVJT5AR",
+      "createdAt": "2025-11-04T07:37:04.546Z",
+      "updatedAt": "2025-11-04T07:37:04.546Z"
     }
   ]
 }

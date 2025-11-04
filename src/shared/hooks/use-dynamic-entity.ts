@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '../utils/api';
+import { useCompanyStore } from '@/stores/company.store';
 
 interface EntityFilters {
   search?: string;
@@ -31,6 +32,7 @@ interface EntityState<T = any> {
 }
 
 export function useDynamicEntity<T = any>(schema: FormSchema) {
+  const { getCompanyId } = useCompanyStore();
   const [entities, setEntities] = useState<T[]>([]);
   const [currentEntity, setCurrentEntity] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState(true); // Start with true for initial load
@@ -93,9 +95,18 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
   // Create entity
   const createEntity = useCallback(async (data: Partial<T>) => {
     try {
+      // Automatically add companyId from store if not already present
+      const enrichedData = { ...data };
+      if (!enrichedData.companyId) {
+        const companyId = getCompanyId();
+        if (companyId !== null && companyId !== -1) {
+          (enrichedData as any).companyId = String(companyId);
+        }
+      }
+      
       const response = await apiRequest<T>(apiEndpoint, {
         method: 'POST',
-        body: data,
+        body: enrichedData,
       });
       
       if (response.success && response.data) {
@@ -110,7 +121,7 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
         error: err instanceof Error ? err.message : 'Failed to create entity' 
       };
     }
-  }, [apiEndpoint]);
+  }, [apiEndpoint, getCompanyId]);
 
   // Update entity
   const updateEntity = useCallback(async (id: string, data: Partial<T>) => {

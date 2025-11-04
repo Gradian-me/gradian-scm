@@ -7,6 +7,7 @@ import { apiRequest } from '../../../shared/utils/api';
 import { config } from '@/lib/config';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { useCompanyStore } from '@/stores/company.store';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -164,6 +165,7 @@ export function useFormModal(
   options: UseFormModalOptions = {}
 ): UseFormModalReturn {
   const { enrichData, onSuccess, onClose } = options;
+  const { getCompanyId } = useCompanyStore();
 
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -285,9 +287,21 @@ export function useFormModal(
     
     try {
       // Enrich data if provided (pass entityId for edit mode)
-      const enrichedData = enrichData 
+      let enrichedData = enrichData 
         ? enrichData(formData, mode === 'edit' ? entityId || undefined : undefined)
         : formData;
+
+      // Automatically add companyId from store if not already present
+      // Only add for create mode or if entity doesn't have companyId (for edit mode)
+      if (mode === 'create' || !enrichedData.companyId) {
+        const companyId = getCompanyId();
+        if (companyId !== null && companyId !== -1) {
+          enrichedData = {
+            ...enrichedData,
+            companyId: String(companyId),
+          };
+        }
+      }
 
       // Determine API endpoint and method based on mode
       const apiEndpoint = mode === 'edit' && entityId
@@ -319,7 +333,7 @@ export function useFormModal(
       setFormErrorStatusCode(undefined);
       setIsSubmitting(false);
     }
-  }, [targetSchema, mode, entityId, enrichData, closeFormModal, onSuccess]);
+  }, [targetSchema, mode, entityId, enrichData, closeFormModal, onSuccess, getCompanyId]);
 
   const clearFormError = useCallback(() => {
     setFormError(null);

@@ -7,6 +7,7 @@ import { apiRequest } from '../utils/api';
 import { config } from '@/lib/config';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { useCompanyStore } from '@/stores/company.store';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -135,6 +136,7 @@ export function useCreateModal(
   options: UseCreateModalOptions = {}
 ): UseCreateModalReturn {
   const { enrichData, onSuccess, onClose } = options;
+  const { getCompanyId } = useCompanyStore();
 
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -220,7 +222,18 @@ export function useCreateModal(
     
     try {
       // Enrich data if provided
-      const enrichedData = enrichData ? enrichData(formData) : formData;
+      let enrichedData = enrichData ? enrichData(formData) : formData;
+
+      // Automatically add companyId from store if not already present
+      if (!enrichedData.companyId) {
+        const companyId = getCompanyId();
+        if (companyId !== null && companyId !== -1) {
+          enrichedData = {
+            ...enrichedData,
+            companyId: String(companyId),
+          };
+        }
+      }
 
       // Create entity using API
       const apiEndpoint = `/api/data/${targetSchema.id}`;
@@ -243,7 +256,7 @@ export function useCreateModal(
       setFormError(error instanceof Error ? error.message : `Failed to create ${targetSchema.name}. Please try again.`);
       setIsSubmitting(false);
     }
-  }, [targetSchema, enrichData, closeCreateModal, onSuccess]);
+  }, [targetSchema, enrichData, closeCreateModal, onSuccess, getCompanyId]);
 
   const clearFormError = useCallback(() => {
     setFormError(null);
