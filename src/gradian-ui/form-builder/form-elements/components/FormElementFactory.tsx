@@ -6,6 +6,7 @@ import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { TextInput } from './TextInput';
 import { Textarea } from './Textarea';
 import { Checkbox } from './Checkbox';
+import { CheckboxList } from './CheckboxList';
 import { RadioGroup } from './RadioGroup';
 import { Select } from './Select';
 import { ImageText } from './ImageText';
@@ -23,6 +24,7 @@ import { NumberInput } from './NumberInput';
 import { DateInput } from './DateInput';
 import { DateTimeInput } from './DateTimeInput';
 import { FileInput } from './FileInput';
+import { PickerInput } from './PickerInput';
 import { UnknownControl } from './UnknownControl';
 
 // Support both config-based and field-based interfaces
@@ -115,6 +117,9 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     case 'checkbox':
       return <Checkbox config={config} {...restProps} />;
     
+    case 'checkbox-list':
+      return <CheckboxList config={config} options={config.options || []} {...restProps} />;
+    
     case 'radio':
       return <RadioGroup config={config} options={config.options || []} {...restProps} />;
     
@@ -127,6 +132,9 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'file':
       return <FileInput config={config} {...restProps} />;
+    
+    case 'picker':
+      return <PickerInput config={config} {...restProps} />;
     
     case 'image-text':
       return <ImageText config={config} value={restProps.value} {...restProps} />;

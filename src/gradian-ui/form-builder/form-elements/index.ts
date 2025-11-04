@@ -4,6 +4,7 @@ export * from './types';
 export * from './components/TextInput';
 export * from './components/Textarea';
 export * from './components/Checkbox';
+export * from './components/CheckboxList';
 export * from './components/RadioGroup';
 export { FormElementFactory } from './components/FormElementFactory';
 
@@ -27,6 +28,7 @@ export * from './components/NumberInput';
 export * from './components/DateInput';
 export * from './components/DateTimeInput';
 export * from './components/FileInput';
+export * from './components/PickerInput';
 export * from './components/Switch';
 export * from './components/CTAButton';
 export * from './go-to-top-form';

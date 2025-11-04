@@ -1,17 +1,16 @@
 {
   "vendors": [
     {
-      "name": "CinnaGen",
-      "email": "abidi.mahyar@gmail.com",
-      "phone": "09126184264",
-      "address": "تهران شهرک غرب بلوار فرحزادی خیابان سپهر پلاک 34\nتحویل نگهبانی گردد - مهیار عبیدی",
-      "city": "تهران",
-      "state": "تهران",
+      "name": "Transfarma",
+      "email": "info@transfarma.com",
+      "phone": "+90 216 504 10 41",
+      "address": "Barbaros, Al Zambak Sk. Varyap Meridian Sitesi, A Blok, Grand Tower, D:126, 34746 Ataşehir/İstanbul, Türkiye",
+      "city": "İstanbul",
+      "state": "İstanbul",
       "zipCode": "1468943381",
       "registrationNumber": "TF-2019-001",
-      "taxId": "US-TAX-0012",
-      "expirationDate": "2025-11-05",
-      "country": "DE",
+      "taxId": "TR-TAX-0012",
+      "country": "TR",
       "categories": [
         "technology",
         "logistics",
@@ -19,30 +18,6 @@
         "finance"
       ],
       "status": "PENDING",
-      "contacts": [
-        {
-          "name": "Mahyar Abidi",
-          "email": "abidi.mahyar@gmail.com",
-          "phone": "09126184264",
-          "position": "Sales Manager",
-          "department": "",
-          "isPrimary": false,
-          "notes": "",
-          "age": 37.6,
-          "id": "01K8QVCPJNR90EJV36R3F2E0T0"
-        },
-        {
-          "name": "Sarah Johnson",
-          "email": "sarah.johnson@example.com",
-          "phone": "09121234567",
-          "position": "Product Manager",
-          "department": "Product",
-          "isPrimary": true,
-          "notes": "Main point of contact",
-          "age": 28,
-          "id": "01K8QVCPJNR90EJV36R3F2E0T1"
-        }
-      ],
       "rating": 4,
       "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
       "createdAt": "2025-10-29T11:24:37.540Z",
@@ -159,7 +134,7 @@
       "rating": 5,
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-04T03:19:11.929Z",
+      "updatedAt": "2025-11-04T08:22:22.018Z",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
     }
   ],
@@ -335,6 +310,19 @@
       "icon": "MapPinHouse"
     }
   ],
+  "inquiry-vendors": [
+    {
+      "vendorId": {
+        "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
+        "label": "CinnaGen"
+      },
+      "status": "quotation_added",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "id": "01K96ZP38J7J4E4XGPAZ1QXJ4X",
+      "createdAt": "2025-11-04T08:28:09.884Z",
+      "updatedAt": "2025-11-04T08:32:21.983Z"
+    }
+  ],
   "inquiry-items": [
     {
       "partCode": "5052",
@@ -361,5 +349,6 @@
       "createdAt": "2025-11-04T07:37:04.546Z",
       "updatedAt": "2025-11-04T07:37:04.546Z"
     }
-  ]
+  ],
+  "quotations": []
 }

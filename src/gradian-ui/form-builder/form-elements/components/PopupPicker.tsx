@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -58,6 +58,10 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Use refs to track previous array values for comparison
+  const prevExcludeIdsRef = useRef<string>('');
+  const prevIncludeIdsRef = useRef<string>('');
+
   // Fetch schema if not provided
   useEffect(() => {
     if (!providedSchema && schemaId && isOpen) {
@@ -77,48 +81,88 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     }
   }, [schemaId, providedSchema, isOpen]);
 
-  // Fetch items
+  // Reset state when modal closes
   useEffect(() => {
-    if (schemaId && isOpen) {
-      setIsLoading(true);
+    if (!isOpen) {
+      setItems([]);
+      setFilteredItems([]);
+      setSearchQuery('');
       setError(null);
-      
-      const fetchItems = async () => {
-        try {
-          // Build query params
-          const queryParams = new URLSearchParams();
-          
-          // Add includeIds if provided
-          if (includeIds && includeIds.length > 0) {
-            queryParams.append('includeIds', includeIds.join(','));
-          }
-          
-          // Add excludeIds if provided
-          if (excludeIds && excludeIds.length > 0) {
-            queryParams.append('excludeIds', excludeIds.join(','));
-          }
-          
-          const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-          const response = await apiRequest<any[]>(url);
-          
-          if (response.success && response.data) {
-            // Items are already filtered by the API
-            const itemsArray = Array.isArray(response.data) ? response.data : [];
-            setItems(itemsArray);
-            setFilteredItems(itemsArray);
-          } else {
-            setError(response.error || 'Failed to fetch items');
-          }
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to fetch items');
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchItems();
+      // Don't reset refs here - we want to track changes across opens
     }
-  }, [schemaId, isOpen, excludeIds, includeIds]);
+  }, [isOpen]);
+
+  // Fetch items - only when modal opens
+  // Array comparisons are done inside the effect to avoid dependency issues
+  useEffect(() => {
+    if (!schemaId || !isOpen) {
+      return;
+    }
+
+    // Convert arrays to strings for comparison (compute inside effect to avoid dependency issues)
+    const excludeIdsKey = excludeIds && excludeIds.length > 0 
+      ? JSON.stringify(excludeIds.slice().sort())
+      : '';
+    const includeIdsKey = includeIds && includeIds.length > 0
+      ? JSON.stringify(includeIds.slice().sort())
+      : '';
+
+    // Check if arrays have actually changed (by content, not reference)
+    const excludeIdsChanged = excludeIdsKey !== prevExcludeIdsRef.current;
+    const includeIdsChanged = includeIdsKey !== prevIncludeIdsRef.current;
+
+    // Only fetch if this is the first time opening OR if arrays have changed
+    const shouldFetch = prevExcludeIdsRef.current === '' || prevIncludeIdsRef.current === '' || excludeIdsChanged || includeIdsChanged;
+
+    if (!shouldFetch) {
+      return;
+    }
+
+    // Update refs with current values
+    prevExcludeIdsRef.current = excludeIdsKey;
+    prevIncludeIdsRef.current = includeIdsKey;
+
+    setIsLoading(true);
+    setError(null);
+    
+    const fetchItems = async () => {
+      try {
+        // Build query params
+        const queryParams = new URLSearchParams();
+        
+        // Add includeIds if provided
+        if (includeIds && includeIds.length > 0) {
+          queryParams.append('includeIds', includeIds.join(','));
+        }
+        
+        // Add excludeIds if provided
+        if (excludeIds && excludeIds.length > 0) {
+          queryParams.append('excludeIds', excludeIds.join(','));
+        }
+        
+        const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await apiRequest<any[]>(url);
+        
+        if (response.success && response.data) {
+          // Items are already filtered by the API
+          const itemsArray = Array.isArray(response.data) ? response.data : [];
+          setItems(itemsArray);
+          setFilteredItems(itemsArray);
+        } else {
+          setError(response.error || 'Failed to fetch items');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch items');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItems();
+    // Note: excludeIds and includeIds are intentionally not in dependencies
+    // We compare them inside the effect using refs to avoid infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schemaId, isOpen]);
 
   // Filter items based on search query
   useEffect(() => {

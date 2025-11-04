@@ -166,7 +166,27 @@
           "targetSchema": "inquiry-items",
           "relationTypeId": "HAS_INQUIRY_ITEM",
           "deleteType": "itemAndRelation",
-          "addType": "canSelectFromData",
+          "addType": "addOnly",
+          "isUnique": true
+        }
+      },
+      {
+        "id": "inquiry-vendors",
+        "title": "Inquiry Vendors",
+        "description": "Select vendors for this inquiry",
+        "isRepeatingSection": true,
+        "initialState": "expanded",
+        "columns": 2,
+        "repeatingConfig": {
+          "minItems": 0,
+          "maxItems": 100,
+          "addButtonText": "Add Vendor",
+          "removeButtonText": "Remove Vendor",
+          "emptyMessage": "No vendors selected yet",
+          "targetSchema": "inquiry-vendors",
+          "relationTypeId": "HAS_INQUIRY_VENDOR",
+          "deleteType": "itemAndRelation",
+          "addType": "addOnly",
           "isUnique": true
         }
       }
@@ -246,6 +266,27 @@
           },
           "colSpan": 2,
           "columnArea": "main"
+        },
+        {
+          "id": "inquiry-vendors-table",
+          "targetSchema": "inquiry-vendors",
+          "relationTypeId": "HAS_INQUIRY_VENDOR",
+          "sectionId": "vendor-information",
+          "title": "Inquiry Vendors",
+          "description": "List of all vendors associated with this inquiry",
+          "columns": [
+            "vendor-field",
+            "vendor-status"
+          ],
+          "tableProperties": {
+            "sortingEnabled": true,
+            "paginationEnabled": true,
+            "paginationPageSize": 10,
+            "showAsCards": true,
+            "cardColumns": 1
+          },
+          "colSpan": 2,
+          "columnArea": "main"
         }
       ],
       "componentRenderers": [],
@@ -300,6 +341,7 @@
         "component": "text",
         "placeholder": "Enter part name",
         "required": true,
+        "role": "title",
         "validation": {
           "required": true
         },
@@ -429,6 +471,91 @@
     "icon": "Package"
   },
   {
+    "id": "inquiry-vendors",
+    "description": "Vendors associated with an inquiry",
+    "singular_name": "Inquiry Vendor",
+    "plural_name": "Inquiry Vendors",
+    "fields": [
+      {
+        "id": "vendor-field",
+        "name": "vendorId",
+        "label": "Vendor",
+        "sectionId": "vendor-information",
+        "type": "picker",
+        "component": "picker",
+        "placeholder": "Click to select vendor",
+        "required": true,
+        "description": "Select vendor from popup picker",
+        "role":"title",
+        "targetSchema": "vendors",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "vendor-status",
+        "name": "status",
+        "label": "Status",
+        "sectionId": "vendor-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
+        "required": true,
+        "role": "status",
+        "options": [
+          {
+            "label": "Pending",
+            "value": "pending",
+            "icon": "Clock",
+            "color": "default"
+          },
+          {
+            "label": "Reviewed",
+            "value": "reviewed",
+            "icon": "Eye",
+            "color": "info"
+          },
+          {
+            "label": "Quotation Added",
+            "value": "quotation_added",
+            "icon": "FileText",
+            "color": "warning"
+          },
+          {
+            "label": "Awarded",
+            "value": "awarded",
+            "icon": "CheckCircle",
+            "color": "success"
+          },
+          {
+            "label": "Rejected",
+            "value": "rejected",
+            "icon": "XCircle",
+            "color": "destructive"
+          }
+        ],
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      }
+    ],
+    "sections": [
+      {
+        "id": "vendor-information",
+        "title": "Vendor Information",
+        "description": "Vendor and status information",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "showInNavigation": false,
+    "icon": "Users"
+  },
+  {
     "id": "vendors",
     "description": "Add a new vendor to your supply chain management system",
     "singular_name": "Vendor",
@@ -497,11 +624,11 @@
         "label": "Phone Number",
         "sectionId": "basic-information",
         "type": "phone",
-        "component": "text",
+        "component": "phone",
         "placeholder": "Enter phone number",
         "icon": "Phone",
         "required": true,
-        "role": "tel",
+        "role": "phone",
         "validation": {
           "required": true
         },
@@ -537,22 +664,6 @@
         },
         "colSpan": 1,
         "order": 5
-      },
-      {
-        "id": "expiration-date",
-        "name": "expirationDate",
-        "label": "Expiration Date",
-        "sectionId": "basic-information",
-        "type": "date",
-        "component": "date",
-        "placeholder": "Select expiration date",
-        "required": true,
-        "role": "duedate",
-        "validation": {
-          "required": false
-        },
-        "colSpan": 1,
-        "order": 6
       },
       {
         "id": "country",
@@ -596,6 +707,14 @@
           {
             "label": "India",
             "value": "IN"
+          },
+          {
+            "label": "Turkey",
+            "value": "TR"
+          },
+          {
+            "label": "Other",
+            "value": "OTHER"
           }
         ],
         "validation": {
@@ -609,8 +728,8 @@
         "name": "certifications",
         "label": "Certifications",
         "sectionId": "basic-information",
-        "type": "checkbox",
-        "component": "checkbox",
+        "type": "checkbox-list",
+        "component": "checkbox-list",
         "placeholder": "Select certifications",
         "required": false,
         "role": "badge",
@@ -708,10 +827,10 @@
         "name": "categories",
         "label": "Business Categories",
         "sectionId": "business-details",
-        "type": "checkbox",
-        "component": "checkbox",
+        "type": "checkbox-list",
+        "component": "checkbox-list",
         "placeholder": "Select categories",
-        "required": true,
+        "required": false,
         "role": "badge",
         "options": [
           {
@@ -837,6 +956,12 @@
           {
             "label": "Inactive",
             "value": "INACTIVE",
+            "icon": "XCircle",
+            "color": "muted"
+          },
+          {
+            "label": "Forbidden",
+            "value": "FORBIDDEN",
             "icon": "XCircle",
             "color": "destructive"
           }
@@ -1573,5 +1698,398 @@
     },
     "showInNavigation": false,
     "icon": "Link2"
+  },
+  {
+    "id": "quotations",
+    "description": "Create and manage quotations for procurement needs",
+    "singular_name": "Quotation",
+    "plural_name": "Quotations",
+    "cardMetadata": [
+      {
+        "id": "quotation-info",
+        "title": "Quotation Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "quotation-number",
+          "quotation-date",
+          "expiration-date",
+          "quotation-state"
+        ]
+      },
+      {
+        "id": "financial-info",
+        "title": "Financial Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "net-price",
+          "currency"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "quotation-number",
+        "name": "number",
+        "label": "Quotation Number",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter quotation number",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 1
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "quotation-date",
+        "name": "quotationDate",
+        "label": "Quotation Date",
+        "sectionId": "basic-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select quotation date",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "expiration-date",
+        "name": "expirationDate",
+        "label": "Expiration Date",
+        "sectionId": "basic-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select expiration date",
+        "required": true,
+        "role": "duedate",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 3
+      },
+      {
+        "id": "vendor",
+        "name": "vendorId",
+        "label": "Vendor",
+        "sectionId": "basic-information",
+        "type": "picker",
+        "component": "picker",
+        "placeholder": "Click to select vendor",
+        "required": true,
+        "description": "Select vendor from popup picker",
+        "targetSchema": "vendors",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 4
+      },
+      {
+        "id": "quotation-state",
+        "name": "state",
+        "label": "State",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select state",
+        "required": true,
+        "role": "status",
+        "options": [
+          {
+            "label": "Draft",
+            "value": "DRAFT",
+            "icon": "FileText",
+            "color": "default"
+          },
+          {
+            "label": "Submitted",
+            "value": "SUBMITTED",
+            "icon": "Send",
+            "color": "info"
+          },
+          {
+            "label": "Under Review",
+            "value": "UNDER_REVIEW",
+            "icon": "Clock",
+            "color": "warning"
+          },
+          {
+            "label": "Accepted",
+            "value": "ACCEPTED",
+            "icon": "CheckCircle",
+            "color": "success"
+          },
+          {
+            "label": "Rejected",
+            "value": "REJECTED",
+            "icon": "XCircle",
+            "color": "destructive"
+          },
+          {
+            "label": "Expired",
+            "value": "EXPIRED",
+            "icon": "CalendarX",
+            "color": "muted"
+          }
+        ],
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 5
+      },
+      {
+        "id": "currency",
+        "name": "currency",
+        "label": "Currency",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select currency",
+        "required": true,
+        "options": [
+          {
+            "label": "USD - US Dollar",
+            "value": "USD"
+          },
+          {
+            "label": "EUR - Euro",
+            "value": "EUR"
+          },
+          {
+            "label": "GBP - British Pound",
+            "value": "GBP"
+          },
+          {
+            "label": "JPY - Japanese Yen",
+            "value": "JPY"
+          },
+          {
+            "label": "IRR - Iranian Rial",
+            "value": "IRR"
+          },
+          {
+            "label": "AED - UAE Dirham",
+            "value": "AED"
+          }
+        ],
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 6
+      },
+      {
+        "id": "transport-type",
+        "name": "transportType",
+        "label": "Transport Type",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select transport type",
+        "required": false,
+        "options": [
+          {
+            "label": "Road",
+            "value": "ROAD"
+          },
+          {
+            "label": "Air",
+            "value": "AIR"
+          },
+          {
+            "label": "Sea",
+            "value": "SEA"
+          },
+          {
+            "label": "Rail",
+            "value": "RAIL"
+          },
+          {
+            "label": "Express",
+            "value": "EXPRESS"
+          }
+        ],
+        "colSpan": 1,
+        "order": 7
+      },
+      {
+        "id": "purchase-method",
+        "name": "purchaseMethod",
+        "label": "Purchase Method",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select purchase method",
+        "required": false,
+        "options": [
+          {
+            "label": "Direct Purchase",
+            "value": "DIRECT"
+          },
+          {
+            "label": "Tender",
+            "value": "TENDER"
+          },
+          {
+            "label": "Auction",
+            "value": "AUCTION"
+          },
+          {
+            "label": "Framework Agreement",
+            "value": "FRAMEWORK"
+          },
+          {
+            "label": "Negotiation",
+            "value": "NEGOTIATION"
+          }
+        ],
+        "colSpan": 1,
+        "order": 8
+      },
+      {
+        "id": "payment-method",
+        "name": "paymentMethod",
+        "label": "Payment Method",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select payment method",
+        "required": false,
+        "options": [
+          {
+            "label": "Cash",
+            "value": "CASH"
+          },
+          {
+            "label": "Bank Transfer",
+            "value": "BANK_TRANSFER"
+          },
+          {
+            "label": "Letter of Credit",
+            "value": "LETTER_OF_CREDIT"
+          },
+          {
+            "label": "Documentary Collection",
+            "value": "DOCUMENTARY_COLLECTION"
+          },
+          {
+            "label": "Open Account",
+            "value": "OPEN_ACCOUNT"
+          },
+          {
+            "label": "Credit Card",
+            "value": "CREDIT_CARD"
+          }
+        ],
+        "colSpan": 1,
+        "order": 9
+      },
+      {
+        "id": "description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "basic-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter quotation description",
+        "required": false,
+        "role": "description",
+        "colSpan": 2,
+        "order": 10
+      },
+      {
+        "id": "advanced-payment-amount",
+        "name": "advancedPaymentAmount",
+        "label": "Advanced Payment Amount",
+        "sectionId": "financial-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter advanced payment amount",
+        "required": false,
+        "displayType": "currency",
+        "validation": {
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 11
+      },
+      {
+        "id": "additions",
+        "name": "additions",
+        "label": "Additions",
+        "sectionId": "financial-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter additions amount",
+        "required": false,
+        "displayType": "currency",
+        "validation": {
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 12
+      },
+      {
+        "id": "deductions",
+        "name": "deductions",
+        "label": "Deductions",
+        "sectionId": "financial-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter deductions amount",
+        "required": false,
+        "displayType": "currency",
+        "validation": {
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 13
+      },
+      {
+        "id": "net-price",
+        "name": "netPrice",
+        "label": "Net Price",
+        "sectionId": "financial-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter net price",
+        "required": true,
+        "displayType": "currency",
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 14
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "Quotation details and vendor information",
+        "initialState": "expanded",
+        "columns": 2
+      },
+      {
+        "id": "financial-information",
+        "title": "Financial Information",
+        "description": "Pricing and payment details",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "showInNavigation": true,
+    "icon": "FileText"
   }
 ]

@@ -583,8 +583,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   // No need to split them by columnArea
 
   return (
-    <div className={cn("container mx-auto px-4 py-6", className)}>
-      <div className="space-y-6 pb-6">
+    <div className={cn("container mx-auto px-4 py-6 w-full max-w-full overflow-x-hidden", className)}>
+      <div className="space-y-6 pb-6 w-full min-w-0">
         {/* Header */}
         <motion.div
           initial={disableAnimation ? false : { opacity: 0, y: 20 }}
@@ -852,7 +852,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
             {/* Table Renderers - Full Width (Always after components and sections) */}
             {tableRenderers.length > 0 && (
-              <div className="space-y-6 mt-6">
+              <div className="space-y-6 mt-6 w-full min-w-0">
                 {tableRenderers.map((tableConfig, index) => (
                   <DynamicRepeatingTableViewer
                     key={tableConfig.id}
@@ -872,7 +872,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
         {/* Table Renderers - Full Width (Always after components and sections) */}
         {tableRenderers.length > 0 && (
-          <div className="space-y-6 mt-6">
+          <div className="space-y-6 mt-6 w-full min-w-0">
             {tableRenderers.map((tableConfig, index) => (
               <DynamicRepeatingTableViewer
                 key={tableConfig.id}

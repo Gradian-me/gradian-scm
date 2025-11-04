@@ -21,6 +21,7 @@ export const FIELD_TYPES: Array<{
   { value: 'tel', label: 'Phone', description: 'Telephone number input' },
   { value: 'url', label: 'URL', description: 'URL input' },
   { value: 'file', label: 'File', description: 'File upload' },
+  { value: 'picker', label: 'Picker', description: 'Popup picker to select from another schema' },
 ];
 
 export const ROLES: Array<{

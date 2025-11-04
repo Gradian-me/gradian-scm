@@ -71,7 +71,7 @@ export interface FileInputProps extends FormElementProps {
 }
 
 export interface FormElementConfig extends FormFieldConfig {
-  component: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'date' | 'file';
+  component: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'file' | 'picker';
   layout?: {
     width?: string;
     order?: number;

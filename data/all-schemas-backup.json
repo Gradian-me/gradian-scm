@@ -1,0 +1,1581 @@
+﻿{
+    "value":  [
+                  {
+                      "id":  "inquiries",
+                      "description":  "Create and manage inquiries for procurement and supply chain needs",
+                      "singular_name":  "Inquiry",
+                      "plural_name":  "Inquiries",
+                      "cardMetadata":  [
+                                           {
+                                               "id":  "inquiry-info",
+                                               "title":  "Inquiry Information",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "inquiry-number",
+                                                                "inquiry-date",
+                                                                "inquiry-status"
+                                                            ]
+                                           },
+                                           {
+                                               "id":  "timeline",
+                                               "title":  "Timeline",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "inquiry-deadline-date"
+                                                            ]
+                                           }
+                                       ],
+                      "fields":  [
+                                     {
+                                         "id":  "inquiry-number",
+                                         "name":  "number",
+                                         "label":  "Inquiry Number",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter inquiry number",
+                                         "required":  true,
+                                         "role":  "title",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "minLength":  2
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "inquiry-date",
+                                         "name":  "inquiryDate",
+                                         "label":  "Inquiry Date",
+                                         "sectionId":  "basic-information",
+                                         "type":  "datetime-local",
+                                         "component":  "datetime-local",
+                                         "placeholder":  "Select inquiry date and time",
+                                         "required":  true,
+                                         "role":  "subtitle",
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "inquiry-deadline-date",
+                                         "name":  "inquiryDeadlineDate",
+                                         "label":  "Deadline Date",
+                                         "sectionId":  "basic-information",
+                                         "type":  "datetime-local",
+                                         "component":  "datetime-local",
+                                         "placeholder":  "Select deadline date and time",
+                                         "required":  true,
+                                         "role":  "duedate",
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "inquiry-status",
+                                         "name":  "state",
+                                         "label":  "Status",
+                                         "sectionId":  "basic-information",
+                                         "type":  "select",
+                                         "component":  "select",
+                                         "placeholder":  "Select status",
+                                         "required":  true,
+                                         "role":  "status",
+                                         "options":  [
+                                                         {
+                                                             "label":  "Draft",
+                                                             "value":  "0",
+                                                             "icon":  "FileText",
+                                                             "color":  "default"
+                                                         },
+                                                         {
+                                                             "label":  "Submitted",
+                                                             "value":  "1",
+                                                             "icon":  "Send",
+                                                             "color":  "info"
+                                                         },
+                                                         {
+                                                             "label":  "In Review",
+                                                             "value":  "2",
+                                                             "icon":  "Clock",
+                                                             "color":  "warning"
+                                                         },
+                                                         {
+                                                             "label":  "Approved",
+                                                             "value":  "3",
+                                                             "icon":  "CheckCircle",
+                                                             "color":  "success"
+                                                         },
+                                                         {
+                                                             "label":  "Rejected",
+                                                             "value":  "4",
+                                                             "icon":  "XCircle",
+                                                             "color":  "destructive"
+                                                         },
+                                                         {
+                                                             "label":  "Closed",
+                                                             "value":  "5",
+                                                             "icon":  "Archive",
+                                                             "color":  "muted"
+                                                         }
+                                                     ],
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "inquiry-description",
+                                         "name":  "description",
+                                         "label":  "Description",
+                                         "sectionId":  "basic-information",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter inquiry description",
+                                         "required":  false,
+                                         "role":  "description",
+                                         "colSpan":  2,
+                                         "order":  5
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "basic-information",
+                                           "title":  "Inquiry Information",
+                                           "description":  "Basic inquiry details and timeline",
+                                           "initialState":  "expanded",
+                                           "columns":  2
+                                       },
+                                       {
+                                           "id":  "inquiry-items",
+                                           "title":  "Inquiry Items",
+                                           "description":  "Add items to this inquiry",
+                                           "isRepeatingSection":  true,
+                                           "initialState":  "expanded",
+                                           "columns":  2,
+                                           "repeatingConfig":  {
+                                                                   "minItems":  1,
+                                                                   "maxItems":  100,
+                                                                   "addButtonText":  "Add Item",
+                                                                   "removeButtonText":  "Remove Item",
+                                                                   "emptyMessage":  "No items added yet",
+                                                                   "targetSchema":  "inquiry-items",
+                                                                   "relationTypeId":  "HAS_INQUIRY_ITEM",
+                                                                   "deleteType":  "itemAndRelation",
+                                                                   "addType":  "canSelectFromData",
+                                                                   "isUnique":  true
+                                                               }
+                                       }
+                                   ],
+                      "detailPageMetadata":  {
+                                                 "quickActions":  [
+                                                                      {
+                                                                          "id":  "create-quotation",
+                                                                          "label":  "Create Quotation",
+                                                                          "icon":  "FilePlus",
+                                                                          "variant":  "default",
+                                                                          "action":  "openFormDialog",
+                                                                          "targetSchema":  "quotations"
+                                                                      },
+                                                                      {
+                                                                          "id":  "view-vendors",
+                                                                          "label":  "View Vendors",
+                                                                          "icon":  "Users",
+                                                                          "variant":  "outline",
+                                                                          "action":  "goToUrl",
+                                                                          "targetUrl":  "/page/vendors"
+                                                                      },
+                                                                      {
+                                                                          "id":  "export-inquiry",
+                                                                          "label":  "Export Inquiry",
+                                                                          "icon":  "Download",
+                                                                          "variant":  "secondary",
+                                                                          "action":  "openUrl",
+                                                                          "targetUrl":  "/api/export/inquiries",
+                                                                          "passItemAsReference":  true
+                                                                      }
+                                                                  ],
+                                                 "tableRenderers":  [
+                                                                        {
+                                                                            "id":  "inquiry-items-table",
+                                                                            "targetSchema":  "inquiry-items",
+                                                                            "relationTypeId":  "HAS_INQUIRY_ITEM",
+                                                                            "sectionId":  "item-information",
+                                                                            "title":  "Inquiry Items",
+                                                                            "description":  "List of all items in this inquiry",
+                                                                            "columns":  [
+                                                                                            "item-part-code",
+                                                                                            "item-part-name",
+                                                                                            "item-quantity",
+                                                                                            "item-unit",
+                                                                                            "item-demand-date",
+                                                                                            "item-minimum-expiration-date",
+                                                                                            "item-description"
+                                                                                        ],
+                                                                            "tableProperties":  {
+                                                                                                    "sortingEnabled":  true,
+                                                                                                    "paginationEnabled":  true,
+                                                                                                    "paginationPageSize":  20,
+                                                                                                    "showAsCards":  false,
+                                                                                                    "aggregations":  [
+                                                                                                                         {
+                                                                                                                             "column":  "item-row-number",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "count",
+                                                                                                                                                      "max"
+                                                                                                                                                  ]
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "column":  "item-quantity",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "sum"
+                                                                                                                                                  ],
+                                                                                                                             "precision":  2
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "column":  "item-part-code",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "count"
+                                                                                                                                                  ]
+                                                                                                                         }
+                                                                                                                     ]
+                                                                                                },
+                                                                            "colSpan":  2,
+                                                                            "columnArea":  "main"
+                                                                        }
+                                                                    ],
+                                                 "componentRenderers":  [
+
+                                                                        ],
+                                                 "sections":  [
+                                                                  {
+                                                                      "id":  "inquiry-overview",
+                                                                      "title":  "Inquiry Overview",
+                                                                      "description":  "Summary information",
+                                                                      "colSpan":  2,
+                                                                      "fieldIds":  [
+                                                                                       "inquiry-number",
+                                                                                       "inquiry-date",
+                                                                                       "inquiry-deadline-date",
+                                                                                       "inquiry-status",
+                                                                                       "inquiry-description"
+                                                                                   ]
+                                                                  }
+                                                              ]
+                                             },
+                      "showInNavigation":  true,
+                      "icon":  "FileSearch"
+                  },
+                  {
+                      "id":  "inquiry-items",
+                      "description":  "Items in an inquiry",
+                      "singular_name":  "Inquiry Item",
+                      "plural_name":  "Inquiry Items",
+                      "fields":  [
+                                     {
+                                         "id":  "item-part-code",
+                                         "name":  "partCode",
+                                         "label":  "Part Code",
+                                         "sectionId":  "item-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter part code",
+                                         "role":  "code",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "item-part-name",
+                                         "name":  "partName",
+                                         "label":  "Part Name",
+                                         "sectionId":  "item-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter part name",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "item-quantity",
+                                         "name":  "quantity",
+                                         "label":  "Quantity",
+                                         "sectionId":  "item-information",
+                                         "type":  "number",
+                                         "component":  "number",
+                                         "placeholder":  "Enter quantity",
+                                         "role":  "description",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "min":  0
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "item-unit",
+                                         "name":  "unit",
+                                         "label":  "Unit",
+                                         "sectionId":  "item-information",
+                                         "type":  "select",
+                                         "component":  "select",
+                                         "placeholder":  "Select unit",
+                                         "required":  true,
+                                         "options":  [
+                                                         {
+                                                             "label":  "Piece",
+                                                             "value":  "1"
+                                                         },
+                                                         {
+                                                             "label":  "Box",
+                                                             "value":  "2"
+                                                         },
+                                                         {
+                                                             "label":  "Pallet",
+                                                             "value":  "3"
+                                                         },
+                                                         {
+                                                             "label":  "Kilogram",
+                                                             "value":  "4"
+                                                         },
+                                                         {
+                                                             "label":  "Liter",
+                                                             "value":  "5"
+                                                         },
+                                                         {
+                                                             "label":  "Meter",
+                                                             "value":  "6"
+                                                         },
+                                                         {
+                                                             "label":  "Square Meter",
+                                                             "value":  "7"
+                                                         },
+                                                         {
+                                                             "label":  "Cubic Meter",
+                                                             "value":  "8"
+                                                         }
+                                                     ],
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "item-demand-date",
+                                         "name":  "demandDate",
+                                         "label":  "Demand Date",
+                                         "sectionId":  "item-information",
+                                         "type":  "date",
+                                         "component":  "date",
+                                         "placeholder":  "Select demand date",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  5
+                                     },
+                                     {
+                                         "id":  "item-minimum-expiration-date",
+                                         "name":  "minimumExpirationDate",
+                                         "label":  "Minimum Expiration Date",
+                                         "sectionId":  "item-information",
+                                         "type":  "date",
+                                         "component":  "date",
+                                         "placeholder":  "Select minimum expiration date",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  6
+                                     },
+                                     {
+                                         "id":  "item-description",
+                                         "name":  "description",
+                                         "label":  "Description",
+                                         "sectionId":  "item-information",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter item description",
+                                         "required":  false,
+                                         "role":  "description",
+                                         "colSpan":  2,
+                                         "order":  7
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "item-information",
+                                           "title":  "Item Information",
+                                           "description":  "Details about the inquiry item",
+                                           "initialState":  "expanded",
+                                           "columns":  2
+                                       }
+                                   ],
+                      "showInNavigation":  false,
+                      "icon":  "Package"
+                  },
+                  {
+                      "id":  "vendors",
+                      "description":  "Add a new vendor to your supply chain management system",
+                      "singular_name":  "Vendor",
+                      "plural_name":  "Vendors",
+                      "cardMetadata":  [
+                                           {
+                                               "id":  "contact-info",
+                                               "title":  "Contact Information",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "email-address",
+                                                                "phone-number",
+                                                                "tax-id"
+                                                            ]
+                                           },
+                                           {
+                                               "id":  "location",
+                                               "title":  "Location",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "country",
+                                                                "state",
+                                                                "city"
+                                                            ]
+                                           }
+                                       ],
+                      "fields":  [
+                                     {
+                                         "id":  "company-name",
+                                         "name":  "name",
+                                         "label":  "Company Name",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter company name",
+                                         "required":  true,
+                                         "role":  "title",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "minLength":  2
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "email-address",
+                                         "name":  "email",
+                                         "label":  "Email Address",
+                                         "sectionId":  "basic-information",
+                                         "type":  "email",
+                                         "component":  "email",
+                                         "placeholder":  "Enter email address",
+                                         "icon":  "Home",
+                                         "required":  true,
+                                         "role":  "subtitle",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "pattern":  "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "phone-number",
+                                         "name":  "phone",
+                                         "label":  "Phone Number",
+                                         "sectionId":  "basic-information",
+                                         "type":  "phone",
+                                         "component":  "text",
+                                         "placeholder":  "Enter phone number",
+                                         "icon":  "Phone",
+                                         "required":  true,
+                                         "role":  "tel",
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "registration-number",
+                                         "name":  "registrationNumber",
+                                         "label":  "Registration Number",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter registration number",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "tax-id",
+                                         "name":  "taxId",
+                                         "label":  "Tax ID",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter tax ID",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  5
+                                     },
+                                     {
+                                         "id":  "expiration-date",
+                                         "name":  "expirationDate",
+                                         "label":  "Expiration Date",
+                                         "sectionId":  "basic-information",
+                                         "type":  "date",
+                                         "component":  "date",
+                                         "placeholder":  "Select expiration date",
+                                         "required":  true,
+                                         "role":  "duedate",
+                                         "validation":  {
+                                                            "required":  false
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  6
+                                     },
+                                     {
+                                         "id":  "country",
+                                         "name":  "country",
+                                         "label":  "Country",
+                                         "sectionId":  "basic-information",
+                                         "type":  "select",
+                                         "component":  "select",
+                                         "placeholder":  "Select country",
+                                         "required":  true,
+                                         "role":  "location",
+                                         "options":  [
+                                                         {
+                                                             "label":  "United States",
+                                                             "value":  "USA"
+                                                         },
+                                                         {
+                                                             "label":  "Canada",
+                                                             "value":  "CAN"
+                                                         },
+                                                         {
+                                                             "label":  "United Kingdom",
+                                                             "value":  "UK"
+                                                         },
+                                                         {
+                                                             "label":  "Germany",
+                                                             "value":  "DE"
+                                                         },
+                                                         {
+                                                             "label":  "France",
+                                                             "value":  "FR"
+                                                         },
+                                                         {
+                                                             "label":  "Japan",
+                                                             "value":  "JP"
+                                                         },
+                                                         {
+                                                             "label":  "China",
+                                                             "value":  "CN"
+                                                         },
+                                                         {
+                                                             "label":  "India",
+                                                             "value":  "IN"
+                                                         }
+                                                     ],
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  6
+                                     },
+                                     {
+                                         "id":  "vendor-certifications",
+                                         "name":  "certifications",
+                                         "label":  "Certifications",
+                                         "sectionId":  "basic-information",
+                                         "type":  "checkbox",
+                                         "component":  "checkbox",
+                                         "placeholder":  "Select certifications",
+                                         "required":  false,
+                                         "role":  "badge",
+                                         "options":  [
+                                                         {
+                                                             "label":  "ISO 9001",
+                                                             "value":  "iso9001"
+                                                         },
+                                                         {
+                                                             "label":  "ISO 14001",
+                                                             "value":  "iso14001"
+                                                         },
+                                                         {
+                                                             "label":  "FDA Approved",
+                                                             "value":  "fda"
+                                                         },
+                                                         {
+                                                             "label":  "CE Marking",
+                                                             "value":  "ce"
+                                                         },
+                                                         {
+                                                             "label":  "RoHS Compliant",
+                                                             "value":  "rohs"
+                                                         },
+                                                         {
+                                                             "label":  "REACH Compliant",
+                                                             "value":  "reach"
+                                                         }
+                                                     ],
+                                         "colSpan":  2,
+                                         "order":  7
+                                     },
+                                     {
+                                         "id":  "address",
+                                         "name":  "address",
+                                         "label":  "Address",
+                                         "sectionId":  "address-information",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter full address",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  3,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "city",
+                                         "name":  "city",
+                                         "label":  "City",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter city",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "state",
+                                         "name":  "state",
+                                         "label":  "State",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter state",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "zip-code",
+                                         "name":  "zipCode",
+                                         "label":  "ZIP Code",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter ZIP code",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "categories",
+                                         "name":  "categories",
+                                         "label":  "Business Categories",
+                                         "sectionId":  "business-details",
+                                         "type":  "checkbox",
+                                         "component":  "checkbox",
+                                         "placeholder":  "Select categories",
+                                         "required":  true,
+                                         "role":  "badge",
+                                         "options":  [
+                                                         {
+                                                             "label":  "Technology",
+                                                             "value":  "technology"
+                                                         },
+                                                         {
+                                                             "label":  "Manufacturing",
+                                                             "value":  "manufacturing"
+                                                         },
+                                                         {
+                                                             "label":  "Services",
+                                                             "value":  "services"
+                                                         },
+                                                         {
+                                                             "label":  "Logistics",
+                                                             "value":  "logistics"
+                                                         },
+                                                         {
+                                                             "label":  "Healthcare",
+                                                             "value":  "healthcare"
+                                                         },
+                                                         {
+                                                             "label":  "Finance",
+                                                             "value":  "finance"
+                                                         },
+                                                         {
+                                                             "label":  "Education",
+                                                             "value":  "education"
+                                                         },
+                                                         {
+                                                             "label":  "Retail",
+                                                             "value":  "retail"
+                                                         }
+                                                     ],
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  3,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "website",
+                                         "name":  "website",
+                                         "label":  "Website",
+                                         "sectionId":  "business-details",
+                                         "type":  "url",
+                                         "component":  "text",
+                                         "placeholder":  "Enter website URL",
+                                         "required":  false,
+                                         "validation":  {
+                                                            "pattern":  "^https?:\\/\\/.+"
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "established-year",
+                                         "name":  "establishedYear",
+                                         "label":  "Established Year",
+                                         "sectionId":  "business-details",
+                                         "type":  "number",
+                                         "component":  "number",
+                                         "placeholder":  "Enter year",
+                                         "required":  false,
+                                         "validation":  {
+                                                            "min":  1800
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "employee-count",
+                                         "name":  "employeeCount",
+                                         "label":  "Number of Employees",
+                                         "sectionId":  "business-details",
+                                         "type":  "number",
+                                         "component":  "number",
+                                         "placeholder":  "Enter employee count",
+                                         "required":  false,
+                                         "validation":  {
+                                                            "min":  1
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "description",
+                                         "name":  "description",
+                                         "label":  "Company Description",
+                                         "sectionId":  "business-details",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter company description",
+                                         "required":  false,
+                                         "role":  "description",
+                                         "colSpan":  3,
+                                         "order":  5
+                                     },
+                                     {
+                                         "id":  "status",
+                                         "name":  "status",
+                                         "label":  "Status",
+                                         "sectionId":  "business-details",
+                                         "type":  "select",
+                                         "component":  "select",
+                                         "placeholder":  "Select status",
+                                         "required":  true,
+                                         "role":  "status",
+                                         "options":  [
+                                                         {
+                                                             "label":  "Active",
+                                                             "value":  "ACTIVE",
+                                                             "icon":  "CheckCircle",
+                                                             "color":  "success"
+                                                         },
+                                                         {
+                                                             "label":  "Pending",
+                                                             "value":  "PENDING",
+                                                             "icon":  "Clock",
+                                                             "color":  "warning"
+                                                         },
+                                                         {
+                                                             "label":  "Inactive",
+                                                             "value":  "INACTIVE",
+                                                             "icon":  "XCircle",
+                                                             "color":  "destructive"
+                                                         }
+                                                     ],
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  6
+                                     },
+                                     {
+                                         "id":  "rating",
+                                         "name":  "rating",
+                                         "label":  "Rating",
+                                         "sectionId":  "business-details",
+                                         "type":  "number",
+                                         "component":  "number",
+                                         "placeholder":  "Enter rating (1-5)",
+                                         "required":  false,
+                                         "role":  "rating",
+                                         "validation":  {
+                                                            "min":  1,
+                                                            "max":  5
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  7
+                                     },
+                                     {
+                                         "id":  "field-1762089019358",
+                                         "name":  "day",
+                                         "label":  "Day",
+                                         "sectionId":  "section-1762088953746",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "order":  1,
+                                         "placeholder":  "Enter Working Days"
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "basic-information",
+                                           "title":  "Vendor Information",
+                                           "description":  "Basic vendor details and contact information",
+                                           "initialState":  "expanded",
+                                           "columns":  2
+                                       },
+                                       {
+                                           "id":  "address-information",
+                                           "title":  "Address Information",
+                                           "description":  "Complete address details for the vendor",
+                                           "columns":  3
+                                       },
+                                       {
+                                           "id":  "contacts",
+                                           "title":  "Contact Persons",
+                                           "description":  "Add contact persons for this vendor",
+                                           "isRepeatingSection":  true,
+                                           "initialState":  "expanded",
+                                           "columns":  2,
+                                           "repeatingConfig":  {
+                                                                   "minItems":  1,
+                                                                   "maxItems":  5,
+                                                                   "addButtonText":  "Add Contact Person",
+                                                                   "removeButtonText":  "Remove Contact",
+                                                                   "emptyMessage":  "No contact persons added yet",
+                                                                   "targetSchema":  "contacts",
+                                                                   "relationTypeId":  "HAS_CONTACT",
+                                                                   "deleteType":  "relationOnly",
+                                                                   "addType":  "canSelectFromData",
+                                                                   "isUnique":  true
+                                                               }
+                                       },
+                                       {
+                                           "id":  "business-details",
+                                           "title":  "Business Details",
+                                           "description":  "Additional business information and categories",
+                                           "initialState":  "expanded",
+                                           "columns":  3
+                                       },
+                                       {
+                                           "id":  "section-1762088953746",
+                                           "title":  "Working Days",
+                                           "columns":  2,
+                                           "icon":  "Calendar",
+                                           "isRepeatingSection":  true
+                                       }
+                                   ],
+                      "detailPageMetadata":  {
+                                                 "quickActions":  [
+                                                                      {
+                                                                          "id":  "create-inquiry",
+                                                                          "label":  "Create Inquiry",
+                                                                          "icon":  "ShoppingCart",
+                                                                          "variant":  "default",
+                                                                          "action":  "openFormDialog",
+                                                                          "targetSchema":  "inquiries"
+                                                                      },
+                                                                      {
+                                                                          "id":  "view-inquiries",
+                                                                          "label":  "View Inquiries",
+                                                                          "icon":  "FileSearch",
+                                                                          "variant":  "outline",
+                                                                          "action":  "goToUrl",
+                                                                          "targetUrl":  "/page/inquiries"
+                                                                      },
+                                                                      {
+                                                                          "id":  "view-location",
+                                                                          "label":  "View on Map",
+                                                                          "icon":  "MapPin",
+                                                                          "variant":  "secondary",
+                                                                          "action":  "openUrl",
+                                                                          "targetUrl":  "https://www.google.com/maps/search/",
+                                                                          "passItemAsReference":  false
+                                                                      },
+                                                                      {
+                                                                          "id":  "view-vendor-details",
+                                                                          "label":  "View Full Details",
+                                                                          "icon":  "ExternalLink",
+                                                                          "variant":  "ghost",
+                                                                          "action":  "goToUrl",
+                                                                          "targetUrl":  "/page/vendors",
+                                                                          "passItemAsReference":  true
+                                                                      }
+                                                                  ],
+                                                 "componentRenderers":  [
+                                                                            {
+                                                                                "id":  "on-time-delivery-kpi",
+                                                                                "componentType":  "kpi",
+                                                                                "dataPath":  "performanceMetrics",
+                                                                                "config":  {
+                                                                                               "id":  "on-time-delivery-kpi",
+                                                                                               "name":  "On-Time Delivery KPI",
+                                                                                               "title":  "On-Time Delivery",
+                                                                                               "format":  "percentage",
+                                                                                               "precision":  1,
+                                                                                               "color":  "#10B981",
+                                                                                               "trend":  {
+                                                                                                             "enabled":  true,
+                                                                                                             "period":  "month",
+                                                                                                             "showPercentage":  true,
+                                                                                                             "showArrow":  true
+                                                                                                         }
+                                                                                           },
+                                                                                "colSpan":  1
+                                                                            },
+                                                                            {
+                                                                                "id":  "quality-score-kpi",
+                                                                                "componentType":  "kpi",
+                                                                                "dataPath":  "performanceMetrics",
+                                                                                "config":  {
+                                                                                               "id":  "quality-score-kpi",
+                                                                                               "name":  "Quality Score KPI",
+                                                                                               "title":  "Quality Score",
+                                                                                               "format":  "percentage",
+                                                                                               "precision":  1,
+                                                                                               "color":  "#3B82F6",
+                                                                                               "trend":  {
+                                                                                                             "enabled":  true,
+                                                                                                             "period":  "month",
+                                                                                                             "showPercentage":  true,
+                                                                                                             "showArrow":  true
+                                                                                                         }
+                                                                                           },
+                                                                                "colSpan":  1
+                                                                            },
+                                                                            {
+                                                                                "id":  "total-orders-kpi",
+                                                                                "componentType":  "kpi",
+                                                                                "dataPath":  "performanceMetrics",
+                                                                                "config":  {
+                                                                                               "id":  "total-orders-kpi",
+                                                                                               "name":  "Total Orders KPI",
+                                                                                               "title":  "Total Orders",
+                                                                                               "format":  "number",
+                                                                                               "precision":  0,
+                                                                                               "color":  "#F59E0B",
+                                                                                               "trend":  {
+                                                                                                             "enabled":  true,
+                                                                                                             "period":  "month",
+                                                                                                             "showPercentage":  true,
+                                                                                                             "showArrow":  true
+                                                                                                         }
+                                                                                           },
+                                                                                "colSpan":  1
+                                                                            },
+                                                                            {
+                                                                                "id":  "total-value-kpi",
+                                                                                "componentType":  "kpi",
+                                                                                "dataPath":  "performanceMetrics",
+                                                                                "config":  {
+                                                                                               "id":  "total-value-kpi",
+                                                                                               "name":  "Total Value KPI",
+                                                                                               "title":  "Total Value",
+                                                                                               "format":  "currency",
+                                                                                               "precision":  0,
+                                                                                               "color":  "#8B5CF6",
+                                                                                               "trend":  {
+                                                                                                             "enabled":  true,
+                                                                                                             "period":  "month",
+                                                                                                             "showPercentage":  true,
+                                                                                                             "showArrow":  true
+                                                                                                         }
+                                                                                           },
+                                                                                "colSpan":  1
+                                                                            }
+                                                                        ],
+                                                 "tableRenderers":  [
+                                                                        {
+                                                                            "id":  "contacts-table",
+                                                                            "schemaId":  "vendors",
+                                                                            "sectionId":  "contacts",
+                                                                            "title":  "Contact Persons",
+                                                                            "description":  "List of all contact persons for this vendor",
+                                                                            "columns":  [
+                                                                                            "contact-name",
+                                                                                            "contact-email",
+                                                                                            "contact-phone",
+                                                                                            "contact-position",
+                                                                                            "contact-age"
+                                                                                        ],
+                                                                            "tableProperties":  {
+                                                                                                    "sortingEnabled":  true,
+                                                                                                    "paginationEnabled":  true,
+                                                                                                    "paginationPageSize":  10,
+                                                                                                    "showAsCards":  true,
+                                                                                                    "cardColumns":  2,
+                                                                                                    "aggregationColumns":  3,
+                                                                                                    "aggregations":  [
+                                                                                                                         {
+                                                                                                                             "column":  "contact-name",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "count",
+                                                                                                                                                      "countdistinct"
+                                                                                                                                                  ]
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "column":  "contact-email",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "count"
+                                                                                                                                                  ]
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "column":  "contact-age",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "sum",
+                                                                                                                                                      "avg",
+                                                                                                                                                      "min",
+                                                                                                                                                      "max"
+                                                                                                                                                  ],
+                                                                                                                             "unit":  "years",
+                                                                                                                             "precision":  1
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "column":  "contact-age",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "stdev"
+                                                                                                                                                  ],
+                                                                                                                             "unit":  "years",
+                                                                                                                             "precision":  2
+                                                                                                                         }
+                                                                                                                     ]
+                                                                                                },
+                                                                            "colSpan":  2,
+                                                                            "columnArea":  "main"
+                                                                        },
+                                                                        {
+                                                                            "id":  "working-days-table",
+                                                                            "schemaId":  "vendors",
+                                                                            "sectionId":  "section-1762088953746",
+                                                                            "title":  "Working Days",
+                                                                            "description":  "List of working days for this vendor",
+                                                                            "columns":  [
+                                                                                            "field-1762089019358"
+                                                                                        ],
+                                                                            "tableProperties":  {
+                                                                                                    "sortingEnabled":  true,
+                                                                                                    "paginationEnabled":  true,
+                                                                                                    "paginationPageSize":  10,
+                                                                                                    "showAsCards":  true,
+                                                                                                    "cardColumns":  2,
+                                                                                                    "aggregationColumns":  3,
+                                                                                                    "aggregations":  [
+                                                                                                                         {
+                                                                                                                             "column":  "field-1762089019358",
+                                                                                                                             "aggregationTypes":  [
+                                                                                                                                                      "count",
+                                                                                                                                                      "countdistinct"
+                                                                                                                                                  ]
+                                                                                                                         }
+                                                                                                                     ]
+                                                                                                },
+                                                                            "colSpan":  2,
+                                                                            "columnArea":  "main"
+                                                                        }
+                                                                    ],
+                                                 "sections":  [
+                                                                  {
+                                                                      "id":  "contact-information",
+                                                                      "title":  "Contact Information",
+                                                                      "description":  "Primary contact details",
+                                                                      "colSpan":  2,
+                                                                      "fieldIds":  [
+                                                                                       "email-address",
+                                                                                       "phone-number",
+                                                                                       "registration-number",
+                                                                                       "tax-id",
+                                                                                       "country"
+                                                                                   ]
+                                                                  },
+                                                                  {
+                                                                      "id":  "address-details",
+                                                                      "title":  "Address Details",
+                                                                      "description":  "Physical location information",
+                                                                      "colSpan":  1,
+                                                                      "columnArea":  "sidebar",
+                                                                      "fieldIds":  [
+                                                                                       "address",
+                                                                                       "city",
+                                                                                       "state",
+                                                                                       "zip-code"
+                                                                                   ]
+                                                                  }
+                                                              ]
+                                             },
+                      "showInNavigation":  true,
+                      "icon":  "User"
+                  },
+                  {
+                      "id":  "contacts",
+                      "description":  "Schema for Contact",
+                      "singular_name":  "Contact",
+                      "plural_name":  "Contacts",
+                      "fields":  [
+                                     {
+                                         "id":  "field-1762151430232",
+                                         "name":  "name",
+                                         "label":  "Name",
+                                         "sectionId":  "section-1762151413279",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "order":  1,
+                                         "placeholder":  "Enter contact name",
+                                         "required":  true,
+                                         "role":  "title"
+                                     },
+                                     {
+                                         "id":  "field-1762151456340",
+                                         "name":  "last_name",
+                                         "label":  "Last Name",
+                                         "sectionId":  "section-1762151413279",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "order":  2,
+                                         "required":  true,
+                                         "role":  "title"
+                                     },
+                                     {
+                                         "id":  "field-1762151478649",
+                                         "name":  "email",
+                                         "label":  "Email",
+                                         "sectionId":  "section-1762151413279",
+                                         "type":  "email",
+                                         "component":  "email",
+                                         "order":  3,
+                                         "placeholder":  "Enter contact email",
+                                         "required":  false,
+                                         "role":  "subtitle"
+                                     },
+                                     {
+                                         "id":  "field-1762151519711",
+                                         "name":  "phone_number",
+                                         "label":  "Phone Number",
+                                         "sectionId":  "section-1762151413279",
+                                         "type":  "phone",
+                                         "component":  "phone",
+                                         "order":  4,
+                                         "required":  true,
+                                         "role":  "tel"
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "section-1762151413279",
+                                           "title":  "Contact Information",
+                                           "columns":  2
+                                       }
+                                   ],
+                      "icon":  "Contact",
+                      "showInNavigation":  true
+                  },
+                  {
+                      "id":  "companies",
+                      "description":  "Manage company information including registration, address, and contact details",
+                      "singular_name":  "Company",
+                      "plural_name":  "Companies",
+                      "isSystemSchema":  true,
+                      "customButtons":  [
+                                            {
+                                                "id":  "go-to-builder",
+                                                "label":  "Back to Builder",
+                                                "icon":  "ArrowLeft",
+                                                "variant":  "outline",
+                                                "action":  "goToUrl",
+                                                "targetUrl":  "/builder"
+                                            }
+                                        ],
+                      "cardMetadata":  [
+                                           {
+                                               "id":  "company-info",
+                                               "title":  "Company Information",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "company-name",
+                                                                "company-country",
+                                                                "company-city"
+                                                            ]
+                                           },
+                                           {
+                                               "id":  "registration-info",
+                                               "title":  "Registration",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "company-registration-code",
+                                                                "company-national-id"
+                                                            ]
+                                           }
+                                       ],
+                      "fields":  [
+                                     {
+                                         "id":  "company-name",
+                                         "name":  "name",
+                                         "label":  "Company Name",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter company name",
+                                         "required":  true,
+                                         "role":  "title",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "minLength":  2
+                                                        },
+                                         "colSpan":  2,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "company-logo",
+                                         "name":  "logo",
+                                         "label":  "Logo URL",
+                                         "sectionId":  "basic-information",
+                                         "type":  "url",
+                                         "component":  "text",
+                                         "placeholder":  "Enter logo URL",
+                                         "required":  false,
+                                         "role":  "image",
+                                         "validation":  {
+                                                            "pattern":  "^https?:\\/\\/.+"
+                                                        },
+                                         "colSpan":  2,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "company-address",
+                                         "name":  "address",
+                                         "label":  "Address",
+                                         "sectionId":  "address-information",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter full address",
+                                         "required":  false,
+                                         "colSpan":  3,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "company-country",
+                                         "name":  "country",
+                                         "label":  "Country",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter country",
+                                         "required":  false,
+                                         "role":  "location",
+                                         "colSpan":  1,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "company-city",
+                                         "name":  "city",
+                                         "label":  "City",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter city",
+                                         "required":  false,
+                                         "colSpan":  1,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "company-zip-code",
+                                         "name":  "zipCode",
+                                         "label":  "ZIP Code",
+                                         "sectionId":  "address-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter ZIP code",
+                                         "required":  false,
+                                         "colSpan":  1,
+                                         "order":  4
+                                     },
+                                     {
+                                         "id":  "company-registration-code",
+                                         "name":  "registrationCode",
+                                         "label":  "Registration Code",
+                                         "sectionId":  "registration-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter registration code",
+                                         "required":  false,
+                                         "colSpan":  1,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "company-national-id",
+                                         "name":  "nationalId",
+                                         "label":  "National ID",
+                                         "sectionId":  "registration-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter national ID",
+                                         "required":  false,
+                                         "colSpan":  1,
+                                         "order":  2
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "basic-information",
+                                           "title":  "Basic Information",
+                                           "description":  "Company name and logo",
+                                           "initialState":  "expanded",
+                                           "columns":  2
+                                       },
+                                       {
+                                           "id":  "address-information",
+                                           "title":  "Address Information",
+                                           "description":  "Company address and location details",
+                                           "columns":  3
+                                       },
+                                       {
+                                           "id":  "registration-information",
+                                           "title":  "Registration Information",
+                                           "description":  "Company registration and identification details",
+                                           "columns":  2
+                                       }
+                                   ],
+                      "detailPageMetadata":  {
+                                                 "sections":  [
+                                                                  {
+                                                                      "id":  "company-overview",
+                                                                      "title":  "Company Overview",
+                                                                      "description":  "Basic company information",
+                                                                      "colSpan":  2,
+                                                                      "fieldIds":  [
+                                                                                       "company-name",
+                                                                                       "company-logo",
+                                                                                       "company-country",
+                                                                                       "company-city"
+                                                                                   ]
+                                                                  },
+                                                                  {
+                                                                      "id":  "company-details",
+                                                                      "title":  "Additional Details",
+                                                                      "description":  "Registration and address information",
+                                                                      "colSpan":  1,
+                                                                      "columnArea":  "sidebar",
+                                                                      "fieldIds":  [
+                                                                                       "company-address",
+                                                                                       "company-zip-code",
+                                                                                       "company-registration-code",
+                                                                                       "company-national-id"
+                                                                                   ]
+                                                                  }
+                                                              ]
+                                             },
+                      "showInNavigation":  false,
+                      "icon":  "Building2"
+                  },
+                  {
+                      "id":  "relation-types",
+                      "description":  "Define and manage relationships between entities in your supply chain",
+                      "singular_name":  "Relation Type",
+                      "plural_name":  "Relation Types",
+                      "isSystemSchema":  true,
+                      "customButtons":  [
+                                            {
+                                                "id":  "go-to-builder",
+                                                "label":  "Back to Builder",
+                                                "icon":  "ArrowLeft",
+                                                "variant":  "outline",
+                                                "action":  "goToUrl",
+                                                "targetUrl":  "/builder"
+                                            }
+                                        ],
+                      "cardMetadata":  [
+                                           {
+                                               "id":  "relation-type-info",
+                                               "title":  "Relation Type Information",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "relation-type-id",
+                                                                "relation-type-label"
+                                                            ]
+                                           },
+                                           {
+                                               "id":  "visual-info",
+                                               "title":  "Visual Style",
+                                               "colSpan":  1,
+                                               "fieldIds":  [
+                                                                "relation-type-color",
+                                                                "relation-type-icon"
+                                                            ]
+                                           }
+                                       ],
+                      "fields":  [
+                                     {
+                                         "id":  "relation-type-id",
+                                         "name":  "id",
+                                         "label":  "Relation Type ID",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter relation type ID (e.g., HAS_INQUIRY_ITEM)",
+                                         "required":  true,
+                                         "role":  "title",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "minLength":  3,
+                                                            "pattern":  "^[A-Z_]+$"
+                                                        },
+                                         "colSpan":  2,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "relation-type-label",
+                                         "name":  "label",
+                                         "label":  "Label",
+                                         "sectionId":  "basic-information",
+                                         "type":  "text",
+                                         "component":  "text",
+                                         "placeholder":  "Enter display label",
+                                         "required":  true,
+                                         "role":  "subtitle",
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "minLength":  2
+                                                        },
+                                         "colSpan":  2,
+                                         "order":  2
+                                     },
+                                     {
+                                         "id":  "relation-type-description",
+                                         "name":  "description",
+                                         "label":  "Description",
+                                         "sectionId":  "basic-information",
+                                         "type":  "textarea",
+                                         "component":  "textarea",
+                                         "placeholder":  "Enter description",
+                                         "required":  false,
+                                         "role":  "description",
+                                         "colSpan":  2,
+                                         "order":  3
+                                     },
+                                     {
+                                         "id":  "relation-type-color",
+                                         "name":  "color",
+                                         "label":  "Color",
+                                         "sectionId":  "visual-style",
+                                         "type":  "text",
+                                         "component":  "color-picker",
+                                         "placeholder":  "#000000",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true,
+                                                            "pattern":  "^#[0-9A-Fa-f]{6}$"
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  1
+                                     },
+                                     {
+                                         "id":  "relation-type-icon",
+                                         "name":  "icon",
+                                         "label":  "Icon",
+                                         "sectionId":  "visual-style",
+                                         "type":  "text",
+                                         "component":  "icon-input",
+                                         "placeholder":  "Enter icon name (e.g., ShoppingBasket)",
+                                         "required":  true,
+                                         "validation":  {
+                                                            "required":  true
+                                                        },
+                                         "colSpan":  1,
+                                         "order":  2
+                                     }
+                                 ],
+                      "sections":  [
+                                       {
+                                           "id":  "basic-information",
+                                           "title":  "Basic Information",
+                                           "description":  "Relation type identification and description",
+                                           "initialState":  "expanded",
+                                           "columns":  2
+                                       },
+                                       {
+                                           "id":  "visual-style",
+                                           "title":  "Visual Style",
+                                           "description":  "Color and icon for visual representation",
+                                           "columns":  2
+                                       }
+                                   ],
+                      "detailPageMetadata":  {
+                                                 "sections":  [
+                                                                  {
+                                                                      "id":  "relation-type-overview",
+                                                                      "title":  "Relation Type Overview",
+                                                                      "description":  "Basic relation type information",
+                                                                      "colSpan":  2,
+                                                                      "fieldIds":  [
+                                                                                       "relation-type-label",
+                                                                                       "relation-type-description"
+                                                                                   ]
+                                                                  }
+                                                              ]
+                                             },
+                      "showInNavigation":  false,
+                      "icon":  "Link2"
+                  }
+              ],
+    "Count":  6
+}

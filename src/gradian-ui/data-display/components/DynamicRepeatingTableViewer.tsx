@@ -5,7 +5,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { FormSchema, RepeatingTableRendererConfig, DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
-import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
+import { resolveFieldById, getValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { Table, TableColumn, TableConfig, TableAggregations } from '../table';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
 import { BadgeViewer } from '../../form-builder/form-elements/utils/badge-viewer';
@@ -56,9 +56,28 @@ const getFieldValue = (field: any, row: any): any => {
 /**
  * Format field value for table cell display
  */
-const formatFieldValue = (field: any, value: any): React.ReactNode => {
+const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode => {
   if (value === null || value === undefined || value === '') {
     return <span className="text-gray-400">—</span>;
+  }
+
+  // Handle picker fields - check for resolved data
+  if (field?.type === 'picker' && field.targetSchema && row) {
+    // If the value is {id, label} format, use the label
+    if (typeof value === 'object' && value !== null && value.id && value.label) {
+      return <span>{String(value.label)}</span>;
+    }
+    
+    // Check if resolved data exists
+    const resolvedKey = `_${field.name}_resolved`;
+    const resolvedData = row[resolvedKey];
+    if (resolvedData) {
+      // Use resolved label if available (from target schema's title role), otherwise fallback to name/title
+      const displayValue = resolvedData._resolvedLabel || resolvedData.name || resolvedData.title || value;
+      return <span>{String(displayValue)}</span>;
+    }
+    // If no resolved data, just show the value (might be an ID)
+    return <span>{String(value)}</span>;
   }
 
   // Use field type
@@ -124,7 +143,7 @@ const buildTableColumns = (
       accessor: field.name,
       sortable: true,
       align: field.type === 'number' || field.type === 'currency' ? 'right' : 'left',
-      render: (value, row) => formatFieldValue(field, value),
+      render: (value, row) => formatFieldValue(field, value, row),
     };
   });
 };
@@ -187,6 +206,19 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     
     setIsLoadingRelations(true);
     try {
+      // Ensure target schema is loaded (fetch if not available)
+      let schemaToUse = targetSchemaData;
+      if (!schemaToUse && targetSchema) {
+        try {
+          const schemaResponse = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
+          if (schemaResponse.success && schemaResponse.data) {
+            schemaToUse = schemaResponse.data;
+          }
+        } catch (error) {
+          console.error('Error fetching target schema in fetchRelations:', error);
+        }
+      }
+      
       // Fetch relations
       const relationsResponse = await apiRequest<DataRelation[]>(
         `/api/relations?sourceSchema=${effectiveSourceSchemaId}&sourceId=${effectiveSourceId}&relationTypeId=${relationTypeId}&targetSchema=${targetSchema}`
@@ -200,7 +232,64 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         // Fetch related entities
         const entitiesPromises = relationsList.map(async (relation: DataRelation) => {
           const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
-          return entityResponse.success && entityResponse.data ? entityResponse.data : null;
+          if (!entityResponse.success || !entityResponse.data) {
+            return null;
+          }
+          
+          let entity = entityResponse.data;
+          
+          // Resolve picker fields if target schema is available
+          if (schemaToUse && schemaToUse.fields) {
+            const pickerFields = schemaToUse.fields.filter(
+              (field: any) => field.type === 'picker' && field.targetSchema && entity[field.name]
+            );
+            
+            // Resolve each picker field
+            const resolvedPromises = pickerFields.map(async (field: any) => {
+              const fieldValue = entity[field.name];
+              if (typeof fieldValue === 'string' && fieldValue.trim() !== '') {
+                try {
+                  // Fetch the referenced entity
+                  const resolvedResponse = await apiRequest<any>(`/api/data/${field.targetSchema}/${fieldValue}`);
+                  if (resolvedResponse.success && resolvedResponse.data) {
+                    const resolvedEntity = resolvedResponse.data;
+                    
+                    // Fetch the target schema to get the title role
+                    let targetSchemaForPicker: FormSchema | null = null;
+                    try {
+                      const targetSchemaResponse = await apiRequest<FormSchema>(`/api/schemas/${field.targetSchema}`);
+                      if (targetSchemaResponse.success && targetSchemaResponse.data) {
+                        targetSchemaForPicker = targetSchemaResponse.data;
+                      }
+                    } catch (schemaError) {
+                      console.error(`Error fetching target schema for picker field ${field.name}:`, schemaError);
+                    }
+                    
+                    // Get the label using the target schema's title role
+                    let resolvedLabel = resolvedEntity.name || resolvedEntity.title || fieldValue;
+                    if (targetSchemaForPicker) {
+                      const titleByRole = getValueByRole(targetSchemaForPicker, resolvedEntity, 'title');
+                      if (titleByRole && titleByRole.trim() !== '') {
+                        resolvedLabel = titleByRole;
+                      }
+                    }
+                    
+                    // Store resolved data with the pattern _fieldName_resolved
+                    entity[`_${field.name}_resolved`] = {
+                      ...resolvedEntity,
+                      _resolvedLabel: resolvedLabel
+                    };
+                  }
+                } catch (error) {
+                  console.error(`Error resolving picker field ${field.name}:`, error);
+                }
+              }
+            });
+            
+            await Promise.all(resolvedPromises);
+          }
+          
+          return entity;
         });
         
         const entities = await Promise.all(entitiesPromises);
@@ -211,7 +300,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     } finally {
       setIsLoadingRelations(false);
     }
-  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId]);
+  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId, targetSchemaData]);
 
   // Fetch relations when component mounts or dependencies change
   useEffect(() => {
@@ -398,13 +487,14 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       }}
       className={cn(
         colSpan === 2 && "lg:col-span-2",
+        "w-full min-w-0", // Prevent overflow and allow shrinking
         className
       )}
     >
       <CardWrapper
         config={{
           id: `table-card-${config.sectionId}`,
-          name: title,
+          name: title || 'Table',
           styling: {
             variant: 'default',
             size: 'md'
@@ -445,7 +535,9 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             </>
           ) : (
             <>
-              <Table config={tableConfig} />
+              <div className="overflow-x-auto mx-0">
+                <Table config={tableConfig} />
+              </div>
               {aggregations.length > 0 && (
                 <TableAggregations
                   data={sectionData}

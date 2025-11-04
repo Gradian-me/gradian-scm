@@ -6,8 +6,8 @@ export interface FormField {
   name: string;
   label: string;
   sectionId: string; // Reference to the section this field belongs to
-  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
-  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
+  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'file' | 'picker';
+  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'file' | 'picker';
   placeholder?: string;
   icon?: string;
   displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
@@ -32,6 +32,7 @@ export interface FormField {
   order?: number; // Order for field display
   source?: string; // Data path for nested values (e.g., "user.profile.name")
   compute?: (data: any) => any; // Function to compute field value from data
+  targetSchema?: string; // Target schema ID for picker component (popup picker to another schema)
   // Keep layout and styling for backward compatibility (form-builder)
   layout?: {
     width?: string;
