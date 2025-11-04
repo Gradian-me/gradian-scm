@@ -112,32 +112,27 @@ export class BaseController<T extends BaseEntity> {
     try {
       const body = await request.json();
       
-      // Always validate cookie first to prevent bypassing "All Companies" check
-      const cookieHeader = request.headers.get('cookie');
-      const cookies = cookieHeader ? Object.fromEntries(
-        cookieHeader.split('; ').map(c => c.split('='))
-      ) : {};
-      const cookieCompanyId = cookies.selectedCompanyId;
+      // SECURITY: Require companyId in request body (from Zustand store)
+      // Validate that it's provided and not "All Companies" (-1)
+      const companyId = body.companyId;
       
-      // SECURITY: Always check if "All Companies" is selected, regardless of body content
-      if (!cookieCompanyId || cookieCompanyId === '' || cookieCompanyId === '-1') {
+      if (!companyId) {
+        return NextResponse.json(
+          { success: false, error: 'Company ID is required. Please select a company before creating a record.' },
+          { status: 400 }
+        );
+      }
+      
+      // SECURITY: Validate companyId is not "All Companies" (-1) or empty
+      if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
         return NextResponse.json(
           { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
           { status: 400 }
         );
       }
       
-      // SECURITY: Validate that provided companyId (if any) matches the cookie
-      // If client provides companyId in body, it must match the cookie value
-      if (body.companyId && body.companyId !== cookieCompanyId) {
-        return NextResponse.json(
-          { success: false, error: 'Company ID in request body does not match selected company. Please ensure the selected company matches your request.' },
-          { status: 400 }
-        );
-      }
-      
-      // Use cookie companyId (override client input to prevent manipulation)
-      const enrichedBody = { ...body, companyId: cookieCompanyId };
+      // CompanyId is provided in body - use it directly
+      const enrichedBody = { ...body };
       
       const result = await this.service.create(enrichedBody);
 
@@ -166,22 +161,31 @@ export class BaseController<T extends BaseEntity> {
       const existingResult = await this.service.getById(id);
       const existingEntity = existingResult.success ? existingResult.data : null;
       
-      // Add companyId from cookie ONLY if entity doesn't have it AND we're not using "All Companies"
       const enrichedBody = { ...body };
-      if (existingEntity && (!(existingEntity as any).companyId || (existingEntity as any).companyId === '')) {
-        const cookieHeader = request.headers.get('cookie');
-        const cookies = cookieHeader ? Object.fromEntries(
-          cookieHeader.split('; ').map(c => c.split('='))
-        ) : {};
-        const companyId = cookies.selectedCompanyId;
-        // Only add companyId if it exists and is not empty (not "All Companies")
-        if (companyId && companyId !== '' && companyId !== '-1') {
-          enrichedBody.companyId = companyId;
-        }
-      }
-      // If entity already has companyId, preserve it (don't overwrite)
+      
+      // If entity already has companyId, preserve it (don't allow changing it)
       if (existingEntity && (existingEntity as any).companyId) {
         enrichedBody.companyId = (existingEntity as any).companyId;
+      } else {
+        // If entity doesn't have companyId, require it in request body (from Zustand store)
+        const companyId = body.companyId;
+        
+        if (!companyId) {
+          return NextResponse.json(
+            { success: false, error: 'Company ID is required. Please select a company before updating this record.' },
+            { status: 400 }
+          );
+        }
+        
+        // SECURITY: Validate companyId is not "All Companies" (-1) or empty
+        if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
+          return NextResponse.json(
+            { success: false, error: 'Cannot update records when "All Companies" is selected. Please select a specific company first.' },
+            { status: 400 }
+          );
+        }
+        
+        enrichedBody.companyId = companyId;
       }
       
       const result = await this.service.update(id, enrichedBody);

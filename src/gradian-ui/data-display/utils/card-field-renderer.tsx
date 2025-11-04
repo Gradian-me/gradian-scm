@@ -4,6 +4,7 @@ import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
 import { formatNumber } from '../../shared/utils/number-formatter';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../../components/ui/tooltip';
 
 interface RenderFieldValueProps {
   field: any;
@@ -12,22 +13,47 @@ interface RenderFieldValueProps {
 }
 
 /**
+ * Helper function to wrap content with tooltip showing field label
+ */
+const withTooltip = (content: React.ReactNode, field: any): React.ReactNode => {
+  const fieldLabel = field?.label || field?.name || 'Field';
+  
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="cursor-default">
+            {content}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{fieldLabel}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+/**
  * Render a field value based on its type
  */
 export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldValueProps): React.ReactNode => {
   if (!value) return 'N/A';
   
+  const fieldLabel = field?.label || field?.name || 'Field';
+  
   // Handle performanceMetrics array
   if (field.name === 'performanceMetrics') {
     // If it's already an array of metric objects
     if (Array.isArray(value)) {
-      return (
+      return withTooltip(
         <DynamicMetricRenderer 
           metrics={value}
           maxMetrics={maxMetrics}
           badgeVariant="outline"
           className="mt-1"
-        />
+        />,
+        field
       );
     }
     // If it's an object, convert to array format
@@ -51,13 +77,14 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
         };
       });
       
-      return (
+      return withTooltip(
         <DynamicMetricRenderer 
           metrics={metrics}
           maxMetrics={maxMetrics}
           badgeVariant="outline"
           className="mt-1"
-        />
+        />,
+        field
       );
     }
   }
@@ -83,13 +110,14 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       };
     });
     
-    return (
+    return withTooltip(
       <DynamicMetricRenderer 
         metrics={metrics}
         maxMetrics={maxMetrics}
         badgeVariant="outline"
         className="mt-1"
-      />
+      />,
+      field
     );
   }
   
@@ -98,28 +126,31 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
   
   switch (field.type) {
     case 'email':
-      return (
+      return withTooltip(
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {customIcon || <IconRenderer iconName="Mail" className="h-4 w-4 shrink-0" />}
           <span className="truncate">{value}</span>
-        </div>
+        </div>,
+        field
       );
     case 'tel':
-      return (
+      return withTooltip(
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {customIcon || <IconRenderer iconName="Phone" className="h-4 w-4 shrink-0" />}
           <span>{value}</span>
-        </div>
+        </div>,
+        field
       );
     case 'textarea':
-      return (
+      return withTooltip(
         <div className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           <span className="line-clamp-2">{value}</span>
-        </div>
+        </div>,
+        field
       );
     case 'checkbox':
       if (Array.isArray(value)) {
-        return (
+        return withTooltip(
           <div className="flex flex-wrap gap-1">
             {value.slice(0, 2).map((item: string, idx: number) => (
               <motion.div
@@ -154,31 +185,38 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
                 </Badge>
               </motion.div>
             )}
-          </div>
+          </div>,
+          field
         );
       }
-      return value ? 'Yes' : 'No';
+      return withTooltip(
+        <span>{value ? 'Yes' : 'No'}</span>,
+        field
+      );
     case 'select':
-      return (
+      return withTooltip(
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {customIcon || <IconRenderer iconName="Text" className="h-3 w-3 shrink-0" />}
           <span>{value}</span>
-        </div>
+        </div>,
+        field
       );
     default:
       // For default text fields, use custom icon if provided
       if (customIcon) {
-        return (
+        return withTooltip(
           <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
             {customIcon}
             <span>{value}</span>
-          </div>
+          </div>,
+          field
         );
       }
-      return (
+      return withTooltip(
         <span className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {value}
-        </span>
+        </span>,
+        field
       );
   }
 };

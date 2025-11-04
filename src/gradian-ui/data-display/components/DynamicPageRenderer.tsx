@@ -688,9 +688,13 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
               }
             }
 
+            // Add companyId from Zustand store (if not already present)
+            const companyId = selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
+
             // Transform form data to match the expected schema
             return {
               ...formData,
+              companyId: formData.companyId || companyId, // Use provided companyId or from store
               categories: formData.categories || ['general'],
               contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
                 ...contact,
@@ -780,9 +784,15 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
               }
             }
 
+            // Add companyId from Zustand store if entity doesn't have it (for new entities without companyId)
+            // Note: For existing entities, the controller will preserve the existing companyId
+            const companyId = selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
+
             // Transform form data to match the expected schema
             return {
               ...formData,
+              // Only add companyId if not already present (existing entities will have it)
+              ...(formData.companyId ? {} : companyId ? { companyId } : {}),
               categories: formData.categories || ['general'],
               contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
                 ...contact,
