@@ -9,6 +9,7 @@ interface EntityFilters {
   search?: string;
   status?: string;
   category?: string;
+  companyId?: string;
 }
 
 interface EntityState<T = any> {
@@ -53,6 +54,7 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
       if (filters?.search) queryParams.append('search', filters.search);
       if (filters?.status) queryParams.append('status', filters.status);
       if (filters?.category) queryParams.append('category', filters.category);
+      if (filters?.companyId) queryParams.append('companyId', filters.companyId);
       
       const url = queryParams.toString() 
         ? `${apiEndpoint}?${queryParams.toString()}`

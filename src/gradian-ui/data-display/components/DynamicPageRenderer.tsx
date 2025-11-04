@@ -181,27 +181,46 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
   }, [entities]);
 
+  // Build filters object with company filter
+  const buildFilters = useCallback(() => {
+    const filters: any = {
+      search: currentFilters.search,
+      status: currentFilters.status,
+      category: currentFilters.category,
+    };
+    
+    // Add companyId filter only if a specific company is selected (not "All Companies" with id === -1)
+    if (selectedCompany && selectedCompany.id !== -1) {
+      filters.companyId = String(selectedCompany.id);
+    }
+    // If "All Companies" (-1) is selected, don't add companyId filter (show all)
+    
+    return filters;
+  }, [currentFilters, selectedCompany]);
+
+  // Initial fetch on mount
   useEffect(() => {
-    fetchEntities();
+    const filters = buildFilters();
+    fetchEntities(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Refetch when company changes
   useEffect(() => {
-    // Only fetch if we have actual filter changes from the UI
-    const hasActiveFilters = currentFilters.search || currentFilters.status || currentFilters.category;
+    const filters = buildFilters();
+    fetchEntities(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompany?.id]);
+
+  // Refetch when UI filters change
+  useEffect(() => {
+    const filters = buildFilters();
     
-    if (hasActiveFilters && Object.keys(currentFilters).length > 0) {
-      const filters = {
-        search: currentFilters.search,
-        status: currentFilters.status,
-        category: currentFilters.category,
-      };
-      
-      setFilters(filters);
-      
-      // Only fetch if we have search/filter criteria from user input
-      if (filters.search || filters.status || filters.category) {
-        fetchEntities(filters);
-      }
+    setFilters(filters);
+    
+    // Fetch if we have any active filters
+    if (filters.search || filters.status || filters.category || filters.companyId) {
+      fetchEntities(filters);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFilters.search, currentFilters.status, currentFilters.category]);
@@ -226,32 +245,33 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
   }, [schema?.id]);
 
+  // Filter entities by search term (company filtering is done by backend API)
   const filteredEntities = useMemo(() => {
     if (!entities) return [];
     
-    // If no search term, return all entities
-    if (!searchTermLocal || searchTermLocal.trim() === '') {
-      return entities;
+    // Apply search filter if search term exists (company filtering is handled by backend)
+    if (searchTermLocal && searchTermLocal.trim() !== '') {
+      const searchLower = searchTermLocal.toLowerCase();
+      
+      return entities.filter((entity: any) => {
+        // Search across common text fields dynamically
+        const searchableFields = [
+          'name', 'title', 'email', 'phone', 'description',
+          'productName', 'requestId', 'batchNumber', 'productSku',
+          'companyName', 'tenderTitle', 'projectName'
+        ];
+        
+        return searchableFields.some(field => {
+          const value = entity[field];
+          if (value && typeof value === 'string') {
+            return value.toLowerCase().includes(searchLower);
+          }
+          return false;
+        });
+      });
     }
     
-    const searchLower = searchTermLocal.toLowerCase();
-    
-    return entities.filter((entity: any) => {
-      // Search across common text fields dynamically
-      const searchableFields = [
-        'name', 'title', 'email', 'phone', 'description',
-        'productName', 'requestId', 'batchNumber', 'productSku',
-        'companyName', 'tenderTitle', 'projectName'
-      ];
-      
-      return searchableFields.some(field => {
-        const value = entity[field];
-        if (value && typeof value === 'string') {
-          return value.toLowerCase().includes(searchLower);
-        }
-        return false;
-      });
-    });
+    return entities;
   }, [entities, searchTermLocal]);
 
   // Group entities by companyId - only when "All Companies" (-1) is selected
