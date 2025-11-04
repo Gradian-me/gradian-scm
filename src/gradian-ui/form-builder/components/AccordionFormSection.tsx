@@ -393,7 +393,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
     // Extract data similar to DynamicCardRenderer
     const title = getValueByRole(targetSchemaData, entity, 'title') || entity.name || `Item ${index + 1}`;
-    const subtitle = getSingleValueByRole(targetSchemaData, entity, 'subtitle', entity.email) || entity.email || '';
+    // Get subtitle value(s) - concatenate multiple fields with same role using |
+    const subtitle = getValueByRole(targetSchemaData, entity, 'subtitle') || entity.email || '';
     const avatarField = getSingleValueByRole(targetSchemaData, entity, 'avatar', entity.name) || entity.name || '?';
     const statusField = getSingleValueByRole(targetSchemaData, entity, 'status') || entity.status || '';
     const ratingField = getSingleValueByRole(targetSchemaData, entity, 'rating') || entity.rating || 0;
@@ -404,19 +405,30 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       (field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description'))
     ) || false;
     
-    // Get description value - try role first, then find by label containing "description"
+    // Get description value(s) - concatenate multiple fields with same role using |
     let descriptionValue: any = null;
     if (hasDescriptionRole) {
-      // First try to get by role
-      descriptionValue = getSingleValueByRole(targetSchemaData, entity, 'description');
-      
-      // If not found by role, try to find field with label containing "description"
-      if (!descriptionValue || (typeof descriptionValue === 'string' && descriptionValue.trim() === '')) {
-        const descriptionField = targetSchemaData.fields?.find(field => 
-          field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description')
-        );
-        if (descriptionField) {
-          descriptionValue = entity[descriptionField.name];
+      // First try to get by role (concatenates multiple fields with |)
+      const roleBasedDescription = getValueByRole(targetSchemaData, entity, 'description');
+      if (roleBasedDescription && roleBasedDescription.trim() !== '') {
+        descriptionValue = roleBasedDescription;
+      } else {
+        // If not found by role, find by field label containing "description"
+        if (targetSchemaData?.fields) {
+          const descriptionFields = targetSchemaData.fields.filter(field => 
+            field.label && 
+            typeof field.label === 'string' && 
+            field.label.toLowerCase().includes('description') &&
+            !field.role // Only if it doesn't already have a role
+          );
+          if (descriptionFields.length > 0) {
+            const values = descriptionFields
+              .map(field => entity[field.name])
+              .filter(val => val !== undefined && val !== null && val !== '');
+            if (values.length > 0) {
+              descriptionValue = values.join(' | ');
+            }
+          }
         }
       }
     }

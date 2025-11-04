@@ -30,6 +30,10 @@ export function TableCardView<T = any>({
     );
   }
 
+  // Separate action columns from data columns
+  const actionColumns = columns.filter(col => col.id === 'actions');
+  const dataColumns = columns.filter(col => col.id !== 'actions');
+
   // Grid classes for key-value pairs within each card
   const gridClasses = cn(
     "grid gap-3",
@@ -55,7 +59,7 @@ export function TableCardView<T = any>({
           )}
         >
           <div className={gridClasses}>
-            {columns.map((column) => {
+            {dataColumns.map((column) => {
               const value = getCellValue(row, column);
               const cellContent = column.render
                 ? column.render(value, row, rowIndex)
@@ -76,6 +80,20 @@ export function TableCardView<T = any>({
               );
             })}
           </div>
+          
+          {/* Action buttons at the bottom of card */}
+          {actionColumns.length > 0 && (
+            <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100">
+              {actionColumns.map((column) => {
+                const value = getCellValue(row, column);
+                return (
+                  <div key={column.id}>
+                    {column.render ? column.render(value, row, rowIndex) : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       ))}
     </div>

@@ -37,6 +37,7 @@ export interface DynamicDetailPageRendererProps {
   backUrl?: string;
   disableAnimation?: boolean;
   className?: string;
+  showBack?: boolean; // If true, show "Back" instead of schema name
   // Custom components registry
   customComponents?: Record<string, React.ComponentType<any>>;
 }
@@ -137,7 +138,8 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
       title = data.name || 'Details';
     }
   }
-  const subtitle = getSingleValueByRole(schema, data, 'subtitle') || data.email || '';
+  // Get subtitle value(s) - concatenate multiple fields with same role using |
+  const subtitle = getValueByRole(schema, data, 'subtitle') || data.email || '';
   const avatar = getSingleValueByRole(schema, data, 'avatar') || data.name || '?';
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
@@ -203,6 +205,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   backUrl,
   disableAnimation = false,
   className,
+  showBack = false,
   customComponents = {}
 }) => {
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
@@ -468,7 +471,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           {onBack && (
             <Button onClick={onBack} variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {schema.plural_name || 'Back'}
+              {showBack ? 'Back' : (schema.plural_name || 'Back')}
             </Button>
           )}
         </div>
@@ -597,7 +600,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   onClick={onBack}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  {schema.plural_name || 'Back'}
+                  {showBack ? 'Back' : (schema.plural_name || 'Back')}
                 </Button>
               )}
 

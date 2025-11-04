@@ -114,7 +114,7 @@ export default function BuilderPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-start justify-between gap-4 mb-4 w-full flex-wrap">
-            <p className="text-gray-600 text-lg max-w-4xl">
+            <p className="text-gray-600 text-md max-w-4xl">
               Use the builders below to configure your supply chain management system.
               Define schemas for your entities and establish relationships between them.
             </p>
@@ -159,7 +159,7 @@ export default function BuilderPage() {
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
                 <Card 
-                  className="hover:shadow-sm transition-all duration-200 cursor-pointer group h-full border border-gray-200 hover:border-violet-300"
+                  className="hover:shadow-sm transition-all duration-200 cursor-pointer group h-full border flex flex-col justify-between"
                   onClick={() => handleCardClick(option.href)}
                 >
                   <CardHeader className="pb-3 pt-4 px-4">

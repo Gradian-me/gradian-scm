@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { DynamicDetailPageRenderer, getPageTitle, getPageSubtitle } from '../../../../gradian-ui/data-display/components/DynamicDetailPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useDynamicEntity } from '../../../../shared/hooks/use-dynamic-entity';
@@ -60,6 +60,9 @@ export function DynamicDetailPageClient({
   entityName
 }: DynamicDetailPageClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const showBack = searchParams?.get('showBack') === 'true';
+  
   // Reconstruct RegExp objects in the schema
   let schema = reconstructRegExp(rawSchema) as FormSchema;
   // Ensure schema has actions
@@ -101,8 +104,14 @@ export function DynamicDetailPageClient({
   }, [dataId, schemaId]);
 
   const handleBack = useCallback(() => {
-    router.push(`/page/${schemaId}`);
-  }, [router, schemaId]);
+    if (showBack) {
+      // Use browser history back when showBack query param is present
+      router.back();
+    } else {
+      // Default: navigate to schema list page
+      router.push(`/page/${schemaId}`);
+    }
+  }, [router, schemaId, showBack]);
 
   const handleEdit = useCallback(() => {
     // Edit is now handled by DynamicDetailPageRenderer's FormModal
@@ -135,6 +144,7 @@ export function DynamicDetailPageClient({
         onEdit={handleEdit}
         onDelete={handleDelete}
         disableAnimation={false}
+        showBack={showBack}
       />
     </MainLayout>
   );

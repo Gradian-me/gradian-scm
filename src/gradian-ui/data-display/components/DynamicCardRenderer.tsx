@@ -119,8 +119,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   // Check if subtitle role exists in schema
   const hasSubtitleRole = schema?.fields?.some(field => field.role === 'subtitle') || false;
   
-  // Get subtitle value only if role exists, otherwise null
-  const subtitleValue = hasSubtitleRole ? getSingleValueByRole(schema, data, 'subtitle') : null;
+  // Get subtitle value(s) - concatenate multiple fields with same role using |
+  const subtitleValue = hasSubtitleRole ? getValueByRole(schema, data, 'subtitle') : null;
   const subtitle = subtitleValue && (typeof subtitleValue === 'string' ? subtitleValue.trim() !== '' : subtitleValue != null) ? subtitleValue : null;
 
   // Check if description role exists in schema OR if any field label contains "description"
@@ -129,22 +129,30 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     (field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description'))
   ) || false;
   
-  // Get description value - try role first, then find by label containing "description"
+  // Get description value(s) - concatenate multiple fields with same role using |
   let descriptionValue: any = null;
   if (hasDescriptionRole) {
-    // First try to get by role
-    descriptionValue = getSingleValueByRole(schema, data, 'description');
-    
-    // If not found by role, find by field label containing "description"
-    if (!descriptionValue && schema?.fields) {
-      const descriptionField = schema.fields.find(field => 
-        field.label && 
-        typeof field.label === 'string' && 
-        field.label.toLowerCase().includes('description') &&
-        !field.role // Only if it doesn't already have a role
-      );
-      if (descriptionField) {
-        descriptionValue = data[descriptionField.name];
+    // First try to get by role (concatenates multiple fields with |)
+    const roleBasedDescription = getValueByRole(schema, data, 'description');
+    if (roleBasedDescription && roleBasedDescription.trim() !== '') {
+      descriptionValue = roleBasedDescription;
+    } else {
+      // If not found by role, find by field label containing "description"
+      if (schema?.fields) {
+        const descriptionFields = schema.fields.filter(field => 
+          field.label && 
+          typeof field.label === 'string' && 
+          field.label.toLowerCase().includes('description') &&
+          !field.role // Only if it doesn't already have a role
+        );
+        if (descriptionFields.length > 0) {
+          const values = descriptionFields
+            .map(field => data[field.name])
+            .filter(val => val !== undefined && val !== null && val !== '');
+          if (values.length > 0) {
+            descriptionValue = values.join(' | ');
+          }
+        }
       }
     }
   }

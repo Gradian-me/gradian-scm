@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { FormSchema, RepeatingTableRendererConfig, DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { Table, TableColumn, TableConfig, TableAggregations } from '../table';
@@ -12,6 +13,8 @@ import { CardWrapper, CardHeader, CardTitle, CardContent } from '../card/compone
 import { TableCardView } from './TableCardView';
 import { cn } from '../../shared/utils';
 import { apiRequest } from '@/shared/utils/api';
+import { Button } from '../../../components/ui/button';
+import { IconRenderer } from '../../../shared/utils/icon-renderer';
 
 export interface DynamicRepeatingTableViewerProps {
   config: RepeatingTableRendererConfig;
@@ -136,10 +139,15 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   sourceSchemaId,
   sourceId,
 }) => {
+  const router = useRouter();
+  
   // Check if this is a relation-based table
   const isRelationBased = !!(config.targetSchema && config.relationTypeId);
   const targetSchema = config.targetSchema;
   const relationTypeId = config.relationTypeId;
+  
+  // Determine which schema ID to use for navigation (target schema for relation-based, or current schema for non-relation-based)
+  const navigationSchemaId = isRelationBased && targetSchema ? targetSchema : schema.id;
   
   // Get source schema ID and source ID from props or from data
   const effectiveSourceSchemaId = sourceSchemaId || schema.id;
@@ -268,9 +276,40 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const columns = useMemo(
     () => {
       const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
-      return buildTableColumns(fieldsToDisplay, schemaToUse);
+      const baseColumns = buildTableColumns(fieldsToDisplay, schemaToUse);
+      
+      // Add view button column at the end
+      const viewColumn: TableColumn = {
+        id: 'actions',
+        label: 'Actions',
+        accessor: 'id',
+        sortable: false,
+        align: 'right',
+        width: '80px',
+        sticky: 'right',
+        render: (value: any, row: any) => {
+          const itemId = row.id || value;
+          if (!itemId) return null;
+          
+          return (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/page/${navigationSchemaId}/${itemId}?showBack=true`);
+              }}
+              className="h-8 w-8 p-0 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-700 transition-all duration-200"
+            >
+              <IconRenderer iconName="Eye" className="h-4 w-4" />
+            </Button>
+          );
+        },
+      };
+      
+      return [...baseColumns, viewColumn];
     },
-    [fieldsToDisplay, isRelationBased, targetSchemaData, schema]
+    [fieldsToDisplay, isRelationBased, targetSchemaData, schema, navigationSchemaId, router]
   );
 
   // Get table properties with defaults
@@ -279,7 +318,9 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const paginationEnabled = tableProps.paginationEnabled ?? (sectionData.length > 10);
   const paginationPageSize = tableProps.paginationPageSize || 10;
   const alwaysShowPagination = tableProps.alwaysShowPagination ?? false;
-  const showAsCards = tableProps.showAsCards ?? false;
+  // showAsCards: if undefined, default to true (auto-responsive on mobile)
+  // if explicitly set to false, disable cards even on mobile
+  const showAsCards = tableProps.showAsCards !== false; // Default to true (responsive)
   const cardColumns = tableProps.cardColumns ?? 1;
   const aggregations = tableProps.aggregations || [];
   const aggregationAlignment = tableProps.aggregationAlignment ?? 'end';

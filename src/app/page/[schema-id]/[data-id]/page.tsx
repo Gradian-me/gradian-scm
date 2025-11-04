@@ -1,6 +1,7 @@
 // Dynamic Detail Page Route
 // Renders detail page for any entity based on schema ID and data ID
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { DynamicDetailPageClient } from './DynamicDetailPageClient';
@@ -41,12 +42,20 @@ export default async function DynamicDetailPage({ params }: PageProps) {
   const serializedSchema = serializeSchema(schema);
 
   return (
-    <DynamicDetailPageClient 
-      schema={serializedSchema}
-      dataId={dataId}
-      schemaId={schemaId}
-      entityName={schema.singular_name || 'Entity'}
-    />
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    }>
+      <DynamicDetailPageClient 
+        schema={serializedSchema}
+        dataId={dataId}
+        schemaId={schemaId}
+        entityName={schema.singular_name || 'Entity'}
+      />
+    </Suspense>
   );
 }
 

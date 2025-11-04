@@ -314,7 +314,7 @@
         "type": "number",
         "component": "number",
         "placeholder": "Enter quantity",
-        "role": "subtitle",
+        "role": "description",
         "required": true,
         "validation": {
           "required": true,
@@ -411,6 +411,7 @@
         "component": "textarea",
         "placeholder": "Enter item description",
         "required": false,
+        "role": "description",
         "colSpan": 2,
         "order": 7
       }
