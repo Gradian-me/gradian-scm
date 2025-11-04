@@ -188,5 +188,15 @@
     "id": "01K975NWDCMZJ3HEK3A5DVHRNE",
     "createdAt": "2025-11-04T10:12:54.315Z",
     "updatedAt": "2025-11-04T10:12:54.315Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K945BGN1YV7RG3XKG169CGS1",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K97F0QV3S1JH1R8NJ1XWEPEG",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K97F0QWVSR2A6F1R4KMRKKRC",
+    "createdAt": "2025-11-04T12:56:07.323Z",
+    "updatedAt": "2025-11-04T12:56:07.323Z"
   }
 ]

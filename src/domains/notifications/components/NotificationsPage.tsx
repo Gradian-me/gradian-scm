@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NotificationGroup } from './NotificationGroup';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationService } from '../services/notification.service';
+import { Select, SelectOption } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { 
   Search, 
   Filter, 
@@ -17,19 +18,24 @@ import {
   Bell,
   AlertTriangle,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  CheckCheck
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function NotificationsPage() {
   const {
+    notifications,
     groupedNotifications,
     isLoading,
     error,
     filters,
+    groupBy,
     unreadCount,
     updateFilters,
+    updateGroupBy,
     markAsRead,
+    acknowledge,
     markAsUnread,
     markAllAsRead,
     clearFilters
@@ -52,26 +58,79 @@ export function NotificationsPage() {
     updateFilters({ isRead: boolValue });
   };
 
+  const handleSourceChange = (value: string) => {
+    updateFilters({ sourceType: value === 'all' ? undefined : value as 'createdByMe' | 'assignedToMe' });
+  };
+
   const getFilterCounts = () => {
     const counts = {
-      all: groupedNotifications.reduce((sum, group) => sum + group.notifications.length, 0),
-      unread: groupedNotifications.reduce((sum, group) => sum + group.unreadCount, 0),
+      all: notifications.length,
+      unread: notifications.filter(n => !n.isRead).length,
       success: 0,
       warning: 0,
-      error: 0,
-      info: 0
+      important: 0,
+      info: 0,
+      needsAcknowledgement: 0
     };
 
-    groupedNotifications.forEach(group => {
-      group.notifications.forEach(notification => {
+    // Count from all notifications, not just grouped ones
+    notifications.forEach(notification => {
+      // Count by type (already transformed from 'error' to 'important' in service layer)
+      if (notification.type in counts) {
         counts[notification.type as keyof typeof counts]++;
-      });
+      }
+      // Count unread notifications that need acknowledgment
+      if (!notification.isRead && notification.interactionType === 'needsAcknowledgement') {
+        counts.needsAcknowledgement++;
+      }
     });
 
     return counts;
   };
 
   const filterCounts = getFilterCounts();
+
+  // Define options for Type filter
+  const typeOptions: SelectOption[] = [
+    { value: 'all', label: `All Types (${filterCounts.all || 0})` },
+    { value: 'success', label: `Success (${filterCounts.success || 0})`, color: 'success', icon: 'CheckCircle' },
+    { value: 'info', label: `Info (${filterCounts.info || 0})`, color: 'info', icon: 'Info' },
+    { value: 'warning', label: `Warning (${filterCounts.warning || 0})`, color: 'warning', icon: 'AlertTriangle' },
+    { value: 'important', label: `Important (${filterCounts.important || 0})`, color: 'destructive', icon: 'XCircle' }
+  ];
+
+  // Define options for Category filter
+  const categoryOptions: SelectOption[] = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'quotation', label: 'Quotations' },
+    { value: 'purchase_order', label: 'Purchase Orders' },
+    { value: 'shipment', label: 'Shipments' },
+    { value: 'vendor', label: 'Vendors' },
+    { value: 'tender', label: 'Tenders' },
+    { value: 'system', label: 'System' }
+  ];
+
+  // Define options for Status filter
+  const statusOptions: SelectOption[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'unread', label: `Unread (${filterCounts.unread || 0})`, color: 'warning' },
+    { value: 'read', label: 'Read', color: 'success' }
+  ];
+
+  // Define options for Source filter
+  const sourceOptions: SelectOption[] = [
+    { value: 'all', label: 'All Sources' },
+    { value: 'createdByMe', label: 'Created by Me' },
+    { value: 'assignedToMe', label: 'Assigned to Me' }
+  ];
+
+  // Define options for Group By select
+  const groupByOptions: SelectOption[] = [
+    { value: 'category', label: 'By Category' },
+    { value: 'type', label: 'By Type' },
+    { value: 'priority', label: 'By Priority' },
+    { value: 'status', label: 'By Status' }
+  ];
 
   return (
     <MainLayout title="Notifications">
@@ -105,10 +164,10 @@ export function NotificationsPage() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCheck className="h-5 w-5 text-violet-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Success</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.success}</p>
+                  <p className="text-sm font-medium text-gray-600">Need Acknowledgement</p>
+                  <p className="text-2xl font-bold text-gray-900">{filterCounts.needsAcknowledgement || 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -119,8 +178,8 @@ export function NotificationsPage() {
               <div className="flex items-center space-x-2">
                 <X className="h-5 w-5 text-red-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Errors</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.error}</p>
+                  <p className="text-sm font-medium text-gray-600">Important</p>
+                  <p className="text-2xl font-bold text-gray-900">{filterCounts.important || 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -133,6 +192,15 @@ export function NotificationsPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Search & Filter</CardTitle>
               <div className="flex items-center space-x-2">
+                <Select
+                  options={groupByOptions}
+                  value={groupBy}
+                  onValueChange={(value) => updateGroupBy(value as any)}
+                  placeholder="Group by..."
+                  config={{ name: 'groupBy', label: '' }}
+                  size="sm"
+                  className="w-[140px]"
+                />
                 <Button
                   variant="outline"
                   size="sm"
@@ -174,52 +242,43 @@ export function NotificationsPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200"
+                  className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200"
                 >
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Type</label>
-                    <select
-                      value={filters.type || 'all'}
-                      onChange={(e) => handleFilterChange('type', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
-                    >
-                      <option value="all">All Types ({filterCounts.all})</option>
-                      <option value="success">Success ({filterCounts.success})</option>
-                      <option value="info">Info ({filterCounts.info})</option>
-                      <option value="warning">Warning ({filterCounts.warning})</option>
-                      <option value="error">Error ({filterCounts.error})</option>
-                    </select>
-                  </div>
+                  <Select
+                    options={typeOptions}
+                    value={filters.type || 'all'}
+                    onValueChange={(value) => handleFilterChange('type', value)}
+                    placeholder="Select type..."
+                    config={{ name: 'type', label: 'Type' }}
+                    size="md"
+                  />
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Category</label>
-                    <select
-                      value={filters.category || 'all'}
-                      onChange={(e) => handleFilterChange('category', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
-                    >
-                      <option value="all">All Categories</option>
-                      <option value="quotation">Quotations</option>
-                      <option value="purchase_order">Purchase Orders</option>
-                      <option value="shipment">Shipments</option>
-                      <option value="vendor">Vendors</option>
-                      <option value="tender">Tenders</option>
-                      <option value="system">System</option>
-                    </select>
-                  </div>
+                  <Select
+                    options={categoryOptions}
+                    value={filters.category || 'all'}
+                    onValueChange={(value) => handleFilterChange('category', value)}
+                    placeholder="Select category..."
+                    config={{ name: 'category', label: 'Category' }}
+                    size="md"
+                  />
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
-                    <select
-                      value={filters.isRead === undefined ? 'all' : filters.isRead ? 'read' : 'unread'}
-                      onChange={(e) => handleReadStatusChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-violet-300 focus:border-violet-400"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="unread">Unread ({filterCounts.unread})</option>
-                      <option value="read">Read</option>
-                    </select>
-                  </div>
+                  <Select
+                    options={statusOptions}
+                    value={filters.isRead === undefined ? 'all' : filters.isRead ? 'read' : 'unread'}
+                    onValueChange={(value) => handleReadStatusChange(value)}
+                    placeholder="Select status..."
+                    config={{ name: 'status', label: 'Status' }}
+                    size="md"
+                  />
+
+                  <Select
+                    options={sourceOptions}
+                    value={filters.sourceType || 'all'}
+                    onValueChange={(value) => handleSourceChange(value)}
+                    placeholder="Select source..."
+                    config={{ name: 'sourceType', label: 'Source' }}
+                    size="md"
+                  />
                 </motion.div>
               )}
 
@@ -284,7 +343,9 @@ export function NotificationsPage() {
               <NotificationGroup
                 key={group.category}
                 group={group}
+                groupBy={groupBy}
                 onMarkAsRead={markAsRead}
+                onAcknowledge={acknowledge}
                 onMarkAsUnread={markAsUnread}
               />
             ))}

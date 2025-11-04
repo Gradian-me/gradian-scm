@@ -122,9 +122,24 @@ export async function PUT(
       updatedAt: new Date().toISOString(),
     };
     
-    // If marking as unread, remove readAt
-    if (body.isRead === false && 'readAt' in updated) {
+    // If marking as unread, remove interactedAt (only for canRead type)
+    if (body.isRead === false && updated.interactionType !== 'needsAcknowledgement') {
+      delete updated.interactedAt;
+      // Also remove legacy readAt if present
+      if ('readAt' in updated) {
+        delete updated.readAt;
+      }
+    }
+    
+    // Migrate readAt to interactedAt if needed (backward compatibility)
+    if ('readAt' in updated && !updated.interactedAt) {
+      updated.interactedAt = updated.readAt;
       delete updated.readAt;
+    }
+    
+    // Ensure interactionType defaults to canRead
+    if (!updated.interactionType) {
+      updated.interactionType = 'canRead';
     }
     
     notifications[index] = updated;

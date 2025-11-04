@@ -164,3 +164,12 @@ export interface AvatarProps extends BaseComponentProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
 }
+
+// Label Component Types
+export interface LabelProps extends BaseComponentProps {
+  htmlFor?: string;
+  required?: boolean;
+  error?: boolean;
+  disabled?: boolean;
+  children: React.ReactNode;
+}

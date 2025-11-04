@@ -25,6 +25,7 @@ import { ChevronsDown, ChevronsUp } from 'lucide-react';
 import { GoToTopForm } from '../form-elements/go-to-top-form';
 import { FormModal } from './FormModal';
 import { apiRequest } from '@/shared/utils/api';
+import { CompanySelector } from '@/components/layout/CompanySelector';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -884,6 +885,20 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                 onDismiss={error ? onErrorDismiss : undefined}
                 dismissible={!!error}
                 statusCode={error ? errorStatusCode : undefined}
+                action={
+                  (() => {
+                    const errorMessage = (error || firstValidationError || '').toLowerCase();
+                    return errorMessage.includes('company id is required') || 
+                           errorMessage.includes('cannot create records when') ||
+                           errorMessage.includes('please select a company') ||
+                           errorMessage.includes('please select a specific company');
+                  })() ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-medium opacity-80">Select a company:</p>
+                      <CompanySelector />
+                    </div>
+                  ) : undefined
+                }
               />
             </div>
           )}

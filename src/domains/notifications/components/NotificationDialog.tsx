@@ -27,12 +27,17 @@ interface NotificationDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onMarkAsRead: (id: string) => void;
+  onAcknowledge?: (id: string) => void;
   onMarkAsUnread?: (id: string) => void;
 }
 
-export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead, onMarkAsUnread }: NotificationDialogProps) {
+export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead, onAcknowledge, onMarkAsUnread }: NotificationDialogProps) {
   const [isMarkingAsRead, setIsMarkingAsRead] = useState(false);
+  const [isAcknowledging, setIsAcknowledging] = useState(false);
   const [isMarkingAsUnread, setIsMarkingAsUnread] = useState(false);
+  
+  // Determine if this notification needs acknowledgment
+  const needsAcknowledgement = notification?.interactionType === 'needsAcknowledgement';
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -43,6 +48,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
       case 'warning':
         return <AlertTriangle className="h-6 w-6 text-amber-500" />;
       case 'error':
+      case 'important':
         return <XCircle className="h-6 w-6 text-red-500" />;
       default:
         return <Info className="h-6 w-6 text-gray-500" />;
@@ -58,6 +64,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
       case 'warning':
         return 'warning';
       case 'error':
+      case 'important':
         return 'destructive';
       default:
         return 'secondary';
@@ -90,6 +97,17 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
     }
   };
 
+  const handleAcknowledge = async () => {
+    if (!notification || notification.isRead || !onAcknowledge) return;
+    
+    setIsAcknowledging(true);
+    try {
+      await onAcknowledge(notification.id);
+    } finally {
+      setIsAcknowledging(false);
+    }
+  };
+
   const handleMarkAsUnread = async () => {
     if (!notification || !notification.isRead || !onMarkAsUnread) return;
     
@@ -112,7 +130,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 flex-shrink-0">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200 shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">
               {getTypeIcon(notification.type)}
@@ -200,13 +218,15 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                       </span>
                     </div>
                   </div>
-                  {notification.readAt && (
+                  {notification.interactedAt && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Read</span>
+                      <span className="text-sm font-medium text-gray-600">
+                        {notification?.interactionType === 'needsAcknowledgement' ? 'Acknowledged' : 'Read'}
+                      </span>
                       <div className="text-sm text-gray-900">
-                        {format(notification.readAt, 'PPP p')}
+                        {format(notification.interactedAt, 'PPP p')}
                         <span className="text-gray-500 ml-2">
-                          ({formatDistanceToNow(notification.readAt, { addSuffix: true })})
+                          ({formatDistanceToNow(notification.interactedAt, { addSuffix: true })})
                         </span>
                       </div>
                     </div>
@@ -218,20 +238,33 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
         </ScrollArea>
 
         {/* Actions Footer - Fixed at bottom */}
-        <div className="p-6 border-t border-gray-200 flex-shrink-0">
+        <div className="p-6 border-t border-gray-200 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {!notification.isRead ? (
-                <Button
-                  variant="outline"
-                  onClick={handleMarkAsRead}
-                  disabled={isMarkingAsRead}
-                  className="text-sm"
-                >
-                  {isMarkingAsRead ? 'Marking...' : 'Mark as Read'}
-                </Button>
+                needsAcknowledgement ? (
+                  onAcknowledge ? (
+                    <Button
+                      variant="outline"
+                      onClick={handleAcknowledge}
+                      disabled={isAcknowledging}
+                      className="text-sm"
+                    >
+                      {isAcknowledging ? 'Acknowledging...' : 'Acknowledge'}
+                    </Button>
+                  ) : null
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={handleMarkAsRead}
+                    disabled={isMarkingAsRead}
+                    className="text-sm"
+                  >
+                    {isMarkingAsRead ? 'Marking...' : 'Mark as Read'}
+                  </Button>
+                )
               ) : (
-                onMarkAsUnread && (
+                onMarkAsUnread && !needsAcknowledgement && (
                   <Button
                     variant="outline"
                     onClick={handleMarkAsUnread}

@@ -30,5 +30,6 @@ export * from './components/DateTimeInput';
 export * from './components/FileInput';
 export * from './components/PickerInput';
 export * from './components/Switch';
+export { Label } from './components/Label';
 export * from './components/CTAButton';
 export * from './go-to-top-form';

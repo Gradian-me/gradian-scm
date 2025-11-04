@@ -61,7 +61,12 @@ export async function GET(request: NextRequest) {
     
     const type = searchParams.get('type');
     if (type) {
-      filtered = filtered.filter((n: any) => n.type === type);
+      // Handle both 'important' and legacy 'error' type
+      if (type === 'important') {
+        filtered = filtered.filter((n: any) => n.type === 'important' || n.type === 'error');
+      } else {
+        filtered = filtered.filter((n: any) => n.type === type);
+      }
     }
     
     const category = searchParams.get('category');
@@ -78,6 +83,20 @@ export async function GET(request: NextRequest) {
     if (isReadParam !== null) {
       const isRead = isReadParam === 'true';
       filtered = filtered.filter((n: any) => n.isRead === isRead);
+    }
+    
+    // Filter by sourceType (createdByMe or assignedToMe)
+    const sourceType = searchParams.get('sourceType');
+    const currentUserId = searchParams.get('currentUserId');
+    if (sourceType && currentUserId) {
+      if (sourceType === 'createdByMe') {
+        filtered = filtered.filter((n: any) => n.createdBy === currentUserId);
+      } else if (sourceType === 'assignedToMe') {
+        filtered = filtered.filter((n: any) => 
+          n.assignedTo && Array.isArray(n.assignedTo) && 
+          n.assignedTo.some((item: any) => item.userId === currentUserId)
+        );
+      }
     }
     
     // Sort by createdAt (newest first)

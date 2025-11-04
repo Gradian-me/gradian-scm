@@ -20,11 +20,16 @@ import { formatDistanceToNow } from 'date-fns';
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
+  onAcknowledge?: (id: string) => void;
   onMarkAsUnread?: (id: string) => void;
 }
 
-export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }: NotificationItemProps) {
+export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, onMarkAsUnread }: NotificationItemProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Determine if this notification needs acknowledgment
+  const needsAcknowledgement = notification.interactionType === 'needsAcknowledgement';
+  
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'success':
@@ -34,6 +39,7 @@ export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }:
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-amber-500" />;
       case 'error':
+      case 'important':
         return <XCircle className="h-5 w-5 text-red-500" />;
       default:
         return <Info className="h-5 w-5 text-gray-500" />;
@@ -49,6 +55,7 @@ export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }:
       case 'warning':
         return 'warning';
       case 'error':
+      case 'important':
         return 'destructive';
       default:
         return 'secondary';
@@ -126,7 +133,11 @@ export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }:
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-1 text-xs text-gray-400">
                     <Clock className="h-3 w-3" />
-                    <span>{formatDistanceToNow(notification.createdAt, { addSuffix: true })}</span>
+                    <span>
+                      {notification.interactedAt 
+                        ? `${needsAcknowledgement ? 'Acknowledged' : 'Read'} ${formatDistanceToNow(notification.interactedAt, { addSuffix: true })}`
+                        : formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                    </span>
                   </div>
                   
                   <Button
@@ -140,16 +151,29 @@ export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }:
                   </Button>
                   
                   {!notification.isRead ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-6 px-2 text-xs"
-                      onClick={() => onMarkAsRead(notification.id)}
-                    >
-                      Mark Read
-                    </Button>
+                    needsAcknowledgement ? (
+                      onAcknowledge ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={() => onAcknowledge(notification.id)}
+                        >
+                          Acknowledge
+                        </Button>
+                      ) : null
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => onMarkAsRead(notification.id)}
+                      >
+                        Mark Read
+                      </Button>
+                    )
                   ) : (
-                    onMarkAsUnread && (
+                    onMarkAsUnread && !needsAcknowledgement && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -173,6 +197,7 @@ export function NotificationItem({ notification, onMarkAsRead, onMarkAsUnread }:
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onMarkAsRead={onMarkAsRead}
+        onAcknowledge={onAcknowledge}
         onMarkAsUnread={onMarkAsUnread}
       />
     </>

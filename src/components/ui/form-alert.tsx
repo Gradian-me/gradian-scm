@@ -9,6 +9,7 @@ interface FormAlertProps {
   onDismiss?: () => void;
   dismissible?: boolean;
   statusCode?: number;
+  action?: React.ReactNode;
 }
 
 export const FormAlert: React.FC<FormAlertProps> = ({ 
@@ -17,7 +18,8 @@ export const FormAlert: React.FC<FormAlertProps> = ({
   className,
   onDismiss,
   dismissible = false,
-  statusCode
+  statusCode,
+  action
 }) => {
   const icons = {
     success: CheckCircle,
@@ -66,6 +68,11 @@ export const FormAlert: React.FC<FormAlertProps> = ({
           )}
           <p className="text-sm font-medium">{message}</p>
         </div>
+        {action && (
+          <div className="mt-3 pt-3 border-t border-current border-opacity-20">
+            {action}
+          </div>
+        )}
       </div>
       {dismissible && onDismiss && (
         <button

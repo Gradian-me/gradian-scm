@@ -1,28 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Shield, 
-  Database, 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import {
+  Bell,
+  Database,
   Palette,
   Save,
-  Eye,
-  EyeOff
+  Shield,
+  User
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+// Import Gradian UI form components
+import { Switch } from '@/gradian-ui/form-builder/form-elements/components/Switch';
+import { Label } from '@/gradian-ui/form-builder/form-elements/components/Label';
+import { EmailInput } from '@/gradian-ui/form-builder/form-elements/components/EmailInput';
+import { NumberInput } from '@/gradian-ui/form-builder/form-elements/components/NumberInput';
+import { PasswordInput } from '@/gradian-ui/form-builder/form-elements/components/PasswordInput';
+import { PhoneInput } from '@/gradian-ui/form-builder/form-elements/components/PhoneInput';
+import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
+import { TextInput } from '@/gradian-ui/form-builder/form-elements/components/TextInput';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
-  const [showPassword, setShowPassword] = useState(false);
   const [settings, setSettings] = useState({
     profile: {
       name: 'Mahyar Abidi',
@@ -129,62 +132,71 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        value={settings.profile.name}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          profile: { ...prev.profile, name: e.target.value }
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={settings.profile.email}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          profile: { ...prev.profile, email: e.target.value }
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="role">Role</Label>
-                      <Input
-                        id="role"
-                        value={settings.profile.role}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          profile: { ...prev.profile, role: e.target.value }
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="department">Department</Label>
-                      <Input
-                        id="department"
-                        value={settings.profile.department}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          profile: { ...prev.profile, department: e.target.value }
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={settings.profile.phone}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          profile: { ...prev.profile, phone: e.target.value }
-                        }))}
-                      />
-                    </div>
+                    <TextInput
+                      config={{
+                        name: 'name',
+                        label: 'Full Name',
+                        type: 'text',
+                        placeholder: 'Enter your full name'
+                      }}
+                      value={settings.profile.name}
+                      onChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        profile: { ...prev.profile, name: value }
+                      }))}
+                    />
+                    <EmailInput
+                      config={{
+                        name: 'email',
+                        label: 'Email',
+                        type: 'email',
+                        placeholder: 'Enter your email'
+                      }}
+                      value={settings.profile.email}
+                      onChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        profile: { ...prev.profile, email: value }
+                      }))}
+                    />
+                    <TextInput
+                      config={{
+                        name: 'role',
+                        label: 'Role',
+                        type: 'text',
+                        placeholder: 'Enter your role'
+                      }}
+                      value={settings.profile.role}
+                      onChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        profile: { ...prev.profile, role: value }
+                      }))}
+                    />
+                    <TextInput
+                      config={{
+                        name: 'department',
+                        label: 'Department',
+                        type: 'text',
+                        placeholder: 'Enter your department'
+                      }}
+                      value={settings.profile.department}
+                      onChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        profile: { ...prev.profile, department: value }
+                      }))}
+                    />
+                    <PhoneInput
+                      config={{
+                        name: 'phone',
+                        label: 'Phone',
+                        type: 'tel',
+                        placeholder: 'Enter your phone number'
+                      }}
+                      value={settings.profile.phone}
+                      onChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        profile: { ...prev.profile, phone: value }
+                      }))}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -203,14 +215,17 @@ export default function SettingsPage() {
                         <Label>Email Notifications</Label>
                         <p className="text-sm text-gray-600">Receive notifications via email</p>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.emailNotifications}
-                        onChange={(e) => setSettings(prev => ({
+                      <Switch
+                        config={{
+                          name: 'emailNotifications',
+                          label: '',
+                          type: 'switch'
+                        }}
+                        value={settings.notifications.emailNotifications}
+                        onChange={(checked: boolean) => setSettings(prev => ({
                           ...prev,
-                          notifications: { ...prev.notifications, emailNotifications: e.target.checked }
+                          notifications: { ...prev.notifications, emailNotifications: checked }
                         }))}
-                        className="h-4 w-4 text-blue-600"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -218,14 +233,17 @@ export default function SettingsPage() {
                         <Label>Push Notifications</Label>
                         <p className="text-sm text-gray-600">Receive push notifications in browser</p>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.pushNotifications}
-                        onChange={(e) => setSettings(prev => ({
+                      <Switch
+                        config={{
+                          name: 'pushNotifications',
+                          label: '',
+                          type: 'switch'
+                        }}
+                        value={settings.notifications.pushNotifications}
+                        onChange={(checked: boolean) => setSettings(prev => ({
                           ...prev,
-                          notifications: { ...prev.notifications, pushNotifications: e.target.checked }
+                          notifications: { ...prev.notifications, pushNotifications: checked }
                         }))}
-                        className="h-4 w-4 text-blue-600"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -233,14 +251,17 @@ export default function SettingsPage() {
                         <Label>Tender Updates</Label>
                         <p className="text-sm text-gray-600">Get notified about tender changes</p>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.tenderUpdates}
-                        onChange={(e) => setSettings(prev => ({
+                      <Switch
+                        config={{
+                          name: 'tenderUpdates',
+                          label: '',
+                          type: 'switch'
+                        }}
+                        value={settings.notifications.tenderUpdates}
+                        onChange={(checked: boolean) => setSettings(prev => ({
                           ...prev,
-                          notifications: { ...prev.notifications, tenderUpdates: e.target.checked }
+                          notifications: { ...prev.notifications, tenderUpdates: checked }
                         }))}
-                        className="h-4 w-4 text-blue-600"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -248,14 +269,17 @@ export default function SettingsPage() {
                         <Label>Vendor Updates</Label>
                         <p className="text-sm text-gray-600">Get notified about vendor changes</p>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.vendorUpdates}
-                        onChange={(e) => setSettings(prev => ({
+                      <Switch
+                        config={{
+                          name: 'vendorUpdates',
+                          label: '',
+                          type: 'switch'
+                        }}
+                        value={settings.notifications.vendorUpdates}
+                        onChange={(checked: boolean) => setSettings(prev => ({
                           ...prev,
-                          notifications: { ...prev.notifications, vendorUpdates: e.target.checked }
+                          notifications: { ...prev.notifications, vendorUpdates: checked }
                         }))}
-                        className="h-4 w-4 text-blue-600"
                       />
                     </div>
                     <div className="flex items-center justify-between">
@@ -263,14 +287,17 @@ export default function SettingsPage() {
                         <Label>System Alerts</Label>
                         <p className="text-sm text-gray-600">Get notified about system issues</p>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.notifications.systemAlerts}
-                        onChange={(e) => setSettings(prev => ({
+                      <Switch
+                        config={{
+                          name: 'systemAlerts',
+                          label: '',
+                          type: 'switch'
+                        }}
+                        value={settings.notifications.systemAlerts}
+                        onChange={(checked: boolean) => setSettings(prev => ({
                           ...prev,
-                          notifications: { ...prev.notifications, systemAlerts: e.target.checked }
+                          notifications: { ...prev.notifications, systemAlerts: checked }
                         }))}
-                        className="h-4 w-4 text-blue-600"
                       />
                     </div>
                   </div>
@@ -300,45 +327,45 @@ export default function SettingsPage() {
                         </Button>
                       </div>
                     </div>
-                    <div>
-                      <Label>Session Timeout (minutes)</Label>
-                      <Input
-                        type="number"
-                        value={settings.security.sessionTimeout}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          security: { ...prev.security, sessionTimeout: parseInt(e.target.value) }
-                        }))}
-                        className="w-32"
-                      />
-                    </div>
-                    <div>
-                      <Label>Password Expiry (days)</Label>
-                      <Input
-                        type="number"
-                        value={settings.security.passwordExpiry}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          security: { ...prev.security, passwordExpiry: parseInt(e.target.value) }
-                        }))}
-                        className="w-32"
-                      />
-                    </div>
+                    <NumberInput
+                      config={{
+                        name: 'sessionTimeout',
+                        label: 'Session Timeout (minutes)',
+                        type: 'number',
+                        placeholder: 'Enter timeout in minutes'
+                      }}
+                      value={settings.security.sessionTimeout}
+                      onChange={(value: number | string) => setSettings(prev => ({
+                        ...prev,
+                        security: { ...prev.security, sessionTimeout: typeof value === 'number' ? value : parseInt(String(value)) || 30 }
+                      }))}
+                    />
+                    <NumberInput
+                      config={{
+                        name: 'passwordExpiry',
+                        label: 'Password Expiry (days)',
+                        type: 'number',
+                        placeholder: 'Enter expiry in days'
+                      }}
+                      value={settings.security.passwordExpiry}
+                      onChange={(value: number | string) => setSettings(prev => ({
+                        ...prev,
+                        security: { ...prev.security, passwordExpiry: typeof value === 'number' ? value : parseInt(String(value)) || 90 }
+                      }))}
+                    />
                     <div>
                       <Label>Change Password</Label>
-                      <div className="flex space-x-2">
-                        <Input
-                          type={showPassword ? 'text' : 'password'}
-                          placeholder="Current password"
-                          className="flex-1"
+                      <div className="flex space-x-2 mt-1">
+                        <PasswordInput
+                          config={{
+                            name: 'currentPassword',
+                            label: '',
+                            type: 'password',
+                            placeholder: 'Current password'
+                          }}
+                          value=""
+                          onChange={() => {}}
                         />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -354,54 +381,63 @@ export default function SettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-4">
-                    <div>
-                      <Label>Theme</Label>
-                      <select
-                        value={settings.appearance.theme}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          appearance: { ...prev.appearance, theme: e.target.value }
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      >
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="auto">Auto</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label>Language</Label>
-                      <select
-                        value={settings.appearance.language}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          appearance: { ...prev.appearance, language: e.target.value }
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      >
-                        <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <option value="de">German</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label>Timezone</Label>
-                      <select
-                        value={settings.appearance.timezone}
-                        onChange={(e) => setSettings(prev => ({
-                          ...prev,
-                          appearance: { ...prev.appearance, timezone: e.target.value }
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      >
-                        <option value="America/New_York">Eastern Time</option>
-                        <option value="America/Chicago">Central Time</option>
-                        <option value="America/Denver">Mountain Time</option>
-                        <option value="America/Los_Angeles">Pacific Time</option>
-                        <option value="UTC">UTC</option>
-                      </select>
-                    </div>
+                    <Select
+                      config={{
+                        name: 'theme',
+                        label: 'Theme',
+                        type: 'select',
+                        placeholder: 'Select theme'
+                      }}
+                      value={settings.appearance.theme}
+                      onValueChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        appearance: { ...prev.appearance, theme: value }
+                      }))}
+                      options={[
+                        { label: 'Light', value: 'light' },
+                        { label: 'Dark', value: 'dark' },
+                        { label: 'Auto', value: 'auto' }
+                      ]}
+                    />
+                    <Select
+                      config={{
+                        name: 'language',
+                        label: 'Language',
+                        type: 'select',
+                        placeholder: 'Select language'
+                      }}
+                      value={settings.appearance.language}
+                      onValueChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        appearance: { ...prev.appearance, language: value }
+                      }))}
+                      options={[
+                        { label: 'English', value: 'en' },
+                        { label: 'Spanish', value: 'es' },
+                        { label: 'French', value: 'fr' },
+                        { label: 'German', value: 'de' }
+                      ]}
+                    />
+                    <Select
+                      config={{
+                        name: 'timezone',
+                        label: 'Timezone',
+                        type: 'select',
+                        placeholder: 'Select timezone'
+                      }}
+                      value={settings.appearance.timezone}
+                      onValueChange={(value: string) => setSettings(prev => ({
+                        ...prev,
+                        appearance: { ...prev.appearance, timezone: value }
+                      }))}
+                      options={[
+                        { label: 'Eastern Time', value: 'America/New_York' },
+                        { label: 'Central Time', value: 'America/Chicago' },
+                        { label: 'Mountain Time', value: 'America/Denver' },
+                        { label: 'Pacific Time', value: 'America/Los_Angeles' },
+                        { label: 'UTC', value: 'UTC' }
+                      ]}
+                    />
                   </div>
                 </CardContent>
               </Card>

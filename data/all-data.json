@@ -729,11 +729,11 @@
         "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
         "label": "Transfarma"
       },
-      "status": "quotation_added",
+      "status": "awarded",
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "id": "01K97208RABW053BGN3A6W05FD",
       "createdAt": "2025-11-04T09:08:40.337Z",
-      "updatedAt": "2025-11-04T10:31:03.185Z"
+      "updatedAt": "2025-11-04T12:57:29.563Z"
     },
     {
       "vendorId": {
@@ -745,20 +745,31 @@
       "id": "01K9720G4M9G75V3YWB9PGKBTM",
       "createdAt": "2025-11-04T09:08:47.900Z",
       "updatedAt": "2025-11-04T09:08:47.900Z"
+    },
+    {
+      "vendorId": {
+        "id": "01K9OP000000000000000000001",
+        "label": "Ottana Pharmed"
+      },
+      "status": "rejected",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "id": "01K97F0QV3S1JH1R8NJ1XWEPEG",
+      "createdAt": "2025-11-04T12:56:07.272Z",
+      "updatedAt": "2025-11-04T12:56:07.272Z"
     }
   ],
   "inquiry-items": [
     {
       "partCode": "5052",
       "partName": "Himedia Feed Alpha",
-      "quantity": 123,
-      "unit": "3",
+      "quantity": 150,
+      "unit": "2",
       "demandDate": "2025-11-12",
       "minimumExpirationDate": "2025-11-19",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
       "id": "01K96E06Z9H5G8FKH5QY0538JB",
       "createdAt": "2025-11-04T03:19:07.006Z",
-      "updatedAt": "2025-11-04T06:40:21.127Z",
+      "updatedAt": "2025-11-04T12:57:46.157Z",
       "description": "Test Description of Himedia Feed Alpha"
     },
     {
@@ -810,8 +821,8 @@
       "state": "ACCEPTED",
       "currency": "EUR",
       "transportType": "AIR",
-      "purchaseMethod": "TENDER",
-      "paymentMethod": "BANK_TRANSFER",
+      "purchaseMethod": "NEGOTIATION",
+      "paymentMethod": "CREDIT_CARD",
       "advancedPaymentAmount": 20000,
       "additions": 2500,
       "deductions": 1500,
@@ -825,7 +836,7 @@
       "rating": 5,
       "id": "01K9724JFPP7A6RX7H6NTFHE1D",
       "createdAt": "2025-11-04T09:11:01.375Z",
-      "updatedAt": "2025-11-04T11:26:40.611Z"
+      "updatedAt": "2025-11-04T13:00:28.469Z"
     }
   ],
   "quotation-items": [
@@ -937,7 +948,7 @@
       "type": "warning",
       "category": "tender",
       "priority": "high",
-      "isRead": true,
+      "isRead": false,
       "createdAt": "2024-12-10T07:30:00.000Z",
       "actionUrl": "/tenders/t-2024-003",
       "metadata": {
@@ -947,8 +958,8 @@
         "estimatedValue": 100000,
         "currency": "USD"
       },
-      "readAt": "2025-11-04T11:30:35.358Z",
-      "updatedAt": "2025-11-04T11:30:35.424Z"
+      "updatedAt": "2025-11-04T13:04:12.043Z",
+      "interactionType": "canRead"
     },
     {
       "id": "6",
@@ -957,9 +968,8 @@
       "type": "info",
       "category": "system",
       "priority": "medium",
-      "isRead": true,
+      "isRead": false,
       "createdAt": "2024-12-08T16:00:00.000Z",
-      "readAt": "2024-12-08T18:00:00.000Z",
       "metadata": {
         "maintenanceDate": "2024-12-15",
         "startTime": "02:00",
@@ -970,7 +980,9 @@
           "API",
           "File Storage"
         ]
-      }
+      },
+      "updatedAt": "2025-11-04T11:45:08.174Z",
+      "interactionType": "canRead"
     },
     {
       "id": "7",
@@ -1046,7 +1058,9 @@
         "expiryDate": "2025-01-10",
         "contractValue": 500000,
         "currency": "USD"
-      }
+      },
+      "updatedAt": "2025-11-04T13:04:24.763Z",
+      "interactionType": "canRead"
     }
   ]
 }

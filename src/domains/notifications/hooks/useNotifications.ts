@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Notification, NotificationFilters, NotificationGroup } from '../types';
+import { Notification, NotificationFilters, NotificationGroup, GroupByOption } from '../types';
 import { NotificationService } from '../services/notification.service';
+
+// Get current user ID - This should be replaced with actual auth context
+const getCurrentUserId = (): string => {
+  // TODO: Replace with actual auth context
+  return 'mahyar'; // Default user ID
+};
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -8,17 +14,20 @@ export function useNotifications() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<NotificationFilters>({});
+  const [groupBy, setGroupBy] = useState<GroupByOption>('category');
   const [unreadCount, setUnreadCount] = useState(0);
+  const currentUserId = getCurrentUserId();
 
-  const fetchNotifications = useCallback(async (newFilters?: NotificationFilters) => {
+  const fetchNotifications = useCallback(async (newFilters?: NotificationFilters, newGroupBy?: GroupByOption) => {
     setIsLoading(true);
     setError(null);
     
     try {
       const currentFilters = newFilters || filters;
+      const currentGroupBy = newGroupBy || groupBy;
       const [notificationsData, groupedData, unreadCountData] = await Promise.all([
-        NotificationService.getNotifications(currentFilters),
-        NotificationService.getGroupedNotifications(currentFilters),
+        NotificationService.getNotifications(currentFilters, currentUserId),
+        NotificationService.getGroupedNotifications(currentFilters, currentGroupBy, currentUserId),
         NotificationService.getUnreadCount()
       ]);
       
@@ -30,21 +39,27 @@ export function useNotifications() {
     } finally {
       setIsLoading(false);
     }
-  }, [filters]);
+  }, [filters, groupBy, currentUserId]);
 
   const updateFilters = useCallback((newFilters: Partial<NotificationFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };
     setFilters(updatedFilters);
-    fetchNotifications(updatedFilters);
+    fetchNotifications(updatedFilters, groupBy);
+  }, [filters, groupBy, fetchNotifications]);
+
+  const updateGroupBy = useCallback((newGroupBy: GroupByOption) => {
+    setGroupBy(newGroupBy);
+    fetchNotifications(filters, newGroupBy);
   }, [filters, fetchNotifications]);
 
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
+      const now = new Date();
       // Optimistically update the notification
       setNotifications(prev => 
         prev.map(n => 
           n.id === notificationId 
-            ? { ...n, isRead: true, readAt: new Date() }
+            ? { ...n, isRead: true, interactedAt: now }
             : n
         )
       );
@@ -54,7 +69,7 @@ export function useNotifications() {
         prev.map(group => {
           const updatedNotifications = group.notifications.map(n =>
             n.id === notificationId
-              ? { ...n, isRead: true, readAt: new Date() }
+              ? { ...n, isRead: true, interactedAt: now }
               : n
           );
           return {
@@ -77,13 +92,14 @@ export function useNotifications() {
     }
   }, [fetchNotifications]);
 
-  const markAsUnread = useCallback(async (notificationId: string) => {
+  const acknowledge = useCallback(async (notificationId: string) => {
     try {
+      const now = new Date();
       // Optimistically update the notification
       setNotifications(prev => 
         prev.map(n => 
           n.id === notificationId 
-            ? { ...n, isRead: false, readAt: undefined }
+            ? { ...n, isRead: true, interactedAt: now }
             : n
         )
       );
@@ -93,7 +109,46 @@ export function useNotifications() {
         prev.map(group => {
           const updatedNotifications = group.notifications.map(n =>
             n.id === notificationId
-              ? { ...n, isRead: false, readAt: undefined }
+              ? { ...n, isRead: true, interactedAt: now }
+              : n
+          );
+          return {
+            ...group,
+            notifications: updatedNotifications,
+            unreadCount: updatedNotifications.filter(n => !n.isRead).length
+          };
+        })
+      );
+      
+      // Update unread count
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      // Call the API
+      await NotificationService.acknowledge(notificationId);
+    } catch (err) {
+      // On error, revert by refetching
+      await fetchNotifications();
+      setError(err instanceof Error ? err.message : 'Failed to acknowledge notification');
+    }
+  }, [fetchNotifications]);
+
+  const markAsUnread = useCallback(async (notificationId: string) => {
+    try {
+      // Optimistically update the notification
+      setNotifications(prev => 
+        prev.map(n => 
+          n.id === notificationId 
+            ? { ...n, isRead: false, interactedAt: undefined }
+            : n
+        )
+      );
+      
+      // Update grouped notifications
+      setGroupedNotifications(prev => 
+        prev.map(group => {
+          const updatedNotifications = group.notifications.map(n =>
+            n.id === notificationId
+              ? { ...n, isRead: false, interactedAt: undefined }
               : n
           );
           return {
@@ -120,22 +175,38 @@ export function useNotifications() {
     try {
       const now = new Date();
       
-      // Optimistically update all notifications
-      setNotifications(prev => 
-        prev.map(n => ({ ...n, isRead: true, readAt: now }))
-      );
+      // Optimistically update all notifications except those that need acknowledgment
+      setNotifications(prev => {
+        const updated = prev.map(n => 
+          n.interactionType === 'needsAcknowledgement' 
+            ? n 
+            : { ...n, isRead: true, interactedAt: now }
+        );
+        
+        // Calculate unread count from updated notifications (excluding those that need acknowledgment)
+        const unreadCount = updated.filter(
+          n => !n.isRead && n.interactionType !== 'needsAcknowledgement'
+        ).length;
+        setUnreadCount(unreadCount);
+        
+        return updated;
+      });
       
       // Update grouped notifications
       setGroupedNotifications(prev => 
-        prev.map(group => ({
-          ...group,
-          notifications: group.notifications.map(n => ({ ...n, isRead: true, readAt: now })),
-          unreadCount: 0
-        }))
+        prev.map(group => {
+          const updatedNotifications = group.notifications.map(n =>
+            n.interactionType === 'needsAcknowledgement'
+              ? n
+              : { ...n, isRead: true, interactedAt: now }
+          );
+          return {
+            ...group,
+            notifications: updatedNotifications,
+            unreadCount: updatedNotifications.filter(n => !n.isRead).length
+          };
+        })
       );
-      
-      // Update unread count
-      setUnreadCount(0);
       
       // Call the API
       await NotificationService.markAllAsRead();
@@ -188,10 +259,13 @@ export function useNotifications() {
     isLoading,
     error,
     filters,
+    groupBy,
     unreadCount,
     fetchNotifications,
     updateFilters,
+    updateGroupBy,
     markAsRead,
+    acknowledge,
     markAsUnread,
     markAllAsRead,
     clearFilters,

@@ -33,6 +33,7 @@ export interface PopupPickerProps {
   description?: string;
   excludeIds?: string[]; // IDs to exclude from selection (already selected items)
   includeIds?: string[]; // IDs to include in selection (only show these items)
+  selectedIds?: string[]; // IDs of items that are already selected (will be shown with distinct styling)
   canViewList?: boolean; // If true, shows a button to navigate to the list page
   viewListUrl?: string; // Custom URL for the list page (defaults to /page/{schemaId})
 }
@@ -47,6 +48,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   description,
   excludeIds = [],
   includeIds,
+  selectedIds = [],
   canViewList = false,
   viewListUrl,
 }) => {
@@ -57,6 +59,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionSelectedIds, setSessionSelectedIds] = useState<Set<string>>(new Set());
 
   // Use refs to track previous array values for comparison
   const prevExcludeIdsRef = useRef<string>('');
@@ -88,6 +91,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       setFilteredItems([]);
       setSearchQuery('');
       setError(null);
+      setSessionSelectedIds(new Set());
       // Don't reset refs here - we want to track changes across opens
     }
   }, [isOpen]);
@@ -191,12 +195,22 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const handleSelect = async (item: any) => {
     // Prevent form submission
     try {
+      // Track selection in session
+      if (item.id) {
+        setSessionSelectedIds(prev => new Set([...prev, String(item.id)]));
+      }
       await onSelect(item);
       onClose();
     } catch (error) {
       console.error('Error in handleSelect:', error);
       // Don't close on error
     }
+  };
+
+  // Check if an item is selected
+  const isItemSelected = (item: any): boolean => {
+    const itemId = String(item.id || '');
+    return selectedIds.includes(itemId) || sessionSelectedIds.has(itemId);
   };
 
   const handleViewList = () => {
@@ -206,6 +220,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   };
 
   const renderItemCard = (item: any, index: number) => {
+    const isSelected = isItemSelected(item);
+    
     if (!schema) {
       // Fallback rendering
       const displayName = item.name || item.title || item.id || `Item ${index + 1}`;
@@ -217,9 +233,17 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             e.stopPropagation();
             handleSelect(item);
           }}
-          className="p-4 rounded-lg border border-gray-200 hover:border-violet-300 hover:shadow-md cursor-pointer transition-all"
+          className={cn(
+            "p-4 rounded-lg border cursor-pointer transition-all",
+            isSelected
+              ? "border-violet-500 bg-violet-50 shadow-md"
+              : "border-gray-200 hover:border-violet-300 hover:shadow-md bg-white"
+          )}
         >
-          <div className="font-medium text-sm text-gray-900">{displayName}</div>
+          <div className={cn(
+            "font-medium text-sm",
+            isSelected ? "text-violet-900" : "text-gray-900"
+          )}>{displayName}</div>
         </div>
       );
     }
@@ -275,8 +299,11 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         key={item.id || index}
         onClick={() => handleSelect(item)}
         className={cn(
-          "p-4 rounded-xl border border-gray-200 bg-white hover:border-violet-300 hover:shadow-md cursor-pointer transition-all duration-200",
-          "group"
+          "p-4 rounded-xl border cursor-pointer transition-all duration-200",
+          "group",
+          isSelected
+            ? "border-violet-500 bg-violet-50 shadow-md"
+            : "border-gray-200 bg-white hover:border-violet-300 hover:shadow-md"
         )}
       >
         <div className="flex items-start gap-3">
@@ -285,7 +312,12 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             fallback={getInitials(avatarField)}
             size="md"
             variant="primary"
-            className="border border-gray-200 shrink-0 group-hover:border-violet-300 transition-colors"
+            className={cn(
+              "border shrink-0 transition-colors",
+              isSelected
+                ? "border-violet-400"
+                : "border-gray-200 group-hover:border-violet-300"
+            )}
           >
             {getInitials(avatarField)}
           </Avatar>
@@ -295,7 +327,12 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-violet-700 transition-colors flex-1 min-w-0">
+                  <h4 className={cn(
+                    "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
+                    isSelected
+                      ? "text-violet-900"
+                      : "text-gray-900 group-hover:text-violet-700"
+                  )}>
                     {title}
                   </h4>
                   {/* Code Badge */}
