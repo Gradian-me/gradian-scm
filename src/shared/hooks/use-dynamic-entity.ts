@@ -96,11 +96,11 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
   const createEntity = useCallback(async (data: Partial<T>) => {
     try {
       // Automatically add companyId from store if not already present
-      const enrichedData = { ...data };
+      const enrichedData = { ...data } as any;
       if (!enrichedData.companyId) {
         const companyId = getCompanyId();
         if (companyId !== null && companyId !== -1) {
-          (enrichedData as any).companyId = String(companyId);
+          enrichedData.companyId = String(companyId);
         }
       }
       

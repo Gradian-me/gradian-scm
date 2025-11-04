@@ -233,7 +233,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
   if (isLoading) {
     const detailMetadata = schema?.detailPageMetadata;
-    const hasSidebar = detailMetadata?.quickActions?.length > 0 || 
+    const hasSidebar = (detailMetadata?.quickActions?.length ?? 0) > 0 || 
                       detailMetadata?.sections?.some(s => s.columnArea === 'sidebar');
     
     return (
@@ -339,11 +339,11 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   !sidebarColumns && "md:col-span-1"
                 )}>
                   {/* Quick Actions Skeleton */}
-                  {detailMetadata?.quickActions?.length > 0 && (
+                  {(detailMetadata?.quickActions?.length ?? 0) > 0 && (
                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                       <div className="space-y-3">
                         <Skeleton className="h-5 w-32" />
-                        {Array.from({ length: Math.min(detailMetadata.quickActions.length, 3) }).map((_, index) => (
+                        {Array.from({ length: Math.min(detailMetadata?.quickActions?.length ?? 0, 3) }).map((_, index) => (
                           <Skeleton key={index} className="h-10 w-full" />
                         ))}
                       </div>

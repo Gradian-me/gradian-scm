@@ -32,7 +32,7 @@ export function NotificationGroup({ group, onMarkAsRead, onMarkAsUnread }: Notif
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-4">
         <div className="space-y-3">
           {group.notifications.map((notification) => (
             <NotificationItem

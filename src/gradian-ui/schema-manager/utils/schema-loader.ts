@@ -9,6 +9,8 @@ import { config } from '@/lib/config';
 import { loggingCustom } from '@/shared/utils/logging-custom';
 import { LogType } from '@/shared/constants/application-variables';
 import { loadData, loadDataById, clearCache as clearDataCache } from '@/shared/utils/data-loader';
+import fs from 'fs';
+import path from 'path';
 
 const SCHEMAS_ROUTE_KEY = 'schemas';
 
@@ -99,9 +101,39 @@ function processSchema(schema: any): FormSchema {
 
 /**
  * Load all schemas from the API endpoint (with caching)
+ * During build time, reads directly from file system
  * @returns Array of FormSchema objects
  */
 export async function loadAllSchemas(): Promise<FormSchema[]> {
+  // Check if we're in a build context - during build, read directly from file
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  
+  if (isBuildTime) {
+    try {
+      const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+      
+      if (!fs.existsSync(dataPath)) {
+        loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found during build');
+        return [];
+      }
+      
+      const fileContents = fs.readFileSync(dataPath, 'utf8');
+      const schemas = JSON.parse(fileContents);
+      
+      if (!Array.isArray(schemas)) {
+        loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file does not contain an array');
+        return [];
+      }
+      
+      // Process each schema to convert patterns
+      return schemas.map(processSchema);
+    } catch (error) {
+      loggingCustom(LogType.SCHEMA_LOADER, 'error', `Error reading schemas file during build: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return [];
+    }
+  }
+  
+  // Normal runtime: use API endpoint
   const apiPath = config.schemaApi.basePath;
   
   return await loadData<FormSchema[]>(
@@ -153,13 +185,12 @@ export async function loadSchemasAsRecord(): Promise<Record<string, FormSchema>>
 
 /**
  * Get a single schema by ID (uses cache if available)
+ * During build time, reads directly from file system
  * @param schemaId - The ID of the schema to get
  * @returns The schema or null if not found
  */
 export async function loadSchemaById(schemaId: string): Promise<FormSchema | null> {
-  const apiBasePath = config.schemaApi.basePath;
-  
-  // First try to find in cache
+  // During build time, loadAllSchemas already reads from file, so this will work
   const schemas = await loadAllSchemas();
   const schema = schemas.find(s => s.id === schemaId);
 
@@ -167,7 +198,13 @@ export async function loadSchemaById(schemaId: string): Promise<FormSchema | nul
     return schema;
   }
   
-  // Fallback: if not in cache, try direct API call
+  // Fallback: if not found, try direct API call (only during runtime, not build)
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+  if (isBuildTime) {
+    return null; // During build, if not found in file, return null
+  }
+  
+  const apiBasePath = config.schemaApi.basePath;
   return await loadDataById<FormSchema>(
     SCHEMAS_ROUTE_KEY,
     apiBasePath,

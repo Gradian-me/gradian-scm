@@ -51,7 +51,8 @@
       "expectedDelay": "2-3 business days",
       "carrier": "FedEx",
       "trackingNumber": "1234567890"
-    }
+    },
+    "updatedAt": "2025-11-04T11:30:33.351Z"
   },
   {
     "id": "4",
@@ -78,7 +79,7 @@
     "type": "warning",
     "category": "tender",
     "priority": "high",
-    "isRead": false,
+    "isRead": true,
     "createdAt": "2024-12-10T07:30:00.000Z",
     "actionUrl": "/tenders/t-2024-003",
     "metadata": {
@@ -87,7 +88,9 @@
       "category": "Laboratory Equipment",
       "estimatedValue": 100000,
       "currency": "USD"
-    }
+    },
+    "readAt": "2025-11-04T11:30:35.358Z",
+    "updatedAt": "2025-11-04T11:30:35.424Z"
   },
   {
     "id": "6",
@@ -104,7 +107,11 @@
       "startTime": "02:00",
       "endTime": "04:00",
       "timezone": "EST",
-      "affectedServices": ["Database", "API", "File Storage"]
+      "affectedServices": [
+        "Database",
+        "API",
+        "File Storage"
+      ]
     }
   },
   {
@@ -139,7 +146,11 @@
       "vendorName": "PharmaCorp",
       "applicationDate": "2024-12-10",
       "category": "Pharmaceutical Supplies",
-      "certifications": ["ISO 9001", "GMP", "FDA Approved"],
+      "certifications": [
+        "ISO 9001",
+        "GMP",
+        "FDA Approved"
+      ],
       "status": "Pending Review"
     }
   },

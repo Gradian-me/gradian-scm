@@ -81,7 +81,6 @@ async function loadSchemasFromServer(): Promise<FormSchema[]> {
     if (typeof window === 'undefined') {
       // Server side - use dynamic import to avoid bundling fs in client
       // Direct import path works here since we're already inside server-side check
-      // @ts-expect-error - schema-loader is server-only, but we're on server
       const { loadAllSchemas } = await import('./schema-loader');
       return await loadAllSchemas();
   } else {
@@ -117,9 +116,8 @@ export async function fetchSchemaById(schemaId: string): Promise<FormSchema | nu
   try {
     // Check if we're on the server side
     if (typeof window === 'undefined') {
-      // Server side - use API endpoint (configured via NEXT_PUBLIC_SCHEMA_API_BASE)
-      // Direct import path works here since we're already inside server-side check
-      // @ts-expect-error - schema-loader is server-only, but we're on server
+      // Server side - use API endpoint (configured via NEXT_PUBLIC_SCHEMA_API_BASE)       
+      // Direct import path works here since we're already inside server-side check        
       const { loadSchemaById } = await import('./schema-loader');
       const schema = await loadSchemaById(schemaId);
       return schema ? processSchema(schema) : null;

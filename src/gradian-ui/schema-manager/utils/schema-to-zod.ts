@@ -103,9 +103,12 @@ const convertValidationToZod = (field: FormField): any => {
     
     // Pattern validation
     if (validation.pattern) {
-      const patternStr = validation.pattern.toString();
       const errorMsg = errorMessage || 'Invalid format';
-      zodType = (zodType as z.ZodString).regex(validation.pattern, errorMsg);
+      // Convert string to RegExp if needed
+      const pattern = typeof validation.pattern === 'string' 
+        ? new RegExp(validation.pattern) 
+        : validation.pattern;
+      zodType = (zodType as z.ZodString).regex(pattern, errorMsg);
     }
   } else if (required && type !== 'number') {
     // If just required without validation object

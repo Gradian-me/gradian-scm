@@ -3,6 +3,55 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { readSchemaData, writeAllData, readAllData } from '@/shared/domain/utils/data-storage.util';
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Load notifications from file - checks both all-data.json and notifications.json
+ */
+function loadNotifications(): any[] {
+  // First try to read from all-data.json
+  try {
+    const notifications = readSchemaData('notifications');
+    if (notifications && notifications.length > 0) {
+      return notifications;
+    }
+  } catch (error) {
+    // Ignore error and try alternative file
+  }
+  
+  // Fallback: read from notifications.json file
+  try {
+    const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
+    if (fs.existsSync(notificationsPath)) {
+      const fileContents = fs.readFileSync(notificationsPath, 'utf-8');
+      const notifications = JSON.parse(fileContents);
+      return Array.isArray(notifications) ? notifications : [];
+    }
+  } catch (error) {
+    console.error('Error reading notifications.json:', error);
+  }
+  
+  return [];
+}
+
+/**
+ * Save notifications - writes to both all-data.json and notifications.json
+ */
+function saveNotifications(notifications: any[]): void {
+  try {
+    // Save to all-data.json
+    const allData = readAllData();
+    writeAllData({ ...allData, notifications });
+    
+    // Also save to notifications.json for backup/consistency
+    const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
+    fs.writeFileSync(notificationsPath, JSON.stringify(notifications, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error saving notifications:', error);
+    throw error;
+  }
+}
 
 /**
  * GET - Get a specific notification by ID
@@ -13,7 +62,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const notifications = readSchemaData('notifications');
+    const notifications = loadNotifications();
     const notification = notifications.find((n: any) => n.id === id);
     
     if (!notification) {
@@ -52,7 +101,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    const notifications = readSchemaData('notifications');
+    const notifications = loadNotifications();
     const index = notifications.findIndex((n: any) => n.id === id);
     
     if (index === -1) {
@@ -80,11 +129,8 @@ export async function PUT(
     
     notifications[index] = updated;
     
-    // Read all data and update notifications
-    const allData = readAllData();
-    
-    // Save back to file with updated notifications
-    writeAllData({ ...allData, notifications });
+    // Save updated notifications
+    saveNotifications(notifications);
     
     return NextResponse.json({
       success: true,
@@ -111,7 +157,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const notifications = readSchemaData('notifications');
+    const notifications = loadNotifications();
     const filtered = notifications.filter((n: any) => n.id !== id);
     
     if (filtered.length === notifications.length) {
@@ -124,11 +170,8 @@ export async function DELETE(
       );
     }
     
-    // Read all data and update notifications
-    const allData = readAllData();
-    
     // Save updated notifications
-    writeAllData({ ...allData, notifications: filtered });
+    saveNotifications(filtered);
     
     return NextResponse.json({
       success: true,

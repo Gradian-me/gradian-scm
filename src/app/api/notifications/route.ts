@@ -3,6 +3,37 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { readSchemaData, writeAllData, readAllData } from '@/shared/domain/utils/data-storage.util';
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Load notifications from file - checks both all-data.json and notifications.json
+ */
+function loadNotifications(): any[] {
+  // First try to read from all-data.json
+  try {
+    const notifications = readSchemaData('notifications');
+    if (notifications && notifications.length > 0) {
+      return notifications;
+    }
+  } catch (error) {
+    // Ignore error and try alternative file
+  }
+  
+  // Fallback: read from notifications.json file
+  try {
+    const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
+    if (fs.existsSync(notificationsPath)) {
+      const fileContents = fs.readFileSync(notificationsPath, 'utf-8');
+      const notifications = JSON.parse(fileContents);
+      return Array.isArray(notifications) ? notifications : [];
+    }
+  } catch (error) {
+    console.error('Error reading notifications.json:', error);
+  }
+  
+  return [];
+}
 
 /**
  * GET - Get all notifications with optional filters
@@ -13,7 +44,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     
     // Read all notifications from data storage
-    const notifications = readSchemaData('notifications');
+    const notifications = loadNotifications();
     
     // Apply filters
     let filtered = [...notifications];
@@ -82,7 +113,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     // Read notifications data
-    const notifications = readSchemaData('notifications');
+    const notifications = loadNotifications();
     
     // Generate ID if not provided
     const id = body.id || String(Date.now()) + '-' + Math.random().toString(36).substr(2, 9);
@@ -98,11 +129,19 @@ export async function POST(request: NextRequest) {
     // Add to array
     const updatedNotifications = [...notifications, newNotification];
     
-    // Read all data
-    const allData = readAllData();
-    
-    // Save back to file with updated notifications
-    writeAllData({ ...allData, notifications: updatedNotifications });
+    // Save notifications (will save to both all-data.json and notifications.json)
+    try {
+      // Save to all-data.json
+      const allData = readAllData();
+      writeAllData({ ...allData, notifications: updatedNotifications });
+      
+      // Also save to notifications.json for backup/consistency
+      const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
+      fs.writeFileSync(notificationsPath, JSON.stringify(updatedNotifications, null, 2), 'utf-8');
+    } catch (error) {
+      console.error('Error saving notifications:', error);
+      throw error;
+    }
     
     return NextResponse.json({
       success: true,

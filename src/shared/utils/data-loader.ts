@@ -32,6 +32,11 @@ function getApiUrl(apiPath: string): string {
     return apiPath;
   }
 
+  // Check if we're in a build context (Next.js build time)
+  // During build, API routes aren't available, so we should avoid fetch calls
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                       process.env.NODE_ENV === 'production' && !process.env.VERCEL_URL && !process.env.NEXTAUTH_URL;
+
   // For relative URLs, construct absolute URL for server-side fetch
   // Priority: NEXTAUTH_URL > VERCEL_URL > localhost (default for development)
   let baseUrl = process.env.NEXTAUTH_URL;
@@ -40,10 +45,14 @@ function getApiUrl(apiPath: string): string {
     // Use Vercel URL if available (for Vercel deployments)
     if (process.env.VERCEL_URL) {
       baseUrl = `https://${process.env.VERCEL_URL}`;
-    } else {
-      // Default to localhost for local development
+    } else if (!isBuildTime) {
+      // Default to localhost for local development (but not during build)
       const port = process.env.PORT || '3000';
       baseUrl = `http://localhost:${port}`;
+    } else {
+      // During build, return a placeholder that will fail gracefully
+      // This should not be reached if build-time code paths are correct
+      baseUrl = 'http://localhost:3000';
     }
   }
 
@@ -185,6 +194,22 @@ export async function loadData<T = any>(
       return processedData as T;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const isConnectionError = error instanceof Error && (
+        errorMessage.includes('ECONNREFUSED') || 
+        errorMessage.includes('fetch failed') ||
+        errorMessage.includes('connect')
+      );
+      
+      // During build time, connection errors are expected - return empty array/object
+      const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+      
+      if (isConnectionError && isBuildTime) {
+        loggingCustom(logType, 'warn', `Build-time connection error for route "${routeKey}" (expected during static generation) - returning empty data`);
+        // Return empty array or object based on expected type
+        const emptyData = (Array.isArray(cache?.data) ? [] : {}) as T;
+        return emptyData;
+      }
+      
       loggingCustom(logType, 'error', `Error loading data from ${apiPath}: ${errorMessage}`);
 
       // If cache exists and API fails, return cached data as fallback

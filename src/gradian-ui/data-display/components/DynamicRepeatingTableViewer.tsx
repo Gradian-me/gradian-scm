@@ -16,7 +16,7 @@ import { apiRequest } from '@/shared/utils/api';
 import { Button } from '../../../components/ui/button';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Badge } from '../../form-builder/form-elements/components/Badge';
-import { getBadgeConfig } from '../utils';
+import { getBadgeConfig, mapBadgeColorToVariant } from '../utils';
 
 export interface DynamicRepeatingTableViewerProps {
   config: RepeatingTableRendererConfig;
@@ -91,7 +91,7 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
     const badgeConfig = getBadgeConfig(String(value), statusOptions);
     return (
       <div className="inline-flex">
-        <Badge variant={badgeConfig.color} className="inline-flex items-center gap-1 px-2 py-1 text-xs w-auto">
+        <Badge variant={mapBadgeColorToVariant(badgeConfig.color)} className="inline-flex items-center gap-1 px-2 py-1 text-xs w-auto">
           {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
           <span>{badgeConfig.label}</span>
         </Badge>

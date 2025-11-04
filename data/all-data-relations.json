@@ -178,5 +178,15 @@
     "id": "01K972XTWAD0GWJJT96Y5P3TD1",
     "createdAt": "2025-11-04T09:24:49.162Z",
     "updatedAt": "2025-11-04T09:24:49.162Z"
+  },
+  {
+    "sourceSchema": "vendors",
+    "sourceId": "01K8QVCWS0ZSTMSVD5C6K7A806",
+    "targetSchema": "contacts",
+    "targetId": "01K94KB42QKQNNH7VED2K06Y40",
+    "relationTypeId": "HAS_CONTACT",
+    "id": "01K975NWDCMZJ3HEK3A5DVHRNE",
+    "createdAt": "2025-11-04T10:12:54.315Z",
+    "updatedAt": "2025-11-04T10:12:54.315Z"
   }
 ]

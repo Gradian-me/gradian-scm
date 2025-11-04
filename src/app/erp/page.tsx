@@ -325,7 +325,7 @@ export default function ERPPage() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Integration Tools</CardTitle>
+              <CardTitle className="text-gray-800">Integration Tools</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

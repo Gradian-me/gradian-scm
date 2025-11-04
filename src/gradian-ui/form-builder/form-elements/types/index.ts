@@ -23,6 +23,7 @@ export interface TextInputProps extends FormElementProps {
 }
 
 export interface NumberInputProps extends FormElementProps {
+  placeholder?: string;
   min?: number;
   max?: number;
   step?: number;
@@ -58,6 +59,7 @@ export interface RadioProps extends FormElementProps {
 }
 
 export interface DateInputProps extends FormElementProps {
+  placeholder?: string;
   min?: string;
   max?: string;
   format?: string;
@@ -66,7 +68,7 @@ export interface DateInputProps extends FormElementProps {
 export interface FileInputProps extends FormElementProps {
   accept?: string;
   multiple?: boolean;
-  maxSize?: number; // in bytes
+  maxFileSize?: number; // in bytes
   onFileSelect?: (files: FileList) => void;
 }
 

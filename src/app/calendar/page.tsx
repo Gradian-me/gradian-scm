@@ -288,7 +288,7 @@ export default function CalendarPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-red-600">
+                  <CardTitle className="flex items-center space-x-2 text-gray-800">
                     <AlertCircle className="h-5 w-5" />
                     <span>Overdue Events</span>
                   </CardTitle>
@@ -320,7 +320,7 @@ export default function CalendarPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-yellow-600">
+                  <CardTitle className="flex items-center space-x-2 text-gray-800">
                     <Clock className="h-5 w-5" />
                     <span>Today's Events</span>
                   </CardTitle>
@@ -351,7 +351,7 @@ export default function CalendarPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-blue-600">
+                <CardTitle className="flex items-center space-x-2 text-gray-800">
                   <Calendar className="h-5 w-5" />
                   <span>Upcoming Events</span>
                 </CardTitle>
@@ -386,7 +386,7 @@ export default function CalendarPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-green-600">
+                <CardTitle className="flex items-center space-x-2 text-gray-800">
                   <CheckCircle className="h-5 w-5" />
                   <span>Recently Completed</span>
                 </CardTitle>

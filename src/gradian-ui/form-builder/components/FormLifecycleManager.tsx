@@ -388,7 +388,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
               `/api/relations?sourceSchema=${schema.id}&sourceId=${state.values.id}&relationTypeId=${section.repeatingConfig!.relationTypeId}&targetSchema=${section.repeatingConfig!.targetSchema}`
             );
             if (response.success) {
-              relationCounts[section.id] = response.count || (Array.isArray(response.data) ? response.data.length : 0);
+              relationCounts[section.id] = response.data?.count || (Array.isArray(response.data?.data) ? response.data.data.length : 0);
             }
           } catch (error) {
             console.error(`Error fetching relations count for section ${section.id}:`, error);
