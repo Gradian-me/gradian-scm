@@ -1,13 +1,13 @@
-// Email Input Component
-// Email input with type="email" embedded
+// Phone Input Component
+// Phone input with type="tel" embedded and call button
 
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { TextInputProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
-import { Mail } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
+export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
   (
     {
       config,
@@ -55,9 +55,9 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
       onFocus?.();
     };
 
-    const handleEmail = () => {
+    const handleCall = () => {
       if (value && typeof value === 'string' && value.trim() !== '') {
-        window.location.href = `mailto:${value.trim()}`;
+        window.location.href = `tel:${value.trim()}`;
       }
     };
 
@@ -73,11 +73,11 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
 
     const fieldName = config?.name || 'unknown';
     const fieldLabel = config?.label;
-    const fieldPlaceholder = placeholder || config?.placeholder || 'Enter email address';
+    const fieldPlaceholder = placeholder || config?.placeholder || 'Enter phone number';
     const hasValue = value && typeof value === 'string' && value.trim() !== '';
 
     if (!config) {
-      console.error('EmailInput: config is required');
+      console.error('PhoneInput: config is required');
       return null;
     }
 
@@ -100,7 +100,7 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
             ref={inputRef}
             id={fieldName}
             name={fieldName}
-            type="email"
+            type="tel"
             value={value}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -110,7 +110,7 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
             minLength={minLength || config.validation?.minLength}
             required={required || config.validation?.required}
             disabled={disabled}
-            autoComplete="email"
+            autoComplete="tel"
             className={cn(inputClasses, 'pr-10')}
             {...props}
           />
@@ -119,13 +119,13 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
               type="button"
               variant="ghost"
               size="sm"
-              onClick={handleEmail}
+              onClick={handleCall}
               disabled={disabled}
               className="absolute right-1 h-7 w-7 p-0 hover:bg-violet-100 hover:text-violet-600"
-              title="Send email"
-              aria-label="Send email"
+              title="Call"
+              aria-label="Call phone number"
             >
-              <Mail className="h-4 w-4" />
+              <Phone className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -144,4 +144,5 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
   }
 );
 
-EmailInput.displayName = 'EmailInput';
+PhoneInput.displayName = 'PhoneInput';
+

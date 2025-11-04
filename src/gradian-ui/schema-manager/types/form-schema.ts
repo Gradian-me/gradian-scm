@@ -6,8 +6,8 @@ export interface FormField {
   name: string;
   label: string;
   sectionId: string; // Reference to the section this field belongs to
-  type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
-  component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
+  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
+  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'date' | 'datetime-local' | 'file';
   placeholder?: string;
   icon?: string;
   displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';

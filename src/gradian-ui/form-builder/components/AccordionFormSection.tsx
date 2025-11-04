@@ -12,7 +12,8 @@ import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/shared/utils/api';
 import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormModal } from './FormModal';
-import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull, Badge, CodeBadge } from '../form-elements';
+import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull, CodeBadge } from '../form-elements';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
@@ -558,7 +559,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             styling?.variant === 'card' && 'shadow-sm bg-white'
           )}>
             <CardHeader 
-              className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
+              className="pb-4 px-6 pt-4 cursor-pointer hover:bg-gray-100/50 transition-colors"
               onClick={toggleExpanded}
             >
               <div className="flex items-center justify-between">
@@ -827,7 +828,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         styling?.variant === 'card' && 'shadow-sm bg-white'
       )}>
         <CardHeader 
-          className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
+          className="pb-4 px-6 pt-4 cursor-pointer hover:bg-gray-100/50 transition-colors"
           onClick={toggleExpanded}
         >
           <div className="flex items-center justify-between">
@@ -940,7 +941,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       styling?.variant === 'card' && 'shadow-sm bg-white'
     )}>
       <CardHeader 
-        className="pb-4 px-6 pt-6 cursor-pointer hover:bg-gray-100/50 transition-colors"
+        className="pb-4 px-6 pt-4 cursor-pointer hover:bg-gray-100/50 transition-colors"
         onClick={toggleExpanded}
       >
         <div className="flex items-center justify-between">

@@ -17,6 +17,7 @@ import { Rating } from './Rating';
 import { Badge } from './Badge';
 import { Countdown } from './Countdown';
 import { EmailInput } from './EmailInput';
+import { PhoneInput } from './PhoneInput';
 import { PasswordInput } from './PasswordInput';
 import { NumberInput } from './NumberInput';
 import { DateInput } from './DateInput';
@@ -73,6 +74,10 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'email':
       return <EmailInput config={config} {...restProps} />;
+    
+    case 'phone':
+    case 'tel':
+      return <PhoneInput config={config} {...restProps} />;
     
     case 'password':
       return <PasswordInput config={config} {...restProps} />;
