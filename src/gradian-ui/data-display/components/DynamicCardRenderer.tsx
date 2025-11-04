@@ -234,7 +234,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
       transition={disableAnimation ? {} : {
         duration: 0.3,
         delay: index * 0.02,
-        ease: "easeOut"
+          ease: "easeOut"
       }}
       whileHover={undefined}
       whileTap={disableAnimation ? undefined : {

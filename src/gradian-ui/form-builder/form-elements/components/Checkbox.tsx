@@ -20,6 +20,7 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
       checked,
       indeterminate = false,
       className,
+      touched,
       ...props
     },
     ref

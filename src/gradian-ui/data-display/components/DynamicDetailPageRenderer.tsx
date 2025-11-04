@@ -407,7 +407,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 )}
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-bold text-gray-900">{headerInfo.title}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{headerInfo.title}</h1>
                     {headerInfo.code && (
                       <CodeBadge code={headerInfo.code} />
                     )}
