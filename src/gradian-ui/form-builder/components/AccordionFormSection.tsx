@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
-import { FormElementFactory } from './FormElementFactory';
+import { FormElementFactory } from '../form-elements';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { ChevronDown, ChevronRight, Edit, Trash2, RefreshCw, X } from 'lucide-react';

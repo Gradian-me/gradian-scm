@@ -112,25 +112,32 @@ export class BaseController<T extends BaseEntity> {
     try {
       const body = await request.json();
       
-      // Add companyId from cookie if not present (but not if "All Companies" is selected)
-      const enrichedBody = { ...body };
-      if (!enrichedBody.companyId) {
-        const cookieHeader = request.headers.get('cookie');
-        const cookies = cookieHeader ? Object.fromEntries(
-          cookieHeader.split('; ').map(c => c.split('='))
-        ) : {};
-        const companyId = cookies.selectedCompanyId;
-        // Only add companyId if it exists, is not empty, and is not "All Companies" (-1)
-        if (companyId && companyId !== '' && companyId !== '-1') {
-          enrichedBody.companyId = companyId;
-        } else {
-          // If "All Companies" is selected, reject creation
-          return NextResponse.json(
-            { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
-            { status: 400 }
-          );
-        }
+      // Always validate cookie first to prevent bypassing "All Companies" check
+      const cookieHeader = request.headers.get('cookie');
+      const cookies = cookieHeader ? Object.fromEntries(
+        cookieHeader.split('; ').map(c => c.split('='))
+      ) : {};
+      const cookieCompanyId = cookies.selectedCompanyId;
+      
+      // SECURITY: Always check if "All Companies" is selected, regardless of body content
+      if (!cookieCompanyId || cookieCompanyId === '' || cookieCompanyId === '-1') {
+        return NextResponse.json(
+          { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
+          { status: 400 }
+        );
       }
+      
+      // SECURITY: Validate that provided companyId (if any) matches the cookie
+      // If client provides companyId in body, it must match the cookie value
+      if (body.companyId && body.companyId !== cookieCompanyId) {
+        return NextResponse.json(
+          { success: false, error: 'Company ID in request body does not match selected company. Please ensure the selected company matches your request.' },
+          { status: 400 }
+        );
+      }
+      
+      // Use cookie companyId (override client input to prevent manipulation)
+      const enrichedBody = { ...body, companyId: cookieCompanyId };
       
       const result = await this.service.create(enrichedBody);
 

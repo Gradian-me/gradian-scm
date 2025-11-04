@@ -19,11 +19,15 @@ import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { DynamicFilterPane } from '@/shared/components/DynamicFilterPane';
 import { asFormSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import { useDynamicEntity } from '@/shared/hooks';
-import { FormModal, ConfirmationMessage } from '../../form-builder';
-import { getValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
+import { FormModal } from '../../form-builder';
+import { ConfirmationMessage } from '../../form-builder';
+import { getValueByRole, getSingleValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { useCompanyStore } from '@/stores/company.store';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ImageText } from '../../form-builder/form-elements';
+import { apiRequest } from '@/shared/utils/api';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -76,6 +80,11 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     open: boolean;
     entity: any | null;
   }>({ open: false, entity: null });
+  
+  // State for companies data and grouping
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  const [companySchema, setCompanySchema] = useState<FormSchema | null>(null);
 
   // Use the dynamic entity hook for entity management
   const {
@@ -98,6 +107,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     handleDeleteEntity,
   } = useDynamicEntity(schema);
 
+  // Get selected company from store (needed for grouping logic)
+  const { selectedCompany } = useCompanyStore();
 
   // Handle opening create modal
   const handleOpenCreateModal = useCallback(() => {
@@ -138,6 +149,37 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       setDeleteConfirmDialog({ open: false, entity: null });
     }
   }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities]);
+
+  // Fetch companies data and schema for grouping
+  useEffect(() => {
+    const fetchCompaniesData = async () => {
+      // Check if entities have companyId field
+      if (entities && entities.length > 0 && entities.some((e: any) => e.companyId)) {
+        setIsLoadingCompanies(true);
+        try {
+          // Fetch companies data
+          const companiesResponse = await apiRequest<any>('/api/data/companies');
+          if (companiesResponse.success && companiesResponse.data) {
+            setCompanies(companiesResponse.data);
+          }
+          
+          // Fetch companies schema for getting image and title fields
+          const schemaResponse = await apiRequest<any>('/api/schemas/companies');
+          if (schemaResponse.success && schemaResponse.data) {
+            setCompanySchema(schemaResponse.data);
+          }
+        } catch (error) {
+          console.error('Error fetching companies data:', error);
+        } finally {
+          setIsLoadingCompanies(false);
+        }
+      }
+    };
+
+    if (entities) {
+      fetchCompaniesData();
+    }
+  }, [entities]);
 
   useEffect(() => {
     fetchEntities();
@@ -212,6 +254,67 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     });
   }, [entities, searchTermLocal]);
 
+  // Group entities by companyId - only when "All Companies" (-1) is selected
+  const groupedEntities = useMemo(() => {
+    if (!filteredEntities || filteredEntities.length === 0) return null;
+    
+    // Only group when "All Companies" is selected (id === -1)
+    if (!selectedCompany || selectedCompany.id !== -1) {
+      return null;
+    }
+    
+    // Check if any entity has companyId
+    const hasCompanyId = filteredEntities.some((e: any) => e.companyId);
+    
+    if (!hasCompanyId) return null;
+    
+    const grouped: Record<string, any[]> = {};
+    const ungrouped: any[] = [];
+    
+    filteredEntities.forEach((entity: any) => {
+      if (entity.companyId) {
+        if (!grouped[entity.companyId]) {
+          grouped[entity.companyId] = [];
+        }
+        grouped[entity.companyId].push(entity);
+      } else {
+        ungrouped.push(entity);
+      }
+    });
+    
+    return { grouped, ungrouped };
+  }, [filteredEntities, selectedCompany]);
+
+  // Calculate default values for accordion (all expanded initially)
+  const accordionDefaultValues = useMemo(() => {
+    if (!groupedEntities) return [];
+    
+    const values: string[] = [];
+    // Add all company IDs
+    Object.keys(groupedEntities.grouped).forEach(companyId => {
+      values.push(companyId);
+    });
+    // Add "ungrouped" if there are ungrouped entities
+    if (groupedEntities.ungrouped.length > 0) {
+      values.push('ungrouped');
+    }
+    return values;
+  }, [groupedEntities]);
+  
+  // Get company info by ID
+  const getCompanyInfo = useCallback((companyId: string) => {
+    const company = companies.find((c: any) => c.id === companyId);
+    if (!company) return null;
+    
+    if (companySchema) {
+      const imageUrl = getSingleValueByRole(companySchema, company, 'image') || company.logo;
+      const title = getSingleValueByRole(companySchema, company, 'title') || company.name;
+      return { imageUrl, title, company };
+    }
+    
+    return { imageUrl: company.logo, title: company.name, company };
+  }, [companies, companySchema]);
+
   const getStatusColor = useCallback((status: string) => {
     switch (status) {
       case 'ACTIVE': return 'success';
@@ -248,7 +351,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const isAdmin = true; // TODO: Replace with actual user profile check
   
   // Check if "All Companies" is selected (id === -1), which means we can't create new records
-  const { selectedCompany } = useCompanyStore();
   const canCreateRecords = selectedCompany && selectedCompany.id !== -1;
 
 
@@ -325,82 +427,200 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           onSearchChange={setSearchTermLocal}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onAddNew={canCreateRecords ? handleOpenCreateModal : undefined}
+          onAddNew={canCreateRecords ? handleOpenCreateModal : undefined as any}
           onRefresh={fetchEntities}
           isRefreshing={isLoading}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
         />
 
-        {/* Entities List */}
-        <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" : "space-y-4"}>
-          {isLoading ? (
-            // Skeleton cards while loading
-            Array.from({ length: 8 }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="rounded-xl bg-white border border-gray-100 overflow-hidden">
-                <div className="p-4 sm:p-6">
-                  {/* Header with avatar and title */}
-                  <div className="flex items-start gap-3 mb-3">
-                    <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-3 w-1/2" />
+        {/* Entities List - Grouped by Company or Regular List */}
+        {groupedEntities ? (
+          // Grouped view with accordion
+          <Accordion type="multiple" defaultValue={accordionDefaultValues} className="w-full space-y-2">
+            {/* Groups by Company */}
+            {Object.entries(groupedEntities.grouped).map(([companyId, companyEntities]) => {
+              const companyInfo = getCompanyInfo(companyId);
+              return (
+                <AccordionItem key={companyId} value={companyId} className="border border-violet-200 rounded-lg px-4 bg-gray-50 border-b border-b-violet-200">
+                  <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
+                    <div className="flex items-center gap-2">
+                      {isLoadingCompanies ? (
+                        <Skeleton className="h-12 w-12 rounded" />
+                      ) : (
+                        <ImageText
+                          config={{} as any}
+                          value={{
+                            imageUrl: companyInfo?.imageUrl,
+                            text: companyInfo?.title || `Company ${companyId}`
+                          }}
+                          imageUrl={companyInfo?.imageUrl}
+                          text={companyInfo?.title || `Company ${companyId}`}
+                          imageSize="lg"
+                        />
+                      )}
+                      <span className="text-sm text-gray-500">
+                        ({companyEntities.length} {companyEntities.length === 1 ? 'item' : 'items'})
+                      </span>
                     </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-4" : "space-y-4 pt-4"}>
+                      {companyEntities.map((entity: any, index: number) => (
+                        <div key={entity.id} className="relative">
+                          {isEditLoading[entity.id] && (
+                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                              <div className="flex flex-col items-center space-y-2">
+                                <Spinner size="lg" variant="primary" />
+                                <span className="text-sm font-medium text-violet-600">Loading...</span>
+                              </div>
+                            </div>
+                          )}
+                          <DynamicCardRenderer
+                            key={entity.id}
+                            schema={asFormSchema(schema)}
+                            data={entity}
+                            index={index}
+                            viewMode={viewMode}
+                            maxBadges={3}
+                            maxMetrics={5}
+                            onView={handleViewEntity}
+                            onViewDetail={handleViewDetailPage}
+                            onEdit={(e) => {
+                              if (!isEditLoading[e.id]) {
+                                handleEditEntity(e);
+                              }
+                            }}
+                            onDelete={handleDeleteWithConfirmation}
+                            className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+            
+            {/* Ungrouped entities */}
+            {groupedEntities.ungrouped.length > 0 && (
+              <AccordionItem value="ungrouped" className="border border-violet-200 rounded-lg px-4 bg-gray-50 border-b border-b-violet-200">
+                <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900">Ungrouped</span>
+                    <span className="text-sm text-gray-500">
+                      ({groupedEntities.ungrouped.length} {groupedEntities.ungrouped.length === 1 ? 'item' : 'items'})
+                    </span>
                   </div>
-                  
-                  {/* Badges */}
-                  <div className="flex gap-2 mb-3">
-                    <Skeleton className="h-5 w-16 rounded-full" />
-                    <Skeleton className="h-5 w-12 rounded-full" />
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-4" : "space-y-4 pt-4"}>
+                    {groupedEntities.ungrouped.map((entity: any, index: number) => (
+                      <div key={entity.id} className="relative">
+                        {isEditLoading[entity.id] && (
+                          <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                            <div className="flex flex-col items-center space-y-2">
+                              <Spinner size="lg" variant="primary" />
+                              <span className="text-sm font-medium text-violet-600">Loading...</span>
+                            </div>
+                          </div>
+                        )}
+                        <DynamicCardRenderer
+                          key={entity.id}
+                          schema={asFormSchema(schema)}
+                          data={entity}
+                          index={index}
+                          viewMode={viewMode}
+                          maxBadges={3}
+                          maxMetrics={5}
+                          onView={handleViewEntity}
+                          onViewDetail={handleViewDetailPage}
+                          onEdit={(e) => {
+                            if (!isEditLoading[e.id]) {
+                              handleEditEntity(e);
+                            }
+                          }}
+                          onDelete={handleDeleteWithConfirmation}
+                          className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                        />
+                      </div>
+                    ))}
                   </div>
-                  
-                  {/* Metrics */}
-                  <div className="space-y-1.5 mb-3">
-                    <Skeleton className="h-3 w-full" />
-                    <Skeleton className="h-3 w-4/5" />
-                  </div>
-                  
-                  {/* Action buttons */}
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-50">
-                    <Skeleton className="h-7 w-14" />
-                    <Skeleton className="h-7 w-14" />
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
+        ) : (
+          // Regular list view (no grouping)
+          <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" : "space-y-4"}>
+            {isLoading ? (
+              // Skeleton cards while loading
+              Array.from({ length: 8 }).map((_, index) => (
+                <div key={`skeleton-${index}`} className="rounded-xl bg-white border border-gray-100 overflow-hidden">
+                  <div className="p-4 sm:p-6">
+                    {/* Header with avatar and title */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                    
+                    {/* Badges */}
+                    <div className="flex gap-2 mb-3">
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                      <Skeleton className="h-5 w-12 rounded-full" />
+                    </div>
+                    
+                    {/* Metrics */}
+                    <div className="space-y-1.5 mb-3">
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-3 w-4/5" />
+                    </div>
+                    
+                    {/* Action buttons */}
+                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-50">
+                      <Skeleton className="h-7 w-14" />
+                      <Skeleton className="h-7 w-14" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            filteredEntities.map((entity: any, index: number) => (
-              <div key={entity.id} className="relative">
-                {isEditLoading[entity.id] && (
-                  <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
-                    <div className="flex flex-col items-center space-y-2">
-                      <Spinner size="lg" variant="primary" />
-                      <span className="text-sm font-medium text-violet-600">Loading...</span>
+              ))
+            ) : (
+              filteredEntities.map((entity: any, index: number) => (
+                <div key={entity.id} className="relative">
+                  {isEditLoading[entity.id] && (
+                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                      <div className="flex flex-col items-center space-y-2">
+                        <Spinner size="lg" variant="primary" />
+                        <span className="text-sm font-medium text-violet-600">Loading...</span>
+                      </div>
                     </div>
-                  </div>
-                )}
-                <DynamicCardRenderer
-                  key={entity.id}
-                  schema={asFormSchema(schema)}
-                  data={entity}
-                  index={index}
-                  viewMode={viewMode}
-                  maxBadges={3}
-                  maxMetrics={5}
-                  onView={handleViewEntity}
-                  onViewDetail={handleViewDetailPage}
-                  onEdit={(e) => {
-                    if (!isEditLoading[e.id]) {
-                      handleEditEntity(e);
-                    }
-                  }}
-                  onDelete={handleDeleteWithConfirmation}
-                  className={isEditLoading[entity.id] ? "opacity-70" : ""}
-                />
-              </div>
-            ))
-          )}
-        </div>
+                  )}
+                  <DynamicCardRenderer
+                    key={entity.id}
+                    schema={asFormSchema(schema)}
+                    data={entity}
+                    index={index}
+                    viewMode={viewMode}
+                    maxBadges={3}
+                    maxMetrics={5}
+                    onView={handleViewEntity}
+                    onViewDetail={handleViewDetailPage}
+                    onEdit={(e) => {
+                      if (!isEditLoading[e.id]) {
+                        handleEditEntity(e);
+                      }
+                    }}
+                    onDelete={handleDeleteWithConfirmation}
+                    className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                  />
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {!isLoading && filteredEntities.length === 0 && (
           <motion.div
@@ -503,7 +723,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       {/* Delete Confirmation Dialog */}
       <ConfirmationMessage
         isOpen={deleteConfirmDialog.open}
-        onOpenChange={(open) => setDeleteConfirmDialog({ open, entity: deleteConfirmDialog.entity })}
+        onOpenChange={(open: boolean) => setDeleteConfirmDialog({ open, entity: deleteConfirmDialog.entity })}
         title={`Delete ${singularName}`}
         message={
           deleteConfirmDialog.entity ? (

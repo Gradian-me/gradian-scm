@@ -14,7 +14,7 @@ import {
 import { FormSection } from './FormSection';
 import { AccordionFormSection } from './AccordionFormSection';
 import { RepeatingSection } from './RepeatingSection';
-import { FormElementFactory } from './FormElementFactory';
+import { FormElementFactory } from '../form-elements';
 import { Button } from '../../../components/ui/button';
 import { FormAlert } from '../../../components/ui/form-alert';
 import { cn, validateField as validateFieldUtil } from '../../shared/utils';
@@ -480,7 +480,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     // Check if this is a relation-based repeating section
     const isRelationBased = section.repeatingConfig?.targetSchema && section.repeatingConfig?.relationTypeId;
     
-    if (isRelationBased) {
+    if (isRelationBased && section.repeatingConfig) {
       // For relation-based sections, open FormModal for target schema
       const currentEntityId = state.values?.id;
       

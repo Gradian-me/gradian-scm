@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
-import { FormElementFactory } from './FormElementFactory';
+import { FormElementFactory } from '../form-elements';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { cn } from '../../shared/utils';
 import { getFieldsForSection } from '../form-elements/utils/field-resolver';
