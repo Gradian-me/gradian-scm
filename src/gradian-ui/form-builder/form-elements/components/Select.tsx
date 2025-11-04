@@ -16,9 +16,12 @@ export interface SelectOption {
 }
 
 export interface SelectWithBadgesProps extends Omit<SelectProps, 'children'> {
+  config?: any;
   options?: SelectOption[];
   children?: React.ReactNode;
   placeholder?: string;
+  error?: string;
+  required?: boolean;
 }
 
 export const Select: React.FC<SelectWithBadgesProps> = ({
@@ -30,6 +33,9 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   value,
   onValueChange,
   placeholder,
+  config,
+  error,
+  required,
   ...props
 }) => {
   const sizeClasses = {
@@ -42,6 +48,10 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
     sizeClasses[size],
     className
   );
+
+  const fieldName = config?.name || 'unknown';
+  const fieldLabel = config?.label;
+  const fieldPlaceholder = placeholder || config?.placeholder || 'Select an option...';
 
   // Check if color is a valid badge variant, custom color, or Tailwind classes
   const isValidBadgeVariant = (color?: string): boolean => {
@@ -133,37 +143,75 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
     const selectValue = value === '' ? undefined : value;
     
     return (
-      <RadixSelect value={selectValue} onValueChange={onValueChange} {...props}>
-        <SelectTrigger className={selectClasses}>
-          <SelectValue placeholder={placeholder}>
-            {selectedOption && renderBadgeContent(selectedOption)}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {validOptions.map((option) => (
-            <SelectItem
-              key={option.value}
-              value={option.value}
-              disabled={option.disabled}
-            >
-              {renderBadgeContent(option)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </RadixSelect>
+      <div className="w-full">
+        {fieldLabel && (
+          <label
+            htmlFor={fieldName}
+            className={cn(
+              'block text-sm font-medium mb-1',
+              error ? 'text-red-700' : 'text-gray-700',
+              required && 'after:content-["*"] after:ml-1 after:text-red-500'
+            )}
+          >
+            {fieldLabel}
+          </label>
+        )}
+        <RadixSelect value={selectValue} onValueChange={onValueChange} {...props}>
+          <SelectTrigger className={selectClasses} id={fieldName}>
+            <SelectValue placeholder={fieldPlaceholder}>
+              {selectedOption && renderBadgeContent(selectedOption)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {validOptions.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={option.value}
+                disabled={option.disabled}
+              >
+                {renderBadgeContent(option)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </RadixSelect>
+        {error && (
+          <p className="mt-1 text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
     );
   }
 
   // Default behavior for children
   return (
-    <RadixSelect value={value} onValueChange={onValueChange} {...props}>
-      <SelectTrigger className={selectClasses}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {children}
-      </SelectContent>
-    </RadixSelect>
+    <div className="w-full">
+      {fieldLabel && (
+        <label
+          htmlFor={fieldName}
+          className={cn(
+            'block text-sm font-medium mb-1',
+            error ? 'text-red-700' : 'text-gray-700',
+            required && 'after:content-["*"] after:ml-1 after:text-red-500'
+          )}
+        >
+          {fieldLabel}
+        </label>
+      )}
+      <RadixSelect value={value} onValueChange={onValueChange} {...props}>
+        <SelectTrigger className={selectClasses} id={fieldName}>
+          <SelectValue placeholder={fieldPlaceholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {children}
+        </SelectContent>
+      </RadixSelect>
+      {error && (
+        <p className="mt-1 text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
   );
 };
 

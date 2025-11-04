@@ -20,6 +20,7 @@ export const Badge: React.FC<BadgeProps> = ({
     warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     danger: 'bg-red-100 text-red-800 border-red-200',
     outline: 'bg-transparent text-gray-700 border-gray-300',
+    cyan: 'bg-cyan-200 text-cyan-800 border-cyan-300',
   };
 
   const sizeClasses = {

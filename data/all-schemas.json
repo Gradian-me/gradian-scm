@@ -349,6 +349,7 @@
         "type": "text",
         "component": "text",
         "placeholder": "Enter part code",
+        "role": "code",
         "required": true,
         "validation": {
           "required": true
@@ -1579,7 +1580,7 @@
         "label": "Color",
         "sectionId": "visual-style",
         "type": "text",
-        "component": "colorpicker",
+        "component": "color-picker",
         "placeholder": "#000000",
         "required": true,
         "validation": {

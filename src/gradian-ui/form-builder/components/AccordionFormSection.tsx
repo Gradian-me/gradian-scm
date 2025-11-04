@@ -12,8 +12,7 @@ import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/shared/utils/api';
 import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormModal } from './FormModal';
-import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull } from '../form-elements';
-import { Badge } from '../../../components/ui/badge';
+import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull, Badge, CodeBadge } from '../form-elements';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
@@ -398,6 +397,33 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     const statusField = getSingleValueByRole(targetSchemaData, entity, 'status') || entity.status || '';
     const ratingField = getSingleValueByRole(targetSchemaData, entity, 'rating') || entity.rating || 0;
     
+    // Check if description role exists in schema OR if any field label contains "description"
+    const hasDescriptionRole = targetSchemaData?.fields?.some(field => 
+      field.role === 'description' || 
+      (field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description'))
+    ) || false;
+    
+    // Get description value - try role first, then find by label containing "description"
+    let descriptionValue: any = null;
+    if (hasDescriptionRole) {
+      // First try to get by role
+      descriptionValue = getSingleValueByRole(targetSchemaData, entity, 'description');
+      
+      // If not found by role, try to find field with label containing "description"
+      if (!descriptionValue || (typeof descriptionValue === 'string' && descriptionValue.trim() === '')) {
+        const descriptionField = targetSchemaData.fields?.find(field => 
+          field.label && typeof field.label === 'string' && field.label.toLowerCase().includes('description')
+        );
+        if (descriptionField) {
+          descriptionValue = entity[descriptionField.name];
+        }
+      }
+    }
+    
+    const description = descriptionValue && (typeof descriptionValue === 'string' ? descriptionValue.trim() !== '' : descriptionValue != null) 
+      ? (typeof descriptionValue === 'string' ? descriptionValue : String(descriptionValue))
+      : null;
+    
     // Get badge fields
     const badgeFields = getFieldsByRole(targetSchemaData, 'badge');
     const allBadgeValues: any[] = [];
@@ -434,6 +460,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     const statusOptions = statusFieldDef?.options;
     const hasRatingField = targetSchemaData.fields?.some(f => f.role === 'rating') || false;
     const hasStatusField = targetSchemaData.fields?.some(f => f.role === 'status') || false;
+    const hasCodeField = targetSchemaData.fields?.some(f => f.role === 'code') || false;
+    const codeField = getSingleValueByRole(targetSchemaData, entity, 'code');
 
     return (
       <div className="flex items-start justify-between gap-3 w-full">
@@ -449,12 +477,23 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           </Avatar>
           
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-gray-900 truncate">
-              {title}
-            </h4>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {/* Code Badge */}
+              {hasCodeField && codeField && (
+                <CodeBadge code={codeField} />
+              )}
+              <h4 className="text-sm font-semibold text-gray-900 truncate flex-1 min-w-0">
+                {title}
+              </h4>
+            </div>
             {subtitle && (
               <p className="text-xs text-gray-500 truncate mt-0.5">
                 {subtitle}
+              </p>
+            )}
+            {description && (
+              <p className="text-xs text-gray-600 mt-1.5 line-clamp-2">
+                {description}
               </p>
             )}
             

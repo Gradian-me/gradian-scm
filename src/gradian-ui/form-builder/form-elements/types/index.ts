@@ -116,7 +116,7 @@ export interface FormElementRef {
 
 // Badge Component Types
 export interface BadgeProps extends BaseComponentProps {
-  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline';
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline' | 'cyan';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
 }

@@ -15,6 +15,7 @@ export * from './components/PopupPicker';
 export * from './components/ColorPicker';
 export * from './components/Rating';
 export * from './components/Badge';
+export * from './components/CodeBadge';
 export * from './components/Countdown';
 export * from './components/AddButtonFull';
 export * from './components/ImageText';

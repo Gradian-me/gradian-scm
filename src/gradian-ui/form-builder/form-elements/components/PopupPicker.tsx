@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar } from './Avatar';
 import { Badge } from '@/components/ui/badge';
+import { CodeBadge } from './CodeBadge';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '@/shared/utils/api';
@@ -222,6 +223,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     const statusOptions = statusFieldDef?.options;
     const hasRatingField = schema.fields?.some(f => f.role === 'rating') || false;
     const hasStatusField = schema.fields?.some(f => f.role === 'status') || false;
+    const hasCodeField = schema.fields?.some(f => f.role === 'code') || false;
+    const codeField = getSingleValueByRole(schema, item, 'code');
 
     return (
       <div
@@ -247,9 +250,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-violet-700 transition-colors">
-                  {title}
-                </h4>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {/* Code Badge */}
+                  {hasCodeField && codeField && (
+                    <CodeBadge code={codeField} />
+                  )}
+                  <h4 className="text-sm font-semibold text-gray-900 truncate group-hover:text-violet-700 transition-colors flex-1 min-w-0">
+                    {title}
+                  </h4>
+                </div>
                 {subtitle && (
                   <p className="text-xs text-gray-500 truncate mt-0.5">
                     {subtitle}

@@ -128,8 +128,11 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
               <Label>Role</Label>
               <Select
                 value={tempField.role || ''}
-                onValueChange={(value) => setTempField({ ...tempField, role: value as any })}
-                options={[...ROLES]}
+                onValueChange={(value) => setTempField({ ...tempField, role: value ? (value as any) : undefined })}
+                options={[
+                  { value: '', label: 'None' },
+                  ...ROLES
+                ]}
                 placeholder="Select role..."
               />
             </div>

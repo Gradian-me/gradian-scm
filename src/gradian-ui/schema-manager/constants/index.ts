@@ -29,5 +29,6 @@ export const ROLES = [
   { value: 'location', label: 'Location' },
   { value: 'tel', label: 'Phone' },
   { value: 'expiration', label: 'Expiration' },
+  { value: 'code', label: 'Code' },
 ] as const;
 

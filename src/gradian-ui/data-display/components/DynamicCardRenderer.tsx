@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import React, { KeyboardEvent } from 'react';
 import { Badge } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { Avatar, Rating, Countdown } from '../../form-builder/form-elements';
+import { Avatar, Rating, Countdown, CodeBadge } from '../../form-builder/form-elements';
 import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
@@ -66,10 +66,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const statusOptions = findStatusFieldOptions();
 
-  // Check if rating, status, expiration, and avatar fields exist in schema
+  // Check if rating, status, expiration, code, and avatar fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
   const hasStatusField = schema?.fields?.some(field => field.role === 'status') || false;
   const hasExpirationField = schema?.fields?.some(field => field.role === 'expiration') || false;
+  const hasCodeField = schema?.fields?.some(field => field.role === 'code') || false;
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
 
   // Filter out performance section from cardMetadata
@@ -150,12 +151,15 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   
   const description = descriptionValue && (typeof descriptionValue === 'string' ? descriptionValue.trim() !== '' : descriptionValue != null) ? descriptionValue : null;
   
+  const codeField = getSingleValueByRole(schema, data, 'code');
+
   const cardConfig = {
     title: getValueByRole(schema, data, 'title') || data.name || 'Unknown',
     subtitle,
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
     statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
     ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
+    codeField,
     badgeField: combinedBadgeField,
     badgeValues,
     metricsField: data.performanceMetrics || null,
@@ -256,15 +260,27 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     </motion.div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <motion.h3
-                      initial={disableAnimation ? false : { opacity: 0, x: -10 }}
-                      animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
-                      className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate"
-                      whileHover={{ x: 2 }}
-                    >
-                      {cardConfig.title}
-                    </motion.h3>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {/* Code Badge */}
+                      {hasCodeField && cardConfig.codeField && (
+                        <motion.div
+                          initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
+                          animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                          transition={disableAnimation ? {} : { duration: 0.2, delay: 0.1 }}
+                        >
+                          <CodeBadge code={cardConfig.codeField} />
+                        </motion.div>
+                      )}
+                      <motion.h3
+                        initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                        animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
+                        className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate flex-1 min-w-0"
+                        whileHover={{ x: 2 }}
+                      >
+                        {cardConfig.title}
+                      </motion.h3>
+                    </div>
                     {cardConfig.subtitle && (
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
@@ -436,21 +452,33 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   </motion.div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <motion.h3
-                    initial={disableAnimation ? false : { opacity: 0, x: -10 }}
-                    animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
-                    className={cn(
-                      "text-base font-semibold text-gray-900 truncate",
-                      !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Code Badge */}
+                    {hasCodeField && cardConfig.codeField && (
+                      <motion.div
+                        initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
+                        animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
+                        transition={disableAnimation ? {} : { duration: 0.2, delay: 0.1 }}
+                      >
+                        <CodeBadge code={cardConfig.codeField} />
+                      </motion.div>
                     )}
-                    whileHover={disableAnimation ? undefined : {
-                      x: 2,
-                      transition: { type: "spring", stiffness: 400, damping: 25 }
-                    }}
-                  >
-                    {cardConfig.title}
-                  </motion.h3>
+                    <motion.h3
+                      initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                      animate={disableAnimation ? false : { opacity: 1, x: 0 }}
+                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
+                      className={cn(
+                        "text-base font-semibold text-gray-900 truncate flex-1 min-w-0",
+                        !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
+                      )}
+                      whileHover={disableAnimation ? undefined : {
+                        x: 2,
+                        transition: { type: "spring", stiffness: 400, damping: 25 }
+                      }}
+                    >
+                      {cardConfig.title}
+                    </motion.h3>
+                  </div>
                   {cardConfig.subtitle && (
                   <motion.p
                     initial={disableAnimation ? false : { opacity: 0, x: -10 }}

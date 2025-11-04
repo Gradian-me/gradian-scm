@@ -22,6 +22,7 @@ import { NumberInput } from './NumberInput';
 import { DateInput } from './DateInput';
 import { DateTimeInput } from './DateTimeInput';
 import { FileInput } from './FileInput';
+import { UnknownControl } from './UnknownControl';
 
 // Support both config-based and field-based interfaces
 export interface FormElementFactoryProps extends Omit<FormElementProps, 'config' | 'touched'> {
@@ -91,11 +92,15 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       
       return (
         <Select
+          config={config}
           value={restProps.value}
           onValueChange={restProps.onChange}
           disabled={restProps.disabled}
           options={selectOptions}
           className={restProps.className}
+          error={restProps.error}
+          required={config.validation?.required || config.required}
+          placeholder={config.placeholder}
         />
       );
     
@@ -161,7 +166,6 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
         />
       );
     
-    case 'colorpicker':
     case 'color-picker':
       return (
         <ColorPicker
@@ -208,8 +212,8 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       );
     
     default:
-      console.warn(`Unknown form element type: ${config.type}`);
-      return <TextInput config={config} {...restProps} />;
+      console.warn(`Unknown form element type: ${elementType}`, config);
+      return <UnknownControl config={config} componentType={elementType} {...restProps} />;
   }
 };
 
