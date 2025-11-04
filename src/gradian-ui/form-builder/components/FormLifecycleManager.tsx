@@ -284,6 +284,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   onMount,
   hideActions = false,
   error,
+  errorStatusCode,
   onErrorDismiss,
   ...props
 }) => {
@@ -833,6 +834,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                 message={error || firstValidationError} 
                 onDismiss={error ? onErrorDismiss : undefined}
                 dismissible={!!error}
+                statusCode={error ? errorStatusCode : undefined}
               />
             </div>
           )}

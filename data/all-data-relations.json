@@ -38,5 +38,15 @@
     "id": "01K959PSRDE02PA6CH0JX55209",
     "createdAt": "2025-11-03T16:44:49.805Z",
     "updatedAt": "2025-11-03T16:44:49.805Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K945BGN1YV7RG3XKG169CGS1",
+    "targetSchema": "inquiry-items",
+    "targetId": "01K96E06Z9H5G8FKH5QY0538JB",
+    "relationTypeId": "HAS_INQUIRY_ITEM",
+    "id": "01K96E0785PBXPWY7CVMR8HV95",
+    "createdAt": "2025-11-04T03:19:07.267Z",
+    "updatedAt": "2025-11-04T03:19:07.267Z"
   }
 ]

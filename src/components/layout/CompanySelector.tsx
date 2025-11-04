@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar } from '@/gradian-ui/form-builder/form-elements';
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useCompanyStore } from '@/stores/company.store';
 
 interface Company {
   id: string | number;
@@ -22,7 +23,7 @@ interface CompanySelectorProps {
 }
 
 export function CompanySelector({ onCompanyChange, onCompanyChangeFull }: CompanySelectorProps) {
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const { selectedCompany, setSelectedCompany } = useCompanyStore();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -54,9 +55,19 @@ export function CompanySelector({ onCompanyChange, onCompanyChangeFull }: Compan
           };
           const companiesWithAll = [allCompaniesOption, ...result.data];
           setCompanies(companiesWithAll);
-          // Set "All Companies" as default
+          // Set "All Companies" as default if nothing is in store
           if (!selectedCompany) {
             setSelectedCompany(allCompaniesOption);
+            // Set cookie for default
+            if (typeof document !== 'undefined') {
+              document.cookie = `selectedCompanyId=; path=/; max-age=0`; // Clear for "All Companies"
+            }
+          } else {
+            // Sync cookie with store
+            if (typeof document !== 'undefined') {
+              const companyId = selectedCompany.id !== -1 ? String(selectedCompany.id) : '';
+              document.cookie = `selectedCompanyId=${companyId}; path=/; max-age=${60 * 60 * 24 * 365}`;
+            }
           }
         }
       } catch (error) {
@@ -71,19 +82,25 @@ export function CompanySelector({ onCompanyChange, onCompanyChangeFull }: Compan
     }
   }, [isMounted]);
 
-  // Call callback when initial company is set or when company changes
+  // Load selected company from store on mount
   useEffect(() => {
-    if (selectedCompany && !loading && selectedCompany.id !== lastNotifiedCompanyId.current) {
-      if (onCompanyChangeFullRef.current) {
-        onCompanyChangeFullRef.current(selectedCompany);
-        lastNotifiedCompanyId.current = selectedCompany.id;
+    if (isMounted && !selectedCompany && companies.length > 0) {
+      // Set default "All Companies" if nothing is selected
+      const allCompaniesOption = companies.find(c => c.id === -1);
+      if (allCompaniesOption) {
+        setSelectedCompany(allCompaniesOption);
       }
     }
-  }, [selectedCompany, loading]);
+  }, [isMounted, companies, selectedCompany, setSelectedCompany]);
   
   const handleCompanySelect = (company: Company) => {
     console.log('Company selected:', company);
     setSelectedCompany(company);
+    // Set cookie for server-side access
+    if (typeof document !== 'undefined') {
+      const companyId = company.id !== -1 ? String(company.id) : '';
+      document.cookie = `selectedCompanyId=${companyId}; path=/; max-age=${60 * 60 * 24 * 365}`; // 1 year
+    }
     if (onCompanyChange) {
       onCompanyChange(company.name);
     }

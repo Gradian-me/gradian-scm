@@ -158,7 +158,8 @@
       "rating": 5,
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-03T16:54:46.673Z"
+      "updatedAt": "2025-11-04T03:19:11.929Z",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
     }
   ],
   "contacts": [
@@ -272,5 +273,18 @@
       "icon": "MapPinHouse"
     }
   ],
-  "inquiry-items": []
+  "inquiry-items": [
+    {
+      "partCode": "5052",
+      "partName": "Himedia Feed Alpha",
+      "quantity": 123,
+      "unit": "3",
+      "demandDate": "2025-11-13T06:49",
+      "minimumExpirationDate": "2025-11-27T06:49",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "id": "01K96E06Z9H5G8FKH5QY0538JB",
+      "createdAt": "2025-11-04T03:19:07.006Z",
+      "updatedAt": "2025-11-04T03:19:07.006Z"
+    }
+  ]
 }

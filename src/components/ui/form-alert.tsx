@@ -8,6 +8,7 @@ interface FormAlertProps {
   className?: string;
   onDismiss?: () => void;
   dismissible?: boolean;
+  statusCode?: number;
 }
 
 export const FormAlert: React.FC<FormAlertProps> = ({ 
@@ -15,7 +16,8 @@ export const FormAlert: React.FC<FormAlertProps> = ({
   message, 
   className,
   onDismiss,
-  dismissible = false 
+  dismissible = false,
+  statusCode
 }) => {
   const icons = {
     success: CheckCircle,
@@ -50,7 +52,20 @@ export const FormAlert: React.FC<FormAlertProps> = ({
     >
       <Icon className={cn('h-5 w-5 shrink-0 mt-0.5', iconStyles[type])} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium">{message}</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          {statusCode && (
+            <span className={cn(
+              'inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-lg',
+              type === 'error' && 'bg-red-100 text-red-700',
+              type === 'warning' && 'bg-amber-100 text-amber-700',
+              type === 'success' && 'bg-emerald-100 text-emerald-700',
+              type === 'info' && 'bg-blue-100 text-blue-700'
+            )}>
+              {statusCode}
+            </span>
+          )}
+          <p className="text-sm font-medium">{message}</p>
+        </div>
       </div>
       {dismissible && onDismiss && (
         <button

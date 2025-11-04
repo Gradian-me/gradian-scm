@@ -26,13 +26,32 @@ export class ApiClient {
       const response = await fetch(url, config);
       const data = await response.json();
 
+      // Add status code to response
+      const responseWithStatus: ApiResponse<T> = {
+        ...data,
+        statusCode: response.status,
+      };
+
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        // Return error response with status code
+        return {
+          success: false,
+          error: data.error || data.message || `HTTP error! status: ${response.status}`,
+          statusCode: response.status,
+          data: null as any,
+        };
       }
 
-      return data;
+      return responseWithStatus;
     } catch (error) {
-      throw handleError(error);
+      // If it's a network error, we don't have a status code
+      const errorResponse = handleError(error);
+      return {
+        success: false,
+        error: errorResponse.message || 'An unexpected error occurred',
+        statusCode: undefined,
+        data: null as any,
+      };
     }
   }
 
@@ -107,6 +126,7 @@ export async function apiRequest<T>(
       success: false,
       error: formatApiError(error),
       data: null as any,
+      statusCode: undefined,
     };
   }
 }

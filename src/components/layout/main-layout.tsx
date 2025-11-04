@@ -10,6 +10,7 @@ import { IconRenderer } from '../../shared/utils';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { CompanySelector } from './CompanySelector';
+import { useCompanyStore } from '@/stores/company.store';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileDropdown } from './UserProfileDropdown';
 
@@ -40,7 +41,7 @@ export function MainLayout({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notificationCount] = useState(3);
-  const [selectedCompany, setSelectedCompany] = useState<{ id: string | number; name: string; abbreviation?: string } | null>(null);
+  const { selectedCompany } = useCompanyStore();
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -175,21 +176,7 @@ export function MainLayout({
             {/* Desktop Header Content */}
             <div className="hidden md:flex items-center space-x-4">
               {/* Company Dropdown */}
-              <CompanySelector 
-                onCompanyChangeFull={(company) => {
-                  const abbreviation = company.name
-                    .split(' ')
-                    .map((word: string) => word[0])
-                    .join('')
-                    .substring(0, 2)
-                    .toUpperCase();
-                  setSelectedCompany({
-                    id: company.id,
-                    name: company.name,
-                    abbreviation
-                  });
-                }}
-              />
+              <CompanySelector />
               
               {/* Notifications */}
               <NotificationsDropdown initialCount={3} />

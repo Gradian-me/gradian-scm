@@ -94,6 +94,11 @@ export interface UseFormModalReturn {
   formError: string | null;
   
   /**
+   * HTTP status code for form errors
+   */
+  formErrorStatusCode?: number;
+  
+  /**
    * Error message for schema/entity loading
    */
   loadError: string | null;
@@ -167,6 +172,7 @@ export function useFormModal(
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [formErrorStatusCode, setFormErrorStatusCode] = useState<number | undefined>(undefined);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -302,6 +308,7 @@ export function useFormModal(
         const action = mode === 'edit' ? 'update' : 'create';
         console.error(`Failed to ${action} ${targetSchema.name}:`, result.error);
         setFormError(result.error || `Failed to ${action} ${targetSchema.name}. Please try again.`);
+        setFormErrorStatusCode(result.statusCode);
       }
       
       setIsSubmitting(false);
@@ -309,12 +316,14 @@ export function useFormModal(
       const action = mode === 'edit' ? 'update' : 'create';
       console.error(`Error ${action}ing ${targetSchema.name}:`, error);
       setFormError(error instanceof Error ? error.message : `Failed to ${action} ${targetSchema.name}. Please try again.`);
+      setFormErrorStatusCode(undefined);
       setIsSubmitting(false);
     }
   }, [targetSchema, mode, entityId, enrichData, closeFormModal, onSuccess]);
 
   const clearFormError = useCallback(() => {
     setFormError(null);
+    setFormErrorStatusCode(undefined);
   }, []);
 
   const clearLoadError = useCallback(() => {
@@ -329,6 +338,7 @@ export function useFormModal(
     isOpen,
     isSubmitting,
     formError,
+    formErrorStatusCode,
     loadError,
     isLoading,
     openFormModal,

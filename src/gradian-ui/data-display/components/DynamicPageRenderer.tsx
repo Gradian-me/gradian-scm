@@ -23,6 +23,7 @@ import { FormModal, ConfirmationMessage } from '../../form-builder';
 import { getValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { useCompanyStore } from '@/stores/company.store';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -245,6 +246,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
 
   // Check if user is admin (mock implementation - replace with actual auth context)
   const isAdmin = true; // TODO: Replace with actual user profile check
+  
+  // Check if "All Companies" is selected (id === -1), which means we can't create new records
+  const { selectedCompany } = useCompanyStore();
+  const canCreateRecords = selectedCompany && selectedCompany.id !== -1;
 
 
   return (
@@ -320,7 +325,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           onSearchChange={setSearchTermLocal}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onAddNew={handleOpenCreateModal}
+          onAddNew={canCreateRecords ? handleOpenCreateModal : undefined}
           onRefresh={fetchEntities}
           isRefreshing={isLoading}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
@@ -412,10 +417,12 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   : `Get started by adding your first ${singularName.toLowerCase()}.`
               }
               action={
+                canCreateRecords ? (
                 <UIButton onClick={handleOpenCreateModal}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add {singularName}
                 </UIButton>
+                ) : null
               }
             />
           </motion.div>

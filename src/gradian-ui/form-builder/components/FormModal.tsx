@@ -85,6 +85,7 @@ export const FormModal: React.FC<FormModalProps> = ({
     isOpen,
     isSubmitting,
     formError,
+    formErrorStatusCode,
     loadError,
     isLoading,
     openFormModal,
@@ -195,6 +196,7 @@ export const FormModal: React.FC<FormModalProps> = ({
           onCancel={closeFormModal}
           initialValues={isEdit && entityData ? entityData : {}}
           error={formError}
+          errorStatusCode={formErrorStatusCode}
           onErrorDismiss={clearFormError}
           disabled={isSubmitting}
         />

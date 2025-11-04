@@ -56,6 +56,7 @@ export class BaseService<T extends BaseEntity> implements IService<T> {
       // Validate data before creation
       await this.validateCreate(data);
 
+      // CompanyId enrichment is handled at the controller level via cookies
       const entity = await this.repository.create(data);
       
       return {
@@ -83,7 +84,10 @@ export class BaseService<T extends BaseEntity> implements IService<T> {
       // Validate data before update
       await this.validateUpdate(id, data);
 
-      const entity = await this.repository.update(id, data);
+      // CompanyId enrichment is handled at the controller level via cookies
+      const enrichedData = data;
+
+      const entity = await this.repository.update(id, enrichedData);
       
       if (!entity) {
         throw new EntityNotFoundError(this.entityName, id);

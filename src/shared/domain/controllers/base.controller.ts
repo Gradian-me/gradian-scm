@@ -111,7 +111,28 @@ export class BaseController<T extends BaseEntity> {
   async create(request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json();
-      const result = await this.service.create(body);
+      
+      // Add companyId from cookie if not present (but not if "All Companies" is selected)
+      const enrichedBody = { ...body };
+      if (!enrichedBody.companyId) {
+        const cookieHeader = request.headers.get('cookie');
+        const cookies = cookieHeader ? Object.fromEntries(
+          cookieHeader.split('; ').map(c => c.split('='))
+        ) : {};
+        const companyId = cookies.selectedCompanyId;
+        // Only add companyId if it exists, is not empty, and is not "All Companies" (-1)
+        if (companyId && companyId !== '' && companyId !== '-1') {
+          enrichedBody.companyId = companyId;
+        } else {
+          // If "All Companies" is selected, reject creation
+          return NextResponse.json(
+            { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
+            { status: 400 }
+          );
+        }
+      }
+      
+      const result = await this.service.create(enrichedBody);
 
       if (!result.success) {
         return NextResponse.json(result, { status: 400 });
@@ -133,7 +154,30 @@ export class BaseController<T extends BaseEntity> {
   async update(id: string, request: NextRequest): Promise<NextResponse> {
     try {
       const body = await request.json();
-      const result = await this.service.update(id, body);
+      
+      // Get existing entity to check if it has companyId
+      const existingResult = await this.service.getById(id);
+      const existingEntity = existingResult.success ? existingResult.data : null;
+      
+      // Add companyId from cookie ONLY if entity doesn't have it AND we're not using "All Companies"
+      const enrichedBody = { ...body };
+      if (existingEntity && (!(existingEntity as any).companyId || (existingEntity as any).companyId === '')) {
+        const cookieHeader = request.headers.get('cookie');
+        const cookies = cookieHeader ? Object.fromEntries(
+          cookieHeader.split('; ').map(c => c.split('='))
+        ) : {};
+        const companyId = cookies.selectedCompanyId;
+        // Only add companyId if it exists and is not empty (not "All Companies")
+        if (companyId && companyId !== '' && companyId !== '-1') {
+          enrichedBody.companyId = companyId;
+        }
+      }
+      // If entity already has companyId, preserve it (don't overwrite)
+      if (existingEntity && (existingEntity as any).companyId) {
+        enrichedBody.companyId = (existingEntity as any).companyId;
+      }
+      
+      const result = await this.service.update(id, enrichedBody);
 
       if (!result.success) {
         return NextResponse.json(result, { status: 400 });

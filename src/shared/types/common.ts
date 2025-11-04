@@ -28,6 +28,7 @@ export interface ApiResponse<T = any> {
   message?: string;
   error?: string;
   errors?: Record<string, string[]>;
+  statusCode?: number;
 }
 
 export interface SelectOption {
