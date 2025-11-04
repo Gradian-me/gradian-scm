@@ -70,16 +70,6 @@
     "updatedAt": "2025-11-04T08:22:18.768Z"
   },
   {
-    "sourceSchema": "inquiries",
-    "sourceId": "01K945BGN1YV7RG3XKG169CGS1",
-    "targetSchema": "inquiry-vendors",
-    "targetId": "01K96ZP38J7J4E4XGPAZ1QXJ4X",
-    "relationTypeId": "HAS_INQUIRY_VENDOR",
-    "id": "01K96ZP3C0V9QQK7JBG05NSS6J",
-    "createdAt": "2025-11-04T08:28:09.984Z",
-    "updatedAt": "2025-11-04T08:28:09.984Z"
-  },
-  {
     "sourceSchema": "vendors",
     "sourceId": "01K970QMFCN6MSGJFJ0ZCW8T3N",
     "targetSchema": "contacts",
@@ -88,5 +78,105 @@
     "id": "01K970QWDG12Z5VMB7CPGC9S64",
     "createdAt": "2025-11-04T08:46:36.976Z",
     "updatedAt": "2025-11-04T08:46:36.976Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K971SXSZZ6SBNF152M93FY64",
+    "targetSchema": "inquiry-items",
+    "targetId": "01K971TX4B7S8YBED0NEDH79TN",
+    "relationTypeId": "HAS_INQUIRY_ITEM",
+    "id": "01K971TX6E9JQRE30KHAAN8KV8",
+    "createdAt": "2025-11-04T09:05:44.654Z",
+    "updatedAt": "2025-11-04T09:05:44.654Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K971SXSZZ6SBNF152M93FY64",
+    "targetSchema": "inquiry-items",
+    "targetId": "01K971VS40NX1XM4PYVPBD59GR",
+    "relationTypeId": "HAS_INQUIRY_ITEM",
+    "id": "01K971VS62RXKBHFS9YVD8B4TK",
+    "createdAt": "2025-11-04T09:06:13.314Z",
+    "updatedAt": "2025-11-04T09:06:13.314Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K971SXSZZ6SBNF152M93FY64",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K971W83WWA4QCVFNAZSF5N11",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K971W85WRBBE4MVK4BG7F0Y0",
+    "createdAt": "2025-11-04T09:06:28.668Z",
+    "updatedAt": "2025-11-04T09:06:28.668Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K971SXSZZ6SBNF152M93FY64",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K971WG76Y655JPYJDAJTTVV3",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K971WG9HTZMPECGMQ2TCD8RE",
+    "createdAt": "2025-11-04T09:06:36.977Z",
+    "updatedAt": "2025-11-04T09:06:36.977Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K971SXSZZ6SBNF152M93FY64",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K971WTDXH1GAJ33MG2FYSVYG",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K971WTFMVF5GSASSFDHXMTQM",
+    "createdAt": "2025-11-04T09:06:47.411Z",
+    "updatedAt": "2025-11-04T09:06:47.411Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K945BGN1YV7RG3XKG169CGS1",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K97208RABW053BGN3A6W05FD",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K97208TF4Q0P3HG2H9S4ZA3V",
+    "createdAt": "2025-11-04T09:08:40.399Z",
+    "updatedAt": "2025-11-04T09:08:40.399Z"
+  },
+  {
+    "sourceSchema": "inquiries",
+    "sourceId": "01K945BGN1YV7RG3XKG169CGS1",
+    "targetSchema": "inquiry-vendors",
+    "targetId": "01K9720G4M9G75V3YWB9PGKBTM",
+    "relationTypeId": "HAS_INQUIRY_VENDOR",
+    "id": "01K9720G7H85CD30WXC0DBMY46",
+    "createdAt": "2025-11-04T09:08:47.985Z",
+    "updatedAt": "2025-11-04T09:08:47.985Z"
+  },
+  {
+    "sourceSchema": "quotations",
+    "sourceId": "01K9724JFPP7A6RX7H6NTFHE1D",
+    "targetSchema": "quotation-items",
+    "targetId": "01K9725HNMEAFXGB98SCER6JVK",
+    "relationTypeId": "HAS_QUOTATION_ITEM",
+    "id": "01K9725HREBEEA5FFR36B9DBVD",
+    "createdAt": "2025-11-04T09:11:33.390Z",
+    "updatedAt": "2025-11-04T09:11:33.390Z"
+  },
+  {
+    "sourceSchema": "quotations",
+    "sourceId": "01K9724JFPP7A6RX7H6NTFHE1D",
+    "targetSchema": "quotation-items",
+    "targetId": "01K9726N9T00JAG6QC7ZWMX650",
+    "relationTypeId": "HAS_QUOTATION_ITEM",
+    "id": "01K9726NBN8FM45AT1HJ38PQC6",
+    "createdAt": "2025-11-04T09:12:09.845Z",
+    "updatedAt": "2025-11-04T09:12:09.845Z"
+  },
+  {
+    "sourceSchema": "vendors",
+    "sourceId": "01K9OP000000000000000000001",
+    "targetSchema": "contacts",
+    "targetId": "01K94Q59VYS8JA1VRMG7Q343GM",
+    "relationTypeId": "HAS_CONTACT",
+    "id": "01K972XTWAD0GWJJT96Y5P3TD1",
+    "createdAt": "2025-11-04T09:24:49.162Z",
+    "updatedAt": "2025-11-04T09:24:49.162Z"
   }
 ]

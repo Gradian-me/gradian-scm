@@ -197,19 +197,22 @@
       "name": "Ottana Pharmed",
       "email": "info@ottanapharmed.com",
       "phone": "+1 555 123 4568",
-      "address": "",
-      "city": "",
-      "state": "",
-      "zipCode": "",
-      "registrationNumber": "",
-      "taxId": "",
-      "country": "",
-      "categories": [],
+      "address": "No 1",
+      "city": "Istanbul",
+      "state": "Istanbul",
+      "zipCode": "124142",
+      "registrationNumber": "TF-2019-001",
+      "taxId": "US-TAX-002",
+      "country": "TR",
+      "categories": [
+        "healthcare",
+        "logistics"
+      ],
       "status": "PENDING",
-      "rating": 0,
+      "rating": 5,
       "id": "01K9OP000000000000000000001",
       "createdAt": "2025-11-04T12:00:00.000Z",
-      "updatedAt": "2025-11-04T12:00:00.000Z",
+      "updatedAt": "2025-11-04T09:24:50.709Z",
       "performanceMetrics": [
         {
           "id": "onTimeDelivery",
@@ -276,9 +279,21 @@
           "icon": "FileCheck"
         }
       ],
-      "certifications": [],
+      "certifications": [
+        "fda",
+        "iso14001"
+      ],
       "establishedYear": 0,
-      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "contacts": [
+        {
+          "name": "Ottana Pharmed",
+          "email": "info@ottanapharmed.com",
+          "phone": "+1 555 123 4568",
+          "position": "Primary Contact",
+          "isPrimary": true
+        }
+      ]
     },
     {
       "name": "Exapilog",
@@ -460,7 +475,7 @@
       "number": "CGN-2025-09",
       "inquiryDate": "2025-11-03T09:38",
       "inquiryDeadlineDate": "2025-11-05T11:30",
-      "state": "1",
+      "state": "3",
       "description": "Test Description",
       "inquiry-items": [
         {
@@ -482,8 +497,25 @@
       "rating": 5,
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-04T08:22:22.018Z",
+      "updatedAt": "2025-11-04T09:12:42.454Z",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+    },
+    {
+      "number": "AGN-2025-12",
+      "inquiryDate": "2025-11-04T12:34",
+      "inquiryDeadlineDate": "2025-11-07T12:34",
+      "state": "1",
+      "description": "Buffers and Raw materials",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "status": "ACTIVE",
+      "rating": 5,
+      "id": "01K971SXSZZ6SBNF152M93FY64",
+      "createdAt": "2025-11-04T09:05:12.518Z",
+      "updatedAt": "2025-11-04T09:05:12.518Z"
     }
   ],
   "contacts": [
@@ -661,14 +693,58 @@
   "inquiry-vendors": [
     {
       "vendorId": {
-        "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
-        "label": "CinnaGen"
+        "id": "01K9MP000000000000000000001",
+        "label": "Mana Pharma"
       },
       "status": "quotation_added",
-      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
-      "id": "01K96ZP38J7J4E4XGPAZ1QXJ4X",
-      "createdAt": "2025-11-04T08:28:09.884Z",
-      "updatedAt": "2025-11-04T08:32:21.983Z"
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K971W83WWA4QCVFNAZSF5N11",
+      "createdAt": "2025-11-04T09:06:28.611Z",
+      "updatedAt": "2025-11-04T09:06:28.611Z"
+    },
+    {
+      "vendorId": {
+        "id": "01K9PG000000000000000000001",
+        "label": "Pharmagona"
+      },
+      "status": "reviewed",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K971WG76Y655JPYJDAJTTVV3",
+      "createdAt": "2025-11-04T09:06:36.914Z",
+      "updatedAt": "2025-11-04T09:06:36.914Z"
+    },
+    {
+      "vendorId": {
+        "id": "01K9OP000000000000000000001",
+        "label": "Ottana Pharmed"
+      },
+      "status": "rejected",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K971WTDXH1GAJ33MG2FYSVYG",
+      "createdAt": "2025-11-04T09:06:47.363Z",
+      "updatedAt": "2025-11-04T09:06:47.363Z"
+    },
+    {
+      "vendorId": {
+        "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
+        "label": "Transfarma"
+      },
+      "status": "reviewed",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K97208RABW053BGN3A6W05FD",
+      "createdAt": "2025-11-04T09:08:40.337Z",
+      "updatedAt": "2025-11-04T09:08:40.337Z"
+    },
+    {
+      "vendorId": {
+        "id": "01K9EX000000000000000000001",
+        "label": "Exapilog"
+      },
+      "status": "awarded",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K9720G4M9G75V3YWB9PGKBTM",
+      "createdAt": "2025-11-04T09:08:47.900Z",
+      "updatedAt": "2025-11-04T09:08:47.900Z"
     }
   ],
   "inquiry-items": [
@@ -696,7 +772,88 @@
       "id": "01K96WRHRE30636NDY6QVJT5AR",
       "createdAt": "2025-11-04T07:37:04.546Z",
       "updatedAt": "2025-11-04T07:37:04.546Z"
+    },
+    {
+      "partCode": "6098",
+      "partName": "Buffer Solution",
+      "quantity": 12,
+      "unit": "5",
+      "demandDate": "2025-11-06",
+      "minimumExpirationDate": "2026-01-16",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K971TX4B7S8YBED0NEDH79TN",
+      "createdAt": "2025-11-04T09:05:44.595Z",
+      "updatedAt": "2025-11-04T09:05:44.595Z"
+    },
+    {
+      "partCode": "6091",
+      "partName": "Sodium Bi Carbonate",
+      "quantity": 120,
+      "unit": "4",
+      "demandDate": "2025-12-04",
+      "minimumExpirationDate": "2026-01-15",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K971VS40NX1XM4PYVPBD59GR",
+      "createdAt": "2025-11-04T09:06:13.257Z",
+      "updatedAt": "2025-11-04T09:06:13.257Z"
     }
   ],
-  "quotations": []
+  "quotations": [
+    {
+      "number": "QTN-120513",
+      "quotationDate": "2025-11-04",
+      "expirationDate": "2025-11-10",
+      "vendorId": {
+        "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
+        "label": "Transfarma"
+      },
+      "state": "UNDER_REVIEW",
+      "currency": "EUR",
+      "transportType": "AIR",
+      "purchaseMethod": "TENDER",
+      "paymentMethod": "BANK_TRANSFER",
+      "advancedPaymentAmount": 20000,
+      "additions": 2500,
+      "deductions": 1500,
+      "netPrice": 21000,
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "categories": [
+        "general"
+      ],
+      "contacts": [],
+      "status": "ACTIVE",
+      "rating": 5,
+      "id": "01K9724JFPP7A6RX7H6NTFHE1D",
+      "createdAt": "2025-11-04T09:11:01.375Z",
+      "updatedAt": "2025-11-04T09:12:16.592Z"
+    }
+  ],
+  "quotation-items": [
+    {
+      "inquiryItemId": {
+        "id": "01K96WRHRE30636NDY6QVJT5AR",
+        "label": "HPLC Equipment Agilent 2190 "
+      },
+      "unitPrice": 7000,
+      "totalPrice": 14000,
+      "estimatedDeliveryDate": "2025-12-18",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K9725HNMEAFXGB98SCER6JVK",
+      "createdAt": "2025-11-04T09:11:33.307Z",
+      "updatedAt": "2025-11-04T09:11:33.307Z"
+    },
+    {
+      "inquiryItemId": {
+        "id": "01K96E06Z9H5G8FKH5QY0538JB",
+        "label": "Himedia Feed Alpha"
+      },
+      "unitPrice": 250,
+      "totalPrice": 6000,
+      "estimatedDeliveryDate": "2026-01-21",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "id": "01K9726N9T00JAG6QC7ZWMX650",
+      "createdAt": "2025-11-04T09:12:09.794Z",
+      "updatedAt": "2025-11-04T09:12:09.794Z"
+    }
+  ]
 }

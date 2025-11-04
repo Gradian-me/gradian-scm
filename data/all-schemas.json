@@ -2087,9 +2087,174 @@
         "description": "Pricing and payment details",
         "initialState": "expanded",
         "columns": 2
+      },
+      {
+        "id": "quotation-items",
+        "title": "Quotation Items",
+        "description": "Add items to this quotation",
+        "isRepeatingSection": true,
+        "initialState": "expanded",
+        "columns": 2,
+        "repeatingConfig": {
+          "minItems": 0,
+          "maxItems": 100,
+          "addButtonText": "Add Item",
+          "removeButtonText": "Remove Item",
+          "emptyMessage": "No items added yet",
+          "targetSchema": "quotation-items",
+          "relationTypeId": "HAS_QUOTATION_ITEM",
+          "deleteType": "itemAndRelation",
+          "addType": "addOnly",
+          "isUnique": false
+        }
       }
     ],
+    "detailPageMetadata": {
+      "tableRenderers": [
+        {
+          "id": "quotation-items-table",
+          "targetSchema": "quotation-items",
+          "relationTypeId": "HAS_QUOTATION_ITEM",
+          "sectionId": "item-information",
+          "title": "Quotation Items",
+          "description": "List of all items in this quotation",
+          "columns": [
+            "inquiry-item",
+            "unit-price",
+            "total-price",
+            "estimated-delivery-date",
+            "description"
+          ],
+          "tableProperties": {
+            "sortingEnabled": true,
+            "paginationEnabled": true,
+            "paginationPageSize": 20,
+            "showAsCards": false,
+            "aggregations": [
+              {
+                "column": "unit-price",
+                "aggregationTypes": [
+                  "avg"
+                ],
+                "unit": "EUR",
+                "precision": 2
+              },
+              {
+                "column": "total-price",
+                "aggregationTypes": [
+                  "sum"
+                ],
+                "unit": "EUR",
+                "precision": 2
+              }
+            ]
+          },
+          "colSpan": 2,
+          "columnArea": "main"
+        }
+      ]
+    },
     "showInNavigation": true,
     "icon": "FileText"
+  },
+  {
+    "id": "quotation-items",
+    "description": "Items in a quotation",
+    "singular_name": "Quotation Item",
+    "plural_name": "Quotation Items",
+    "fields": [
+      {
+        "id": "inquiry-item",
+        "name": "inquiryItemId",
+        "label": "Inquiry Item",
+        "sectionId": "item-information",
+        "type": "picker",
+        "component": "picker",
+        "placeholder": "Click to select inquiry item",
+        "required": true,
+        "description": "Select inquiry item from popup picker",
+        "targetSchema": "inquiry-items",
+        "role": "title",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "unit-price",
+        "name": "unitPrice",
+        "label": "Unit Price",
+        "sectionId": "item-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter unit price",
+        "required": true,
+        "displayType": "currency",
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "total-price",
+        "name": "totalPrice",
+        "label": "Total Price",
+        "sectionId": "item-information",
+        "type": "number",
+        "component": "number",
+        "placeholder": "Enter total price",
+        "required": true,
+        "displayType": "currency",
+        "validation": {
+          "required": true,
+          "min": 0
+        },
+        "colSpan": 1,
+        "order": 3
+      },
+      {
+        "id": "estimated-delivery-date",
+        "name": "estimatedDeliveryDate",
+        "label": "Estimated Delivery Date",
+        "sectionId": "item-information",
+        "type": "date",
+        "component": "date",
+        "placeholder": "Select estimated delivery date",
+        "required": true,
+        "role": "duedate",
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 4
+      },
+      {
+        "id": "description",
+        "name": "description",
+        "label": "Description",
+        "sectionId": "item-information",
+        "type": "textarea",
+        "component": "textarea",
+        "placeholder": "Enter item description",
+        "required": false,
+        "role": "description",
+        "colSpan": 2,
+        "order": 5
+      }
+    ],
+    "sections": [
+      {
+        "id": "item-information",
+        "title": "Item Information",
+        "description": "Details about the quotation item",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "showInNavigation": false,
+    "icon": "Package"
   }
 ]

@@ -355,7 +355,7 @@ export interface FormActions {
   setError: (fieldName: string, error: string) => void;
   setTouched: (fieldName: string, touched: boolean) => void;
   validateField: (fieldName: string) => boolean;
-  validateForm: () => boolean;
+  validateForm: () => Promise<boolean>;
   reset: () => void;
   submit: () => Promise<void>;
   addRepeatingItem: (sectionId: string) => void;

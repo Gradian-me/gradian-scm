@@ -365,24 +365,68 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     return !state.errors[fieldName];
   }, [schema, state.errors]);
 
-  const validateForm = useCallback(() => {
+  const validateForm = useCallback(async () => {
     // Validate synchronously and update state
     let isValid = true;
     const newErrors: FormErrors = {};
     
+    // For relation-based sections, we need to fetch relations count for validation
+    const relationCounts: Record<string, number> = {};
+    const hasEntityId = !!(state.values?.id);
+    
+    // Fetch relation counts for relation-based sections
+    if (hasEntityId) {
+      const relationPromises = schema.sections
+        .filter(section => 
+          section.isRepeatingSection && 
+          section.repeatingConfig?.targetSchema && 
+          section.repeatingConfig?.relationTypeId
+        )
+        .map(async (section) => {
+          try {
+            const response = await apiRequest<{ count: number; data: any[] }>(
+              `/api/relations?sourceSchema=${schema.id}&sourceId=${state.values.id}&relationTypeId=${section.repeatingConfig!.relationTypeId}&targetSchema=${section.repeatingConfig!.targetSchema}`
+            );
+            if (response.success) {
+              relationCounts[section.id] = response.count || (Array.isArray(response.data) ? response.data.length : 0);
+            }
+          } catch (error) {
+            console.error(`Error fetching relations count for section ${section.id}:`, error);
+            relationCounts[section.id] = 0;
+          }
+        });
+      
+      await Promise.all(relationPromises);
+    }
+    
     schema.sections.forEach(section => {
       // Check repeating section constraints
       if (section.isRepeatingSection && section.repeatingConfig) {
-        const items = state.values[section.id] || [];
         const { minItems, maxItems } = section.repeatingConfig;
         
         // Check if this is a relation-based repeating section
         const isRelationBased = section.repeatingConfig.targetSchema && section.repeatingConfig.relationTypeId;
-        const hasEntityId = !!(state.values?.id);
+        
+        // For relation-based sections, use relation count; for regular sections, use form values
+        let itemCount: number;
+        if (isRelationBased) {
+          // For relation-based sections, items are stored as relations, not in form values
+          // Use the fetched relation count if available, otherwise skip validation
+          if (hasEntityId && relationCounts[section.id] !== undefined) {
+            itemCount = relationCounts[section.id];
+          } else {
+            // Entity not saved yet or count not available - skip minItems validation
+            itemCount = hasEntityId ? 0 : -1; // -1 means skip validation
+          }
+        } else {
+          // For regular repeating sections, items are in form values
+          const items = state.values[section.id] || [];
+          itemCount = items.length;
+        }
         
         // For relation-based sections, only enforce minItems after the entity has been saved (has an ID)
         // This allows users to save the form first, then add related items
-        if (minItems !== undefined && items.length < minItems) {
+        if (minItems !== undefined && itemCount >= 0 && itemCount < minItems) {
           // Skip minItems validation for relation-based sections if entity hasn't been saved yet
           if (isRelationBased && !hasEntityId) {
             // Allow saving without items for relation-based sections on initial save
@@ -393,33 +437,38 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           }
         }
         
-        if (maxItems !== undefined && items.length > maxItems) {
+        if (maxItems !== undefined && itemCount >= 0 && itemCount > maxItems) {
           const errorMessage = `Maximum ${maxItems} item(s) allowed`;
           newErrors[section.id] = errorMessage;
           isValid = false;
         }
         
         // Validate fields within each repeating item
-        const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
-        items.forEach((item: any, itemIndex: number) => {
-          sectionFields.forEach(field => {
-            // Check if field is required or has validation rules
-            if (field.required || field.validation) {
-              const validationRules = {
-                ...field.validation,
-                // Ensure required is set if field.required is true
-                required: field.required || field.validation?.required || false
-              };
-              const fieldValue = item[field.name];
-              const result = validateFieldUtil(fieldValue, validationRules);
-              if (!result.isValid) {
-                const errorKey = `${section.id}[${itemIndex}].${field.name}`;
-                newErrors[errorKey] = result.error || 'Invalid value';
-                isValid = false;
+        // Note: For relation-based sections, field validation is handled by the relation items themselves
+        // We only validate inline form values for non-relation-based sections
+        if (!isRelationBased) {
+          const items = state.values[section.id] || [];
+          const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+          items.forEach((item: any, itemIndex: number) => {
+            sectionFields.forEach(field => {
+              // Check if field is required or has validation rules
+              if (field.required || field.validation) {
+                const validationRules = {
+                  ...field.validation,
+                  // Ensure required is set if field.required is true
+                  required: field.required || field.validation?.required || false
+                };
+                const fieldValue = item[field.name];
+                const result = validateFieldUtil(fieldValue, validationRules);
+                if (!result.isValid) {
+                  const errorKey = `${section.id}[${itemIndex}].${field.name}`;
+                  newErrors[errorKey] = result.error || 'Invalid value';
+                  isValid = false;
+                }
               }
-            }
+            });
           });
-        });
+        }
       } else {
         // Validate individual fields in non-repeating sections
         const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
@@ -592,7 +641,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     loggingCustom(LogType.FORM_DATA, 'info', `Form Values: ${JSON.stringify(state.values, null, 2)}`);
     
     // Validate synchronously
-    const isValid = validateForm();
+    const isValid = await validateForm();
     
     // Log validation results
     loggingCustom(LogType.FORM_DATA, isValid ? 'info' : 'warn', `Form Validation Status: ${isValid ? 'VALID' : 'INVALID'}`);
