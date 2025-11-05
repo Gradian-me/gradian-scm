@@ -3,7 +3,7 @@
 import React from 'react';
 import { SearchBarProps } from '../types';
 import { cn } from '../../shared/utils';
-import { Input } from '../../form-builder/form-elements/components/Input';
+import { SearchInput } from '../../form-builder/form-elements/components/SearchInput';
 import { Button } from '@/components/ui/button';
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -20,27 +20,34 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     className
   );
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && onSearch) {
       onSearch(value || '');
+    }
+  };
+
+  const handleChange = (newValue: string) => {
+    onChange?.(newValue);
+  };
+
+  const handleClear = () => {
+    onChange?.('');
+    if (onSearch) {
+      onSearch('');
     }
   };
 
   return (
     <div className={searchBarClasses} {...props}>
       <div className="relative flex-1">
-        <Input
-          placeholder={placeholder}
+        <SearchInput
+          config={{ name: 'search-bar', placeholder }}
           value={value || ''}
-          onChange={(e) => onChange?.(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="pl-10"
+          onChange={handleChange}
+          onClear={handleClear}
+          className="[&_label]:hidden"
+          onKeyDown={handleKeyPress}
         />
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
       </div>
       {showSearchButton && (
         <Button

@@ -5,13 +5,13 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { SearchInput } from '@/gradian-ui/form-builder/form-elements';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NotificationGroup } from './NotificationGroup';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationService } from '../services/notification.service';
 import { Select, SelectOption } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { 
-  Search, 
   Filter, 
   CheckCircle, 
   X, 
@@ -226,15 +226,12 @@ export function NotificationsPage() {
           <CardContent>
             <div className="space-y-4">
               {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search notifications..."
-                  value={searchTerm}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                config={{ name: 'search', placeholder: 'Search notifications...' }}
+                value={searchTerm}
+                onChange={(value) => handleSearch(value)}
+                onClear={() => handleSearch('')}
+              />
 
               {/* Filters */}
               {showFilters && (

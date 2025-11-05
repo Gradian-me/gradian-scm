@@ -20,8 +20,9 @@ import { apiRequest } from '@/shared/utils/api';
 import { getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../utils/field-resolver';
 import { getInitials, getBadgeConfig } from '@/gradian-ui/data-display/utils';
 import { BadgeViewer } from '../utils/badge-viewer';
-import { Search, Loader2, List } from 'lucide-react';
+import { Loader2, List } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
+import { SearchInput } from './SearchInput';
 
 export interface PopupPickerProps {
   isOpen: boolean;
@@ -430,14 +431,12 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         </DialogHeader>
 
         {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder={`Search ${schemaName}...`}
+        <div className="mb-4">
+          <SearchInput
+            config={{ name: 'picker-search', placeholder: `Search ${schemaName}...` }}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            onChange={(value) => setSearchQuery(value)}
+            onClear={() => setSearchQuery('')}
           />
         </div>
 

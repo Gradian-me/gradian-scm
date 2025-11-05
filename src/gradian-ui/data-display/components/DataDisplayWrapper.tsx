@@ -67,7 +67,7 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
         ...prev,
         filters: { ...prev.filters, search: searchTerm },
       }));
-    }, search.debounceMs || 300),
+    }, search.debounceMs || 600),
     [search.debounceMs]
   );
 

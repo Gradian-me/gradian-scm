@@ -29,6 +29,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ImageText } from '../../form-builder/form-elements';
 import { apiRequest } from '@/shared/utils/api';
 import { useCompanies } from '@/shared/hooks/use-companies';
+import { debounce } from '@/gradian-ui/shared/utils';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -75,6 +76,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedEntityForDetail, setSelectedEntityForDetail] = useState<any | null>(null);
   const [searchTermLocal, setSearchTermLocal] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
@@ -247,13 +249,21 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
   }, [schema?.id]);
 
+  // Debounce search term for filtering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTermLocal);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [searchTermLocal]);
+
   // Filter entities by search term (company filtering is done by backend API)
   const filteredEntities = useMemo(() => {
     if (!entities) return [];
     
     // Apply search filter if search term exists (company filtering is handled by backend)
-    if (searchTermLocal && searchTermLocal.trim() !== '') {
-      const searchLower = searchTermLocal.toLowerCase();
+    if (debouncedSearchTerm && debouncedSearchTerm.trim() !== '') {
+      const searchLower = debouncedSearchTerm.toLowerCase();
       
       return entities.filter((entity: any) => {
         // Search across common text fields dynamically
@@ -274,7 +284,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
     
     return entities;
-  }, [entities, searchTermLocal]);
+  }, [entities, debouncedSearchTerm]);
 
   // Group entities by companyId - only when "All Companies" (-1) is selected
   const groupedEntities = useMemo(() => {

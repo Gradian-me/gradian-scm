@@ -14,7 +14,6 @@ import {
   Eye,
   Layers,
   Type,
-  Search,
   Loader2,
   ArrowLeft,
   LayoutList,
@@ -25,6 +24,7 @@ import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchInput } from '@/gradian-ui/form-builder/form-elements';
 import {
   Dialog,
   DialogContent,
@@ -251,14 +251,13 @@ export default function SchemaBuilderPage() {
 
         {/* Search Bar and Refresh Button */}
         <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              type="text"
-              placeholder="Search schemas..."
+          <div className="flex-1">
+            <SearchInput
+              config={{ name: 'search', placeholder: 'Search schemas...' }}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              onChange={(value) => setSearchQuery(value)}
+              onClear={() => setSearchQuery('')}
+              className="[&_input]:h-10"
             />
           </div>
           <Button

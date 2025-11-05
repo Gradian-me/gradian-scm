@@ -5,6 +5,7 @@ import { DataDisplayFilterPaneProps } from '../types';
 import { cn } from '../../shared/utils';
 import { Search, Filter, Plus, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Checkbox } from '../../../components/ui/checkbox';
+import { SearchInput } from '../../form-builder/form-elements/components/SearchInput';
 
 export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
   config,
@@ -27,8 +28,7 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
   const [isCollapsed, setIsCollapsed] = useState(layout?.filterPane?.defaultCollapsed || false);
   const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
     onSearch(value);
   }, [onSearch]);
@@ -253,22 +253,20 @@ export const DataDisplayFilterPane: React.FC<DataDisplayFilterPaneProps> = ({
           {/* Search */}
           {search.enabled && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  placeholder={search.placeholder || 'Search...'}
-                  className={cn(
-                    'w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-                    search.styling?.size === 'sm' && 'text-sm',
-                    search.styling?.size === 'lg' && 'text-lg'
-                  )}
-                  style={{ width: search.styling?.width }}
-                />
-              </div>
+              <SearchInput
+                config={{ 
+                  name: 'filter-search', 
+                  placeholder: search.placeholder || 'Search...',
+                  label: 'Search'
+                }}
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onClear={() => handleSearchChange('')}
+                className={cn(
+                  search.styling?.size === 'sm' && '[&_input]:text-sm',
+                  search.styling?.size === 'lg' && '[&_input]:text-lg'
+                )}
+              />
             </div>
           )}
 
