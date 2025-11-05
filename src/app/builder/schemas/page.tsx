@@ -17,7 +17,9 @@ import {
   Loader2,
   ArrowLeft,
   LayoutList,
-  RefreshCw
+  RefreshCw,
+  Settings,
+  Building2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -35,6 +37,7 @@ import {
 } from '@/components/ui/dialog';
 import { config } from '@/lib/config';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface SchemaCardProps {
   schema: FormSchema;
@@ -123,6 +126,7 @@ export default function SchemaBuilderPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'system' | 'business'>('system');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; schema: FormSchema | null }>({ open: false, schema: null });
   const [createDialog, setCreateDialog] = useState(false);
   const [newSchemaName, setNewSchemaName] = useState('');
@@ -224,30 +228,64 @@ export default function SchemaBuilderPage() {
     }
   };
 
-  const filteredSchemas = schemas.filter(schema =>
-    schema.plural_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    schema.singular_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    schema.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Split schemas into system and business
+  const systemSchemas = schemas.filter(schema => schema.isSystemSchema === true);
+  const businessSchemas = schemas.filter(schema => schema.isSystemSchema !== true);
+
+  // Filter schemas based on active tab and search query
+  const getFilteredSchemas = () => {
+    const schemasToFilter = activeTab === 'system' ? systemSchemas : businessSchemas;
+    return schemasToFilter.filter(schema =>
+      schema.plural_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      schema.singular_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      schema.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const filteredSchemas = getFilteredSchemas();
 
   return (
     <MainLayout
       title="Schema Builder"
       subtitle="Create and manage dynamic form schemas"
-      showCreateButton
-      createButtonText="New Schema"
-      onCreateClick={() => setCreateDialog(true)}
     >
       <div className="space-y-6">
-        {/* Back Button */}
-        <Button
-          variant="outline"
-          onClick={() => router.push('/builder')}
-          className="mb-2"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Builder
-        </Button>
+        {/* Back Button and New Schema Button */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push('/builder')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Builder
+          </Button>
+          <Button
+            onClick={() => setCreateDialog(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Schema
+          </Button>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'system' | 'business')}>
+          <TabsList className="w-full">
+            <TabsTrigger value="system" className="flex items-center gap-2 flex-1">
+              <Settings className="h-4 w-4" />
+              <span>System Schemas</span>
+              <Badge variant="secondary" className="ml-1">
+                {systemSchemas.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="business" className="flex items-center gap-2 flex-1">
+              <Building2 className="h-4 w-4" />
+              <span>Business Schemas</span>
+              <Badge variant="secondary" className="ml-1">
+                {businessSchemas.length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {/* Search Bar and Refresh Button */}
         <div className="flex gap-2">

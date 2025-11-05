@@ -2281,8 +2281,7 @@
         "colSpan": 1,
         "fieldIds": [
           "application-name",
-          "application-icon",
-          "application-color"
+          "application-icon"
         ]
       }
     ],
@@ -2318,29 +2317,13 @@
         },
         "colSpan": 1,
         "order": 2
-      },
-      {
-        "id": "application-color",
-        "name": "color",
-        "label": "Color",
-        "sectionId": "basic-information",
-        "type": "text",
-        "component": "color-picker",
-        "placeholder": "#000000",
-        "required": true,
-        "validation": {
-          "required": true,
-          "pattern": "^#[0-9A-Fa-f]{6}$"
-        },
-        "colSpan": 1,
-        "order": 3
       }
     ],
     "sections": [
       {
         "id": "basic-information",
         "title": "Basic Information",
-        "description": "Application name, icon, and color",
+        "description": "Application name and icon",
         "initialState": "expanded",
         "columns": 2
       }
@@ -2354,8 +2337,7 @@
           "colSpan": 2,
           "fieldIds": [
             "application-name",
-            "application-icon",
-            "application-color"
+            "application-icon"
           ]
         }
       ]
@@ -2450,5 +2432,110 @@
     },
     "showInNavigation": false,
     "icon": "UserCircle"
+  },
+  {
+    "id": "business-areas",
+    "description": "Define and manage business areas in your system",
+    "singular_name": "Business Area",
+    "plural_name": "Business Areas",
+    "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-builder",
+        "label": "Back to Builder",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder"
+      }
+    ],
+    "cardMetadata": [
+      {
+        "id": "business-area-info",
+        "title": "Business Area Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "business-area-title",
+          "business-area-icon",
+          "business-area-color"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "business-area-title",
+        "name": "title",
+        "label": "Business Area Title",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter business area title",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "colSpan": 2,
+        "order": 1
+      },
+      {
+        "id": "business-area-icon",
+        "name": "icon",
+        "label": "Icon",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "icon-input",
+        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "business-area-color",
+        "name": "color",
+        "label": "Color",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "color-picker",
+        "placeholder": "#000000",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "colSpan": 1,
+        "order": 3
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "Business area title, icon, and color",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "business-area-overview",
+          "title": "Business Area Overview",
+          "description": "Basic business area information",
+          "colSpan": 2,
+          "fieldIds": [
+            "business-area-title",
+            "business-area-icon",
+            "business-area-color"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "Folder"
   }
 ]
