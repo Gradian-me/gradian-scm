@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, LockIcon, UserIcon } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
 
@@ -25,7 +25,7 @@ interface SignInPageProps {
 // --- SUB-COMPONENTS ---
 
 const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10">
+  <div className="relative flex gap-2 flex-nowrap items-center rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10">
     {children}
   </div>
 );
@@ -64,22 +64,22 @@ export const SignInPage: React.FC<SignInPageProps> = ({
             <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
 
             <form className="space-y-5" onSubmit={onSignIn}>
-              <div className="animate-element animate-delay-300">
+              <div className="animate-element animate-delay-300 flex flex-col gap-2">
                 <label className="text-sm font-medium text-muted-foreground">Email Address</label>
                 <GlassInputWrapper>
-                  <input name="email" type="email" placeholder="Enter your email address" className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
+                  <UserIcon className="w-5 h-5 text-muted-foreground ms-2 shrink-0" />
+                  <input name="email" type="email" autoComplete="email" placeholder="Enter your email address" className="flex-1 bg-transparent text-sm p-4 rounded-2xl focus:outline-none" />
                 </GlassInputWrapper>
               </div>
 
-              <div className="animate-element animate-delay-400">
+              <div className="animate-element animate-delay-400 flex flex-col gap-2">
                 <label className="text-sm font-medium text-muted-foreground">Password</label>
                 <GlassInputWrapper>
-                  <div className="relative">
-                    <input name="password" type={showPassword ? 'text' : 'password'} placeholder="Enter your password" className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center">
+                  <LockIcon className="w-5 h-5 text-muted-foreground ms-2 shrink-0" /> 
+                    <input name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Enter your password" className="flex-1 bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-3 flex items-center z-10">
                       {showPassword ? <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" /> : <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />}
                     </button>
-                  </div>
                 </GlassInputWrapper>
               </div>
 

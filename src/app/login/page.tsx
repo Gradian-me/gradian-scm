@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   return (
     <SignInPage
-      heroImageSrc="https://picsum.photos/1080/1920?w=1920&q=100"
+      heroImageSrc="/public/screenshots/gradian.me_bg_desktop.png"
       testimonials={sampleTestimonials}
       onSignIn={handleSignIn}
       onResetPassword={handleResetPassword}
