@@ -91,7 +91,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-violet-400 transition-colors">Reset password</a>
               </div>
 
-              <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-400 py-4 font-medium text-violet-900 hover:bg-violet-500 transition-colors">
+              <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-500 py-4 font-medium text-violet-50 hover:bg-violet-600 transition-colors">
                 Sign In
               </button>
             </form>

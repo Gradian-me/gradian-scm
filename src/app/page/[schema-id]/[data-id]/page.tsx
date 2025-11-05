@@ -6,6 +6,11 @@ import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { DynamicDetailPageClient } from './DynamicDetailPageClient';
 
+// Set revalidate to 0 to force dynamic rendering
+// This ensures schema changes are reflected immediately when cache is cleared
+// In production, you can change this to 60 for ISR caching
+export const revalidate = 0;
+
 interface PageProps {
   params: Promise<{
     'schema-id': string;

@@ -30,6 +30,7 @@ import { ImageText } from '../../form-builder/form-elements';
 import { apiRequest } from '@/shared/utils/api';
 import { useCompanies } from '@/shared/hooks/use-companies';
 import { debounce } from '@/gradian-ui/shared/utils';
+import { toast } from 'sonner';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -115,10 +116,18 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
 
   // Handle opening create modal
   const handleOpenCreateModal = useCallback(() => {
+    // Check if a company is selected (not "All Companies" with id === -1)
+    if (!selectedCompany || selectedCompany.id === -1) {
+      toast.warning('Please select a company to create a new record', {
+        description: 'Select a company from the dropdown to add a new record.',
+      });
+      return;
+    }
+    
     if (schema?.id) {
       setCreateModalOpen(true);
     }
-  }, [schema?.id]);
+  }, [schema?.id, selectedCompany]);
 
   // Custom handleViewEntity that opens the detail dialog (card click)
   const handleViewEntity = useCallback((entity: any) => {
@@ -459,7 +468,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           onSearchChange={setSearchTermLocal}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          onAddNew={canCreateRecords ? handleOpenCreateModal : undefined as any}
+          onAddNew={handleOpenCreateModal}
           onRefresh={fetchEntities}
           isRefreshing={isLoading}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
@@ -669,12 +678,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   : `Get started by adding your first ${singularName.toLowerCase()}.`
               }
               action={
-                canCreateRecords ? (
                 <UIButton onClick={handleOpenCreateModal}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add {singularName}
                 </UIButton>
-                ) : null
               }
             />
           </motion.div>

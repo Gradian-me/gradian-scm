@@ -2,6 +2,7 @@
 // Clears all schema-related caches to force reload
 
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 /**
  * Clear cache from schema-loader (server-side cache)
@@ -80,6 +81,43 @@ async function clearApiRouteCaches() {
 }
 
 /**
+ * Revalidate Next.js page cache for all schema pages
+ * This ensures that ISR pages are refreshed after clearing data cache
+ */
+async function revalidateSchemaPages() {
+  try {
+    // Get all schema IDs to revalidate their pages
+    // Note: Cache is cleared first, so this will load fresh data from source
+    const { getAvailableSchemaIds } = await import('@/gradian-ui/schema-manager/utils/schema-registry.server');
+    const schemaIds = await getAvailableSchemaIds();
+
+    // Revalidate each schema page
+    // Revalidating the page path will also invalidate child routes (detail pages)
+    for (const schemaId of schemaIds) {
+      try {
+        // Revalidate the main schema page
+        revalidatePath(`/page/${schemaId}`, 'page');
+        // Revalidate layout to ensure all routes under this path are refreshed
+        revalidatePath(`/page/${schemaId}`, 'layout');
+      } catch (error) {
+        console.warn(`Could not revalidate page for schema ${schemaId}:`, error);
+      }
+    }
+
+    // Also revalidate the base page route to catch any edge cases
+    try {
+      revalidatePath('/page', 'page');
+      revalidatePath('/page', 'layout');
+    } catch (error) {
+      console.warn('Could not revalidate base page route:', error);
+    }
+  } catch (error) {
+    console.warn('Could not revalidate schema pages:', error);
+    // Don't throw - cache clearing should still succeed even if revalidation fails
+  }
+}
+
+/**
  * POST - Clear all caches (schemas, companies, and all data-loader caches)
  * Example: POST /api/schemas/clear-cache
  */
@@ -93,6 +131,9 @@ export async function POST(request: NextRequest) {
       clearSchemaRegistryCache(), // Schema registry cache
       clearApiRouteCaches(), // API route caches
     ]);
+
+    // Revalidate Next.js page cache to ensure ISR pages are refreshed
+    await revalidateSchemaPages();
 
     return NextResponse.json({
       success: true,
@@ -125,6 +166,9 @@ export async function GET(request: NextRequest) {
       clearSchemaRegistryCache(), // Schema registry cache
       clearApiRouteCaches(), // API route caches
     ]);
+
+    // Revalidate Next.js page cache to ensure ISR pages are refreshed
+    await revalidateSchemaPages();
 
     return NextResponse.json({
       success: true,

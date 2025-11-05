@@ -1,13 +1,15 @@
 // Dynamic Page Route
 // Renders any entity page based on schema ID
 import { notFound } from 'next/navigation';
-import { DynamicPageRenderer } from '@/gradian-ui/data-display/components/DynamicPageRenderer';
+import { DynamicEntityPageClient } from './DynamicEntityPageClient';
 import { getAvailableSchemaIds } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
-// Enable ISR (Incremental Static Regeneration) with 60 second revalidation
-export const revalidate = 60;
+// Set revalidate to 0 to force dynamic rendering
+// This ensures schema changes are reflected immediately when cache is cleared
+// In production, you can change this to 60 for ISR caching
+export const revalidate = 0;
 
 interface PageProps {
   params: Promise<{
@@ -25,8 +27,7 @@ export async function generateStaticParams() {
 
 /**
  * Serialize schema to remove RegExp and other non-serializable objects
- * Converts RegExp patterns to a special object format that can be passed to Client Components
- * and reconstructed on the client side
+ * This is required when passing data from Server Components to Client Components
  */
 function serializeSchema(schema: FormSchema): any {
   return JSON.parse(JSON.stringify(schema, (key, value) => {
@@ -50,13 +51,14 @@ export default async function DynamicEntityPage({ params }: PageProps) {
     notFound();
   }
 
-  // Serialize schema to make it safe for Client Component
+  // Serialize schema to make it safe for Client Component (removes RegExp objects)
   const serializedSchema = serializeSchema(schema);
 
+  // Pass schema to client component which will handle caching
   return (
-    <DynamicPageRenderer 
-      schema={serializedSchema} 
-      entityName={schema.singular_name || 'Entity'}
+    <DynamicEntityPageClient 
+      initialSchema={serializedSchema}
+      schemaId={schemaId}
     />
   );
 }

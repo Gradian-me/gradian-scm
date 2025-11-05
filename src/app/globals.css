@@ -287,9 +287,44 @@ body {
 
 [data-sonner-toast][data-type="warning"] {
   background-color: hsl(var(--popover)) !important;
+  border-color: rgb(251 191 36 / 0.3) !important; /* subtle amber border */
+  color: hsl(var(--popover-foreground)) !important;
 }
 
-[data-sonner-toast] svg {
+[data-sonner-toast][data-type="warning"] [data-title] {
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-description] {
+  color: hsl(var(--popover-foreground)) !important;
+  opacity: 0.8;
+}
+
+[data-sonner-toast][data-type="warning"] svg {
+  color: rgb(251 191 36) !important; /* soft amber icon */
+}
+
+.dark [data-sonner-toast][data-type="warning"] {
+  background-color: hsl(var(--popover)) !important;
+  border-color: rgb(251 191 36 / 0.4) !important; /* slightly more visible in dark */
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+.dark [data-sonner-toast][data-type="warning"] [data-title] {
+  color: hsl(var(--popover-foreground)) !important;
+}
+
+.dark [data-sonner-toast][data-type="warning"] [data-description] {
+  color: hsl(var(--popover-foreground)) !important;
+  opacity: 0.8;
+}
+
+.dark [data-sonner-toast][data-type="warning"] svg {
+  color: rgb(251 191 36) !important; /* soft amber icon */
+}
+
+/* General SVG color - should not override type-specific colors */
+[data-sonner-toast]:not([data-type="warning"]):not([data-type="error"]):not([data-type="success"]):not([data-type="info"]) svg {
   color: hsl(var(--popover-foreground)) !important;
 }
 

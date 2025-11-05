@@ -87,7 +87,30 @@ export default function BuilderPage() {
       const data = await response.json();
 
       if (data.success) {
+        // Clear client-side schema cache
+        if (typeof window !== 'undefined') {
+          // Import and clear the schema store
+          const { useSchemaStore } = await import('@/stores/schema.store');
+          useSchemaStore.getState().clearAllSchemas();
+          
+          // Dispatch event to notify all pages to reload
+          window.dispatchEvent(new Event('schema-cache-cleared'));
+          
+          // Also trigger storage event for other tabs
+          window.localStorage.setItem('schema-cache-cleared', Date.now().toString());
+          window.localStorage.removeItem('schema-cache-cleared');
+        }
+        
         toast.success('Schema cache cleared successfully!', { id: toastId });
+        
+        // Refresh current page if on a schema page
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/page/')) {
+          // Small delay to ensure cache is cleared
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        }
       } else {
         toast.error(data.error || 'Failed to clear cache', { id: toastId });
       }

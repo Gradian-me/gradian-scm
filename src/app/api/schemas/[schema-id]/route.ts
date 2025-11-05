@@ -24,13 +24,11 @@ export function clearSchemaCache() {
 function loadSchemas(): any[] {
   const now = Date.now();
   
-  // For development: reduce cache time or disable caching
-  // Return cache if valid (but check if we're in dev mode)
+  // For development: disable caching entirely for immediate updates
+  // In production, use cache with TTL
   if (process.env.NODE_ENV === 'development') {
-    // In development, use shorter cache or disable entirely
-    if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < 10000) {
-      return cachedSchemas;
-    }
+    // In development, always read fresh from file (no cache)
+    // This ensures schema changes are reflected immediately
   } else if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
     return cachedSchemas;
   }
@@ -89,9 +87,16 @@ export async function GET(
       );
     }
 
+    // Return response with cache-busting headers to prevent browser caching
     return NextResponse.json({
       success: true,
       data: schema
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     });
   } catch (error) {
     console.error('Error loading schema:', error);

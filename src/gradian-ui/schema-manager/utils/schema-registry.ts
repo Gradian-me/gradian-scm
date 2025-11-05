@@ -122,8 +122,13 @@ export async function fetchSchemaById(schemaId: string): Promise<FormSchema | nu
       const schema = await loadSchemaById(schemaId);
       return schema ? processSchema(schema) : null;
     } else {
-      // Client side - fetch from API
-      const response = await fetch(`${config.schemaApi.basePath}/${schemaId}`);
+      // Client side - fetch from API with cache-busting
+      const response = await fetch(`${config.schemaApi.basePath}/${schemaId}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       
       if (!response.ok) {
         return null;
