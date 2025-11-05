@@ -43,7 +43,7 @@ export async function getSettings(userId?: string): Promise<UserSettings> {
       `/api/settings`,
       {
         method: 'GET',
-        params: { userId: targetUserId },
+        // No params needed - userId comes from JWT token
       }
     );
 
@@ -81,7 +81,7 @@ export async function updateSettings(
       {
         method: 'PUT',
         body: updates,
-        params: { userId: targetUserId },
+        // No params needed - userId comes from JWT token
       }
     );
 

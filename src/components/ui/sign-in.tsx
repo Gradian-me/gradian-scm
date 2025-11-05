@@ -20,6 +20,8 @@ interface SignInPageProps {
   onSignIn?: (event: React.FormEvent<HTMLFormElement>) => void;
   onResetPassword?: () => void;
   onCreateAccount?: () => void;
+  error?: string | null;
+  isLoading?: boolean;
 }
 
 // --- SUB-COMPONENTS ---
@@ -51,6 +53,8 @@ export const SignInPage: React.FC<SignInPageProps> = ({
   onSignIn,
   onResetPassword,
   onCreateAccount,
+  error,
+  isLoading = false,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -62,6 +66,12 @@ export const SignInPage: React.FC<SignInPageProps> = ({
           <div className="flex flex-col gap-6">
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">{title}</h1>
             <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
+
+            {error && (
+              <div className="animate-element animate-delay-250 rounded-2xl border border-red-500/50 bg-red-500/10 dark:bg-red-500/5 p-4">
+                <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+              </div>
+            )}
 
             <form className="space-y-5" onSubmit={onSignIn}>
               <div className="animate-element animate-delay-300 flex flex-col gap-2">
@@ -91,8 +101,12 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 <a href="#" onClick={(e) => { e.preventDefault(); onResetPassword?.(); }} className="hover:underline text-violet-400 transition-colors">Reset password</a>
               </div>
 
-              <button type="submit" className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-500 py-4 font-medium text-violet-50 hover:bg-violet-600 transition-colors">
-                Sign In
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-500 py-4 font-medium text-violet-50 hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
 

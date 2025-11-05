@@ -6,6 +6,7 @@ import { IRepository } from '../interfaces/repository.interface';
 import { BaseEntity, FilterParams } from '../types/base.types';
 import { readSchemaData, writeSchemaData, ensureSchemaCollection } from '../utils/data-storage.util';
 import { EntityNotFoundError } from '../errors/domain.errors';
+import { processPasswordFields } from '../utils/password-processor.util';
 
 export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
   constructor(protected schemaId: string) {
@@ -99,8 +100,14 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
   async create(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>): Promise<T> {
     const entities = readSchemaData<T>(this.schemaId);
     
+    // Process password fields if this is the users schema
+    const processedData = await processPasswordFields(
+      this.schemaId,
+      data as Record<string, any>
+    );
+    
     const newEntity: T = {
-      ...data,
+      ...processedData,
       id: ulid(), // Use ULID instead of UUID
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -120,9 +127,56 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
       return null;
     }
 
+    // Process password fields if this is the users schema
+    // Always process password fields when updating users to detect and hash fields with role="password"
+    const existingEntity = entities[index] as Record<string, any>;
+    let processedData = data as Record<string, any>;
+    
+    if (this.schemaId === 'users') {
+      // Merge existing data with new data for processing
+      // This ensures we have all fields needed for password processing
+      const mergedData = { ...existingEntity, ...data };
+      
+      // Process password fields - this will detect fields with role="password" from schema
+      const processed = await processPasswordFields(this.schemaId, mergedData);
+      
+      // Start with the original update data
+      processedData = { ...data };
+      
+      // If password field was in the update data, use the processed (hashed) version
+      if ('password' in data) {
+        // Check if password hashing failed
+        if (processed._passwordHashFailed) {
+          console.error(`[PASSWORD] Password hashing failed: ${processed._passwordHashError || 'Unknown error'}`);
+          // Don't update the password if hashing failed - keep the existing one
+          // Remove password from update data to prevent unhashed password from being saved
+          delete processedData.password;
+          console.warn(`[PASSWORD] Password update skipped due to hashing failure. Please set PEPPER environment variable.`);
+        } else if (processed.password !== undefined && processed._passwordHashed) {
+          // Use the processed password (which will be hashed if it wasn't already)
+          processedData.password = processed.password;
+          console.log(`[PASSWORD] Password updated - original length: ${data.password?.length || 0}, hashed length: ${processed.password.length}`);
+        } else if (processed.password === undefined && 'password' in data) {
+          // Password was removed during processing (hashing failed), don't update it
+          delete processedData.password;
+          console.warn(`[PASSWORD] Password update skipped - password was not processed`);
+        }
+      }
+      
+      // Update hashType if it was set during processing
+      if (processed.hashType !== undefined) {
+        processedData.hashType = processed.hashType;
+      }
+      
+      // Clean up internal flags
+      delete processedData._passwordHashed;
+      delete processedData._passwordHashFailed;
+      delete processedData._passwordHashError;
+    }
+
     const updatedEntity: T = {
       ...entities[index],
-      ...data,
+      ...processedData,
       id, // Ensure ID doesn't change
       updatedAt: new Date().toISOString(),
     };

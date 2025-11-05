@@ -15,7 +15,7 @@ import { loadAllCompanies, clearCompaniesCache } from '@/shared/utils/companies-
 async function createController(schemaId: string) {
   const schema = await getSchemaById(schemaId);
   const repository = new BaseRepository<BaseEntity>(schemaId);
-  const service = new BaseService<BaseEntity>(repository, schema.singular_name || 'Entity');
+  const service = new BaseService<BaseEntity>(repository, schema.singular_name || 'Entity', schemaId);
   const controller = new BaseController<BaseEntity>(service, schema.singular_name || 'Entity');
   
   return controller;
@@ -41,6 +41,7 @@ export async function GET(
     }
 
     // Special handling for companies - use cached loader
+    // Note: Companies don't have password fields, so no filtering needed
     if (schemaId === 'companies') {
       try {
         const companies = await loadAllCompanies();

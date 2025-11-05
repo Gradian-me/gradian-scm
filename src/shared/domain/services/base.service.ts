@@ -5,19 +5,27 @@ import { IService } from '../interfaces/service.interface';
 import { IRepository } from '../interfaces/repository.interface';
 import { BaseEntity, FilterParams, ApiResponse } from '../types/base.types';
 import { EntityNotFoundError, ValidationError, handleDomainError } from '../errors/domain.errors';
+import { filterPasswordFields } from '../utils/response-filter.util';
 
 export class BaseService<T extends BaseEntity> implements IService<T> {
   constructor(
     protected repository: IRepository<T>,
-    protected entityName: string = 'Entity'
+    protected entityName: string = 'Entity',
+    protected schemaId?: string
   ) {}
 
   async getAll(filters?: FilterParams): Promise<ApiResponse<T[]>> {
     try {
       const entities = await this.repository.findAll(filters);
+      
+      // Filter out password fields from response
+      const filteredData = this.schemaId 
+        ? await filterPasswordFields(this.schemaId, entities)
+        : entities;
+      
       return {
         success: true,
-        data: entities,
+        data: filteredData,
         message: `Retrieved ${entities.length} ${this.entityName.toLowerCase()}(s)`,
       };
     } catch (error) {
@@ -37,9 +45,14 @@ export class BaseService<T extends BaseEntity> implements IService<T> {
         throw new EntityNotFoundError(this.entityName, id);
       }
 
+      // Filter out password fields from response
+      const filteredData = this.schemaId 
+        ? await filterPasswordFields(this.schemaId, entity)
+        : entity;
+
       return {
         success: true,
-        data: entity,
+        data: filteredData,
         message: `${this.entityName} retrieved successfully`,
       };
     } catch (error) {
@@ -59,9 +72,14 @@ export class BaseService<T extends BaseEntity> implements IService<T> {
       // CompanyId enrichment is handled at the controller level via cookies
       const entity = await this.repository.create(data);
       
+      // Filter out password fields from response
+      const filteredData = this.schemaId 
+        ? await filterPasswordFields(this.schemaId, entity)
+        : entity;
+      
       return {
         success: true,
-        data: entity,
+        data: filteredData,
         message: `${this.entityName} created successfully`,
       };
     } catch (error) {
@@ -93,9 +111,14 @@ export class BaseService<T extends BaseEntity> implements IService<T> {
         throw new EntityNotFoundError(this.entityName, id);
       }
 
+      // Filter out password fields from response
+      const filteredData = this.schemaId 
+        ? await filterPasswordFields(this.schemaId, entity)
+        : entity;
+
       return {
         success: true,
-        data: entity,
+        data: filteredData,
         message: `${this.entityName} updated successfully`,
       };
     } catch (error) {

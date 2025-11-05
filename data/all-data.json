@@ -868,5 +868,22 @@
     }
   ],
   "user-roles": [],
-  "users": []
+  "users": [
+    {
+      "username": "abidi.mahyar@gmail.com",
+      "name": "Mahyar",
+      "lastname": "Abidi",
+      "email": "abidi.mahyar@gmail.com",
+      "gender": "male",
+      "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
+      "status": "ACTIVE",
+      "rating": 5,
+      "id": "01K9ABA6MQ9K64MY7M4AEBCAP2",
+      "createdAt": "2025-11-05T15:49:06.366Z",
+      "updatedAt": "2025-11-05T19:15:18.736Z",
+      "avatarUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFqEf1NfTjObg/profile-displayphoto-crop_800_800/B4DZlbvgWeJMAM-/0/1758180806291?e=1764201600&v=beta&t=9qdjZhqjahZqjMh_oT9QKsjgz6bbTb5Bw0BvmXu9Rag",
+      "password": "$argon2id$v=19$m=32768,t=3,p=4$Tmjsw/ky+1ddGne+kHBAGQ$1fGOK9NGUd00tNTofddywakFodiHTuHfeNsAkSlo1q0",
+      "hashType": "argon2"
+    }
+  ]
 }

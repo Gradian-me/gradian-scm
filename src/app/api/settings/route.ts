@@ -6,6 +6,38 @@ import fs from 'fs';
 import path from 'path';
 import { UserSettings, SettingsUpdate } from '@/domains/settings/types';
 import { mergeWithDefaults, getDefaultUserSettings } from '@/domains/settings/utils/defaults';
+import { validateToken, extractTokenFromHeader, extractTokenFromCookies } from '@/domains/auth';
+import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+
+/**
+ * Extract userId from JWT token in request
+ */
+function getUserIdFromToken(request: NextRequest): string | null {
+  // Try Authorization header
+  const authHeader = request.headers.get('authorization');
+  let token = extractTokenFromHeader(authHeader);
+
+  if (!token) {
+    // Try cookies
+    const cookies = request.headers.get('cookie');
+    token = extractTokenFromCookies(cookies, AUTH_CONFIG.ACCESS_TOKEN_COOKIE);
+  }
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const result = validateToken(token);
+    if (result.valid && result.payload?.userId) {
+      return result.payload.userId;
+    }
+  } catch (error) {
+    console.error('Error extracting userId from token:', error);
+  }
+
+  return null;
+}
 
 const SETTINGS_FILE_PATH = path.join(process.cwd(), 'data', 'all-settings.json');
 
@@ -76,20 +108,20 @@ function saveUserSettings(userId: string, settings: UserSettings): void {
 
 /**
  * GET - Get settings for a user
- * Example: GET /api/settings?userId=mahyar
+ * Gets userId from JWT token
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // Get userId from JWT token
+    const userId = getUserIdFromToken(request);
 
     if (!userId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'userId is required',
+          error: 'Authentication required. Please log in.',
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
@@ -124,21 +156,21 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST - Create new settings for a user
- * Example: POST /api/settings?userId=mahyar
+ * Gets userId from JWT token
  */
 export async function POST(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // Get userId from JWT token
+    const userId = getUserIdFromToken(request);
     const body = await request.json();
 
     if (!userId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'userId is required',
+          error: 'Authentication required. Please log in.',
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
@@ -182,21 +214,21 @@ export async function POST(request: NextRequest) {
 
 /**
  * PUT - Update settings for a user (partial update)
- * Example: PUT /api/settings?userId=mahyar
+ * Gets userId from JWT token
  */
 export async function PUT(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // Get userId from JWT token
+    const userId = getUserIdFromToken(request);
     const updates: SettingsUpdate = await request.json();
 
     if (!userId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'userId is required',
+          error: 'Authentication required. Please log in.',
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 
@@ -260,20 +292,20 @@ export async function PUT(request: NextRequest) {
 
 /**
  * DELETE - Delete settings for a user
- * Example: DELETE /api/settings?userId=mahyar
+ * Gets userId from JWT token
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    // Get userId from JWT token
+    const userId = getUserIdFromToken(request);
 
     if (!userId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'userId is required',
+          error: 'Authentication required. Please log in.',
         },
-        { status: 400 }
+        { status: 401 }
       );
     }
 

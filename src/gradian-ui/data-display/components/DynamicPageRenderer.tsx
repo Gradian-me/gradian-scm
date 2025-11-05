@@ -731,23 +731,34 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             const companyId = selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
 
             // Transform form data to match the expected schema
+            // Check if schema supports contacts (vendors, companies, etc. but not users)
+            const hasContactsField = schema?.fields?.some((f: any) => f.name === 'contacts') || 
+                                    schema?.sections?.some((s: any) => s.id === 'contacts' || s.title?.toLowerCase().includes('contact'));
+            const isUsersSchema = schema?.id === 'users';
+
+            // Remove contacts from formData if it's users schema
+            const { contacts: _, ...formDataWithoutContacts } = formData;
+
             return {
-              ...formData,
+              ...(isUsersSchema ? formDataWithoutContacts : formData),
               companyId: formData.companyId || companyId, // Use provided companyId or from store
-              categories: formData.categories || ['general'],
-              contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
-                ...contact,
-                isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
-                email: contact.email ? contact.email.trim() : contact.email,
-                department: contact.department || "",
-                notes: contact.notes || ""
-              })) : formData.email ? [{
-                name: formData.primaryContactName || formData.name,
-                email: formData.primaryContactEmail || formData.email,
-                phone: formData.primaryContactPhone || formData.phone,
-                position: formData.primaryContactPosition || 'Primary Contact',
-                isPrimary: true,
-              }] : [],
+              ...(formData.categories && formData.categories.length > 0 ? { categories: formData.categories } : {}),
+              // Only add contacts if schema supports it (not for users)
+              ...(hasContactsField && !isUsersSchema ? {
+                contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
+                  ...contact,
+                  isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+                  email: contact.email ? contact.email.trim() : contact.email,
+                  department: contact.department || "",
+                  notes: contact.notes || ""
+                })) : formData.email ? [{
+                  name: formData.primaryContactName || formData.name,
+                  email: formData.primaryContactEmail || formData.email,
+                  phone: formData.primaryContactPhone || formData.phone,
+                  position: formData.primaryContactPosition || 'Primary Contact',
+                  isPrimary: true,
+                }] : []
+              } : {}),
               status: formData.status || 'ACTIVE',
               rating: formData.rating ? Number(formData.rating) : 5,
             };
@@ -828,24 +839,35 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             const companyId = selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
 
             // Transform form data to match the expected schema
+            // Check if schema supports contacts (vendors, companies, etc. but not users)
+            const hasContactsField = schema?.fields?.some((f: any) => f.name === 'contacts') || 
+                                    schema?.sections?.some((s: any) => s.id === 'contacts' || s.title?.toLowerCase().includes('contact'));
+            const isUsersSchema = schema?.id === 'users';
+
+            // Remove contacts from formData if it's users schema
+            const { contacts: _, ...formDataWithoutContacts } = formData;
+
             return {
-              ...formData,
+              ...(isUsersSchema ? formDataWithoutContacts : formData),
               // Only add companyId if not already present (existing entities will have it)
               ...(formData.companyId ? {} : companyId ? { companyId } : {}),
-              categories: formData.categories || ['general'],
-              contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
-                ...contact,
-                isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
-                email: contact.email ? contact.email.trim() : contact.email,
-                department: contact.department || "",
-                notes: contact.notes || ""
-              })) : formData.email ? [{
-                name: formData.primaryContactName || formData.name,
-                email: formData.primaryContactEmail || formData.email,
-                phone: formData.primaryContactPhone || formData.phone,
-                position: formData.primaryContactPosition || 'Primary Contact',
-                isPrimary: true,
-              }] : [],
+              ...(formData.categories && formData.categories.length > 0 ? { categories: formData.categories } : {}),
+              // Only add contacts if schema supports it (not for users)
+              ...(hasContactsField && !isUsersSchema ? {
+                contacts: formData.contacts ? formData.contacts.map((contact: any) => ({
+                  ...contact,
+                  isPrimary: contact.isPrimary === true || contact.isPrimary === "true" ? true : false,
+                  email: contact.email ? contact.email.trim() : contact.email,
+                  department: contact.department || "",
+                  notes: contact.notes || ""
+                })) : formData.email ? [{
+                  name: formData.primaryContactName || formData.name,
+                  email: formData.primaryContactEmail || formData.email,
+                  phone: formData.primaryContactPhone || formData.phone,
+                  position: formData.primaryContactPosition || 'Primary Contact',
+                  isPrimary: true,
+                }] : []
+              } : {}),
               status: formData.status || 'ACTIVE',
               rating: formData.rating ? Number(formData.rating) : 5,
             };

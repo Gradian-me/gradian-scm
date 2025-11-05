@@ -2558,21 +2558,10 @@
       {
         "id": "user-info",
         "title": "User Information",
-        "colSpan": 1,
+        "colSpan": 2,
         "fieldIds": [
-          "username",
-          "name",
-          "lastname",
-          "email"
-        ]
-      },
-      {
-        "id": "profile-info",
-        "title": "Profile",
-        "colSpan": 1,
-        "fieldIds": [
-          "gender",
-          "avatar-url"
+          "email",
+          "gender"
         ]
       }
     ],
@@ -2586,7 +2575,7 @@
         "component": "text",
         "placeholder": "Enter username",
         "required": true,
-        "role": "title",
+        "role": "subtitle",
         "validation": {
           "required": true,
           "minLength": 3
@@ -2603,6 +2592,7 @@
         "component": "text",
         "placeholder": "Enter first name",
         "required": true,
+        "role": "title",
         "validation": {
           "required": true,
           "minLength": 1
@@ -2618,6 +2608,7 @@
         "type": "text",
         "component": "text",
         "placeholder": "Enter last name",
+        "role": "title",
         "required": true,
         "validation": {
           "required": true,
@@ -2635,7 +2626,6 @@
         "component": "email",
         "placeholder": "Enter email address",
         "required": true,
-        "role": "subtitle",
         "validation": {
           "required": true,
           "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
@@ -2688,14 +2678,31 @@
         "sectionId": "basic-information",
         "type": "url",
         "component": "text",
+        "role": "avatar",
         "placeholder": "Enter avatar image URL",
         "required": false,
-        "role": "image",
         "validation": {
           "pattern": "^https?:\\/\\/.+"
         },
         "colSpan": 1,
         "order": 6
+      },
+      {
+        "id": "password",
+        "name": "password",
+        "label": "Password",
+        "sectionId": "basic-information",
+        "type": "password",
+        "component": "password",
+        "placeholder": "Enter password",
+        "required": true,
+        "role": "password",
+        "validation": {
+          "required": true,
+          "minLength": 8
+        },
+        "colSpan": 1,
+        "order": 7
       }
     ],
     "sections": [

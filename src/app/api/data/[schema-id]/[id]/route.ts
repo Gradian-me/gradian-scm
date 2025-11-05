@@ -15,7 +15,7 @@ import { clearCompaniesCache } from '@/shared/utils/companies-loader';
 async function createController(schemaId: string) {
   const schema = await getSchemaById(schemaId);
   const repository = new BaseRepository<BaseEntity>(schemaId);
-  const service = new BaseService<BaseEntity>(repository, schema.singular_name || 'Entity');
+  const service = new BaseService<BaseEntity>(repository, schema.singular_name || 'Entity', schemaId);
   const controller = new BaseController<BaseEntity>(service, schema.singular_name || 'Entity');
   
   return controller;

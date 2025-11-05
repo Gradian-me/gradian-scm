@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { CompanySelector } from './CompanySelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
-import { UserProfileDropdown } from './UserProfileDropdown';
+import { UserProfileSelector } from './UserProfileSelector';
 import { TestDropdown } from './TestDropdown';
 
 interface HeaderProps {
@@ -47,7 +47,7 @@ export function Header({
           <NotificationsDropdown initialCount={3} />
 
           {/* User Profile Component */}
-          <UserProfileDropdown />
+          <UserProfileSelector />
 
           {/* Create Button */}
           {showCreateButton && (

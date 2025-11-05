@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { 
   Bell, 
-  Database, 
+  Loader2,
   Palette,
   Save,
   Shield,
@@ -29,12 +29,19 @@ import { useSettings, SettingsUpdate } from '@/domains/settings';
 import { useUserStore } from '@/stores/user.store';
 
 export default function SettingsPage() {
-  // Get current user ID from store
-  const userId = useUserStore((state) => state.getUserId());
-  
-  const { settings, loading, error, updateSettings } = useSettings({ userId: userId || undefined });
+  // Settings now get userId from JWT token automatically
+  const { settings, loading, error, updateSettings } = useSettings();
   const [activeTab, setActiveTab] = useState('profile');
   const [localSettings, setLocalSettings] = useState<SettingsUpdate | null>(null);
+  const [userData, setUserData] = useState<{ name: string; lastname?: string; email: string; avatar?: string } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [passwordChange, setPasswordChange] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [twoFactorSetup, setTwoFactorSetup] = useState({
     step: 'idle' as 'idle' | 'qr' | 'verify' | 'backup',
     qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/Gradian%20SCM:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Gradian%20SCM',
@@ -42,6 +49,41 @@ export default function SettingsPage() {
     backupCodes: [] as string[],
     verificationCode: '',
   });
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get userId from store to fetch user data
+        const userId = useUserStore.getState().getUserId();
+        if (userId) {
+          const response = await fetch(`/api/data/users/${userId}`, {
+            cache: 'no-store',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              setUserData({
+                name: result.data.name || '',
+                lastname: result.data.lastname || '',
+                email: result.data.email || '',
+                avatar: result.data.avatar || result.data.avatarUrl || '',
+              });
+              setAvatarUrl(result.data.avatar || result.data.avatarUrl || '');
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Initialize local settings from loaded settings
   useEffect(() => {
@@ -60,18 +102,56 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Security', icon: Shield },
     { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'integrations', label: 'Integrations', icon: Database },
   ];
 
   const handleSave = async () => {
     if (!localSettings || !settings) return;
     
     try {
+      // Get userId to update user avatar
+      const userId = useUserStore.getState().getUserId();
+      
+      // Update user avatar if it changed
+      if (userId && avatarUrl !== (userData?.avatar || '')) {
+        try {
+          const userResponse = await fetch(`/api/data/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              avatar: avatarUrl,
+            }),
+          });
+
+          if (userResponse.ok) {
+            const userResult = await userResponse.json();
+            if (userResult.success && userResult.data) {
+              setUserData(prev => ({
+                ...prev!,
+                avatar: userResult.data.avatar || userResult.data.avatarUrl || '',
+              }));
+            }
+          }
+        } catch (err) {
+          console.error('Error updating avatar:', err);
+        }
+      }
+      
       // Prepare updates - only include changed fields
+      // Note: name, lastname, email are not updatable from settings
       const updates: SettingsUpdate = {};
       
+      // Only include editable profile fields (not name, email - these are read-only)
       if (localSettings.profile) {
-        updates.profile = localSettings.profile;
+        const profileUpdate: any = { ...localSettings.profile };
+        // Remove name, email - these are read-only
+        delete profileUpdate.name;
+        delete profileUpdate.email;
+        // Only include if there are other fields to update
+        if (Object.keys(profileUpdate).length > 0) {
+          updates.profile = profileUpdate;
+        }
       }
       if (localSettings.notifications) {
         updates.notifications = localSettings.notifications;
@@ -98,6 +178,65 @@ export default function SettingsPage() {
       }
     } catch (err) {
       console.error('Error saving settings:', err);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    setPasswordError(null);
+    setPasswordLoading(true);
+
+    try {
+      // Validate passwords
+      if (!passwordChange.currentPassword || !passwordChange.newPassword || !passwordChange.confirmPassword) {
+        setPasswordError('All password fields are required');
+        setPasswordLoading(false);
+        return;
+      }
+
+      if (passwordChange.newPassword.length < 8) {
+        setPasswordError('New password must be at least 8 characters long');
+        setPasswordLoading(false);
+        return;
+      }
+
+      if (passwordChange.newPassword !== passwordChange.confirmPassword) {
+        setPasswordError('New passwords do not match');
+        setPasswordLoading(false);
+        return;
+      }
+
+      // Call password change API
+      const response = await fetch('/api/auth/password/change', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordChange.currentPassword,
+          newPassword: passwordChange.newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        setPasswordError(result.error || 'Failed to change password');
+        setPasswordLoading(false);
+        return;
+      }
+
+      // Success - clear password fields
+      setPasswordChange({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setPasswordError(null);
+      alert('Password changed successfully!');
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -166,15 +305,6 @@ export default function SettingsPage() {
     });
   };
 
-  if (!userId) {
-    return (
-      <MainLayout title="Settings">
-        <div className="flex items-center justify-center p-8">
-          <div className="text-red-600">Please log in to access settings</div>
-        </div>
-      </MainLayout>
-    );
-  }
 
   if (loading) {
     return (
@@ -243,7 +373,7 @@ export default function SettingsPage() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                          activeTab === tab.id ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' : 'text-gray-700'
+                          activeTab === tab.id ? 'bg-violet-50 text-violet-600 border-r-2 border-violet-600' : 'text-gray-700'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -274,29 +404,46 @@ export default function SettingsPage() {
                     <TextInput
                       config={{
                         name: 'name',
-                        label: 'Full Name',
+                        label: 'First Name',
                         type: 'text',
-                        placeholder: 'Enter your full name'
+                        placeholder: 'First name'
                       }}
-                        value={localSettings?.profile?.name || ''}
-                      onChange={(value: string) => setLocalSettings(prev => ({
-                          ...prev,
-                        profile: { ...prev?.profile || settings.profile, name: value }
-                        }))}
+                      value={userData?.name || ''}
+                      onChange={() => {}} // Disabled - read-only
+                      disabled={true}
+                    />
+                    <TextInput
+                      config={{
+                        name: 'lastname',
+                        label: 'Last Name',
+                        type: 'text',
+                        placeholder: 'Last name'
+                      }}
+                      value={userData?.lastname || ''}
+                      onChange={() => {}} // Disabled - read-only
+                      disabled={true}
                       />
                     <EmailInput
                       config={{
                         name: 'email',
                         label: 'Email',
                         type: 'email',
-                        placeholder: 'Enter your email'
+                        placeholder: 'Email address'
                       }}
-                        value={localSettings?.profile?.email || ''}
-                      onChange={(value: string) => setLocalSettings(prev => ({
-                          ...prev,
-                        profile: { ...prev?.profile || settings.profile, email: value }
-                        }))}
+                      value={userData?.email || ''}
+                      onChange={() => {}} // Disabled - read-only
+                      disabled={true}
                       />
+                    <TextInput
+                      config={{
+                        name: 'avatar',
+                        label: 'Avatar URL',
+                        type: 'url',
+                        placeholder: 'Enter avatar image URL'
+                      }}
+                      value={avatarUrl}
+                      onChange={(value: string) => setAvatarUrl(value)}
+                    />
                     <TextInput
                       config={{
                         name: 'role',
@@ -629,47 +776,71 @@ export default function SettingsPage() {
                       )}
                     </div>
                     
-                    <div className="space-y-4">
-                    <NumberInput
-                      config={{
-                        name: 'sessionTimeout',
-                        label: 'Session Timeout (minutes)',
-                        type: 'number',
-                        placeholder: 'Enter timeout in minutes'
-                      }}
-                        value={localSettings?.security?.sessionTimeout ?? settings.security.sessionTimeout}
-                      onChange={(value: number | string) => setLocalSettings(prev => ({
-                          ...prev,
-                        security: { ...prev?.security || settings.security, sessionTimeout: typeof value === 'number' ? value : parseInt(String(value)) || 30 }
-                        }))}
-                      />
-                    <NumberInput
-                      config={{
-                        name: 'passwordExpiry',
-                        label: 'Password Expiry (days)',
-                        type: 'number',
-                        placeholder: 'Enter expiry in days'
-                      }}
-                        value={localSettings?.security?.passwordExpiry ?? settings.security.passwordExpiry}
-                      onChange={(value: number | string) => setLocalSettings(prev => ({
-                          ...prev,
-                        security: { ...prev?.security || settings.security, passwordExpiry: typeof value === 'number' ? value : parseInt(String(value)) || 90 }
-                        }))}
-                      />
+                    <div className="space-y-4 border-t pt-4">
+                      <div>
+                        <Label className="text-base font-semibold mb-4 block">Change Password</Label>
+                        <div className="space-y-4">
                     <PasswordInput
                       config={{
                         name: 'currentPassword',
-                        label: 'Change Password',
+                              label: 'Current Password',
                         type: 'password',
-                        placeholder: 'Current password'
+                              placeholder: 'Enter your current password'
                       }}
-                      value={localSettings?.security?.currentPassword || ''}
-                      onChange={(value: string) => setLocalSettings(prev => ({
-                        ...prev,
-                        security: { ...prev?.security || settings.security, currentPassword: value }
-                      }))}
-                    />
-                  </div>
+                            value={passwordChange.currentPassword}
+                            onChange={(value: string) => {
+                              setPasswordChange(prev => ({ ...prev, currentPassword: value }));
+                              setPasswordError(null);
+                            }}
+                          />
+                          <PasswordInput
+                            config={{
+                              name: 'newPassword',
+                              label: 'New Password',
+                              type: 'password',
+                              placeholder: 'Enter your new password (min 8 characters)'
+                            }}
+                            value={passwordChange.newPassword}
+                            onChange={(value: string) => {
+                              setPasswordChange(prev => ({ ...prev, newPassword: value }));
+                              setPasswordError(null);
+                            }}
+                          />
+                          <PasswordInput
+                            config={{
+                              name: 'confirmPassword',
+                              label: 'Confirm New Password',
+                              type: 'password',
+                              placeholder: 'Confirm your new password'
+                            }}
+                            value={passwordChange.confirmPassword}
+                            onChange={(value: string) => {
+                              setPasswordChange(prev => ({ ...prev, confirmPassword: value }));
+                              setPasswordError(null);
+                            }}
+                          />
+                          {passwordError && (
+                            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
+                              {passwordError}
+                            </div>
+                          )}
+                          <Button
+                            onClick={handlePasswordChange}
+                            disabled={passwordLoading || !passwordChange.currentPassword || !passwordChange.newPassword || !passwordChange.confirmPassword}
+                            className="w-full sm:w-auto"
+                          >
+                            {passwordLoading ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Changing Password...
+                              </>
+                            ) : (
+                              'Change Password'
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                 </CardContent>
               </Card>
             )}
@@ -692,7 +863,7 @@ export default function SettingsPage() {
                         value={localSettings?.appearance?.theme ?? settings.appearance.theme}
                       onValueChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev?.appearance || settings.appearance, theme: value }
+                        appearance: { ...prev?.appearance || settings.appearance, theme: value as 'light' | 'dark' | 'auto' }
                         }))}
                       options={[
                         { label: 'Light', value: 'light' },
@@ -744,27 +915,6 @@ export default function SettingsPage() {
               </Card>
             )}
 
-            {/* Integrations Tab */}
-            {activeTab === 'integrations' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Integration Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center py-8">
-                    <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Integration Management</h3>
-                    <p className="text-gray-600 mb-4">
-                      Configure and manage your ERP integrations and API connections.
-                    </p>
-                    <Button>
-                      <Database className="h-4 w-4 mr-2" />
-                      Manage Integrations
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </motion.div>
         </div>
       </div>

@@ -26,6 +26,7 @@ function ensureDataFile(): void {
       products: [],
       shipments: [],
       invoices: [],
+      users: [],
     };
     fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(initialData, null, 2), 'utf-8');
   }
@@ -96,8 +97,20 @@ export function readSchemaData<T = any>(schemaId: string): T[] {
     migrateLegacyData(schemaId);
     
     const allData = readAllData();
+    
+    // If schema doesn't exist, initialize it and return empty array
+    if (!allData[schemaId]) {
+      allData[schemaId] = [];
+      writeAllData(allData);
+    }
+    
     return (allData[schemaId] || []) as T[];
   } catch (error) {
+    // If it's a DataStorageError, re-throw it
+    if (error instanceof DataStorageError) {
+      throw error;
+    }
+    // For other errors, wrap in DataStorageError
     throw new DataStorageError(`read ${schemaId}`, error instanceof Error ? error.message : 'Unknown error');
   }
 }

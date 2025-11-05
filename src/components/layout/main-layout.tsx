@@ -12,7 +12,7 @@ import { Button } from '../ui/button';
 import { CompanySelector } from './CompanySelector';
 import { useCompanyStore } from '@/stores/company.store';
 import { NotificationsDropdown } from './NotificationsDropdown';
-import { UserProfileDropdown } from './UserProfileDropdown';
+import { UserProfileSelector } from './UserProfileSelector';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -182,11 +182,7 @@ export function MainLayout({
               <NotificationsDropdown initialCount={3} />
               
               {/* User Profile */}
-              <UserProfileDropdown 
-                userName="Mahyar Abidi"
-                userAvatar="/avatars/mahyar.jpg"
-                userInitials="MA"
-              />
+              <UserProfileSelector />
               
               {/* Create Button */}
               {showCreateButton && (

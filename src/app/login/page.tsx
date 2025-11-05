@@ -1,6 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { SignInPage, Testimonial } from "@/components/ui/sign-in";
+import { useUserStore } from "@/stores/user.store";
+import { toast } from "sonner";
 
 const sampleTestimonials: Testimonial[] = [
   {
@@ -24,32 +28,103 @@ const sampleTestimonials: Testimonial[] = [
 ];
 
 export default function LoginPage() {
-  const handleSignIn = (event: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const { setUser } = useUserStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
+    setError(null); // Clear previous errors
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    console.log("Sign In submitted:", data);
-    // TODO: Implement actual sign-in logic
-    alert(`Sign In Submitted! Check the browser console for form data.`);
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+
+      if (!email || !password) {
+        const errorMessage = 'Please enter both email and password';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        setIsLoading(false);
+        return;
+      }
+
+      // Call login API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        // Show appropriate error message
+        const errorMessage = data.error || 'Login failed. Please check your credentials.';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        setIsLoading(false);
+        return;
+      }
+
+      // Store tokens (if needed for client-side usage)
+      if (data.tokens) {
+        // Store access token in localStorage for API calls
+        localStorage.setItem('auth_token', data.tokens.accessToken);
+        localStorage.setItem('refresh_token', data.tokens.refreshToken);
+      }
+
+      // Store user in zustand store
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.name,
+          lastname: data.user.lastname,
+          role: data.user.role as 'admin' | 'procurement' | 'vendor',
+          department: data.user.department,
+          avatar: data.user.avatar,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
+      toast.success(data.message || 'Login successful!');
+      
+      // Redirect to dashboard or home page
+      router.push('/');
+    } catch (error) {
+      console.error('Login error:', error);
+      const errorMessage = 'An error occurred during login. Please try again.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      setIsLoading(false);
+    }
   };
 
   const handleResetPassword = () => {
     // TODO: Implement password reset logic
-    alert("Reset Password clicked");
+    toast.info("Password reset functionality coming soon");
   };
 
   const handleCreateAccount = () => {
     // TODO: Implement account creation navigation
-    alert("Create Account clicked");
+    toast.info("Account creation functionality coming soon");
   };
 
   return (
     <SignInPage
-      heroImageSrc="/public/screenshots/gradian.me_bg_desktop.png"
+      heroImageSrc="/screenshots/gradian.me_bg_desktop.png"
       testimonials={sampleTestimonials}
       onSignIn={handleSignIn}
       onResetPassword={handleResetPassword}
       onCreateAccount={handleCreateAccount}
+      error={error}
+      isLoading={isLoading}
     />
   );
 }

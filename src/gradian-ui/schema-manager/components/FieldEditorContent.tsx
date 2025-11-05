@@ -53,7 +53,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
             </div>
             <span className="text-[10px] text-gray-400 truncate block mt-0.5">{field.name}</span>
           </div>
-          <div className="flex gap-0.5 ml-2 flex-shrink-0">
+          <div className="flex gap-0.5 ml-2 shrink-0">
             <ButtonMinimal
               icon={Edit}
               title="Edit Field"

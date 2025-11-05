@@ -1,6 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Avatar } from '@/gradian-ui/form-builder/form-elements';
 import { useUserProfile, userProfileToSections, getUserInitials, ProfileCard } from '@/gradian-ui/profile';
@@ -8,12 +9,25 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Mail, Share2, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useUserStore } from '@/stores/user.store';
 
 export default function ProfilePage() {
   const params = useParams();
-  const userId = params['user-id'] as string;
+  const router = useRouter();
+  const user = useUserStore((state) => state.user);
+  const userIdFromParams = params['user-id'] as string;
   
-  const { profile, loading, error } = useUserProfile(userId);
+  // Use logged-in user's ID if no user-id in params, or use params if provided
+  const userId = userIdFromParams || user?.id;
+  
+  // Redirect to login if no user ID available
+  useEffect(() => {
+    if (!userId && !user) {
+      router.push('/login');
+    }
+  }, [userId, user, router]);
+  
+  const { profile, loading, error } = useUserProfile(userId || '');
   
   if (loading) {
     return (

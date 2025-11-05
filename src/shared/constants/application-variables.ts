@@ -13,3 +13,31 @@ export const LOG_CONFIG = {
   [LogType.REQUEST_RESPONSE]: true,
   [LogType.SCHEMA_LOADER]: true
 };
+
+// Authentication configuration
+export const AUTH_CONFIG = {
+  // JWT Secret key from environment (fallback for development)
+  JWT_SECRET: process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'your-default-secret-key-change-in-production',
+  
+  // Token expiration times (in seconds)
+  ACCESS_TOKEN_EXPIRY: parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRY || '3600', 10), // 1 hour default
+  REFRESH_TOKEN_EXPIRY: parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRY || '604800', 10), // 7 days default
+  
+  // Token cookie names
+  ACCESS_TOKEN_COOKIE: 'auth_token',
+  REFRESH_TOKEN_COOKIE: 'refresh_token',
+  
+  // API endpoints
+  USERS_API_PATH: '/api/data/users',
+  
+  // Error messages
+  ERROR_MESSAGES: {
+    USER_NOT_FOUND: 'User does not exist',
+    INVALID_PASSWORD: 'Password is incorrect',
+    INVALID_TOKEN: 'Invalid or expired token',
+    MISSING_TOKEN: 'Authentication token is required',
+    TOKEN_EXPIRED: 'Token has expired',
+    UNAUTHORIZED: 'Unauthorized access',
+    LOGIN_REQUIRED: 'Please log in to continue'
+  }
+};

@@ -227,20 +227,4 @@ export const userProfileToSections = (user: UserProfile): ProfileSection[] => {
   return sections;
 };
 
-/**
- * Validate user profile data
- */
-export const validateUserProfile = (user: UserProfile): { isValid: boolean; errors: string[] } => {
-  const errors: string[] = [];
-  
-  if (!user.id) errors.push('User ID is required');
-  if (!user.firstName && !user.fullName) errors.push('First name or full name is required');
-  if (!user.email) errors.push('Email is required');
-  if (!user.role) errors.push('Role is required');
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
-};
 

@@ -1,10 +1,9 @@
 // Profile Dropdown Component
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ProfileDropdownProps } from '../types';
-import { ProfileItem } from './ProfileItem';
-import { ProfileSearch } from './ProfileSearch';
 import { cn } from '../../../shared/utils';
+import { Settings, User, LogOut, ChevronDown } from 'lucide-react';
 
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   profiles,
@@ -18,29 +17,28 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     layout = { variant: 'dropdown' },
-    allowCreate = true,
-    allowEdit = true,
-    allowDelete = true,
   } = config;
 
-  const filteredProfiles = profiles.filter(profile =>
-    profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    profile.role.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
 
-  const handleProfileSelect = (profile: any) => {
-    onProfileSelect?.(profile);
-    setIsOpen(false);
-  };
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const dropdownClasses = cn(
     'relative',
@@ -48,128 +46,142 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   );
 
   const buttonClasses = cn(
-    'flex items-center space-x-3 p-3 w-full text-left bg-white border border-gray-300 rounded-md',
-    'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-    'transition-colors duration-200'
+    'flex items-center gap-2 px-2 py-1.5 rounded-lg',
+    'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200',
+    'transition-all duration-200 text-sm'
   );
 
   const panelClasses = cn(
-    'absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg',
+    'absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100',
     'opacity-0 invisible transform scale-95 transition-all duration-200 z-50',
     isOpen && 'opacity-100 visible transform scale-100'
   );
 
   const avatarClasses = cn(
-    'h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700',
-    currentProfile?.avatar && 'bg-cover bg-center'
+    'h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm font-medium text-white',
+    'ring-2 ring-white shadow-sm'
+  );
+
+  const menuItemClasses = cn(
+    'flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700',
+    'hover:bg-gray-50 cursor-pointer transition-colors duration-150',
+    'first:rounded-t-xl last:rounded-b-xl'
   );
 
   return (
-    <div className={dropdownClasses} {...props}>
+    <div className={dropdownClasses} ref={dropdownRef} {...props}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={buttonClasses}
-        aria-label="Select profile"
+        aria-label="User menu"
       >
         {layout.showAvatar !== false && (
-          <div
-            className={avatarClasses}
-            style={currentProfile?.avatar ? { backgroundImage: `url(${currentProfile.avatar})` } : {}}
-          >
-            {!currentProfile?.avatar && currentProfile?.name?.charAt(0).toUpperCase()}
+          <div className={avatarClasses}>
+            {currentProfile?.avatar ? (
+              <img
+                src={currentProfile.avatar}
+                alt={currentProfile?.name || 'User'}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              <span>{currentProfile?.name?.charAt(0).toUpperCase() || 'U'}</span>
+            )}
           </div>
         )}
         
-        <div className="flex-1 min-w-0">
-          {layout.showName !== false && (
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {currentProfile?.name || 'Select Profile'}
-            </p>
-          )}
-          {layout.showEmail && (
-            <p className="text-xs text-gray-500 truncate">
-              {currentProfile?.email}
-            </p>
-          )}
-          {layout.showRole && (
-            <p className="text-xs text-gray-500 truncate">
-              {currentProfile?.role}
-            </p>
-          )}
-        </div>
+        {layout.showName !== false && (
+          <span className="text-sm font-medium text-gray-900 hidden sm:block">
+            {currentProfile?.name || 'User'}
+            {currentProfile?.lastname ? ` ${currentProfile.lastname}` : ''}
+          </span>
+        )}
         
-        <svg
-          className="h-4 w-4 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        <ChevronDown className={cn(
+          'h-4 w-4 text-gray-400 transition-transform duration-200',
+          isOpen && 'transform rotate-180'
+        )} />
       </button>
 
       {/* Dropdown Panel */}
-      <div className={panelClasses}>
-        <div className="p-4">
-          {/* Search */}
-          {config.behavior?.searchable && (
-            <ProfileSearch
-              onSearch={handleSearch}
-              placeholder="Search profiles..."
-              value={searchQuery}
-            />
-          )}
-
-          {/* Profiles List */}
-          <div className="mt-4 max-h-64 overflow-y-auto">
-            {filteredProfiles.length > 0 ? (
-              <div className="space-y-1">
-                {filteredProfiles.map((profile) => (
-                  <ProfileItem
-                    key={profile.id}
-                    profile={profile}
-                    isSelected={currentProfile?.id === profile.id}
-                    onSelect={handleProfileSelect}
-                    onEdit={allowEdit ? onProfileEdit : undefined}
-                    onDelete={allowDelete ? onProfileDelete : undefined}
-                    showActions={allowEdit || allowDelete}
-                    showStatus={layout.showStatus}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-500">No profiles found</p>
-              </div>
-            )}
-          </div>
-
-          {/* Create Profile Button */}
-          {allowCreate && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => {
-                  onProfileCreate?.();
-                  setIsOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-              >
-                <div className="flex items-center space-x-2">
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span>Create New Profile</span>
+      {isOpen && (
+        <div className={panelClasses}>
+          {/* User Info Header */}
+          {currentProfile && (
+            <div className="px-4 py-3 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className={avatarClasses}>
+                  {currentProfile.avatar ? (
+                    <img
+                      src={currentProfile.avatar}
+                      alt={currentProfile.name || 'User'}
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span>{currentProfile.name?.charAt(0).toUpperCase() || 'U'}</span>
+                  )}
                 </div>
-              </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {currentProfile.name || 'User'}
+                    {currentProfile.lastname ? ` ${currentProfile.lastname}` : ''}
+                  </p>
+                  {layout.showEmail && currentProfile.email && (
+                    <p className="text-xs text-gray-500 truncate">
+                      {currentProfile.email}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Menu Items */}
+          <div className="py-1.5">
+            {/* Profile */}
+            <div
+              onClick={() => {
+                if (currentProfile) {
+                  onProfileSelect?.(currentProfile);
+                }
+                setIsOpen(false);
+              }}
+              className={menuItemClasses}
+            >
+              <User className="h-4 w-4 text-gray-400" />
+              <span>Profile</span>
+            </div>
+
+            {/* Settings */}
+            <div
+              onClick={() => {
+                if (currentProfile) {
+                  onProfileEdit?.(currentProfile);
+                }
+                setIsOpen(false);
+              }}
+              className={menuItemClasses}
+            >
+              <Settings className="h-4 w-4 text-gray-400" />
+              <span>Settings</span>
+            </div>
+
+            {/* Divider */}
+            <div className="my-1 border-t border-gray-100" />
+
+            {/* Logout */}
+            <div
+              onClick={() => {
+                onProfileDelete?.(currentProfile!);
+                setIsOpen(false);
+              }}
+              className={cn(menuItemClasses, 'text-red-600 hover:bg-red-50')}
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

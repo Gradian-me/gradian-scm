@@ -110,6 +110,7 @@ export interface MenuItem {
 export interface UserProfile {
   id: string;
   name: string;
+  lastname?: string; // Last name field
   email: string;
   avatar?: string;
   role: string;
