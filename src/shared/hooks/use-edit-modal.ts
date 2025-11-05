@@ -8,6 +8,7 @@ import { config } from '@/lib/config';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useCompanyStore } from '@/stores/company.store';
+import { useSchemaStore } from '@/stores/schema.store';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -148,6 +149,7 @@ export function useEditModal(
 ): UseEditModalReturn {
   const { enrichData, onSuccess, onClose } = options;
   const { getCompanyId } = useCompanyStore();
+  const { getSchema, setSchema } = useSchemaStore();
 
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -168,26 +170,34 @@ export function useEditModal(
     setIsLoading(true);
     
     try {
-      // Fetch schema
-      const schemaResponse = await fetch(`${config.schemaApi.basePath}/${schemaId}`, {
-        headers: { 'Cache-Control': 'no-cache' },
-      });
-
-      if (!schemaResponse.ok) {
-        throw new Error(`Failed to fetch schema: ${schemaId}`);
-      }
-
-      const schemaResult = await schemaResponse.json();
-      if (!schemaResult.success || !schemaResult.data) {
-        throw new Error(`Schema not found: ${schemaId}`);
-      }
-
-      // Reconstruct RegExp objects
-      const rawSchema = reconstructRegExp(schemaResult.data) as FormSchema;
+      // Check cache first
+      let rawSchema: FormSchema | null = getSchema(schemaId);
       
-      // Validate schema structure
-      if (!rawSchema?.id) {
-        throw new Error(`Invalid schema structure: ${schemaId}`);
+      if (!rawSchema) {
+        // Fetch schema from API if not in cache
+        const schemaResponse = await fetch(`${config.schemaApi.basePath}/${schemaId}`, {
+          headers: { 'Cache-Control': 'no-cache' },
+        });
+
+        if (!schemaResponse.ok) {
+          throw new Error(`Failed to fetch schema: ${schemaId}`);
+        }
+
+        const schemaResult = await schemaResponse.json();
+        if (!schemaResult.success || !schemaResult.data) {
+          throw new Error(`Schema not found: ${schemaId}`);
+        }
+
+        // Reconstruct RegExp objects
+        rawSchema = reconstructRegExp(schemaResult.data) as FormSchema;
+        
+        // Validate schema structure
+        if (!rawSchema?.id) {
+          throw new Error(`Invalid schema structure: ${schemaId}`);
+        }
+
+        // Cache the schema for future use
+        setSchema(schemaId, rawSchema);
       }
 
       // Convert to form-builder schema
@@ -221,7 +231,7 @@ export function useEditModal(
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getSchema, setSchema]);
 
   /**
    * Close edit modal

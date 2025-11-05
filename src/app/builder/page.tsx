@@ -93,7 +93,8 @@ export default function BuilderPage() {
           const { useSchemaStore } = await import('@/stores/schema.store');
           useSchemaStore.getState().clearAllSchemas();
           
-          // Dispatch event to notify all pages to reload
+          // Dispatch event to notify all pages to update their cache silently
+          // Pages will fetch fresh schema on next interaction, not force reload
           window.dispatchEvent(new Event('schema-cache-cleared'));
           
           // Also trigger storage event for other tabs
@@ -102,15 +103,6 @@ export default function BuilderPage() {
         }
         
         toast.success('Schema cache cleared successfully!', { id: toastId });
-        
-        // Refresh current page if on a schema page
-        const currentPath = window.location.pathname;
-        if (currentPath.startsWith('/page/')) {
-          // Small delay to ensure cache is cleared
-          setTimeout(() => {
-            window.location.reload();
-          }, 100);
-        }
       } else {
         toast.error(data.error || 'Failed to clear cache', { id: toastId });
       }

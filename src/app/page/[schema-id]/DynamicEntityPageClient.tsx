@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { DynamicPageRenderer } from '@/gradian-ui/data-display/components/DynamicPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useSchemaStore } from '@/stores/schema.store';
-import { Spinner } from '@/components/ui/spinner';
 import { config } from '@/lib/config';
 
 interface DynamicEntityPageClientProps {
@@ -140,22 +139,19 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     setSchema(schemaId, reconstructedInitialSchema);
     return reconstructedInitialSchema;
   });
-  
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Reload schema from API and update cache
+  // Reload schema from API and update cache silently (no loading state)
   const reloadSchema = useCallback(async () => {
-    setIsLoading(true);
     try {
       const freshSchema = await fetchSchemaByIdClient(schemaId);
       if (freshSchema) {
+        // Update state and cache silently without showing loading state
         setSchemaState(freshSchema);
         setSchema(schemaId, freshSchema);
       }
     } catch (error) {
       console.error('Error reloading schema:', error);
-    } finally {
-      setIsLoading(false);
+      // Silently fail - don't disrupt user experience
     }
   }, [schemaId, setSchema]);
 
@@ -168,10 +164,11 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     }
   }, [schemaId, reconstructedInitialSchema, getSchema, setSchema]);
 
-  // Listen for cache clear events
+  // Listen for cache clear events - update silently in background
   useEffect(() => {
     // Listen for custom cache clear event (same tab)
     const handleCacheClear = () => {
+      // Reload schema silently in background without showing loading state
       reloadSchema();
     };
 
@@ -179,6 +176,7 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     const handleStorageChange = (e: StorageEvent) => {
       // Check if schema cache was cleared
       if (e.key === 'schema-cache-cleared') {
+        // Reload schema silently in background
         reloadSchema();
       }
     };
@@ -191,14 +189,6 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [reloadSchema]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner />
-      </div>
-    );
-  }
 
   // Serialize schema for client component
   const serializedSchema = serializeSchema(schema);
