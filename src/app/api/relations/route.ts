@@ -9,6 +9,7 @@ import {
   getRelationsByTarget,
   getRelationsByType,
   getRelationsForSection,
+  getRelationsBySchemaAndId,
 } from '@/shared/domain/utils/relations-storage.util';
 import { DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { handleDomainError } from '@/shared/domain/errors/domain.errors';
@@ -16,15 +17,22 @@ import { handleDomainError } from '@/shared/domain/errors/domain.errors';
 /**
  * GET - Query relations
  * Query parameters:
- * - sourceSchema, sourceId - Get relations by source entity
- * - targetSchema, targetId - Get relations by target entity
+ * - schema, id, direction - Get relations by schema and id (direction: 'source' | 'target' | 'both', default: 'both')
+ * - otherSchema (optional with above) - Filter by the other schema (targetSchema for source relations, sourceSchema for target relations)
+ * - sourceSchema, sourceId - Get relations by source entity (legacy, adds direction: 'source')
+ * - targetSchema, targetId - Get relations by target entity (legacy, adds direction: 'target')
  * - relationTypeId - Get relations by type
  * - sourceSchema, sourceId, relationTypeId - Get relations for a repeating section
- * - targetSchema (optional with above) - Filter by target schema
+ * - targetSchema (optional with legacy queries) - Filter by target schema
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    
+    const schema = searchParams.get('schema');
+    const id = searchParams.get('id');
+    const direction = searchParams.get('direction') as 'source' | 'target' | 'both' | null;
+    const otherSchema = searchParams.get('otherSchema');
     
     const sourceSchema = searchParams.get('sourceSchema');
     const sourceId = searchParams.get('sourceId');
@@ -34,21 +42,37 @@ export async function GET(request: NextRequest) {
 
     let relations: DataRelation[];
 
-    // Get relations for repeating section (most specific query)
-    if (sourceSchema && sourceId && relationTypeId) {
-      relations = getRelationsForSection(sourceSchema, sourceId, relationTypeId, targetSchema || undefined);
+    // New unified query by schema and id with direction
+    if (schema && id) {
+      const queryDirection = direction || 'both';
+      relations = getRelationsBySchemaAndId(schema, id, queryDirection, otherSchema || undefined);
+      
+      // Filter by relationTypeId if provided
+      if (relationTypeId) {
+        relations = relations.filter(r => r.relationTypeId === relationTypeId);
+      }
     }
-    // Get relations by source entity
+    // Get relations for repeating section (most specific query)
+    else if (sourceSchema && sourceId && relationTypeId) {
+      relations = getRelationsForSection(sourceSchema, sourceId, relationTypeId, targetSchema || undefined);
+      // Add direction indicator for source relations
+      relations = relations.map(r => ({ ...r, direction: 'source' as const }));
+    }
+    // Get relations by source entity (legacy)
     else if (sourceSchema && sourceId) {
       relations = getRelationsBySource(sourceSchema, sourceId);
+      // Add direction indicator
+      relations = relations.map(r => ({ ...r, direction: 'source' as const }));
       // Filter by target schema if provided
       if (targetSchema) {
         relations = relations.filter(r => r.targetSchema === targetSchema);
       }
     }
-    // Get relations by target entity
+    // Get relations by target entity (legacy)
     else if (targetSchema && targetId) {
       relations = getRelationsByTarget(targetSchema, targetId);
+      // Add direction indicator
+      relations = relations.map(r => ({ ...r, direction: 'target' as const }));
     }
     // Get relations by type
     else if (relationTypeId) {

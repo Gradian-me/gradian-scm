@@ -23,8 +23,10 @@ import { GoToTop } from '../../layout/go-to-top';
 import { Rating, Countdown } from '../../form-builder';
 import { CodeBadge } from '../../form-builder/form-elements';
 import { FormModal } from '../../form-builder';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
+import { apiRequest } from '@/shared/utils/api';
+import { DataRelation, RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -224,7 +226,15 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   customComponents = {}
 }) => {
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
+  const [relatedSchemas, setRelatedSchemas] = useState<string[]>([]);
+  const [isLoadingAutoTables, setIsLoadingAutoTables] = useState(false);
   const detailMetadata = schema.detailPageMetadata;
+  const isFetchingRef = useRef(false);
+  
+  // Memoize tableRenderers to prevent infinite loops - use stable reference
+  const tableRenderersFromMetadata = useMemo(() => {
+    return detailMetadata?.tableRenderers || [];
+  }, [detailMetadata?.tableRenderers]);
 
   // Handle edit - use EditModal component
   const handleEdit = useCallback(() => {
@@ -234,6 +244,81 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
       onEdit?.();
     }
   }, [data?.id, schema?.id, onEdit]);
+
+  // Memoize covered target schemas to prevent unnecessary re-renders
+  const coveredTargetSchemasSet = useMemo(() => {
+    return new Set(
+      tableRenderersFromMetadata
+        .filter((tr) => tr.targetSchema)
+        .map((tr) => tr.targetSchema!)
+    );
+  }, [tableRenderersFromMetadata]);
+
+  // Fetch all relations and find distinct related schemas
+  // This must be called unconditionally and early in the component to maintain hook order
+  useEffect(() => {
+    const fetchRelatedSchemas = async () => {
+      if (!data?.id || !schema?.id || isLoading || isFetchingRef.current) {
+        return;
+      }
+
+      isFetchingRef.current = true;
+      setIsLoadingAutoTables(true);
+      try {
+        // Fetch all relations for this entity (both as source and target)
+        const relationsResponse = await apiRequest<DataRelation[]>(
+          `/api/relations?schema=${schema.id}&id=${data.id}&direction=both`
+        );
+
+        if (!relationsResponse.success || !relationsResponse.data) {
+          setRelatedSchemas([]);
+          setIsLoadingAutoTables(false);
+          isFetchingRef.current = false;
+          return;
+        }
+
+        const allRelations = Array.isArray(relationsResponse.data) ? relationsResponse.data : [];
+
+        // Find distinct related schemas
+        // For source relations: use targetSchema
+        // For target relations: use sourceSchema (the entity is the target, so we show relations to the source)
+        const relatedSchemasSet = new Set<string>();
+        allRelations.forEach((relation) => {
+          let schemaToUse: string | undefined;
+          
+          if (relation.direction === 'source') {
+            // Entity is the source, so show relations to targetSchema
+            schemaToUse = relation.targetSchema;
+          } else if (relation.direction === 'target') {
+            // Entity is the target, so show relations to sourceSchema (reverse direction)
+            schemaToUse = relation.sourceSchema;
+          } else {
+            // Fallback: use targetSchema (for backward compatibility)
+            schemaToUse = relation.targetSchema;
+          }
+          
+          if (schemaToUse) {
+            relatedSchemasSet.add(schemaToUse);
+          }
+        });
+
+        // Filter out schemas already covered by tableRenderers
+        const uncoveredSchemas = Array.from(relatedSchemasSet).filter(
+          (targetSchema) => !coveredTargetSchemasSet.has(targetSchema)
+        );
+
+        setRelatedSchemas(uncoveredSchemas);
+      } catch (error) {
+        console.error('Error fetching related schemas:', error);
+        setRelatedSchemas([]);
+      } finally {
+        setIsLoadingAutoTables(false);
+        isFetchingRef.current = false;
+      }
+    };
+
+    fetchRelatedSchemas();
+  }, [data?.id, schema?.id, coveredTargetSchemasSet, isLoading]);
 
   // Default layout values (can be overridden in detailPageMetadata if needed)
   const mainColumns = 2 as 1 | 2 | 3;
@@ -916,10 +1001,36 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 ))}
               </div>
             )}
+
+            {/* Auto Table Renderers - Show relations to uncovered target schemas */}
+            {relatedSchemas.length > 0 && (
+              <div className="space-y-6 mt-6 w-full min-w-0">
+                {relatedSchemas.map((targetSchema, index) => (
+                  <DynamicRepeatingTableViewer
+                    key={`auto-table-${targetSchema}`}
+                    config={{
+                      id: `auto-table-${targetSchema}`,
+                      schemaId: schema.id,
+                      sectionId: '',
+                      targetSchema: targetSchema,
+                      // relationTypeId is optional - if not provided, will fetch all relations to this targetSchema
+                    }}
+                    schema={schema}
+                    data={data}
+                    index={tableRenderers.length + index + mainComponents.length + sectionsForMain.length}
+                    disableAnimation={disableAnimation}
+                    sourceSchemaId={schema.id}
+                    sourceId={data?.id}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Table Renderers - Full Width (Always after components and sections) */}
+        {/* Table Renderers - Full Width (Always after components and sections) - for sidebar layout */}
+        {hasSidebar && hasSidebarSections && (
+          <>
         {tableRenderers.length > 0 && (
           <div className="space-y-6 mt-6 w-full min-w-0">
             {tableRenderers.map((tableConfig, index) => (
@@ -935,6 +1046,32 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               />
             ))}
           </div>
+            )}
+
+            {/* Auto Table Renderers - Show relations to uncovered target schemas */}
+            {relatedSchemas.length > 0 && (
+              <div className="space-y-6 mt-6 w-full min-w-0">
+                {relatedSchemas.map((targetSchema, index) => (
+                  <DynamicRepeatingTableViewer
+                    key={`auto-table-${targetSchema}`}
+                    config={{
+                      id: `auto-table-${targetSchema}`,
+                      schemaId: schema.id,
+                      sectionId: '',
+                      targetSchema: targetSchema,
+                      // relationTypeId is optional - if not provided, will fetch all relations to this targetSchema
+                    }}
+                    schema={schema}
+                    data={data}
+                    index={tableRenderers.length + index + mainComponents.length + sections.length + (hasSidebar ? sidebarComponents.length : 0)}
+                    disableAnimation={disableAnimation}
+                    sourceSchemaId={schema.id}
+                    sourceId={data?.id}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 

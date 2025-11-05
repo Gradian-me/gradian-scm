@@ -39,14 +39,22 @@ export function TableBody<T = any>({
       bordered && 'border-b border-gray-200'
     );
 
-  const tdClasses = (column: TableColumn<T>) =>
+  const tdClasses = (column: TableColumn<T>, rowIndex: number, isSelected: boolean) =>
     cn(
-      'px-4 py-3 whitespace-nowrap text-sm text-gray-900',
+      'px-4 py-3 text-xs text-gray-900',
+      // Only apply whitespace-nowrap if maxWidth is not set (to allow wrapping when maxWidth is set)
+      !column.maxWidth && 'whitespace-nowrap',
+      column.maxWidth && 'break-words', // Allow word wrapping when maxWidth is set
       column.align === 'center' && 'text-center',
       column.align === 'right' && 'text-right',
-      column.sticky === 'left' && 'sticky left-0 z-10 bg-white',
-      column.sticky === 'right' && 'sticky right-0 z-10 bg-white',
-      striped && 'bg-transparent',
+      // For sticky columns, match the row background for zebra striping and selection
+      column.sticky === 'left' && 'sticky left-0 z-10',
+      column.sticky === 'right' && 'sticky right-0 z-10',
+      // Set background for sticky columns based on row state (selected > striped > default)
+      column.sticky === 'left' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white')),
+      column.sticky === 'right' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white')),
+      // For non-sticky columns, use transparent to show row background
+      !column.sticky && striped && 'bg-transparent',
       bordered && 'border-r border-gray-200 last:border-r-0'
     );
 
@@ -105,10 +113,15 @@ export function TableBody<T = any>({
               return (
                 <td
                   key={column.id}
-                  className={cn(tdClasses(column), cellClassName)}
+                  className={cn(tdClasses(column, rowIndex, isSelected), cellClassName)}
                   style={{
-                    minWidth: column.minWidth,
-                    maxWidth: column.maxWidth,
+                    minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
+                    maxWidth: column.maxWidth ? `${column.maxWidth}px` : undefined,
+                    width: column.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined,
+                    // Actions column should always be middle-aligned, others with maxWidth should be top-aligned for wrapping
+                    verticalAlign: column.id === 'actions' ? 'middle' : (column.maxWidth ? 'top' : 'middle'),
+                    // Ensure width constraints are strictly applied
+                    boxSizing: 'border-box',
                   }}
                   onClick={() => handleCellClick(value, row, column, rowIndex)}
                 >

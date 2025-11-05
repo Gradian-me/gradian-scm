@@ -195,3 +195,51 @@ export function deleteRelationsByTarget(targetSchema: string, targetId: string):
   }
 }
 
+/**
+ * Get relations by schema and id with direction support
+ * @param schema Schema ID
+ * @param id Entity ID
+ * @param direction 'source' | 'target' | 'both' - default is 'both'
+ * @param otherSchema Optional filter by the other schema (targetSchema for source relations, sourceSchema for target relations)
+ */
+export function getRelationsBySchemaAndId(
+  schema: string,
+  id: string,
+  direction: 'source' | 'target' | 'both' = 'both',
+  otherSchema?: string
+): DataRelation[] {
+  try {
+    const relations = readAllRelations();
+    let result: DataRelation[] = [];
+
+    if (direction === 'source' || direction === 'both') {
+      const sourceRelations = relations.filter(r => r.sourceSchema === schema && r.sourceId === id);
+      result.push(...sourceRelations.map(r => ({ ...r, direction: 'source' as const })));
+    }
+
+    if (direction === 'target' || direction === 'both') {
+      const targetRelations = relations.filter(r => r.targetSchema === schema && r.targetId === id);
+      result.push(...targetRelations.map(r => ({ ...r, direction: 'target' as const })));
+    }
+
+    // Filter by other schema if provided
+    // For source relations: filter by targetSchema
+    // For target relations: filter by sourceSchema
+    if (otherSchema) {
+      result = result.filter(r => {
+        if (r.direction === 'source') {
+          return r.targetSchema === otherSchema;
+        } else if (r.direction === 'target') {
+          return r.sourceSchema === otherSchema;
+        }
+        // Fallback for relations without direction (backward compatibility)
+        return r.targetSchema === otherSchema;
+      });
+    }
+
+    return result;
+  } catch (error) {
+    throw new DataStorageError('get relations by schema and id', error instanceof Error ? error.message : 'Unknown error');
+  }
+}
+

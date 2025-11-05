@@ -37,6 +37,11 @@ export function Table<T = any>({
     className
   );
 
+  // Use fixed table layout to ensure column widths are respected
+  const tableStyle: React.CSSProperties = {
+    tableLayout: 'fixed',
+  };
+
   const containerClasses = cn(
     'overflow-x-auto',
     config.bordered && 'border border-gray-200 rounded-lg m-2',
@@ -58,7 +63,7 @@ export function Table<T = any>({
 
   return (
     <div className={containerClasses}>
-      <table className={tableClasses}>
+      <table className={tableClasses} style={tableStyle}>
         <TableHeader
           columns={config.columns}
           sortBy={state.sortBy}

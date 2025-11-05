@@ -178,7 +178,13 @@ export function TableAggregations<T = any>({
             const hasSingleAggregation = aggConfig.aggregationTypes.length === 1;
 
             return (
-              <div key={aggIndex} className="space-y-2">
+              <div 
+                key={aggIndex} 
+                className={cn(
+                  "space-y-2",
+                  aggIndex > 0 && "border-e border-gray-300 pe-4"
+                )}
+              >
                 {hasSingleAggregation ? (
                   // Single aggregation: show column name with aggregation in parenthesis on one line
                   <div className={cn(

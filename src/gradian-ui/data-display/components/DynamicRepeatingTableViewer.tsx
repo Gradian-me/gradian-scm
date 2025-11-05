@@ -1,7 +1,7 @@
 // Dynamic Repeating Table Viewer Component
 // Displays repeating section data in a table format
 
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { FormSchema, RepeatingTableRendererConfig, DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -16,6 +16,7 @@ import { apiRequest } from '@/shared/utils/api';
 import { Button } from '../../../components/ui/button';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Badge } from '../../form-builder/form-elements/components/Badge';
+import { Rating } from '../../form-builder/form-elements/components/Rating';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../utils';
 
 export interface DynamicRepeatingTableViewerProps {
@@ -91,8 +92,8 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
     const badgeConfig = getBadgeConfig(String(value), statusOptions);
     return (
       <div className="inline-flex">
-        <Badge variant={mapBadgeColorToVariant(badgeConfig.color)} className="inline-flex items-center gap-1 px-2 py-1 text-xs w-auto">
-          {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+        <Badge variant={mapBadgeColorToVariant(badgeConfig.color)} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] leading-tight w-auto">
+          {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-2.5 w-2.5" />}
           <span>{badgeConfig.label}</span>
         </Badge>
       </div>
@@ -107,6 +108,19 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
         value={value}
         badgeVariant="outline"
         animate={true}
+      />
+    );
+  }
+
+  // Handle rating role fields - display as Rating component
+  if (field?.role === 'rating') {
+    const ratingValue = typeof value === 'number' ? value : parseFloat(String(value)) || 0;
+    return (
+      <Rating
+        value={ratingValue}
+        maxValue={5}
+        size="sm"
+        showValue={false}
       />
     );
   }
@@ -153,12 +167,27 @@ const buildTableColumns = (
   schema: FormSchema
 ): TableColumn[] => {
   return fields.map((field) => {
+    // Set maxWidth based on field type to allow wrapping
+    let maxWidth: number | undefined;
+    if (field.type === 'text' || field.type === 'textarea') {
+      maxWidth = 400; // Allow text fields to wrap at 400px
+    } else if (field.type === 'number' || field.type === 'currency') {
+      maxWidth = 200; // Numbers are shorter
+    } else if (field.type === 'date' || field.type === 'datetime-local') {
+      maxWidth = 220; // Dates have consistent width
+    } else if (field.type === 'select' || field.type === 'picker') {
+      maxWidth = 250; // Select/picker fields
+    } else {
+      maxWidth = 300; // Default max width
+    }
+
     return {
       id: field.id,
       label: field.label || field.name,
       accessor: field.name,
       sortable: true,
       align: field.type === 'number' || field.type === 'currency' ? 'right' : 'left',
+      maxWidth,
       render: (value, row) => formatFieldValue(field, value, row),
     };
   });
@@ -177,9 +206,10 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const router = useRouter();
   
   // Check if this is a relation-based table
-  const isRelationBased = !!(config.targetSchema && config.relationTypeId);
+  // Can be relation-based with just targetSchema (all relations to that schema) or with both targetSchema and relationTypeId
+  const isRelationBased = !!config.targetSchema;
   const targetSchema = config.targetSchema;
-  const relationTypeId = config.relationTypeId;
+  const relationTypeId = config.relationTypeId; // Optional - if not provided, fetch all relations to targetSchema
   
   // Determine which schema ID to use for navigation (target schema for relation-based, or current schema for non-relation-based)
   const navigationSchemaId = isRelationBased && targetSchema ? targetSchema : schema.id;
@@ -193,10 +223,13 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const [isLoadingRelations, setIsLoadingRelations] = useState(false);
   const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
   const [isLoadingTargetSchema, setIsLoadingTargetSchema] = useState(false);
+  const [relationDirections, setRelationDirections] = useState<Set<'source' | 'target'>>(new Set());
+  const isFetchingRelationsRef = useRef(false);
+  const lastFetchParamsRef = useRef<string>('');
 
-  // Fetch target schema for relation-based tables
+  // Fetch target schema for relation-based tables (only once)
   useEffect(() => {
-    if (isRelationBased && targetSchema) {
+    if (isRelationBased && targetSchema && !targetSchemaData) {
       setIsLoadingTargetSchema(true);
       const fetchTargetSchema = async () => {
         try {
@@ -212,14 +245,15 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       };
       fetchTargetSchema();
     }
-  }, [isRelationBased, targetSchema]);
+  }, [isRelationBased, targetSchema, targetSchemaData]);
 
   // Fetch relations and related entities for relation-based tables
   const fetchRelations = useCallback(async () => {
-    if (!isRelationBased || !effectiveSourceId || !targetSchema || !relationTypeId) {
+    if (!isRelationBased || !effectiveSourceId || !targetSchema || isFetchingRelationsRef.current) {
       return;
     }
     
+    isFetchingRelationsRef.current = true;
     setIsLoadingRelations(true);
     try {
       // Ensure target schema is loaded (fetch if not available)
@@ -229,16 +263,21 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
           const schemaResponse = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
           if (schemaResponse.success && schemaResponse.data) {
             schemaToUse = schemaResponse.data;
+            // Update state only if we fetched it
+            setTargetSchemaData(schemaResponse.data);
           }
         } catch (error) {
           console.error('Error fetching target schema in fetchRelations:', error);
         }
       }
       
-      // Fetch relations
-      const relationsResponse = await apiRequest<DataRelation[]>(
-        `/api/relations?sourceSchema=${effectiveSourceSchemaId}&sourceId=${effectiveSourceId}&relationTypeId=${relationTypeId}&targetSchema=${targetSchema}`
-      );
+      // Fetch relations using the new unified API - if relationTypeId is provided, filter by it; otherwise get all relations to targetSchema
+      let relationsUrl = `/api/relations?schema=${effectiveSourceSchemaId}&id=${effectiveSourceId}&direction=both&otherSchema=${targetSchema}`;
+      if (relationTypeId) {
+        relationsUrl += `&relationTypeId=${relationTypeId}`;
+      }
+      
+      const relationsResponse = await apiRequest<DataRelation[]>(relationsUrl);
       
       if (relationsResponse.success && relationsResponse.data) {
         const relationsList = Array.isArray(relationsResponse.data) 
@@ -246,8 +285,62 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
           : [];
         
         // Fetch related entities
-        const entitiesPromises = relationsList.map(async (relation: DataRelation) => {
-          const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
+        // For source relations: fetch targetId from targetSchema
+        // For target relations: fetch sourceId from sourceSchema (but we want to show targetSchema, so filter)
+        // Track directions for badge display
+        const directionsSet = new Set<'source' | 'target'>();
+        
+        const entitiesPromises = relationsList
+          .filter((relation: DataRelation) => {
+            // Only include relations where the target schema matches (for source relations)
+            // or where we need to show the target (for target relations, we'd show source but that's handled by grouping)
+            if (relation.direction === 'source') {
+              if (relation.targetSchema === targetSchema) {
+                directionsSet.add('source');
+                return true;
+              }
+              return false;
+            } else if (relation.direction === 'target') {
+              // For target relations, we want to show the source entity, but only if it's in the targetSchema
+              // Actually, this is tricky - if direction is 'target', the entity is the target, so we show source entities
+              // But the targetSchema parameter filters relations, so we need to check if sourceSchema matches
+              if (relation.sourceSchema === targetSchema) {
+                directionsSet.add('target');
+                return true;
+              }
+              return false;
+            }
+            // Fallback for relations without direction
+            if (relation.targetSchema === targetSchema) {
+              return true;
+            }
+            return false;
+          })
+          .map(async (relation: DataRelation) => {
+            // Determine which entity ID and schema to fetch based on direction
+            let entityIdToFetch: string;
+            let schemaToFetch: string;
+            
+            if (relation.direction === 'source') {
+              // Entity is source, fetch target entity
+              entityIdToFetch = relation.targetId;
+              schemaToFetch = relation.targetSchema;
+            } else if (relation.direction === 'target') {
+              // Entity is target, fetch source entity
+              entityIdToFetch = relation.sourceId;
+              schemaToFetch = relation.sourceSchema;
+            } else {
+              // Fallback: use target (backward compatibility)
+              entityIdToFetch = relation.targetId;
+              schemaToFetch = relation.targetSchema;
+            }
+            
+            // Only fetch if the schema matches our target schema
+            if (schemaToFetch !== targetSchema) {
+              return null;
+            }
+            
+            const entityResponse = await apiRequest<any>(`/api/data/${schemaToFetch}/${entityIdToFetch}`);
           if (!entityResponse.success || !entityResponse.data) {
             return null;
           }
@@ -310,20 +403,37 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         
         const entities = await Promise.all(entitiesPromises);
         setRelatedEntities(entities.filter(e => e !== null));
+        setRelationDirections(directionsSet);
       }
     } catch (error) {
       console.error('Error fetching relations:', error);
+      setRelatedEntities([]);
+      setRelationDirections(new Set());
     } finally {
       setIsLoadingRelations(false);
+      isFetchingRelationsRef.current = false;
     }
-  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId, targetSchemaData]);
+  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId]);
 
   // Fetch relations when component mounts or dependencies change
+  // Use a ref to track fetch params to prevent duplicate fetches
   useEffect(() => {
-    if (isRelationBased) {
-      fetchRelations();
+    if (!isRelationBased || !effectiveSourceId || !targetSchema) {
+      return;
     }
-  }, [fetchRelations, isRelationBased]);
+    
+    // Create a unique key for this fetch
+    const fetchKey = `${effectiveSourceSchemaId}-${effectiveSourceId}-${targetSchema}-${relationTypeId || 'all'}`;
+    
+    // Only fetch if parameters have changed
+    if (lastFetchParamsRef.current === fetchKey) {
+      return;
+    }
+    
+    lastFetchParamsRef.current = fetchKey;
+    fetchRelations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId]);
 
   // Find the repeating section in the schema (for non-relation-based tables)
   const section = schema.sections?.find((s) => s.id === config.sectionId);
@@ -383,15 +493,15 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
       const baseColumns = buildTableColumns(fieldsToDisplay, schemaToUse);
       
-      // Add view button column at the end
+      // Add view button column as the first column
       const viewColumn: TableColumn = {
         id: 'actions',
         label: 'Actions',
         accessor: 'id',
         sortable: false,
-        align: 'right',
-        width: '80px',
-        sticky: 'right',
+        align: 'center',
+        maxWidth: 80, // Fit the button width
+        cellClassName: 'flex items-center justify-center',
         render: (value: any, row: any) => {
           const itemId = row.id || value;
           if (!itemId) return null;
@@ -412,9 +522,9 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         },
       };
       
-      return [...baseColumns, viewColumn];
+      return [viewColumn, ...baseColumns];
     },
-    [fieldsToDisplay, isRelationBased, targetSchemaData, schema, navigationSchemaId, router]
+    [fieldsToDisplay, isRelationBased, targetSchemaData, schema, navigationSchemaId, router, relationDirections]
   );
 
   // Get table properties with defaults
@@ -519,11 +629,30 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         className="h-auto bg-white border border-gray-200 shadow-sm"
       >
         <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
             <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
+              {/* Show direction badge(s) for relation-based tables */}
+              {isRelationBased && relationDirections.size > 0 && (
+                <>
+                  {relationDirections.has('source') && (
+                    <Badge variant="primary" size="sm">
+                      <IconRenderer iconName="ArrowRight" className="h-3 w-3 mr-1" />
+                      Source
+                    </Badge>
+                  )}
+                  {relationDirections.has('target') && (
+                    <Badge variant="secondary" size="sm">
+                      <IconRenderer iconName="ArrowLeft" className="h-3 w-3 mr-1" />
+                      Target
+                    </Badge>
+                  )}
+                </>
+              )}
             <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
               {sectionData.length}
             </span>
+            </div>
           </div>
           {description && (
             <p className="text-sm text-gray-500 mt-1.5">{description}</p>

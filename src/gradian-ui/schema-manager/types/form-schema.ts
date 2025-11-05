@@ -433,5 +433,7 @@ export interface DataRelation {
   relationTypeId: string;
   createdAt?: string;
   updatedAt?: string;
+  // Direction indicator for API responses - indicates whether this relation is from the perspective of source or target
+  direction?: 'source' | 'target';
 }
 
