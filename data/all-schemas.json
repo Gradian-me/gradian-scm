@@ -1361,12 +1361,12 @@
     "isSystemSchema": true,
     "customButtons": [
       {
-        "id": "go-to-builder",
-        "label": "Back to Builder",
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
         "icon": "ArrowLeft",
         "variant": "outline",
         "action": "goToUrl",
-        "targetUrl": "/builder"
+        "targetUrl": "/builder/schemas"
       }
     ],
     "cardMetadata": [
@@ -1559,12 +1559,12 @@
     "isSystemSchema": true,
     "customButtons": [
       {
-        "id": "go-to-builder",
-        "label": "Back to Builder",
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
         "icon": "ArrowLeft",
         "variant": "outline",
         "action": "goToUrl",
-        "targetUrl": "/builder"
+        "targetUrl": "/builder/schemas"
       }
     ],
     "cardMetadata": [
@@ -2266,12 +2266,12 @@
     "isSystemSchema": true,
     "customButtons": [
       {
-        "id": "go-to-builder",
-        "label": "Back to Builder",
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
         "icon": "ArrowLeft",
         "variant": "outline",
         "action": "goToUrl",
-        "targetUrl": "/builder"
+        "targetUrl": "/builder/schemas"
       }
     ],
     "cardMetadata": [
@@ -2353,12 +2353,12 @@
     "isSystemSchema": true,
     "customButtons": [
       {
-        "id": "go-to-builder",
-        "label": "Back to Builder",
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
         "icon": "ArrowLeft",
         "variant": "outline",
         "action": "goToUrl",
-        "targetUrl": "/builder"
+        "targetUrl": "/builder/schemas"
       }
     ],
     "cardMetadata": [
@@ -2441,12 +2441,12 @@
     "isSystemSchema": true,
     "customButtons": [
       {
-        "id": "go-to-builder",
-        "label": "Back to Builder",
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
         "icon": "ArrowLeft",
         "variant": "outline",
         "action": "goToUrl",
-        "targetUrl": "/builder"
+        "targetUrl": "/builder/schemas"
       }
     ],
     "cardMetadata": [
@@ -2537,5 +2537,195 @@
     },
     "showInNavigation": false,
     "icon": "Folder"
+  },
+  {
+    "id": "users",
+    "description": "Manage user accounts and profiles",
+    "singular_name": "User",
+    "plural_name": "Users",
+    "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-schemas",
+        "label": "Back to Schemas",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder/schemas"
+      }
+    ],
+    "cardMetadata": [
+      {
+        "id": "user-info",
+        "title": "User Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "username",
+          "name",
+          "lastname",
+          "email"
+        ]
+      },
+      {
+        "id": "profile-info",
+        "title": "Profile",
+        "colSpan": 1,
+        "fieldIds": [
+          "gender",
+          "avatar-url"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "username",
+        "name": "username",
+        "label": "Username",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter username",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 3
+        },
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "name",
+        "name": "name",
+        "label": "Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter first name",
+        "required": true,
+        "validation": {
+          "required": true,
+          "minLength": 1
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "lastname",
+        "name": "lastname",
+        "label": "Last Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter last name",
+        "required": true,
+        "validation": {
+          "required": true,
+          "minLength": 1
+        },
+        "colSpan": 1,
+        "order": 3
+      },
+      {
+        "id": "email",
+        "name": "email",
+        "label": "Email",
+        "sectionId": "basic-information",
+        "type": "email",
+        "component": "email",
+        "placeholder": "Enter email address",
+        "required": true,
+        "role": "subtitle",
+        "validation": {
+          "required": true,
+          "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+        },
+        "colSpan": 1,
+        "order": 4
+      },
+      {
+        "id": "gender",
+        "name": "gender",
+        "label": "Gender",
+        "sectionId": "basic-information",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select gender",
+        "required": false,
+        "options": [
+          {
+            "label": "Male",
+            "value": "male",
+            "icon": "User",
+            "color": "info"
+          },
+          {
+            "label": "Female",
+            "value": "female",
+            "icon": "User",
+            "color": "warning"
+          },
+          {
+            "label": "Other",
+            "value": "other",
+            "icon": "UserCircle",
+            "color": "default"
+          },
+          {
+            "label": "Prefer not to say",
+            "value": "prefer_not_to_say",
+            "icon": "Lock",
+            "color": "muted"
+          }
+        ],
+        "colSpan": 1,
+        "order": 5
+      },
+      {
+        "id": "avatar-url",
+        "name": "avatarUrl",
+        "label": "Avatar URL",
+        "sectionId": "basic-information",
+        "type": "url",
+        "component": "text",
+        "placeholder": "Enter avatar image URL",
+        "required": false,
+        "role": "image",
+        "validation": {
+          "pattern": "^https?:\\/\\/.+"
+        },
+        "colSpan": 1,
+        "order": 6
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "User Information",
+        "description": "Basic user details and profile information",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "user-overview",
+          "title": "User Overview",
+          "description": "Basic user information",
+          "colSpan": 2,
+          "fieldIds": [
+            "username",
+            "name",
+            "lastname",
+            "email",
+            "gender",
+            "avatar-url"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "Users"
   }
 ]

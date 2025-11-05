@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Plus, 
   FileText, 
-  Edit, 
+  PencilRuler, 
   Trash2, 
   Eye,
   Layers,
@@ -90,7 +90,7 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
                 className="h-7 w-7"
                 title="Edit Schema"
               >
-                <Edit className="h-3.5 w-3.5" />
+                <PencilRuler className="h-3.5 w-3.5" />
               </Button>
               <Button
                 variant="ghost"
