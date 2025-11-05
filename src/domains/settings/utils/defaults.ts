@@ -47,7 +47,7 @@ export const DEFAULT_SECURITY_SETTINGS: SecuritySettings = {
 export const DEFAULT_APPEARANCE_SETTINGS: AppearanceSettings = {
   theme: 'light',
   language: 'en',
-  timezone: 'America/New_York',
+  timezone: 'Asia/Tehran',
 };
 
 /**

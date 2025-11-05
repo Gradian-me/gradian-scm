@@ -33,8 +33,10 @@ export default function SettingsPage() {
   const { settings, loading, error, updateSettings } = useSettings();
   const [activeTab, setActiveTab] = useState('profile');
   const [localSettings, setLocalSettings] = useState<SettingsUpdate | null>(null);
-  const [userData, setUserData] = useState<{ name: string; lastname?: string; email: string; avatar?: string } | null>(null);
+  const [userData, setUserData] = useState<{ name: string; lastname?: string; email: string; avatar?: string; language?: string; timezone?: string } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [userLanguage, setUserLanguage] = useState<string>('');
+  const [userTimezone, setUserTimezone] = useState<string>('');
   const [passwordChange, setPasswordChange] = useState({
     currentPassword: '',
     newPassword: '',
@@ -72,8 +74,12 @@ export default function SettingsPage() {
                 lastname: result.data.lastname || '',
                 email: result.data.email || '',
                 avatar: result.data.avatar || result.data.avatarUrl || '',
+                language: result.data.language || '',
+                timezone: result.data.timezone || '',
               });
               setAvatarUrl(result.data.avatar || result.data.avatarUrl || '');
+              setUserLanguage(result.data.language || '');
+              setUserTimezone(result.data.timezone || '');
             }
           }
         }
@@ -111,30 +117,50 @@ export default function SettingsPage() {
       // Get userId to update user avatar
       const userId = useUserStore.getState().getUserId();
       
-      // Update user avatar if it changed
-      if (userId && avatarUrl !== (userData?.avatar || '')) {
-        try {
-          const userResponse = await fetch(`/api/data/users/${userId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              avatar: avatarUrl,
-            }),
-          });
+      // Update user data (avatar, language, timezone) if changed
+      if (userId) {
+        const userUpdates: any = {};
+        let hasUserUpdates = false;
 
-          if (userResponse.ok) {
-            const userResult = await userResponse.json();
-            if (userResult.success && userResult.data) {
-              setUserData(prev => ({
-                ...prev!,
-                avatar: userResult.data.avatar || userResult.data.avatarUrl || '',
-              }));
+        if (avatarUrl !== (userData?.avatar || '')) {
+          userUpdates.avatar = avatarUrl;
+          hasUserUpdates = true;
+        }
+
+        if (userLanguage !== (userData?.language || '')) {
+          userUpdates.language = userLanguage;
+          hasUserUpdates = true;
+        }
+
+        if (userTimezone !== (userData?.timezone || '')) {
+          userUpdates.timezone = userTimezone;
+          hasUserUpdates = true;
+        }
+
+        if (hasUserUpdates) {
+          try {
+            const userResponse = await fetch(`/api/data/users/${userId}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(userUpdates),
+            });
+
+            if (userResponse.ok) {
+              const userResult = await userResponse.json();
+              if (userResult.success && userResult.data) {
+                setUserData(prev => ({
+                  ...prev!,
+                  avatar: userResult.data.avatar || userResult.data.avatarUrl || prev?.avatar,
+                  language: userResult.data.language || prev?.language,
+                  timezone: userResult.data.timezone || prev?.timezone,
+                }));
+              }
             }
+          } catch (err) {
+            console.error('Error updating user data:', err);
           }
-        } catch (err) {
-          console.error('Error updating avatar:', err);
         }
       }
       
@@ -878,16 +904,21 @@ export default function SettingsPage() {
                         type: 'select',
                         placeholder: 'Select language'
                       }}
-                        value={localSettings?.appearance?.language ?? settings.appearance.language}
-                      onValueChange={(value: string) => setLocalSettings(prev => ({
+                        value={userLanguage || (localSettings?.appearance?.language ?? settings.appearance.language)}
+                      onValueChange={(value: string) => {
+                        setUserLanguage(value);
+                        setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev?.appearance || settings.appearance, language: value }
-                        }))}
+                          appearance: { ...prev?.appearance || settings.appearance, language: value }
+                        }));
+                      }}
                       options={[
                         { label: 'English', value: 'en' },
                         { label: 'Spanish', value: 'es' },
                         { label: 'French', value: 'fr' },
-                        { label: 'German', value: 'de' }
+                        { label: 'German', value: 'de' },
+                        { label: 'Arabic', value: 'ar' },
+                        { label: 'Persian', value: 'fa' }
                       ]}
                     />
                     <Select
@@ -897,17 +928,25 @@ export default function SettingsPage() {
                         type: 'select',
                         placeholder: 'Select timezone'
                       }}
-                        value={localSettings?.appearance?.timezone ?? settings.appearance.timezone}
-                      onValueChange={(value: string) => setLocalSettings(prev => ({
+                        value={(userTimezone || localSettings?.appearance?.timezone) ?? settings.appearance.timezone}
+                      onValueChange={(value: string) => {
+                        setUserTimezone(value);
+                        setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev?.appearance || settings.appearance, timezone: value }
-                        }))}
+                          appearance: { ...prev?.appearance || settings.appearance, timezone: value }
+                        }));
+                      }}
                       options={[
-                        { label: 'Eastern Time', value: 'America/New_York' },
-                        { label: 'Central Time', value: 'America/Chicago' },
-                        { label: 'Mountain Time', value: 'America/Denver' },
-                        { label: 'Pacific Time', value: 'America/Los_Angeles' },
-                        { label: 'UTC', value: 'UTC' }
+                        { label: 'Eastern Time (ET)', value: 'America/New_York' },
+                        { label: 'Central Time (CT)', value: 'America/Chicago' },
+                        { label: 'Mountain Time (MT)', value: 'America/Denver' },
+                        { label: 'Pacific Time (PT)', value: 'America/Los_Angeles' },
+                        { label: 'UTC', value: 'UTC' },
+                        { label: 'Europe/London', value: 'Europe/London' },
+                        { label: 'Europe/Berlin', value: 'Europe/Berlin' },
+                        { label: 'Asia/Dubai', value: 'Asia/Dubai' },
+                        { label: 'Asia/Tehran', value: 'Asia/Tehran' },
+                        { label: 'Asia/Tokyo', value: 'Asia/Tokyo' }
                       ]}
                     />
                   </div>

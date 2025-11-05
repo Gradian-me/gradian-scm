@@ -2703,6 +2703,100 @@
         },
         "colSpan": 1,
         "order": 7
+      },
+      {
+        "id": "language",
+        "name": "language",
+        "label": "Language",
+        "sectionId": "preferences",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select language",
+        "required": false,
+        "defaultValue": "en",
+        "options": [
+          {
+            "label": "English",
+            "value": "en"
+          },
+          {
+            "label": "Spanish",
+            "value": "es"
+          },
+          {
+            "label": "French",
+            "value": "fr"
+          },
+          {
+            "label": "German",
+            "value": "de"
+          },
+          {
+            "label": "Arabic",
+            "value": "ar"
+          },
+          {
+            "label": "Persian",
+            "value": "fa"
+          }
+        ],
+        "colSpan": 1,
+        "order": 1
+      },
+      {
+        "id": "timezone",
+        "name": "timezone",
+        "label": "Timezone",
+        "sectionId": "preferences",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select timezone",
+        "required": false,
+        "defaultValue": "Asia/Tehran",
+        "options": [
+          {
+            "label": "Eastern Time (ET)",
+            "value": "America/New_York"
+          },
+          {
+            "label": "Central Time (CT)",
+            "value": "America/Chicago"
+          },
+          {
+            "label": "Mountain Time (MT)",
+            "value": "America/Denver"
+          },
+          {
+            "label": "Pacific Time (PT)",
+            "value": "America/Los_Angeles"
+          },
+          {
+            "label": "UTC",
+            "value": "UTC"
+          },
+          {
+            "label": "Europe/London",
+            "value": "Europe/London"
+          },
+          {
+            "label": "Europe/Berlin",
+            "value": "Europe/Berlin"
+          },
+          {
+            "label": "Asia/Dubai",
+            "value": "Asia/Dubai"
+          },
+          {
+            "label": "Asia/Tehran",
+            "value": "Asia/Tehran"
+          },
+          {
+            "label": "Asia/Tokyo",
+            "value": "Asia/Tokyo"
+          }
+        ],
+        "colSpan": 1,
+        "order": 2
       }
     ],
     "sections": [
@@ -2710,6 +2804,13 @@
         "id": "basic-information",
         "title": "User Information",
         "description": "Basic user details and profile information",
+        "initialState": "expanded",
+        "columns": 2
+      },
+      {
+        "id": "preferences",
+        "title": "Preferences",
+        "description": "User language and timezone preferences",
         "initialState": "expanded",
         "columns": 2
       }
@@ -2720,7 +2821,8 @@
           "id": "user-overview",
           "title": "User Overview",
           "description": "Basic user information",
-          "colSpan": 2,
+          "colSpan": 1,
+          "columnArea": "main",
           "fieldIds": [
             "username",
             "name",
@@ -2728,6 +2830,17 @@
             "email",
             "gender",
             "avatar-url"
+          ]
+        },
+        {
+          "id": "user-preferences",
+          "title": "Preferences",
+          "description": "User language and timezone preferences",
+          "colSpan": 1,
+          "columnArea": "main",
+          "fieldIds": [
+            "language",
+            "timezone"
           ]
         }
       ]

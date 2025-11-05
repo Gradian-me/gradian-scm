@@ -570,6 +570,14 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const hasSidebarSections = sections.some(s => s.columnArea === 'sidebar');
   const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections || quickActions.length > 0;
 
+  // If there's no sidebar, set all sections to colSpan: 1 for full width
+  if (!hasSidebarSections) {
+    sections = sections.map(s => ({
+      ...s,
+      colSpan: 1
+    }));
+  }
+
   // Split sections between main and sidebar if needed
   // Use columnArea property if specified, otherwise use fallback logic
   const sectionsForMain = hasSidebar
@@ -834,9 +842,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               </motion.div>
             )}
 
-            {/* Info Cards - Two Column Grid */}
+            {/* Info Cards - Full Width when no sidebar, Two Column Grid when sidebar exists */}
             {sectionsForMain.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className={hasSidebarSections ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "grid grid-cols-1 gap-6"}>
                 {sectionsForMain.map((section, index) => (
                   <DynamicInfoCard
                     key={section.id}

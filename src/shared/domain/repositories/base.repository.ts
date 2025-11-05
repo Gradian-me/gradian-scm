@@ -7,6 +7,7 @@ import { BaseEntity, FilterParams } from '../types/base.types';
 import { readSchemaData, writeSchemaData, ensureSchemaCollection } from '../utils/data-storage.util';
 import { EntityNotFoundError } from '../errors/domain.errors';
 import { processPasswordFields } from '../utils/password-processor.util';
+import { applySchemaDefaults } from '../utils/default-processor.util';
 
 export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
   constructor(protected schemaId: string) {
@@ -100,10 +101,16 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
   async create(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>): Promise<T> {
     const entities = readSchemaData<T>(this.schemaId);
     
-    // Process password fields if this is the users schema
-    const processedData = await processPasswordFields(
+    // Apply schema defaults first (e.g., language, timezone)
+    let processedData = await applySchemaDefaults(
       this.schemaId,
       data as Record<string, any>
+    );
+    
+    // Then process password fields if this is the users schema
+    processedData = await processPasswordFields(
+      this.schemaId,
+      processedData
     );
     
     const newEntity: T = {
