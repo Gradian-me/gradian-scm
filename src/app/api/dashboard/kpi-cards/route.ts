@@ -31,7 +31,7 @@ export async function GET() {
         change: -3,
         changeType: 'decrease',
         icon: 'ShoppingCart',
-        color: 'text-purple-600',
+        color: 'text-violet-600',
         trend: 'down'
       },
       {

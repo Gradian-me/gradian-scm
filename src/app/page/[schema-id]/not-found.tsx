@@ -27,7 +27,7 @@ export default function NotFoundPage() {
                 className="relative"
               >
                 <div className="absolute inset-0 bg-violet-100 rounded-full blur-2xl opacity-50" />
-                <div className="relative bg-linear-to-br from-violet-50 to-purple-50 p-8 rounded-full w-32 h-32 flex items-center justify-center">
+                <div className="relative bg-linear-to-br from-violet-50 to-violet-50 p-8 rounded-full w-32 h-32 flex items-center justify-center">
                   <FileQuestion className="h-16 w-16 text-violet-600" strokeWidth={1.5} />
                 </div>
               </motion.div>

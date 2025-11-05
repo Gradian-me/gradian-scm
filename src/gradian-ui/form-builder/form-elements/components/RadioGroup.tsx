@@ -92,9 +92,22 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
                     required={required || config.validation?.required}
                     disabled={disabled || option.disabled}
                     className={cn(
-                      'h-4 w-4 text-violet-500 border-gray-300 focus:ring-violet-500 focus:ring-2 focus:ring-offset-1',
-                      'disabled:bg-gray-100 disabled:cursor-not-allowed',
-                      error && 'border-red-500 focus:ring-red-500'
+                      // Base styles matching checkbox.tsx (lines 14-15) - adapted for radio
+                      'peer h-4 w-4 shrink-0 rounded-full border border-violet-500 bg-background ring-offset-background',
+                      'transition-all duration-200',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      // Checked state - radio uses white circle instead of checkmark
+                      'checked:bg-violet-500 checked:border-violet-500 checked:shadow-sm',
+                      'checked:after:content-[""] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2',
+                      'checked:after:-translate-x-1/2 checked:after:-translate-y-1/2',
+                      'checked:after:w-2 checked:after:h-2 checked:after:rounded-full checked:after:bg-white',
+                      // Hover effect
+                      'hover:border-violet-400',
+                      // Error state
+                      error && 'border-red-500 focus-visible:ring-red-500 hover:border-red-500',
+                      // Relative positioning for after pseudo-element
+                      'relative'
                     )}
                   />
                   <label

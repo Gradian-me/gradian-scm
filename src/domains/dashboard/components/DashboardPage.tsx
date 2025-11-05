@@ -269,7 +269,7 @@ export function DashboardPage() {
                           className={`text-xs ${
                             activity.type === 'vendor_created' ? 'bg-blue-100 text-blue-800' :
                             activity.type === 'tender_published' ? 'bg-green-100 text-green-800' :
-                            activity.type === 'po_created' ? 'bg-purple-100 text-purple-800' :
+                            activity.type === 'po_created' ? 'bg-violet-100 text-violet-800' :
                             activity.type === 'po_approved' ? 'bg-emerald-100 text-emerald-800' :
                             'bg-gray-100 text-gray-800'
                           }`}

@@ -49,7 +49,7 @@ export function SectionFields({
     <div className="space-y-3 pt-2">
       <div className="flex items-start gap-2">
         <h4 className="text-xs font-semibold text-gray-600">Fields</h4>
-        <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+        <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
           {fields.length}
         </span>
       </div>

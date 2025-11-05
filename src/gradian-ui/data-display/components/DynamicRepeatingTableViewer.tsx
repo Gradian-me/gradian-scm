@@ -521,7 +521,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
           <div className="flex items-center gap-2">
             <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
-            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
               {sectionData.length}
             </span>
           </div>

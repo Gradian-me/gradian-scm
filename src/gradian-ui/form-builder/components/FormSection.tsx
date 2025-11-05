@@ -97,7 +97,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-medium text-gray-900">{title}</h3>
-              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
                 {repeatingItems.length}
               </span>
             </div>
@@ -152,7 +152,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
                 type="button"
                 onClick={onAddRepeatingItem}
                 disabled={disabled}
-                className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-400 hover:text-purple-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-violet-400 hover:text-violet-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

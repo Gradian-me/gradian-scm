@@ -68,7 +68,7 @@ export function SectionsTab({
       <div className="flex justify-between items-center gap-2 flex-wrap">
         <div className="flex items-start gap-2">
           <h3 className="text-sm sm:text-base font-semibold text-gray-900">Sections</h3>
-          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
             {sections.length}
           </span>
         </div>

@@ -42,7 +42,7 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
       <div>
         <div className="flex items-start gap-2">
           <h3 className="text-base font-medium text-gray-900">{title}</h3>
-          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
             {items.length}
           </span>
           {sectionError && (
@@ -99,7 +99,7 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
             variant="outline"
             onClick={onAdd}
             disabled={disabled}
-            className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-purple-400 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-violet-400 hover:text-violet-600 hover:bg-violet-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-5 h-5 mr-2" />
             {addButtonText}
