@@ -108,6 +108,7 @@ export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
           step={step || (config as any).step || '1'}
           required={required || config.validation?.required}
           disabled={disabled}
+          autoComplete="off"
           className={inputClasses}
           {...props}
         />

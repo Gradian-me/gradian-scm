@@ -101,6 +101,7 @@ export const DateInput = forwardRef<FormElementRef, DateInputProps>(
           max={max || (config as any).max}
           required={required || config.validation?.required}
           disabled={disabled}
+          autoComplete="off"
           className={inputClasses}
           {...props}
         />

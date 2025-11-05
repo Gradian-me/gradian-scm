@@ -170,7 +170,7 @@ export default function CalendarPage() {
     return (
       <MainLayout title="Tender Calendar">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         </div>
       </MainLayout>
     );
@@ -296,7 +296,7 @@ export default function CalendarPage() {
                 <CardContent className="space-y-3">
                   {overdueEvents.map((event) => (
                     <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 text-gray-800">
                         {getEventTypeIcon(event.type)}
                         <div>
                           <div className="font-medium">{event.title}</div>
@@ -328,7 +328,7 @@ export default function CalendarPage() {
                 <CardContent className="space-y-3">
                   {todayEvents.map((event) => (
                     <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-yellow-200 bg-yellow-50">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 text-gray-800">
                         {getEventTypeIcon(event.type)}
                         <div>
                           <div className="font-medium">{event.title}</div>
@@ -358,8 +358,8 @@ export default function CalendarPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingEvents.map((event) => (
-                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50">
-                    <div className="flex items-center space-x-3">
+                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-indigo-100 bg-indigo-50 hover:bg-gray-50">
+                    <div className="flex items-center space-x-3 text-gray-800">
                       {getEventTypeIcon(event.type)}
                       <div>
                         <div className="font-medium">{event.title}</div>
@@ -394,7 +394,7 @@ export default function CalendarPage() {
               <CardContent className="space-y-3">
                 {completedEvents.map((event) => (
                   <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-green-200 bg-green-50">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3 text-gray-800">
                       {getEventTypeIcon(event.type)}
                       <div>
                         <div className="font-medium">{event.title}</div>

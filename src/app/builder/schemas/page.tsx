@@ -38,6 +38,7 @@ import {
 import { config } from '@/lib/config';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface SchemaCardProps {
   schema: FormSchema;
@@ -103,7 +104,7 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0 px-4 pb-4">
+        <CardContent className="pt-2 px-4 pb-4">
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" />
@@ -117,6 +118,35 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
         </CardContent>
       </Card>
     </motion.div>
+  );
+}
+
+function SchemaCardSkeleton() {
+  return (
+    <Card className="h-full flex flex-col border border-gray-200">
+      <CardHeader className="pb-3 pt-4 px-4">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Skeleton className="h-5 w-5 rounded shrink-0" />
+              <Skeleton className="h-5 w-32" />
+            </div>
+            <Skeleton className="h-3 w-48 mt-1" />
+          </div>
+          <div className="flex gap-0.5 ml-2 shrink-0">
+            <Skeleton className="h-7 w-7 rounded" />
+            <Skeleton className="h-7 w-7 rounded" />
+            <Skeleton className="h-7 w-7 rounded" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-2 px-4 pb-4">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -228,9 +258,13 @@ export default function SchemaBuilderPage() {
     }
   };
 
-  // Split schemas into system and business
-  const systemSchemas = schemas.filter(schema => schema.isSystemSchema === true);
-  const businessSchemas = schemas.filter(schema => schema.isSystemSchema !== true);
+  // Split schemas into system and business, then sort by name
+  const systemSchemas = schemas
+    .filter(schema => schema.isSystemSchema === true)
+    .sort((a, b) => a.plural_name.localeCompare(b.plural_name));
+  const businessSchemas = schemas
+    .filter(schema => schema.isSystemSchema !== true)
+    .sort((a, b) => a.plural_name.localeCompare(b.plural_name));
 
   // Filter schemas based on active tab and search query
   const getFilteredSchemas = () => {
@@ -273,14 +307,14 @@ export default function SchemaBuilderPage() {
             <TabsTrigger value="system" className="flex items-center gap-2 flex-1">
               <Settings className="h-4 w-4" />
               <span>System Schemas</span>
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ms-1 bg-violet-200">
                 {systemSchemas.length}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="business" className="flex items-center gap-2 flex-1">
               <Building2 className="h-4 w-4" />
               <span>Business Schemas</span>
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ms-1 bg-violet-200">
                 {businessSchemas.length}
               </Badge>
             </TabsTrigger>
@@ -312,8 +346,10 @@ export default function SchemaBuilderPage() {
 
         {/* Loading State */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <SchemaCardSkeleton key={`skeleton-${index}`} />
+            ))}
           </div>
         ) : filteredSchemas.length === 0 ? (
           <motion.div

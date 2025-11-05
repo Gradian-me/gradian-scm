@@ -15,7 +15,7 @@ import {
   User,
   Folder,
   LucideIcon,
-  Wrench
+  PencilRuler
 } from 'lucide-react';
 import { NavigationItem } from '../types';
 
@@ -46,7 +46,7 @@ export const defaultNavigationItems: NavigationItem[] = [
   {
     name: 'Builder',
     href: '/builder',
-    icon: Wrench,
+    icon: PencilRuler,
   }
 ];
 

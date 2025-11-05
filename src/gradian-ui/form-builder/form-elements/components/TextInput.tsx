@@ -105,6 +105,7 @@ export const TextInput = forwardRef<FormElementRef, TextInputProps>(
           pattern={pattern}
           required={required || (config as any).validation?.required}
           disabled={disabled}
+          autoComplete="off"
           className={inputClasses}
           {...props}
         />

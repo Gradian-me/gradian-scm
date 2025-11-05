@@ -112,6 +112,7 @@ export const SearchInput = forwardRef<FormElementRef, SearchInputProps>(
             pattern={pattern}
             required={required || (config as any).validation?.required}
             disabled={disabled}
+            autoComplete="off"
             className={inputClasses}
             {...props}
           />
