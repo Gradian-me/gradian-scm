@@ -65,27 +65,29 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             disabled={readonly}
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Switch 
-            id="show-in-navigation"
-            checked={schema.showInNavigation || false}
-            onCheckedChange={(checked) => onUpdate({ showInNavigation: checked })}
-            disabled={readonly}
-          />
-          <Label htmlFor="show-in-navigation" className="cursor-pointer text-gray-700">
-            Show in Navigation
-          </Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <Switch 
-            id="is-system-schema"
-            checked={schema.isSystemSchema || false}
-            onCheckedChange={(checked) => onUpdate({ isSystemSchema: checked })}
-            disabled={readonly}
-          />
-          <Label htmlFor="is-system-schema" className="cursor-pointer text-gray-700">
-            Is System Schema
-          </Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="show-in-navigation"
+              checked={schema.showInNavigation || false}
+              onCheckedChange={(checked) => onUpdate({ showInNavigation: checked })}
+              disabled={readonly}
+            />
+            <Label htmlFor="show-in-navigation" className="cursor-pointer text-gray-700">
+              Show in Navigation
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="is-system-schema"
+              checked={schema.isSystemSchema || false}
+              onCheckedChange={(checked) => onUpdate({ isSystemSchema: checked })}
+              disabled={readonly}
+            />
+            <Label htmlFor="is-system-schema" className="cursor-pointer text-gray-700">
+              Is System Schema
+            </Label>
+          </div>
         </div>
       </CardContent>
     </Card>

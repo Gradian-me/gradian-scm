@@ -4,6 +4,7 @@ export { FieldEditor } from './FieldEditor';
 export { SectionEditor } from './SectionEditor';
 export { SchemaBuilder } from './SchemaBuilder';
 export { SchemaBuilderEditor } from './SchemaBuilderEditor';
+export { SchemaBuilderDialog } from './SchemaBuilderDialog';
 export { GeneralInfoTab } from './GeneralInfoTab';
 export { SectionsTab } from './SectionsTab';
 export { SchemaActions } from './SchemaActions';

@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
-import { ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
+import { ButtonMinimal, Badge } from '@/gradian-ui/form-builder/form-elements';
 import { GripVertical, Trash2, Edit } from 'lucide-react';
-import { FormSection } from '../types/form-schema';
+import { FormSection, FormSchema } from '../types/form-schema';
 import { SectionEditor } from './SectionEditor';
+import { SchemaBuilderDialog } from './SchemaBuilderDialog';
+import { config } from '@/lib/config';
 
 export interface SortableSectionProps {
   section: FormSection;
@@ -43,6 +45,9 @@ export function SortableSection({
   currentSchemaId
 }: SortableSectionProps) {
   const [showDialog, setShowDialog] = useState(false);
+  const [showSchemaDialog, setShowSchemaDialog] = useState(false);
+  const [targetSchemaName, setTargetSchemaName] = useState<string | null>(null);
+  const [targetSchemaId, setTargetSchemaId] = useState<string | null>(null);
   const {
     attributes,
     listeners,
@@ -57,6 +62,36 @@ export function SortableSection({
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
+
+  // Check if section is relation-based and fetch target schema name
+  useEffect(() => {
+    const targetSchema = section.repeatingConfig?.targetSchema;
+    const isRelationBased = section.isRepeatingSection && targetSchema;
+    
+    if (isRelationBased && targetSchema) {
+      setTargetSchemaId(targetSchema); // Set immediately so dialog can render
+      const fetchTargetSchemaName = async () => {
+        try {
+          const response = await fetch(`/api/schemas/${targetSchema}`);
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              const schema: FormSchema = result.data;
+              setTargetSchemaName(schema.plural_name || schema.singular_name || targetSchema);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching target schema:', error);
+          // Fallback to schema ID if fetch fails
+          setTargetSchemaName(targetSchema || null);
+        }
+      };
+      fetchTargetSchemaName();
+    } else {
+      setTargetSchemaName(null);
+      setTargetSchemaId(null);
+    }
+  }, [section.isRepeatingSection, section.repeatingConfig?.targetSchema]);
 
   return (
     <>
@@ -73,13 +108,40 @@ export function SortableSection({
                   <GripVertical className="h-4 w-4" />
                 </button>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-gray-900 truncate">{section.title || 'Untitled Section'}</h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-gray-900 truncate">{section.title || 'Untitled Section'}</h4>
+                    {targetSchemaName ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          if (targetSchemaId) {
+                            setShowSchemaDialog(true);
+                          }
+                        }}
+                        className="shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-full"
+                      >
+                        <Badge 
+                          variant="primary" 
+                          size="sm" 
+                          className="cursor-pointer hover:bg-blue-200 transition-colors"
+                        >
+                          {targetSchemaName}
+                        </Badge>
+                      </button>
+                    ) : (
+                      <Badge variant="outline" size="sm" className="shrink-0">
+                        {fields.length} {fields.length === 1 ? 'field' : 'fields'}
+                      </Badge>
+                    )}
+                  </div>
                   {section.description && (
                     <p className="text-xs text-gray-500 truncate mt-0.5">{section.description}</p>
                   )}
                 </div>
               </div>
-              <div className="flex gap-0.5 flex-shrink-0">
+              <div className="flex gap-0.5 shrink-0">
                 <ButtonMinimal
                   icon={Edit}
                   title="Edit Section"
@@ -119,6 +181,36 @@ export function SortableSection({
           onClose={() => setShowDialog(false)}
         />
       )}
+
+      {targetSchemaId ? (
+        <SchemaBuilderDialog
+          schemaId={targetSchemaId}
+          fetchSchema={async (id: string) => {
+            const apiBasePath = config?.schemaApi?.basePath || '/api/schemas';
+            const response = await fetch(`${apiBasePath}/${id}`);
+            const result = await response.json();
+            if (result.success) {
+              return result.data;
+            } else {
+              throw new Error('Failed to fetch schema');
+            }
+          }}
+          saveSchema={async (id: string, schema: FormSchema) => {
+            const apiBasePath = config?.schemaApi?.basePath || '/api/schemas';
+            const response = await fetch(`${apiBasePath}/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(schema),
+            });
+            const result = await response.json();
+            if (!result.success) {
+              throw new Error('Failed to save schema');
+            }
+          }}
+          open={showSchemaDialog}
+          onOpenChange={setShowSchemaDialog}
+        />
+      ) : null}
     </>
   );
 }

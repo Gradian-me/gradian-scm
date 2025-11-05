@@ -70,8 +70,6 @@ export const TextInput = forwardRef<FormElementRef, TextInputProps>(
     const fieldLabel = (config as any).label;
     const fieldPlaceholder = (config as any).placeholder;
     
-    console.log(`TextInput ${fieldName}:`, { value, error, touched });
-    
     if (!config) {
       console.error('TextInput: config is required');
       return null;
