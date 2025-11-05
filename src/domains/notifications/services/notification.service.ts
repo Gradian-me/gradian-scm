@@ -3,8 +3,9 @@ import { apiRequest } from '@/shared/utils/api';
 
 // Transform raw notification data to Notification type
 function transformNotificationData(notification: any): Notification {
-  // Support both readAt (legacy) and interactedAt, prefer interactedAt
-  const interactedAt = notification.interactedAt || notification.readAt;
+  // Use readAt and acknowledgedAt directly
+  const readAt = notification.readAt;
+  const acknowledgedAt = notification.acknowledgedAt;
   
   // Transform assignedTo array
   const assignedTo = notification.assignedTo?.map((item: any) => ({
@@ -22,7 +23,8 @@ function transformNotificationData(notification: any): Notification {
     priority: notification.priority as 'low' | 'medium' | 'high' | 'urgent',
     isRead: notification.isRead,
     createdAt: new Date(notification.createdAt),
-    interactedAt: interactedAt ? new Date(interactedAt) : undefined,
+    readAt: readAt ? new Date(readAt) : undefined,
+    acknowledgedAt: acknowledgedAt ? new Date(acknowledgedAt) : undefined,
     interactionType: (notification.interactionType ?? 'canRead') as 'canRead' | 'needsAcknowledgement',
     createdBy: notification.createdBy,
     assignedTo: assignedTo,
@@ -100,23 +102,38 @@ export class NotificationService {
       );
     }
 
-    return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    // Sort: needs acknowledgement first, then by createdAt (newest first)
+    return filtered.sort((a, b) => {
+      const aNeedsAck = a.interactionType === 'needsAcknowledgement' ? 1 : 0;
+      const bNeedsAck = b.interactionType === 'needsAcknowledgement' ? 1 : 0;
+      
+      // If one needs acknowledgement and the other doesn't, prioritize the one that needs acknowledgement
+      if (aNeedsAck !== bNeedsAck) {
+        return bNeedsAck - aNeedsAck;
+      }
+      
+      // Otherwise sort by createdAt (newest first)
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
   }
 
   static async getGroupedNotifications(filters: NotificationFilters = {}, groupBy: 'category' | 'type' | 'priority' | 'status' = 'category', currentUserId?: string): Promise<NotificationGroup[]> {
     const notifications = await this.getNotifications(filters, currentUserId);
     
-    // Separate notifications that need acknowledgment
+    // Separate notifications that need acknowledgment (both read and unread)
     const needsAcknowledgement: Notification[] = [];
     const otherNotifications: Notification[] = [];
     
     notifications.forEach(notification => {
-      if (!notification.isRead && notification.interactionType === 'needsAcknowledgement') {
+      if (notification.interactionType === 'needsAcknowledgement') {
         needsAcknowledgement.push(notification);
       } else {
         otherNotifications.push(notification);
       }
     });
+    
+    // Sort needs acknowledgement notifications by createdAt (newest first)
+    needsAcknowledgement.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     const groups: Record<string, Notification[]> = {};
 
@@ -148,12 +165,12 @@ export class NotificationService {
 
     const result: NotificationGroup[] = [];
 
-    // Add "Need Acknowledgement" group first if there are any
+    // Add "Need Acknowledgement" group first if there are any (includes both read and unread)
     if (needsAcknowledgement.length > 0) {
       result.push({
         category: 'needs_acknowledgement',
         notifications: needsAcknowledgement,
-        unreadCount: needsAcknowledgement.length,
+        unreadCount: needsAcknowledgement.filter(n => !n.isRead).length,
         totalCount: needsAcknowledgement.length
       });
     }
@@ -177,7 +194,7 @@ export class NotificationService {
         `/api/notifications/${notificationId}`,
         {
           method: 'PUT',
-          body: { isRead: true, interactedAt: new Date().toISOString() }
+          body: { isRead: true, readAt: new Date().toISOString() }
         }
       );
 
@@ -195,7 +212,7 @@ export class NotificationService {
         `/api/notifications/${notificationId}`,
         {
           method: 'PUT',
-          body: { isRead: true, interactedAt: new Date().toISOString() }
+          body: { acknowledgedAt: new Date().toISOString() }
         }
       );
 
@@ -210,11 +227,12 @@ export class NotificationService {
   static async markAsUnread(notificationId: string): Promise<void> {
     try {
       // Don't allow unacknowledging - only allow marking as unread for canRead type
+      // When marking as unread, only set isRead to false, keep readAt unchanged
       const response = await apiRequest(
         `/api/notifications/${notificationId}`,
         {
           method: 'PUT',
-          body: { isRead: false, interactedAt: undefined }
+          body: { isRead: false }
         }
       );
 
@@ -241,7 +259,7 @@ export class NotificationService {
         notificationsToMark.map(n => 
           apiRequest(`/api/notifications/${n.id}`, {
             method: 'PUT',
-            body: { isRead: true, interactedAt: new Date().toISOString() }
+            body: { isRead: true, readAt: new Date().toISOString() }
           })
         )
       );

@@ -2,25 +2,13 @@
 // Handles GET, PUT, DELETE for a specific notification
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readSchemaData, writeAllData, readAllData } from '@/shared/domain/utils/data-storage.util';
 import fs from 'fs';
 import path from 'path';
 
 /**
- * Load notifications from file - checks both all-data.json and notifications.json
+ * Load notifications from notifications.json file
  */
 function loadNotifications(): any[] {
-  // First try to read from all-data.json
-  try {
-    const notifications = readSchemaData('notifications');
-    if (notifications && notifications.length > 0) {
-      return notifications;
-    }
-  } catch (error) {
-    // Ignore error and try alternative file
-  }
-  
-  // Fallback: read from notifications.json file
   try {
     const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
     if (fs.existsSync(notificationsPath)) {
@@ -36,15 +24,10 @@ function loadNotifications(): any[] {
 }
 
 /**
- * Save notifications - writes to both all-data.json and notifications.json
+ * Save notifications to notifications.json file
  */
 function saveNotifications(notifications: any[]): void {
   try {
-    // Save to all-data.json
-    const allData = readAllData();
-    writeAllData({ ...allData, notifications });
-    
-    // Also save to notifications.json for backup/consistency
     const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
     fs.writeFileSync(notificationsPath, JSON.stringify(notifications, null, 2), 'utf-8');
   } catch (error) {
@@ -114,28 +97,48 @@ export async function PUT(
       );
     }
     
+    const original = notifications[index];
+    
+    // Fields that should NOT trigger updatedAt change
+    const metadataFields = ['isRead', 'readAt', 'acknowledgedAt'];
+    
+    // Check if any data fields (non-metadata) have changed
+    const dataFields = ['title', 'message', 'type', 'category', 'priority', 'metadata', 'assignedTo', 'actionUrl', 'createdBy', 'interactionType'];
+    const hasDataChanged = dataFields.some(field => {
+      // Check if field exists in body and is different from original
+      if (field in body) {
+        const originalValue = JSON.stringify(original[field]);
+        const newValue = JSON.stringify(body[field]);
+        return originalValue !== newValue;
+      }
+      return false;
+    });
+    
+    // Preserve readAt if it already exists - once set, never change it
+    const existingReadAt = original.readAt;
+    
     // Update the notification
     const updated = {
       ...notifications[index],
       ...body,
       id, // Ensure ID doesn't change
-      updatedAt: new Date().toISOString(),
     };
     
-    // If marking as unread, remove interactedAt (only for canRead type)
-    if (body.isRead === false && updated.interactionType !== 'needsAcknowledgement') {
-      delete updated.interactedAt;
-      // Also remove legacy readAt if present
-      if ('readAt' in updated) {
-        delete updated.readAt;
-      }
+    // Always preserve readAt if it was already set - never change it once set
+    if (existingReadAt) {
+      updated.readAt = existingReadAt;
     }
     
-    // Migrate readAt to interactedAt if needed (backward compatibility)
-    if ('readAt' in updated && !updated.interactedAt) {
-      updated.interactedAt = updated.readAt;
-      delete updated.readAt;
+    // Only update updatedAt if actual data fields have changed
+    if (hasDataChanged) {
+      updated.updatedAt = new Date().toISOString();
+    } else if (original.updatedAt) {
+      // Preserve existing updatedAt if no data fields changed
+      updated.updatedAt = original.updatedAt;
     }
+    
+    // When marking as unread, only isRead is changed, readAt is preserved
+    // (Don't delete readAt when marking as unread)
     
     // Ensure interactionType defaults to canRead
     if (!updated.interactionType) {

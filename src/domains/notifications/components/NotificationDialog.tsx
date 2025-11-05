@@ -18,9 +18,13 @@ import {
   Calendar,
   Tag,
   AlertCircle,
-  X
+  X,
+  CheckCheck,
+  CheckCircle2,
+  Circle
 } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { formatRelativeTime, formatFullDate, formatDateTime } from '@/shared/utils/date-utils';
+import { BadgeRenderer } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
 
 interface NotificationDialogProps {
   notification: Notification | null;
@@ -184,16 +188,34 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(notification.metadata).map(([key, value]) => (
-                      <div key={key} className="space-y-1">
-                        <label className="text-sm font-medium text-gray-600 capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </label>
-                        <p className="text-sm text-gray-900">
-                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                        </p>
-                      </div>
-                    ))}
+                    {Object.entries(notification.metadata).map(([key, value]) => {
+                      const isArray = Array.isArray(value);
+                      const formattedKey = key.replace(/([A-Z])/g, ' $1').trim();
+                      
+                      return (
+                        <div key={key} className="space-y-1">
+                          <label className="text-sm font-medium text-gray-600 capitalize">
+                            {formattedKey}
+                          </label>
+                          {isArray ? (
+                            <BadgeRenderer
+                              items={value as string[]}
+                              maxBadges={0}
+                              badgeVariant="outline"
+                              className="mt-1"
+                            />
+                          ) : typeof value === 'object' && value !== null ? (
+                            <p className="text-sm text-gray-900">
+                              {JSON.stringify(value)}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-900">
+                              {String(value)}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -212,21 +234,30 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600">Created</span>
                     <div className="text-sm text-gray-900">
-                      {format(notification.createdAt, 'PPP p')}
+                      {formatFullDate(notification.createdAt)}
                       <span className="text-gray-500 ml-2">
-                        ({formatDistanceToNow(notification.createdAt, { addSuffix: true })})
+                        ({formatRelativeTime(notification.createdAt)})
                       </span>
                     </div>
                   </div>
-                  {notification.interactedAt && (
+                  {notification.readAt && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">
-                        {notification?.interactionType === 'needsAcknowledgement' ? 'Acknowledged' : 'Read'}
-                      </span>
+                      <span className="text-sm font-medium text-gray-600">Read</span>
                       <div className="text-sm text-gray-900">
-                        {format(notification.interactedAt, 'PPP p')}
+                        {formatFullDate(notification.readAt)}
                         <span className="text-gray-500 ml-2">
-                          ({formatDistanceToNow(notification.interactedAt, { addSuffix: true })})
+                          ({formatRelativeTime(notification.readAt)})
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {notification.acknowledgedAt && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-600">Acknowledged</span>
+                      <div className="text-sm text-gray-900">
+                        {formatFullDate(notification.acknowledgedAt)}
+                        <span className="text-gray-500 ml-2">
+                          ({formatRelativeTime(notification.acknowledgedAt)})
                         </span>
                       </div>
                     </div>
@@ -245,11 +276,12 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                 needsAcknowledgement ? (
                   onAcknowledge ? (
                     <Button
-                      variant="outline"
+                      variant="default"
                       onClick={handleAcknowledge}
                       disabled={isAcknowledging}
-                      className="text-sm"
+                      className="text-sm bg-violet-600 hover:bg-violet-700 text-white border-violet-600"
                     >
+                      <CheckCheck className="h-4 w-4 mr-2" />
                       {isAcknowledging ? 'Acknowledging...' : 'Acknowledge'}
                     </Button>
                   ) : null
@@ -260,6 +292,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                     disabled={isMarkingAsRead}
                     className="text-sm"
                   >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
                     {isMarkingAsRead ? 'Marking...' : 'Mark as Read'}
                   </Button>
                 )
@@ -271,6 +304,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                     disabled={isMarkingAsUnread}
                     className="text-sm"
                   >
+                    <Circle className="h-4 w-4 mr-2" />
                     {isMarkingAsUnread ? 'Marking...' : 'Mark as Unread'}
                   </Button>
                 )

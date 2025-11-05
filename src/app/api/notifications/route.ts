@@ -2,25 +2,13 @@
 // Handles GET requests for notifications (without schema validation)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readSchemaData, writeAllData, readAllData } from '@/shared/domain/utils/data-storage.util';
 import fs from 'fs';
 import path from 'path';
 
 /**
- * Load notifications from file - checks both all-data.json and notifications.json
+ * Load notifications from notifications.json file
  */
 function loadNotifications(): any[] {
-  // First try to read from all-data.json
-  try {
-    const notifications = readSchemaData('notifications');
-    if (notifications && notifications.length > 0) {
-      return notifications;
-    }
-  } catch (error) {
-    // Ignore error and try alternative file
-  }
-  
-  // Fallback: read from notifications.json file
   try {
     const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
     if (fs.existsSync(notificationsPath)) {
@@ -33,6 +21,19 @@ function loadNotifications(): any[] {
   }
   
   return [];
+}
+
+/**
+ * Save notifications to notifications.json file
+ */
+function saveNotifications(notifications: any[]): void {
+  try {
+    const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
+    fs.writeFileSync(notificationsPath, JSON.stringify(notifications, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error saving notifications:', error);
+    throw error;
+  }
 }
 
 /**
@@ -99,8 +100,17 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Sort by createdAt (newest first)
+    // Sort: needs acknowledgement first, then by createdAt (newest first)
     filtered.sort((a: any, b: any) => {
+      const aNeedsAck = a.interactionType === 'needsAcknowledgement' ? 1 : 0;
+      const bNeedsAck = b.interactionType === 'needsAcknowledgement' ? 1 : 0;
+      
+      // If one needs acknowledgement and the other doesn't, prioritize the one that needs acknowledgement
+      if (aNeedsAck !== bNeedsAck) {
+        return bNeedsAck - aNeedsAck;
+      }
+      
+      // Otherwise sort by createdAt (newest first)
       const dateA = new Date(a.createdAt || 0).getTime();
       const dateB = new Date(b.createdAt || 0).getTime();
       return dateB - dateA;
@@ -148,19 +158,8 @@ export async function POST(request: NextRequest) {
     // Add to array
     const updatedNotifications = [...notifications, newNotification];
     
-    // Save notifications (will save to both all-data.json and notifications.json)
-    try {
-      // Save to all-data.json
-      const allData = readAllData();
-      writeAllData({ ...allData, notifications: updatedNotifications });
-      
-      // Also save to notifications.json for backup/consistency
-      const notificationsPath = path.join(process.cwd(), 'data', 'notifications.json');
-      fs.writeFileSync(notificationsPath, JSON.stringify(updatedNotifications, null, 2), 'utf-8');
-    } catch (error) {
-      console.error('Error saving notifications:', error);
-      throw error;
-    }
+    // Save notifications to notifications.json
+    saveNotifications(updatedNotifications);
     
     return NextResponse.json({
       success: true,

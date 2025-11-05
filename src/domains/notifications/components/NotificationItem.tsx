@@ -13,9 +13,13 @@ import {
   AlertTriangle, 
   XCircle, 
   Clock,
-  Eye
+  User,
+  Users,
+  CheckCheck,
+  CheckCircle2,
+  Circle
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime, formatFullDate, formatDateTime } from '@/shared/utils/date-utils';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -79,9 +83,17 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
 
   return (
     <>
-      <Card className={`hover:shadow-md transition-all duration-200 ${
-        !notification.isRead ? 'bg-violet-50/30 border-violet-200' : 'bg-white'
-      }`}>
+      <Card 
+        className={`hover:shadow-md transition-all duration-200 cursor-pointer ${
+          !notification.isRead ? 'bg-violet-50/30 border-violet-200' : 'bg-white'
+        }`}
+        onClick={() => {
+          setIsDialogOpen(true);
+          if (!notification.isRead) {
+            onMarkAsRead(notification.id);
+          }
+        }}
+      >
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
             <div className="shrink-0 mt-1">
@@ -91,100 +103,140 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
-                  <h3 className={`text-sm font-medium ${
-                    !notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'
-                  }`}>
-                    {notification.title}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
+                        {notification.type}
+                      </Badge>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Badge variant={getPriorityBadgeVariant(notification.priority)} className="text-xs">
+                        {notification.priority}
+                      </Badge>
+                    </motion.div>
+                    <h3 className={`text-sm font-medium ${
+                      !notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'
+                    }`}>
+                      {notification.title}
+                    </h3>
+                  </div>
                   <p className="text-xs text-gray-600 mt-1 line-clamp-2">
                     {notification.message}
                   </p>
                 </div>
-                
-                {!notification.isRead && (
-                  <div className="w-2 h-2 bg-violet-500 rounded-full shrink-0 mt-2"></div>
-                )}
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
-                      {notification.type}
-                    </Badge>
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8, y: 5 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Badge variant={getPriorityBadgeVariant(notification.priority)} className="text-xs">
-                      {notification.priority}
-                    </Badge>
-                  </motion.div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <div className="flex items-center space-x-1 text-xs text-gray-400">
-                    <Clock className="h-3 w-3" />
-                    <span>
-                      {notification.interactedAt 
-                        ? `${needsAcknowledgement ? 'Acknowledged' : 'Read'} ${formatDistanceToNow(notification.interactedAt, { addSuffix: true })}`
-                        : formatDistanceToNow(notification.createdAt, { addSuffix: true })}
-                    </span>
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    onClick={() => setIsDialogOpen(true)}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                  
-                  {!notification.isRead ? (
-                    needsAcknowledgement ? (
-                      onAcknowledge ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-6 px-2 text-xs"
-                          onClick={() => onAcknowledge(notification.id)}
-                        >
-                          Acknowledge
-                        </Button>
-                      ) : null
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        onClick={() => onMarkAsRead(notification.id)}
-                      >
-                        Mark Read
-                      </Button>
-                    )
-                  ) : (
-                    onMarkAsUnread && !needsAcknowledgement && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        onClick={() => onMarkAsUnread(notification.id)}
-                      >
-                        Mark Unread
-                      </Button>
-                    )
+              {/* Creator, Assigned To, and Date Info */}
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  {notification.createdBy && (
+                    <div className="flex items-center gap-1.5">
+                      <User className="h-3 w-3" />
+                      <span>Created by: <span className="text-gray-700 font-medium">{notification.createdBy}</span></span>
+                    </div>
+                  )}
+                  {notification.assignedTo && notification.assignedTo.length > 0 && (
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3 w-3" />
+                      <span>Assigned to: <span className="text-gray-700 font-medium">{notification.assignedTo.length} user{notification.assignedTo.length > 1 ? 's' : ''}</span></span>
+                    </div>
                   )}
                 </div>
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" />
+                    <span>Created <span className="text-gray-700 font-medium" title={formatFullDate(notification.createdAt)}>• {formatRelativeTime(notification.createdAt)}</span></span>
+                  </div>
+                  {notification.readAt && (
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3" />
+                      <span>Read: <span className="text-gray-700 font-medium">{formatDateTime(notification.readAt)}</span></span>
+                    </div>
+                  )}
+                  {notification.acknowledgedAt && (
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3 w-3" />
+                      <span>Acknowledged: <span className="text-gray-700 font-medium">{formatDateTime(notification.acknowledgedAt)}</span></span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+            </div>
+            
+            {/* Buttons on the right side */}
+            <div className="flex flex-col items-end gap-2 shrink-0 ml-4">
+              <div className="flex items-center gap-2">
+                {!notification.isRead && (
+                  <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
+                )}
+                {needsAcknowledgement && onAcknowledge ? (
+                  !notification.acknowledgedAt ? (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="h-6 px-2 text-xs bg-violet-600 hover:bg-violet-700 text-white border-violet-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAcknowledge(notification.id);
+                      }}
+                    >
+                      <CheckCheck className="h-3 w-3 mr-1" />
+                      Acknowledge
+                    </Button>
+                  ) : onMarkAsUnread ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAsUnread(notification.id);
+                      }}
+                    >
+                      <Circle className="h-3 w-3 mr-1" />
+                      Mark Unread
+                    </Button>
+                  ) : null
+                ) : !notification.isRead ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMarkAsRead(notification.id);
+                    }}
+                  >
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Mark Read
+                  </Button>
+                ) : (
+                  onMarkAsUnread && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAsUnread(notification.id);
+                      }}
+                    >
+                      <Circle className="h-3 w-3 mr-1" />
+                      Mark Unread
+                    </Button>
+                  )
+                )}
               </div>
             </div>
           </div>

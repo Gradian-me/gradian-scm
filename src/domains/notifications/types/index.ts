@@ -13,7 +13,8 @@ export interface Notification {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   isRead: boolean;
   createdAt: Date;
-  interactedAt?: Date;
+  readAt?: Date;
+  acknowledgedAt?: Date;
   interactionType?: 'canRead' | 'needsAcknowledgement';
   createdBy?: string;
   assignedTo?: AssignedToItem[];

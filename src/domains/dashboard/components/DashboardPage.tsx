@@ -210,7 +210,7 @@ export function DashboardPage() {
                   <TrendingUp className="h-5 w-5" />
                   <span>Recent Activity</span>
                 </CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-600">
                   Latest updates from your supply chain operations.
                 </p>
               </CardHeader>
@@ -222,11 +222,11 @@ export function DashboardPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm">{activity.title}</h4>
-                        <p className="text-xs text-muted-foreground">
+                        <h4 className="font-medium text-sm text-gray-900">{activity.title}</h4>
+                        <p className="text-xs text-gray-600">
                           {activity.userName} • {new Date(activity.timestamp).toLocaleString()}
                         </p>
                       </div>
@@ -252,11 +252,11 @@ export function DashboardPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex-1">
-                          <h4 className="font-medium text-sm">{activity.title}</h4>
-                          <p className="text-xs text-muted-foreground">
+                          <h4 className="font-medium text-sm text-gray-900">{activity.title}</h4>
+                          <p className="text-xs text-gray-600">
                             {activity.userName} • {activity.timestamp.toLocaleString()}
                           </p>
                         </div>
@@ -296,7 +296,7 @@ export function DashboardPage() {
                   <CheckCircle className="h-5 w-5" />
                   <span>Upcoming Deadlines</span>
                 </CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-600">
                   Important dates and deadlines to keep track of.
                 </p>
               </CardHeader>
@@ -308,14 +308,14 @@ export function DashboardPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm">{deadline.title}</h4>
-                        <p className="text-xs text-muted-foreground">
+                        <h4 className="font-medium text-sm text-gray-900">{deadline.title}</h4>
+                        <p className="text-xs text-gray-600">
                           {deadline.description}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-700 mt-1">
                           Due: {new Date(deadline.dueDate).toLocaleDateString()}
                         </p>
                       </div>
@@ -340,14 +340,14 @@ export function DashboardPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                       >
                         <div className="flex-1">
-                          <h4 className="font-medium text-sm">{deadline.title}</h4>
-                          <p className="text-xs text-muted-foreground">
+                          <h4 className="font-medium text-sm text-gray-900">{deadline.title}</h4>
+                          <p className="text-xs text-gray-600">
                             {deadline.description}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-700 mt-1">
                             Due: {deadline.dueDate.toLocaleDateString()}
                           </p>
                         </div>

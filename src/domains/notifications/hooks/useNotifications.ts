@@ -54,31 +54,54 @@ export function useNotifications() {
 
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      const now = new Date();
       // Optimistically update the notification
-      setNotifications(prev => 
-        prev.map(n => 
-          n.id === notificationId 
-            ? { ...n, isRead: true, interactedAt: now }
-            : n
-        )
-      );
+      // Preserve existing readAt if it exists, otherwise set it to now
+      setNotifications(prev => {
+        const notification = prev.find(n => n.id === notificationId);
+        const existingReadAt = notification?.readAt;
+        
+        return prev.map(n => {
+          if (n.id === notificationId) {
+            return { 
+              ...n, 
+              isRead: true, 
+              readAt: existingReadAt || new Date() 
+            };
+          }
+          return n;
+        });
+      });
       
       // Update grouped notifications
-      setGroupedNotifications(prev => 
-        prev.map(group => {
-          const updatedNotifications = group.notifications.map(n =>
-            n.id === notificationId
-              ? { ...n, isRead: true, interactedAt: now }
-              : n
-          );
+      setGroupedNotifications(prev => {
+        // Find the notification from the groups to preserve readAt
+        let existingReadAt: Date | undefined;
+        for (const group of prev) {
+          const notification = group.notifications.find(n => n.id === notificationId);
+          if (notification) {
+            existingReadAt = notification.readAt;
+            break;
+          }
+        }
+        
+        return prev.map(group => {
+          const updatedNotifications = group.notifications.map(n => {
+            if (n.id === notificationId) {
+              return { 
+                ...n, 
+                isRead: true, 
+                readAt: existingReadAt || new Date() 
+              };
+            }
+            return n;
+          });
           return {
             ...group,
             notifications: updatedNotifications,
             unreadCount: updatedNotifications.filter(n => !n.isRead).length
           };
-        })
-      );
+        });
+      });
       
       // Update unread count
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -95,11 +118,11 @@ export function useNotifications() {
   const acknowledge = useCallback(async (notificationId: string) => {
     try {
       const now = new Date();
-      // Optimistically update the notification
+      // Optimistically update the notification - only set acknowledgedAt, don't mark as read
       setNotifications(prev => 
         prev.map(n => 
           n.id === notificationId 
-            ? { ...n, isRead: true, interactedAt: now }
+            ? { ...n, acknowledgedAt: now }
             : n
         )
       );
@@ -109,7 +132,7 @@ export function useNotifications() {
         prev.map(group => {
           const updatedNotifications = group.notifications.map(n =>
             n.id === notificationId
-              ? { ...n, isRead: true, interactedAt: now }
+              ? { ...n, acknowledgedAt: now }
               : n
           );
           return {
@@ -120,8 +143,7 @@ export function useNotifications() {
         })
       );
       
-      // Update unread count
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      // Don't update unread count - acknowledging doesn't mark as read
       
       // Call the API
       await NotificationService.acknowledge(notificationId);
@@ -135,20 +157,34 @@ export function useNotifications() {
   const markAsUnread = useCallback(async (notificationId: string) => {
     try {
       // Optimistically update the notification
-      setNotifications(prev => 
-        prev.map(n => 
+      // Preserve readAt when marking as unread (only change isRead)
+      setNotifications(prev => {
+        const notification = prev.find(n => n.id === notificationId);
+        const existingReadAt = notification?.readAt;
+        
+        return prev.map(n => 
           n.id === notificationId 
-            ? { ...n, isRead: false, interactedAt: undefined }
+            ? { ...n, isRead: false, readAt: existingReadAt }
             : n
-        )
-      );
+        );
+      });
       
       // Update grouped notifications
-      setGroupedNotifications(prev => 
-        prev.map(group => {
+      setGroupedNotifications(prev => {
+        // Find the notification from the groups to preserve readAt
+        let existingReadAt: Date | undefined;
+        for (const group of prev) {
+          const notification = group.notifications.find(n => n.id === notificationId);
+          if (notification) {
+            existingReadAt = notification.readAt;
+            break;
+          }
+        }
+        
+        return prev.map(group => {
           const updatedNotifications = group.notifications.map(n =>
             n.id === notificationId
-              ? { ...n, isRead: false, interactedAt: undefined }
+              ? { ...n, isRead: false, readAt: existingReadAt }
               : n
           );
           return {
@@ -156,8 +192,8 @@ export function useNotifications() {
             notifications: updatedNotifications,
             unreadCount: updatedNotifications.filter(n => !n.isRead).length
           };
-        })
-      );
+        });
+      });
       
       // Update unread count
       setUnreadCount(prev => prev + 1);
@@ -176,12 +212,18 @@ export function useNotifications() {
       const now = new Date();
       
       // Optimistically update all notifications except those that need acknowledgment
+      // Preserve existing readAt if it exists, otherwise set it to now
       setNotifications(prev => {
-        const updated = prev.map(n => 
-          n.interactionType === 'needsAcknowledgement' 
-            ? n 
-            : { ...n, isRead: true, interactedAt: now }
-        );
+        const updated = prev.map(n => {
+          if (n.interactionType === 'needsAcknowledgement') {
+            return n;
+          }
+          return { 
+            ...n, 
+            isRead: true, 
+            readAt: n.readAt || now 
+          };
+        });
         
         // Calculate unread count from updated notifications (excluding those that need acknowledgment)
         const unreadCount = updated.filter(
@@ -195,11 +237,16 @@ export function useNotifications() {
       // Update grouped notifications
       setGroupedNotifications(prev => 
         prev.map(group => {
-          const updatedNotifications = group.notifications.map(n =>
-            n.interactionType === 'needsAcknowledgement'
-              ? n
-              : { ...n, isRead: true, interactedAt: now }
-          );
+          const updatedNotifications = group.notifications.map(n => {
+            if (n.interactionType === 'needsAcknowledgement') {
+              return n;
+            }
+            return { 
+              ...n, 
+              isRead: true, 
+              readAt: n.readAt || now 
+            };
+          });
           return {
             ...group,
             notifications: updatedNotifications,
