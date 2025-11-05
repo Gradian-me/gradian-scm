@@ -135,7 +135,25 @@ export function SectionEditor({
     }
   }, [tempSection.isRepeatingSection, currentSchemaId]);
 
+  // Check if a field is incomplete (has default values)
+  const isFieldIncomplete = (field: any): boolean => {
+    return (field.label === 'New Field' && field.name === 'newField') || 
+           !field.label || 
+           !field.name ||
+           !field.type ||
+           !field.component ||
+           field.label.trim() === '' ||
+           field.name.trim() === '';
+  };
+
+  // Check if there are any incomplete fields
+  const hasIncompleteFields = fields.some(isFieldIncomplete);
+
   const handleSave = () => {
+    if (hasIncompleteFields) {
+      // Show error or prevent save
+      return;
+    }
     onUpdate(tempSection);
     onClose?.();
   };
@@ -391,16 +409,20 @@ export function SectionEditor({
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
-                    {sortedFields.map((field) => (
-                      <SortableField key={field.id} id={field.id}>
-                        <FieldEditor
-                          field={field}
-                          onUpdate={(updates) => onFieldUpdate(field.id, updates)}
-                          onDelete={() => onFieldDelete(field.id)}
-                          sections={sections}
-                        />
-                      </SortableField>
-                    ))}
+                    {sortedFields.map((field) => {
+                      const isIncomplete = isFieldIncomplete(field);
+                      return (
+                        <SortableField key={field.id} id={field.id} isIncomplete={isIncomplete}>
+                          <FieldEditor
+                            field={field}
+                            onUpdate={(updates) => onFieldUpdate(field.id, updates)}
+                            onDelete={() => onFieldDelete(field.id)}
+                            sections={sections}
+                            isIncomplete={isIncomplete}
+                          />
+                        </SortableField>
+                      );
+                    })}
                   </div>
                 </SortableContext>
               </DndContext>
@@ -412,7 +434,14 @@ export function SectionEditor({
               iconSize="w-4 h-4"
               textSize="text-sm"
               fullWidth={true}
+              disabled={hasIncompleteFields}
             />
+            {hasIncompleteFields && (
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
+                <span className="text-amber-600">⚠</span>
+                <span>Please complete the configuration for the new field before adding another field or saving the section.</span>
+              </div>
+            )}
           </div>
           )}
         </div>
@@ -420,10 +449,14 @@ export function SectionEditor({
           <Button variant="outline" onClick={onClose} className="w-full sm:w-auto text-sm md:text-base">
             Cancel
           </Button>
-          <Button onClick={handleSave} className="w-full sm:w-auto text-sm md:text-base">
-            <span className="hidden md:inline">Save Changes</span>
-            <span className="md:hidden">Save</span>
-          </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={hasIncompleteFields}
+              className="w-full sm:w-auto text-sm md:text-base"
+            >
+                <span className="hidden md:inline">Save Changes</span>
+                <span className="md:hidden">Save</span>
+              </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

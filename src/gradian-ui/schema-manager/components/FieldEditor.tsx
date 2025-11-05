@@ -42,6 +42,7 @@ export function FieldEditor({
   canMoveDown = false,
   onMoveUp,
   onMoveDown,
+  isIncomplete = false,
 }: FieldEditorProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [tempField, setTempField] = useState<Partial<FormField>>(field);
@@ -83,11 +84,20 @@ export function FieldEditor({
       <div className="w-full flex items-center justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium truncate text-gray-800">{field.label || 'Unnamed Field'}</span>
+            <span className={`text-sm font-medium truncate ${isIncomplete ? 'text-amber-700' : 'text-gray-800'}`}>
+              {field.label || 'Unnamed Field'}
+            </span>
+            {isIncomplete && (
+              <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
+                Incomplete
+              </Badge>
+            )}
             <Badge variant="outline" size="sm" className="text-[10px] px-1.5 py-0">{field.type}</Badge>
             {field.required && <Badge variant="danger" size="sm" className="text-[10px] px-1.5 py-0">Required</Badge>}
           </div>
-          <span className="text-[10px] text-gray-400 truncate block mt-0.5">{field.name}</span>
+          <span className={`text-[10px] truncate block mt-0.5 ${isIncomplete ? 'text-amber-600' : 'text-gray-400'}`}>
+            {field.name}
+          </span>
         </div>
         <div className="flex gap-0.5 ml-2 shrink-0">
           <ButtonMinimal

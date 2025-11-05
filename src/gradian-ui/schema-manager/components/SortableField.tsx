@@ -7,9 +7,10 @@ import { GripVertical } from 'lucide-react';
 interface SortableFieldProps {
   id: string;
   children: React.ReactNode;
+  isIncomplete?: boolean;
 }
 
-export function SortableField({ id, children }: SortableFieldProps) {
+export function SortableField({ id, children, isIncomplete = false }: SortableFieldProps) {
   const {
     attributes,
     listeners,
@@ -27,7 +28,13 @@ export function SortableField({ id, children }: SortableFieldProps) {
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <div className={`w-full bg-white rounded-lg border hover:shadow-sm transition-all duration-200 ${isDragging ? 'border-violet-400 shadow-md ring-2 ring-violet-200' : 'border-gray-200'}`}>
+      <div className={`w-full rounded-lg border hover:shadow-sm transition-all duration-200 ${
+        isDragging 
+          ? 'border-violet-400 shadow-md ring-2 ring-violet-200 bg-white' 
+          : isIncomplete 
+            ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
+            : 'border-gray-200 bg-white'
+      }`}>
         <div className="p-3">
           <div className="flex items-center gap-2">
             <button

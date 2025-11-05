@@ -55,6 +55,7 @@ export interface FieldEditorProps {
   canMoveDown?: boolean;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  isIncomplete?: boolean;
 }
 
 export interface FieldTypeOption {
