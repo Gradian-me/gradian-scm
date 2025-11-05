@@ -13,7 +13,7 @@ import {
   Shield,
   User
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // Import Gradian UI form components
 import { Switch } from '@/gradian-ui/form-builder/form-elements/components/Switch';
 import { Label } from '@/gradian-ui/form-builder/form-elements/components/Label';
@@ -23,9 +23,18 @@ import { PasswordInput } from '@/gradian-ui/form-builder/form-elements/component
 import { PhoneInput } from '@/gradian-ui/form-builder/form-elements/components/PhoneInput';
 import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { TextInput } from '@/gradian-ui/form-builder/form-elements/components/TextInput';
+// Import settings domain
+import { useSettings, SettingsUpdate } from '@/domains/settings';
+// Import user store
+import { useUserStore } from '@/stores/user.store';
 
 export default function SettingsPage() {
+  // Get current user ID from store
+  const userId = useUserStore((state) => state.getUserId());
+  
+  const { settings, loading, error, updateSettings } = useSettings({ userId: userId || undefined });
   const [activeTab, setActiveTab] = useState('profile');
+  const [localSettings, setLocalSettings] = useState<SettingsUpdate | null>(null);
   const [twoFactorSetup, setTwoFactorSetup] = useState({
     step: 'idle' as 'idle' | 'qr' | 'verify' | 'backup',
     qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/Gradian%20SCM:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Gradian%20SCM',
@@ -33,34 +42,18 @@ export default function SettingsPage() {
     backupCodes: [] as string[],
     verificationCode: '',
   });
-  const [settings, setSettings] = useState({
-    profile: {
-      name: 'Mahyar Abidi',
-      email: 'mahyar.abidi@gradian.com',
-      role: 'Supply Chain Manager',
-      department: 'Supply Chain',
-      phone: '+1-555-0123',
-      isAdmin: true
-    },
-    notifications: {
-      emailNotifications: true,
-      pushNotifications: true,
-      tenderUpdates: true,
-      vendorUpdates: true,
-      systemAlerts: true,
-    },
-    security: {
-      twoFactorAuth: false,
-      sessionTimeout: 30,
-      passwordExpiry: 90,
-      currentPassword: '',
-    },
-    appearance: {
-      theme: 'light',
-      language: 'en',
-      timezone: 'America/New_York',
-    },
-  });
+
+  // Initialize local settings from loaded settings
+  useEffect(() => {
+    if (settings) {
+      setLocalSettings({
+        profile: { ...settings.profile },
+        notifications: { ...settings.notifications },
+        security: { ...settings.security, currentPassword: '' },
+        appearance: { ...settings.appearance },
+      });
+    }
+  }, [settings]);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -70,9 +63,42 @@ export default function SettingsPage() {
     { id: 'integrations', label: 'Integrations', icon: Database },
   ];
 
-  const handleSave = () => {
-    // In a real app, this would save to the backend
-    console.log('Settings saved:', settings);
+  const handleSave = async () => {
+    if (!localSettings || !settings) return;
+    
+    try {
+      // Prepare updates - only include changed fields
+      const updates: SettingsUpdate = {};
+      
+      if (localSettings.profile) {
+        updates.profile = localSettings.profile;
+      }
+      if (localSettings.notifications) {
+        updates.notifications = localSettings.notifications;
+      }
+      if (localSettings.security) {
+        // Don't save currentPassword in settings
+        const { currentPassword, ...securityWithoutPassword } = localSettings.security;
+        updates.security = securityWithoutPassword;
+      }
+      if (localSettings.appearance) {
+        updates.appearance = localSettings.appearance;
+      }
+      
+      const updatedSettings = await updateSettings(updates);
+      
+      // Update local settings with the returned settings (which include defaults merged)
+      if (updatedSettings) {
+        setLocalSettings({
+          profile: { ...updatedSettings.profile },
+          notifications: { ...updatedSettings.notifications },
+          security: { ...updatedSettings.security, currentPassword: '' },
+          appearance: { ...updatedSettings.appearance },
+        });
+      }
+    } catch (err) {
+      console.error('Error saving settings:', err);
+    }
   };
 
   const generateBackupCodes = () => {
@@ -83,7 +109,9 @@ export default function SettingsPage() {
   };
 
   const handleEnable2FA = () => {
-    if (!settings.security.twoFactorAuth) {
+    if (!localSettings || !settings) return;
+    
+    if (!localSettings.security?.twoFactorAuth) {
       // Generate backup codes
       const codes = generateBackupCodes();
       setTwoFactorSetup({
@@ -93,9 +121,9 @@ export default function SettingsPage() {
       });
     } else {
       // Disable 2FA
-      setSettings(prev => ({
+      setLocalSettings(prev => ({
         ...prev,
-        security: { ...prev.security, twoFactorAuth: false }
+        security: { ...prev?.security || settings.security, twoFactorAuth: false }
       }));
       setTwoFactorSetup({
         step: 'idle',
@@ -108,11 +136,13 @@ export default function SettingsPage() {
   };
 
   const handleVerify2FA = () => {
+    if (!localSettings || !settings) return;
+    
     // In a real app, this would verify the code with the backend
     if (twoFactorSetup.verificationCode.length === 6) {
-      setSettings(prev => ({
+      setLocalSettings(prev => ({
         ...prev,
-        security: { ...prev.security, twoFactorAuth: true }
+        security: { ...prev?.security || settings.security, twoFactorAuth: true }
       }));
       setTwoFactorSetup({
         ...twoFactorSetup,
@@ -135,6 +165,46 @@ export default function SettingsPage() {
       backupCodes: codes,
     });
   };
+
+  if (!userId) {
+    return (
+      <MainLayout title="Settings">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-red-600">Please log in to access settings</div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <MainLayout title="Settings">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-gray-600">Loading settings...</div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainLayout title="Settings">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-red-600">Error: {error}</div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!settings || !localSettings) {
+    return (
+      <MainLayout title="Settings">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-gray-600">No settings found</div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title="Settings">
@@ -208,10 +278,10 @@ export default function SettingsPage() {
                         type: 'text',
                         placeholder: 'Enter your full name'
                       }}
-                        value={settings.profile.name}
-                      onChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.profile?.name || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        profile: { ...prev.profile, name: value }
+                        profile: { ...prev?.profile || settings.profile, name: value }
                         }))}
                       />
                     <EmailInput
@@ -221,10 +291,10 @@ export default function SettingsPage() {
                         type: 'email',
                         placeholder: 'Enter your email'
                       }}
-                        value={settings.profile.email}
-                      onChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.profile?.email || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        profile: { ...prev.profile, email: value }
+                        profile: { ...prev?.profile || settings.profile, email: value }
                         }))}
                       />
                     <TextInput
@@ -234,10 +304,10 @@ export default function SettingsPage() {
                         type: 'text',
                         placeholder: 'Enter your role'
                       }}
-                        value={settings.profile.role}
-                      onChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.profile?.role || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        profile: { ...prev.profile, role: value }
+                        profile: { ...prev?.profile || settings.profile, role: value }
                         }))}
                       />
                     <TextInput
@@ -247,10 +317,10 @@ export default function SettingsPage() {
                         type: 'text',
                         placeholder: 'Enter your department'
                       }}
-                        value={settings.profile.department}
-                      onChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.profile?.department || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        profile: { ...prev.profile, department: value }
+                        profile: { ...prev?.profile || settings.profile, department: value }
                         }))}
                       />
                     <PhoneInput
@@ -260,10 +330,10 @@ export default function SettingsPage() {
                         type: 'tel',
                         placeholder: 'Enter your phone number'
                       }}
-                        value={settings.profile.phone}
-                      onChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.profile?.phone || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        profile: { ...prev.profile, phone: value }
+                        profile: { ...prev?.profile || settings.profile, phone: value }
                         }))}
                       />
                   </div>
@@ -288,10 +358,10 @@ export default function SettingsPage() {
                            label: 'Email Notifications - Receive notifications via email',
                            type: 'switch'
                          }}
-                         value={settings.notifications.emailNotifications}
-                         onChange={(checked: boolean) => setSettings(prev => ({
+                         value={localSettings?.notifications?.emailNotifications ?? true}
+                         onChange={(checked: boolean) => setLocalSettings(prev => ({
                           ...prev,
-                           notifications: { ...prev.notifications, emailNotifications: checked }
+                           notifications: { ...prev?.notifications || settings.notifications, emailNotifications: checked }
                         }))}
                       />
                        <Switch
@@ -300,10 +370,10 @@ export default function SettingsPage() {
                            label: 'Push Notifications - Receive push notifications in browser',
                            type: 'switch'
                          }}
-                         value={settings.notifications.pushNotifications}
-                         onChange={(checked: boolean) => setSettings(prev => ({
+                         value={localSettings?.notifications?.pushNotifications ?? true}
+                         onChange={(checked: boolean) => setLocalSettings(prev => ({
                           ...prev,
-                           notifications: { ...prev.notifications, pushNotifications: checked }
+                           notifications: { ...prev?.notifications || settings.notifications, pushNotifications: checked }
                         }))}
                       />
                     </div>
@@ -319,10 +389,10 @@ export default function SettingsPage() {
                            label: 'Tender Updates - Get notified about tender changes',
                            type: 'switch'
                          }}
-                         value={settings.notifications.tenderUpdates}
-                         onChange={(checked: boolean) => setSettings(prev => ({
+                         value={localSettings?.notifications?.tenderUpdates ?? true}
+                         onChange={(checked: boolean) => setLocalSettings(prev => ({
                           ...prev,
-                           notifications: { ...prev.notifications, tenderUpdates: checked }
+                           notifications: { ...prev?.notifications || settings.notifications, tenderUpdates: checked }
                         }))}
                       />
                        <Switch
@@ -331,10 +401,10 @@ export default function SettingsPage() {
                            label: 'Vendor Updates - Get notified about vendor changes',
                            type: 'switch'
                          }}
-                         value={settings.notifications.vendorUpdates}
-                         onChange={(checked: boolean) => setSettings(prev => ({
+                         value={localSettings?.notifications?.vendorUpdates ?? true}
+                         onChange={(checked: boolean) => setLocalSettings(prev => ({
                           ...prev,
-                           notifications: { ...prev.notifications, vendorUpdates: checked }
+                           notifications: { ...prev?.notifications || settings.notifications, vendorUpdates: checked }
                         }))}
                       />
                     </div>
@@ -350,10 +420,10 @@ export default function SettingsPage() {
                            label: 'System Alerts - Get notified about system issues',
                            type: 'switch'
                          }}
-                         value={settings.notifications.systemAlerts}
-                         onChange={(checked: boolean) => setSettings(prev => ({
+                         value={localSettings?.notifications?.systemAlerts ?? true}
+                         onChange={(checked: boolean) => setLocalSettings(prev => ({
                           ...prev,
-                           notifications: { ...prev.notifications, systemAlerts: checked }
+                           notifications: { ...prev?.notifications || settings.notifications, systemAlerts: checked }
                         }))}
                       />
                     </div>
@@ -379,8 +449,8 @@ export default function SettingsPage() {
                           </p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Badge variant={settings.security.twoFactorAuth ? 'success' : 'secondary'}>
-                          {settings.security.twoFactorAuth ? 'Enabled' : 'Disabled'}
+                        <Badge variant={(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'success' : 'secondary'}>
+                          {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'Enabled' : 'Disabled'}
                         </Badge>
                           {twoFactorSetup.step === 'idle' && (
                             <Button 
@@ -388,7 +458,7 @@ export default function SettingsPage() {
                               size="sm"
                               onClick={handleEnable2FA}
                             >
-                          {settings.security.twoFactorAuth ? 'Disable' : 'Enable'}
+                          {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'Disable' : 'Enable'}
                         </Button>
                           )}
                       </div>
@@ -532,7 +602,7 @@ export default function SettingsPage() {
                       )}
 
                       {/* Enabled State: Show Backup Codes Option */}
-                      {settings.security.twoFactorAuth && twoFactorSetup.step === 'idle' && (
+                      {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) && twoFactorSetup.step === 'idle' && (
                         <div className="border rounded-lg p-4 bg-gray-50 border-gray-200 space-y-3">
                           <div className="flex items-center justify-between">
                             <div>
@@ -567,10 +637,10 @@ export default function SettingsPage() {
                         type: 'number',
                         placeholder: 'Enter timeout in minutes'
                       }}
-                        value={settings.security.sessionTimeout}
-                      onChange={(value: number | string) => setSettings(prev => ({
+                        value={localSettings?.security?.sessionTimeout ?? settings.security.sessionTimeout}
+                      onChange={(value: number | string) => setLocalSettings(prev => ({
                           ...prev,
-                        security: { ...prev.security, sessionTimeout: typeof value === 'number' ? value : parseInt(String(value)) || 30 }
+                        security: { ...prev?.security || settings.security, sessionTimeout: typeof value === 'number' ? value : parseInt(String(value)) || 30 }
                         }))}
                       />
                     <NumberInput
@@ -580,10 +650,10 @@ export default function SettingsPage() {
                         type: 'number',
                         placeholder: 'Enter expiry in days'
                       }}
-                        value={settings.security.passwordExpiry}
-                      onChange={(value: number | string) => setSettings(prev => ({
+                        value={localSettings?.security?.passwordExpiry ?? settings.security.passwordExpiry}
+                      onChange={(value: number | string) => setLocalSettings(prev => ({
                           ...prev,
-                        security: { ...prev.security, passwordExpiry: typeof value === 'number' ? value : parseInt(String(value)) || 90 }
+                        security: { ...prev?.security || settings.security, passwordExpiry: typeof value === 'number' ? value : parseInt(String(value)) || 90 }
                         }))}
                       />
                     <PasswordInput
@@ -593,10 +663,10 @@ export default function SettingsPage() {
                         type: 'password',
                         placeholder: 'Current password'
                       }}
-                      value={settings.security.currentPassword}
-                      onChange={(value: string) => setSettings(prev => ({
+                      value={localSettings?.security?.currentPassword || ''}
+                      onChange={(value: string) => setLocalSettings(prev => ({
                         ...prev,
-                        security: { ...prev.security, currentPassword: value }
+                        security: { ...prev?.security || settings.security, currentPassword: value }
                       }))}
                     />
                   </div>
@@ -619,10 +689,10 @@ export default function SettingsPage() {
                         type: 'select',
                         placeholder: 'Select theme'
                       }}
-                        value={settings.appearance.theme}
-                      onValueChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.appearance?.theme ?? settings.appearance.theme}
+                      onValueChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev.appearance, theme: value }
+                        appearance: { ...prev?.appearance || settings.appearance, theme: value }
                         }))}
                       options={[
                         { label: 'Light', value: 'light' },
@@ -637,10 +707,10 @@ export default function SettingsPage() {
                         type: 'select',
                         placeholder: 'Select language'
                       }}
-                        value={settings.appearance.language}
-                      onValueChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.appearance?.language ?? settings.appearance.language}
+                      onValueChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev.appearance, language: value }
+                        appearance: { ...prev?.appearance || settings.appearance, language: value }
                         }))}
                       options={[
                         { label: 'English', value: 'en' },
@@ -656,10 +726,10 @@ export default function SettingsPage() {
                         type: 'select',
                         placeholder: 'Select timezone'
                       }}
-                        value={settings.appearance.timezone}
-                      onValueChange={(value: string) => setSettings(prev => ({
+                        value={localSettings?.appearance?.timezone ?? settings.appearance.timezone}
+                      onValueChange={(value: string) => setLocalSettings(prev => ({
                           ...prev,
-                        appearance: { ...prev.appearance, timezone: value }
+                        appearance: { ...prev?.appearance || settings.appearance, timezone: value }
                         }))}
                       options={[
                         { label: 'Eastern Time', value: 'America/New_York' },

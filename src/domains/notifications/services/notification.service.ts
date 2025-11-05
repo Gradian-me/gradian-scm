@@ -33,11 +33,22 @@ function transformNotificationData(notification: any): Notification {
   };
 }
 
-// Get current user ID - This should be replaced with actual auth context
-// For now, using a default mock user ID
-const getCurrentUserId = (): string => {
-  // TODO: Replace with actual auth context
-  return 'mahyar'; // Default user ID
+// Get current user ID from store
+// Returns null if no user is logged in
+const getCurrentUserId = (): string | null => {
+  // This will be called on the client side, so we need to handle SSR
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  // Import dynamically to avoid SSR issues
+  try {
+    const { useUserStore } = require('@/stores/user.store');
+    return useUserStore.getState().getUserId();
+  } catch (error) {
+    console.warn('Failed to get user ID from store:', error);
+    return null;
+  }
 };
 
 // Get notifications from API
