@@ -140,7 +140,22 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   }
   // Get subtitle value(s) - concatenate multiple fields with same role using |
   const subtitle = getValueByRole(schema, data, 'subtitle') || data.email || '';
-  const avatar = getSingleValueByRole(schema, data, 'avatar') || data.name || '?';
+  
+  // Get avatar - try to get from field with role="avatar", then fallback to common field names
+  let avatar: string | undefined = undefined;
+  const avatarField = schema?.fields?.find(f => f.role === 'avatar');
+  if (avatarField) {
+    // Get the actual field value from data
+    const avatarValue = data[avatarField.name];
+    if (avatarValue && typeof avatarValue === 'string' && avatarValue.trim() !== '') {
+      avatar = avatarValue;
+    }
+  }
+  // Fallback to common avatar field names if not found
+  if (!avatar) {
+    avatar = data.avatarUrl || data.avatar || undefined;
+  }
+  
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
   
@@ -173,7 +188,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   return {
     title,
     subtitle,
-    avatar,
+    avatar: avatar || undefined, // Ensure avatar is string | undefined
     status,
     rating,
     duedate,
@@ -570,7 +585,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const hasSidebarSections = sections.some(s => s.columnArea === 'sidebar');
   const hasSidebar = (totalColumns > mainColumns && sidebarColumns > 0) || hasSidebarSections || quickActions.length > 0;
 
-  // If there's no sidebar, set all sections to colSpan: 1 for full width
+  // If there's no sidebar sections, set all sections to colSpan: 1 for full width
+  // But keep colSpan: 2 if explicitly set when there IS a sidebar
   if (!hasSidebarSections) {
     sections = sections.map(s => ({
       ...s,
@@ -634,8 +650,16 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               <div className="flex items-center space-x-4">
                 {hasAvatarField && (
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} />
-                  <AvatarFallback>{getInitials(headerInfo.avatar)}</AvatarFallback>
+                  {headerInfo.avatar ? (
+                    // Check if avatar is a URL (starts with http:// or https://)
+                    headerInfo.avatar.startsWith('http://') || headerInfo.avatar.startsWith('https://') ? (
+                      <AvatarImage src={headerInfo.avatar} alt={headerInfo.title || 'Avatar'} />
+                    ) : (
+                      // Otherwise, treat as a path and construct the full path
+                      <AvatarImage src={`/avatars/${headerInfo.avatar.toLowerCase().replace(/\s+/g, '-')}.jpg`} alt={headerInfo.title || 'Avatar'} />
+                    )
+                  ) : null}
+                  <AvatarFallback>{getInitials(headerInfo.title || headerInfo.avatar || '?')}</AvatarFallback>
                 </Avatar>
                 )}
                 <div>
@@ -698,7 +722,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
         </motion.div>
 
         {/* Main Content Grid */}
-        {hasSidebar ? (
+        {hasSidebar && hasSidebarSections ? (
           <div className={cn(
             "grid gap-6",
             totalColumns === 2 && "grid-cols-1 md:grid-cols-2",
@@ -743,25 +767,33 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 </motion.div>
               )}
 
-              {/* Info Cards - Two Column Grid */}
+              {/* Info Cards - Full Width when no sidebar, Two Column Grid when sidebar exists */}
               {sectionsForMain.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {sectionsForMain.map((section, index) => (
-                    <DynamicInfoCard
-                      key={section.id}
-                      section={section}
-                      schema={schema}
-                      data={data}
-                      index={index + mainComponents.length}
-                      disableAnimation={disableAnimation}
-                    />
-                  ))}
+                <div className={hasSidebarSections ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "grid grid-cols-1 gap-6"}>
+                  {sectionsForMain.map((section, index) => {
+                    // Check if this section should span full width (colSpan: 2)
+                    const shouldSpanFull = section.colSpan === 2;
+                    return (
+                      <div 
+                        key={section.id}
+                        className={shouldSpanFull ? "md:col-span-2" : ""}
+                      >
+                        <DynamicInfoCard
+                          section={section}
+                          schema={schema}
+                          data={data}
+                          index={index + mainComponents.length}
+                          disableAnimation={disableAnimation}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Sidebar */}
-            {hasSidebar && (
+            {/* Sidebar - only show if there are sidebar sections or quick actions */}
+            {(hasSidebarSections || quickActions.length > 0 || sectionsForSidebar.length > 0) && (
               <div className={cn(
                 "space-y-6",
                 sidebarColumns === 1 && "md:col-span-1",
@@ -845,16 +877,25 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
             {/* Info Cards - Full Width when no sidebar, Two Column Grid when sidebar exists */}
             {sectionsForMain.length > 0 && (
               <div className={hasSidebarSections ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "grid grid-cols-1 gap-6"}>
-                {sectionsForMain.map((section, index) => (
-                  <DynamicInfoCard
-                    key={section.id}
-                    section={section}
-                    schema={schema}
-                    data={data}
-                    index={index + mainComponents.length}
-                    disableAnimation={disableAnimation}
-                  />
-                ))}
+                {sectionsForMain.map((section, index) => {
+                  // Check if this section should span full width (colSpan: 2)
+                  // Only apply when there's a sidebar, otherwise sections are full width
+                  const shouldSpanFull = hasSidebarSections && section.colSpan === 2;
+                  return (
+                    <div 
+                      key={section.id}
+                      className={shouldSpanFull ? "md:col-span-2" : ""}
+                    >
+                      <DynamicInfoCard
+                        section={section}
+                        schema={schema}
+                        data={data}
+                        index={index + mainComponents.length}
+                        disableAnimation={disableAnimation}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
 

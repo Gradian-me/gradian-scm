@@ -110,7 +110,14 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
       }
       return <span>{String(value)}</span>;
     default:
-      return <span>{String(value)}</span>;
+      // For URLs and long text, add word-break styling
+      const stringValue = String(value);
+      const isUrl = stringValue.startsWith('http://') || stringValue.startsWith('https://') || stringValue.startsWith('//');
+      return (
+        <span className={isUrl || stringValue.length > 50 ? "break-words break-all" : ""}>
+          {stringValue}
+        </span>
+      );
   }
 };
 
@@ -148,16 +155,13 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
   disableAnimation = false,
   className
 }) => {
-  const colSpan = section.colSpan || 1;
   // Default grid columns and gap (removed from schema)
   const gridColumns = 2 as 1 | 2 | 3;
   const gap = 4 as 2 | 3 | 4 | 6;
 
   // Define cardClasses early so it can be used in early returns
-  const cardClasses = cn(
-    colSpan === 2 && "lg:col-span-2",
-    className
-  );
+  // Note: colSpan is now handled at the parent grid container level in DynamicDetailPageRenderer
+  const cardClasses = cn(className);
 
   // Resolve fields by IDs
   let fields = (section.fieldIds || []).map(fieldId => {
@@ -325,7 +329,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                   )}
                   {field.label}
                 </label>
-                <div className="text-sm text-gray-900">
+                <div className="text-sm text-gray-900 break-words overflow-wrap-anywhere">
                   {formatFieldValue(field, field.value, data)}
                 </div>
               </div>

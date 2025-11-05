@@ -2821,7 +2821,7 @@
           "id": "user-overview",
           "title": "User Overview",
           "description": "Basic user information",
-          "colSpan": 1,
+          "colSpan": 2,
           "columnArea": "main",
           "fieldIds": [
             "username",
@@ -2837,7 +2837,7 @@
           "title": "Preferences",
           "description": "User language and timezone preferences",
           "colSpan": 1,
-          "columnArea": "main",
+          "columnArea": "sidebar",
           "fieldIds": [
             "language",
             "timezone"
