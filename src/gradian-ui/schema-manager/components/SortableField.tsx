@@ -27,16 +27,20 @@ export function SortableField({ id, children }: SortableFieldProps) {
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
-      <div className={`flex items-center gap-2 bg-white rounded-xl border p-1.5 hover:border-violet-300 transition-all duration-200 ${isDragging ? 'border-violet-400 shadow-md' : 'border-gray-100'}`}>
-        <button
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-0.5"
-        >
-          <GripVertical className="h-3.5 w-3.5" />
-        </button>
-        <div className="flex-1 flex items-center gap-2 min-w-0">
-          {children}
+      <div className={`w-full bg-white rounded-lg border hover:shadow-sm transition-all duration-200 ${isDragging ? 'border-violet-400 shadow-md ring-2 ring-violet-200' : 'border-gray-200'}`}>
+        <div className="p-3">
+          <div className="flex items-center gap-2">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-0.5 flex-shrink-0"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+            <div className="flex-1 min-w-0">
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     </div>

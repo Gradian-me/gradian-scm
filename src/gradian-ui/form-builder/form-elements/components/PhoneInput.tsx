@@ -6,6 +6,7 @@ import { TextInputProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CopyContent } from './CopyContent';
 
 export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
   (
@@ -23,6 +24,7 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
       minLength,
       className,
       touched,
+      canCopy = false,
       ...props
     },
     ref
@@ -111,23 +113,28 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
             required={required || config.validation?.required}
             disabled={disabled}
             autoComplete="tel"
-            className={cn(inputClasses, 'pr-10')}
+            className={cn(inputClasses, hasValue && !canCopy && 'pr-10', hasValue && canCopy && 'pr-20')}
             {...props}
           />
-          {hasValue && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleCall}
-              disabled={disabled}
-              className="absolute right-1 h-7 w-7 p-0 hover:bg-violet-100 hover:text-violet-600"
-              title="Call"
-              aria-label="Call phone number"
-            >
-              <Phone className="h-4 w-4" />
-            </Button>
-          )}
+          <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            {canCopy && hasValue && (
+              <CopyContent content={value} disabled={disabled} />
+            )}
+            {hasValue && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCall}
+                disabled={disabled}
+                className="h-7 w-7 p-0 hover:bg-violet-100 hover:text-violet-600"
+                title="Call"
+                aria-label="Call phone number"
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
         {error && (
           <p className="mt-1 text-sm text-red-600" role="alert">

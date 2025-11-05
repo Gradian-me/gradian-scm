@@ -13,6 +13,8 @@ export const FIELD_TYPES = [
   { value: 'tel', label: 'Phone' },
   { value: 'url', label: 'URL' },
   { value: 'file', label: 'File' },
+  { value: 'picker', label: 'Picker' },
+  { value: 'icon', label: 'Icon' },
 ] as const;
 
 export const ROLES = [

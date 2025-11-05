@@ -4,6 +4,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { NumberInputProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
+import { CopyContent } from './CopyContent';
 
 export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
   (
@@ -22,6 +23,7 @@ export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
       step,
       className,
       touched,
+      canCopy = false,
       ...props
     },
     ref
@@ -63,6 +65,7 @@ export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
       error
         ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500'
         : '',
+      canCopy && 'pr-10',
       className
     );
 
@@ -89,6 +92,7 @@ export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
             {fieldLabel}
           </label>
         )}
+        <div className="relative">
         <input
           ref={inputRef}
           id={fieldName}
@@ -107,6 +111,12 @@ export const NumberInput = forwardRef<FormElementRef, NumberInputProps>(
           className={inputClasses}
           {...props}
         />
+          {canCopy && value !== '' && value !== null && value !== undefined && (
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <CopyContent content={value} disabled={disabled} />
+            </div>
+          )}
+        </div>
         {error && (
           <p className="mt-1 text-sm text-red-600" role="alert">
             {error}

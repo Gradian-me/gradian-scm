@@ -3,6 +3,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { TextareaProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
+import { CopyContent } from './CopyContent';
 
 export const Textarea = forwardRef<FormElementRef, TextareaProps>(
   (
@@ -21,6 +22,7 @@ export const Textarea = forwardRef<FormElementRef, TextareaProps>(
       maxLength,
       className,
       touched,
+      canCopy = false,
       ...props
     },
     ref
@@ -64,6 +66,7 @@ export const Textarea = forwardRef<FormElementRef, TextareaProps>(
       resize === 'horizontal' && 'resize-x',
       resize === 'vertical' && 'resize-y',
       resize === 'both' && 'resize',
+      canCopy && 'pr-10',
       className
     );
 
@@ -81,6 +84,7 @@ export const Textarea = forwardRef<FormElementRef, TextareaProps>(
             {config.label}
           </label>
         )}
+        <div className="relative">
         <textarea
           ref={textareaRef}
           id={config.name}
@@ -99,6 +103,12 @@ export const Textarea = forwardRef<FormElementRef, TextareaProps>(
           className={textareaClasses}
           {...props}
         />
+          {canCopy && value && (
+            <div className="absolute right-1 top-2">
+              <CopyContent content={value} disabled={disabled} />
+            </div>
+          )}
+        </div>
         {error && (
           <p className="mt-1 text-sm text-red-600" role="alert">
             {error}

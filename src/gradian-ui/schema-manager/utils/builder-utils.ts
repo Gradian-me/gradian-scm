@@ -22,6 +22,7 @@ export const FIELD_TYPES: Array<{
   { value: 'url', label: 'URL', description: 'URL input' },
   { value: 'file', label: 'File', description: 'File upload' },
   { value: 'picker', label: 'Picker', description: 'Popup picker to select from another schema' },
+  { value: 'icon', label: 'Icon', description: 'Icon name input with preview' },
 ];
 
 export const ROLES: Array<{

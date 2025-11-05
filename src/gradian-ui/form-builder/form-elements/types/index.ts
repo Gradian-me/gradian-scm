@@ -20,6 +20,7 @@ export interface TextInputProps extends FormElementProps {
   maxLength?: number;
   minLength?: number;
   pattern?: string;
+  canCopy?: boolean;
 }
 
 export interface NumberInputProps extends FormElementProps {
@@ -28,6 +29,13 @@ export interface NumberInputProps extends FormElementProps {
   max?: number;
   step?: number;
   precision?: number;
+  canCopy?: boolean;
+}
+
+export interface SliderProps extends FormElementProps {
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface SelectInputProps extends FormElementProps {
@@ -42,6 +50,7 @@ export interface TextareaProps extends FormElementProps {
   cols?: number;
   resize?: 'none' | 'both' | 'horizontal' | 'vertical';
   maxLength?: number;
+  canCopy?: boolean;
 }
 
 export interface CheckboxProps extends FormElementProps {

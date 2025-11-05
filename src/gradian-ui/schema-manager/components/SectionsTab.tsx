@@ -4,8 +4,6 @@ import { Button } from '@/components/ui/button';
 import { ChevronsUp } from 'lucide-react';
 import { FormSection, FormField } from '../types/form-schema';
 import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
-import { SectionContent } from './SectionContent';
-import { SectionFields } from './SectionFields';
 import { SortableSection } from './SortableSection';
 import {
   DndContext,
@@ -37,6 +35,8 @@ interface SectionsTabProps {
   onSectionDragEnd: (event: DragEndEvent) => void;
   onFieldDragEnd: (event: DragEndEvent, sectionId: string) => void;
   onCollapseAll: () => void;
+  currentSchemaId?: string;
+  config?: any;
 }
 
 export function SectionsTab({
@@ -52,7 +52,9 @@ export function SectionsTab({
   onFieldDelete,
   onSectionDragEnd,
   onFieldDragEnd,
-  onCollapseAll
+  onCollapseAll,
+  currentSchemaId,
+  config
 }: SectionsTabProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -95,20 +97,34 @@ export function SectionsTab({
                   onToggle={() => onToggleSection(section.id)}
                   onDelete={() => onDeleteSection(section.id)}
                   onUpdate={(updates) => onUpdateSection(section.id, updates)}
+                  fields={fields}
+                  sections={sections}
+                  onAddField={() => onAddField(section.id)}
+                  onFieldUpdate={onFieldUpdate}
+                  onFieldDelete={onFieldDelete}
+                  onFieldMove={(fieldId, direction) => {
+                    const sectionFields = fields.sort((a, b) => (a.order || 0) - (b.order || 0));
+                    const currentIndex = sectionFields.findIndex(f => f.id === fieldId);
+                    if (direction === 'up' && currentIndex > 0) {
+                      const newIndex = currentIndex - 1;
+                      const reordered = [...sectionFields];
+                      [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
+                      reordered.forEach((field, idx) => {
+                        onFieldUpdate(field.id, { order: idx + 1 });
+                      });
+                    } else if (direction === 'down' && currentIndex < sectionFields.length - 1) {
+                      const newIndex = currentIndex + 1;
+                      const reordered = [...sectionFields];
+                      [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
+                      reordered.forEach((field, idx) => {
+                        onFieldUpdate(field.id, { order: idx + 1 });
+                      });
+                    }
+                  }}
+                  config={config}
+                  currentSchemaId={currentSchemaId}
                 >
-                  <SectionContent
-                    section={section}
-                    onUpdate={(updates) => onUpdateSection(section.id, updates)}
-                  />
-                  <SectionFields
-                    section={section}
-                    fields={fields}
-                    sections={sections}
-                    onAddField={() => onAddField(section.id)}
-                    onFieldUpdate={onFieldUpdate}
-                    onFieldDelete={onFieldDelete}
-                    onFieldDragEnd={onFieldDragEnd}
-                  />
+                  <div />
                 </SortableSection>
               );
             })}

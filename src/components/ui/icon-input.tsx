@@ -43,15 +43,18 @@ const IconInput = React.forwardRef<HTMLInputElement, IconInputProps>(
           value={localValue}
           onChange={handleChange}
           className={cn(
-            "flex h-10 w-full rounded-lg border bg-white pl-12 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-transparent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400 disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
-            isEmpty ? "border-gray-300" : isValid ? "border-green-300" : "border-red-300",
+            "flex h-10 w-full rounded-lg border bg-white pl-12 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400 disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
+            isEmpty ? "border-gray-300 text-gray-900 placeholder:text-gray-400" : isValid ? "border-green-300 text-gray-900 placeholder:text-gray-400" : "border-red-300 text-red-600 placeholder:text-red-400",
             className
           )}
           placeholder="Type icon name (e.g., User, Home, Search)"
           {...props}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="text-xs text-gray-500">
+          <span className={cn(
+            'text-xs',
+            isEmpty ? 'text-gray-500' : isValid ? 'text-green-600' : 'text-red-600'
+          )}>
             {isEmpty ? '' : isValid ? '✓' : '✗'}
           </span>
         </div>

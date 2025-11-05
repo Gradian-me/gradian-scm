@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+// Button import for DialogFooter buttons
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
+import { Card } from '@/components/ui/card';
+import { Select, ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
 import {
   Dialog,
   DialogContent,
@@ -41,24 +43,34 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
 
   return (
     <>
-      <div className="group w-full flex items-center justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-medium truncate text-gray-800">{field.label || 'Unnamed Field'}</span>
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{field.type}</Badge>
-            {field.required && <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Required</Badge>}
+      <Card className="w-full border border-gray-200 hover:shadow-sm transition-all duration-200">
+        <div className="w-full flex items-center justify-between p-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-medium truncate text-gray-800">{field.label || 'Unnamed Field'}</span>
+              <Badge variant="outline" className="text-[10px] px-1.5 py-0">{field.type}</Badge>
+              {field.required && <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Required</Badge>}
+            </div>
+            <span className="text-[10px] text-gray-400 truncate block mt-0.5">{field.name}</span>
           </div>
-          <span className="text-[10px] text-gray-400 truncate block">{field.name}</span>
+          <div className="flex gap-0.5 ml-2 flex-shrink-0">
+            <ButtonMinimal
+              icon={Edit}
+              title="Edit Field"
+              color="violet"
+              size="md"
+              onClick={() => setShowDialog(true)}
+            />
+            <ButtonMinimal
+              icon={Trash2}
+              title="Delete Field"
+              color="red"
+              size="md"
+              onClick={onDelete}
+            />
+          </div>
         </div>
-        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setShowDialog(true)}>
-            <Edit className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={onDelete}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-      </div>
+      </Card>
 
       {/* Field Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
@@ -123,6 +135,10 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
                 <Switch id={`readonly-${field.id}`} checked={tempField.readonly || false} onCheckedChange={(checked) => setTempField({ ...tempField, readonly: checked })} />
                 <Label htmlFor={`readonly-${field.id}`}>Readonly</Label>
               </div>
+              <div className="flex items-center gap-2">
+                <Switch id={`canCopy-${field.id}`} checked={tempField.canCopy || false} onCheckedChange={(checked) => setTempField({ ...tempField, canCopy: checked })} />
+                <Label htmlFor={`canCopy-${field.id}`}>Can Copy</Label>
+              </div>
             </div>
             <div>
               <Label>Role</Label>
@@ -143,7 +159,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
               </div>
               <div>
                 <Label>Order</Label>
-                <Input type="number" value={tempField.order || 0} onChange={(e) => setTempField({ ...tempField, order: parseInt(e.target.value) || 0 })} />
+                <Input type="number" value={tempField.order || 1} onChange={(e) => setTempField({ ...tempField, order: parseInt(e.target.value) || 1 })} />
               </div>
             </div>
           </div>

@@ -1,17 +1,40 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
-import { Card, CardContent, CardHeader } from '../../../components/ui/card';
-import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Switch } from '../../../components/ui/switch';
+import { Button } from '../../../components/ui/button';
+import { Select, Slider, ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
+import { Trash2 } from 'lucide-react';
 import { SectionEditorProps } from '../types/builder';
 import { FieldEditor } from './FieldEditor';
+import { SortableField } from './SortableField';
 import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
 import { useMemo, useState, useEffect } from 'react';
 import { FormSchema } from '../types/form-schema';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 export function SectionEditor({
   section,
@@ -25,17 +48,51 @@ export function SectionEditor({
   sections,
   config,
   currentSchemaId,
-}: SectionEditorProps) {
+  onClose,
+}: SectionEditorProps & { onClose?: () => void }) {
+  const [tempSection, setTempSection] = useState(section);
   const [relationTypes, setRelationTypes] = useState<Array<{ id: string; label: string }>>([]);
   const [availableSchemas, setAvailableSchemas] = useState<Array<{ id: string; name: string }>>([]);
   
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  useEffect(() => {
+    setTempSection(section);
+  }, [section]);
+
   const sortedFields = useMemo(() => {
     return fields.sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [fields]);
 
-  const isRelationBased = section.isRepeatingSection && 
-    section.repeatingConfig?.targetSchema && 
-    section.repeatingConfig?.relationTypeId;
+  const handleFieldDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    
+    const oldIndex = sortedFields.findIndex(f => f.id === active.id);
+    const newIndex = sortedFields.findIndex(f => f.id === over.id);
+    
+    if (oldIndex !== newIndex && oldIndex !== -1 && newIndex !== -1) {
+      // Create a new array with the reordered fields
+      const reordered = [...sortedFields];
+      const [movedField] = reordered.splice(oldIndex, 1);
+      reordered.splice(newIndex, 0, movedField);
+      
+      // Update the order for all affected fields
+      // React 18 automatically batches these updates
+      reordered.forEach((field, idx) => {
+        onFieldUpdate(field.id, { order: idx + 1 });
+      });
+    }
+  };
+
+  const isRelationBased = tempSection.isRepeatingSection && 
+    tempSection.repeatingConfig?.targetSchema && 
+    tempSection.repeatingConfig?.relationTypeId;
 
   // Fetch relation types
   useEffect(() => {
@@ -72,238 +129,237 @@ export function SectionEditor({
       }
     };
 
-    if (section.isRepeatingSection) {
+    if (tempSection.isRepeatingSection) {
       fetchRelationTypes();
       fetchSchemas();
     }
-  }, [section.isRepeatingSection, currentSchemaId]);
+  }, [tempSection.isRepeatingSection, currentSchemaId]);
 
-  const updateRepeatingConfig = (updates: Partial<typeof section.repeatingConfig>) => {
-    onUpdate({
-      repeatingConfig: {
-        ...section.repeatingConfig,
-        ...updates,
-      },
-    });
+  const handleSave = () => {
+    onUpdate(tempSection);
+    onClose?.();
   };
 
   return (
-    <Card className="transition-all">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 space-y-2">
+    <Dialog open={true} onOpenChange={(open) => !open && onClose?.()}>
+      <DialogContent className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Section</DialogTitle>
+          <DialogDescription>
+            Configure section properties and fields
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-5 py-4">
+          <div>
+            <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Section Title</Label>
             <Input
-              value={section.title}
-              onChange={(e) => onUpdate({ title: e.target.value })}
-              className="text-lg font-semibold"
+              value={tempSection.title}
+              onChange={(e) => setTempSection({ ...tempSection, title: e.target.value })}
+              className="h-9"
               placeholder="Section title..."
             />
+          </div>
+          <div>
+            <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Description</Label>
             <Textarea
-              value={section.description || ''}
-              onChange={(e) => onUpdate({ description: e.target.value })}
-              placeholder="Section description..."
+              value={tempSection.description || ''}
+              onChange={(e) => setTempSection({ ...tempSection, description: e.target.value })}
+              placeholder="Section description (optional)..."
               rows={2}
+              className="resize-none"
             />
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4 pt-0">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Columns</Label>
-            <Input
-              type="number"
-              value={section.columns || 2}
-              onChange={(e) => onUpdate({ columns: parseInt(e.target.value) || 2 })}
-            />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Initial State</Label>
+              <Select
+                value={tempSection.initialState || 'expanded'}
+                onValueChange={(value) => setTempSection({ ...tempSection, initialState: value as 'expanded' | 'collapsed' })}
+                options={[
+                  { value: 'expanded', label: 'Expanded' },
+                  { value: 'collapsed', label: 'Collapsed' }
+                ]}
+              />
+            </div>
+            <div>
+              <Slider
+                config={{
+                  name: 'columns',
+                  label: 'Columns',
+                }}
+                value={tempSection.columns || 2}
+                onChange={(value) => setTempSection({ ...tempSection, columns: value })}
+                min={1}
+                max={4}
+                step={1}
+              />
+            </div>
           </div>
-          <div>
-            <Label>Initial State</Label>
-            <select
-              value={section.initialState || 'expanded'}
-              onChange={(e) => onUpdate({ initialState: e.target.value as 'expanded' | 'collapsed' })}
-              className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
-            >
-              <option value="expanded">Expanded</option>
-              <option value="collapsed">Collapsed</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
+          
+          <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+            <Switch
               id={`repeating-${section.id}`}
-              checked={section.isRepeatingSection || false}
-              onChange={(e) => {
-                const isRepeating = e.target.checked;
-                onUpdate({ 
-                  isRepeatingSection: isRepeating,
-                  // Initialize repeatingConfig if enabling
-                  repeatingConfig: isRepeating && !section.repeatingConfig 
+              checked={tempSection.isRepeatingSection || false}
+              onCheckedChange={(checked) => {
+                setTempSection({ 
+                  ...tempSection,
+                  isRepeatingSection: checked,
+                  repeatingConfig: checked && !tempSection.repeatingConfig 
                     ? { minItems: 0, maxItems: undefined }
-                    : section.repeatingConfig,
+                    : tempSection.repeatingConfig,
                 });
               }}
-              className="w-4 h-4"
             />
-            <Label htmlFor={`repeating-${section.id}`} className="cursor-pointer">
+            <Label htmlFor={`repeating-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
               Repeating Section
             </Label>
           </div>
-        </div>
 
-        {/* Repeating Section Configuration */}
-        {section.isRepeatingSection && (
-          <div className="pt-4 border-t space-y-4 bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-semibold text-gray-700">Repeating Section Configuration</h4>
+          {/* Repeating Section Configuration */}
+          {tempSection.isRepeatingSection && (
+          <div className="pt-4 space-y-4 border-t border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-gray-200"></div>
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Configuration</span>
+              <div className="h-px flex-1 bg-gray-200"></div>
+            </div>
             
             {/* Relation-based configuration */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Target Schema</Label>
-                <select
-                  value={section.repeatingConfig?.targetSchema || ''}
-                  onChange={(e) => updateRepeatingConfig({ targetSchema: e.target.value || undefined })}
-                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
-                >
-                  <option value="">Select target schema...</option>
-                  {availableSchemas.map((schema) => (
-                    <option key={schema.id} value={schema.id}>
-                      {schema.name}
-                    </option>
-                  ))}
-                </select>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Target Schema</Label>
+                <Select
+                  value={tempSection.repeatingConfig?.targetSchema || ''}
+                  onValueChange={(value) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, targetSchema: value || undefined } })}
+                  options={[
+                    { value: '', label: 'Select target schema...' },
+                    ...availableSchemas.map((schema) => ({ value: schema.id, label: schema.name }))
+                  ]}
+                />
               </div>
               
               <div>
-                <Label>Relation Type</Label>
-                <select
-                  value={section.repeatingConfig?.relationTypeId || ''}
-                  onChange={(e) => updateRepeatingConfig({ relationTypeId: e.target.value || undefined })}
-                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
-                >
-                  <option value="">Select relation type...</option>
-                  {relationTypes.map((rt) => (
-                    <option key={rt.id} value={rt.id}>
-                      {rt.label}
-                    </option>
-                  ))}
-                </select>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Relation Type</Label>
+                <Select
+                  value={tempSection.repeatingConfig?.relationTypeId || ''}
+                  onValueChange={(value) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, relationTypeId: value || undefined } })}
+                  options={[
+                    { value: '', label: 'Select relation type...' },
+                    ...relationTypes.map((rt) => ({ value: rt.id, label: rt.label }))
+                  ]}
+                />
               </div>
             </div>
 
             {/* Common repeating config fields */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Min Items</Label>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Min Items</Label>
                 <Input
                   type="number"
-                  value={section.repeatingConfig?.minItems ?? ''}
-                  onChange={(e) => updateRepeatingConfig({ 
-                    minItems: e.target.value ? parseInt(e.target.value) : undefined 
-                  })}
+                  value={tempSection.repeatingConfig?.minItems ?? ''}
+                  onChange={(e) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, minItems: e.target.value ? parseInt(e.target.value) : undefined } })}
+                  className="h-9"
                 />
               </div>
               <div>
-                <Label>Max Items</Label>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Max Items</Label>
                 <Input
                   type="number"
-                  value={section.repeatingConfig?.maxItems ?? ''}
-                  onChange={(e) => updateRepeatingConfig({ 
-                    maxItems: e.target.value ? parseInt(e.target.value) : undefined 
-                  })}
+                  value={tempSection.repeatingConfig?.maxItems ?? ''}
+                  onChange={(e) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, maxItems: e.target.value ? parseInt(e.target.value) : undefined } })}
+                  className="h-9"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Add Button Text</Label>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Add Button Text</Label>
                 <Input
-                  value={section.repeatingConfig?.addButtonText || ''}
-                  onChange={(e) => updateRepeatingConfig({ addButtonText: e.target.value || undefined })}
+                  value={tempSection.repeatingConfig?.addButtonText || ''}
+                  onChange={(e) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, addButtonText: e.target.value || undefined } })}
+                  className="h-9"
+                  placeholder="Add item..."
                 />
               </div>
               <div>
-                <Label>Remove Button Text</Label>
+                <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Remove Button Text</Label>
                 <Input
-                  value={section.repeatingConfig?.removeButtonText || ''}
-                  onChange={(e) => updateRepeatingConfig({ removeButtonText: e.target.value || undefined })}
+                  value={tempSection.repeatingConfig?.removeButtonText || ''}
+                  onChange={(e) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, removeButtonText: e.target.value || undefined } })}
+                  className="h-9"
+                  placeholder="Remove..."
                 />
               </div>
             </div>
             <div>
-                <Label>Empty Message</Label>
-                <Input
-                  value={section.repeatingConfig?.emptyMessage || ''}
-                  onChange={(e) => updateRepeatingConfig({ emptyMessage: e.target.value || undefined })}
-                />
-              </div>
+              <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Empty Message</Label>
+              <Input
+                value={tempSection.repeatingConfig?.emptyMessage || ''}
+                onChange={(e) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, emptyMessage: e.target.value || undefined } })}
+                className="h-9"
+                placeholder="No items yet..."
+              />
+            </div>
               
               {isRelationBased && (
                 <>
                   <div>
-                    <Label>Delete Type</Label>
-                    <select
-                      value={section.repeatingConfig?.deleteType || 'itemAndRelation'}
-                      onChange={(e) => updateRepeatingConfig({ 
-                        deleteType: e.target.value as 'relationOnly' | 'itemAndRelation' 
-                      })}
-                      className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
-                    >
-                      <option value="relationOnly">Delete relation only (keep item)</option>
-                      <option value="itemAndRelation">Delete item and relation</option>
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {section.repeatingConfig?.deleteType === 'relationOnly' 
+                    <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Delete Type</Label>
+                    <Select
+                      value={tempSection.repeatingConfig?.deleteType || 'itemAndRelation'}
+                      onValueChange={(value) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, deleteType: value as 'relationOnly' | 'itemAndRelation' } })}
+                      options={[
+                        { value: 'relationOnly', label: 'Delete relation only (keep item)' },
+                        { value: 'itemAndRelation', label: 'Delete item and relation' }
+                      ]}
+                    />
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      {tempSection.repeatingConfig?.deleteType === 'relationOnly' 
                         ? 'Only the relation will be deleted. The item will remain in the target schema.'
                         : 'Both the relation and the item will be permanently deleted.'}
                     </p>
                   </div>
                   <div>
-                    <Label>Add Type</Label>
-                    <select
-                      value={section.repeatingConfig?.addType || 'addOnly'}
-                      onChange={(e) => updateRepeatingConfig({ 
-                        addType: e.target.value as 'addOnly' | 'canSelectFromData' | 'mustSelectFromData' 
-                      })}
-                      className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400"
-                    >
-                      <option value="addOnly">Add only (create new items)</option>
-                      <option value="canSelectFromData">Can select from existing data</option>
-                      <option value="mustSelectFromData">Must select from existing data</option>
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {section.repeatingConfig?.addType === 'addOnly' 
+                    <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Add Type</Label>
+                    <Select
+                      value={tempSection.repeatingConfig?.addType || 'addOnly'}
+                      onValueChange={(value) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, addType: value as 'addOnly' | 'canSelectFromData' | 'mustSelectFromData' } })}
+                      options={[
+                        { value: 'addOnly', label: 'Add only (create new items)' },
+                        { value: 'canSelectFromData', label: 'Can select from existing data' },
+                        { value: 'mustSelectFromData', label: 'Must select from existing data' }
+                      ]}
+                    />
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      {tempSection.repeatingConfig?.addType === 'addOnly' 
                         ? 'Users can only create new items. No selection from existing data.'
-                        : section.repeatingConfig?.addType === 'canSelectFromData'
+                        : tempSection.repeatingConfig?.addType === 'canSelectFromData'
                         ? 'Users can create new items or select from existing data. Both "Add" and "Select" buttons will be shown.'
                         : 'Users can only select from existing data. Only "Select" button will be shown.'}
                     </p>
                   </div>
-                  {(section.repeatingConfig?.addType === 'canSelectFromData' || section.repeatingConfig?.addType === 'mustSelectFromData') && (
-                    <>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
+                  {(tempSection.repeatingConfig?.addType === 'canSelectFromData' || tempSection.repeatingConfig?.addType === 'mustSelectFromData') && (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Switch
                           id="isUnique"
-                          checked={section.repeatingConfig?.isUnique || false}
-                          onChange={(e) => updateRepeatingConfig({ isUnique: e.target.checked })}
-                          className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+                          checked={tempSection.repeatingConfig?.isUnique || false}
+                          onCheckedChange={(checked) => setTempSection({ ...tempSection, repeatingConfig: { ...tempSection.repeatingConfig, isUnique: checked } })}
                         />
-                        <Label htmlFor="isUnique" className="font-normal cursor-pointer">
+                        <Label htmlFor="isUnique" className="text-sm font-medium text-gray-700 cursor-pointer">
                           Unique Selection
                         </Label>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 pl-8">
                         If enabled, each item can only be selected once. Already selected items will be excluded from the picker.
                       </p>
-                    </>
+                    </div>
                   )}
-                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <p className="text-sm text-blue-800">
-                      <strong>Relation-based section:</strong> Fields are managed in the target schema "{section.repeatingConfig?.targetSchema}". 
+                  <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
+                    <p className="text-xs text-blue-700">
+                      <span className="font-medium">Relation-based section:</span> Fields are managed in the target schema "{tempSection.repeatingConfig?.targetSchema}". 
                       Relations will be stored in all-data-relations.json.
                     </p>
                   </div>
@@ -312,45 +368,65 @@ export function SectionEditor({
           </div>
         )}
 
-        {/* Fields Section - Only show for non-relation-based repeating sections or regular sections */}
-        {(!section.isRepeatingSection || !isRelationBased) && (
-          <div className="pt-4 border-t space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-sm font-semibold text-gray-700">Fields ({fields.length})</h4>
-              <AddButtonFull
-                label="Add Field"
-                onClick={onAddField}
-                iconSize="w-4 h-4"
-                fullWidth={false}
-                className="px-3 py-2 rounded-xl text-xs sm:text-sm"
-              />
+          {/* Fields Section - Only show for non-relation-based repeating sections or regular sections */}
+          {(!tempSection.isRepeatingSection || !isRelationBased) && (
+          <div className="pt-4 space-y-4 border-t border-gray-100">
+            <div className="flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-gray-900">Fields</h4>
+              <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{fields.length}</span>
             </div>
 
             {fields.length === 0 ? (
-              <div className="text-center py-8 text-gray-400">
-                <p>No fields yet. Click "Add Field" to get started.</p>
+              <div className="text-center py-12 text-gray-400">
+                <p className="text-sm">No fields yet. Click "Add Field" to get started.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {sortedFields.map((field, fieldIndex) => (
-                  <FieldEditor
-                    key={field.id}
-                    field={field}
-                    onUpdate={(updates) => onFieldUpdate(field.id, updates)}
-                    onDelete={() => onFieldDelete(field.id)}
-                    sections={sections}
-                    canMoveUp={fieldIndex > 0 && !!onFieldMove}
-                    canMoveDown={fieldIndex < sortedFields.length - 1 && !!onFieldMove}
-                    onMoveUp={onFieldMove ? () => onFieldMove(field.id, 'up') : undefined}
-                    onMoveDown={onFieldMove ? () => onFieldMove(field.id, 'down') : undefined}
-                  />
-                ))}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleFieldDragEnd}
+              >
+                <SortableContext
+                  items={sortedFields.map(f => f.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-2">
+                    {sortedFields.map((field) => (
+                      <SortableField key={field.id} id={field.id}>
+                        <FieldEditor
+                          field={field}
+                          onUpdate={(updates) => onFieldUpdate(field.id, updates)}
+                          onDelete={() => onFieldDelete(field.id)}
+                          sections={sections}
+                        />
+                      </SortableField>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
+            
+            <AddButtonFull
+              label="Add Field"
+              onClick={onAddField}
+              iconSize="w-4 h-4"
+              textSize="text-sm"
+              fullWidth={true}
+            />
           </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </div>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={onClose} className="w-full sm:w-auto text-sm md:text-base">
+            Cancel
+          </Button>
+          <Button onClick={handleSave} className="w-full sm:w-auto text-sm md:text-base">
+            <span className="hidden md:inline">Save Changes</span>
+            <span className="md:hidden">Save</span>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

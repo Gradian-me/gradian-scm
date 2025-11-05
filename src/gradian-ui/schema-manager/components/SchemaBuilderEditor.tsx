@@ -97,33 +97,35 @@ export function SchemaBuilderEditor({
   };
 
   const updateField = (fieldId: string, updates: Partial<FormField>) => {
-    if (!schema) return;
-    
-    const currentField = schema.fields.find(f => f.id === fieldId);
-    if (!currentField) return;
-
-    let updatedFields: FormField[];
-    
-    // If sectionId is being changed, move to the end of the new section
-    if (updates.sectionId && updates.sectionId !== currentField.sectionId) {
-      const newSectionFields = schema.fields.filter(f => f.sectionId === updates.sectionId);
-      const maxOrder = newSectionFields.length > 0 
-        ? Math.max(...newSectionFields.map(f => f.order || 0))
-        : 0;
+    setSchema(prev => {
+      if (!prev) return prev;
       
-      updatedFields = schema.fields.map(f => {
-        if (f.id === fieldId) {
-          return { ...f, ...updates, order: maxOrder + 1 };
-        }
-        return f;
-      });
-    } else {
-      updatedFields = schema.fields.map(f =>
-        f.id === fieldId ? { ...f, ...updates } : f
-      );
-    }
-    
-    setSchema({ ...schema, fields: updatedFields });
+      const currentField = prev.fields.find(f => f.id === fieldId);
+      if (!currentField) return prev;
+
+      let updatedFields: FormField[];
+      
+      // If sectionId is being changed, move to the end of the new section
+      if (updates.sectionId && updates.sectionId !== currentField.sectionId) {
+        const newSectionFields = prev.fields.filter(f => f.sectionId === updates.sectionId);
+        const maxOrder = newSectionFields.length > 0 
+          ? Math.max(...newSectionFields.map(f => f.order || 1))
+          : 0;
+        
+        updatedFields = prev.fields.map(f => {
+          if (f.id === fieldId) {
+            return { ...f, ...updates, order: maxOrder + 1 };
+          }
+          return f;
+        });
+      } else {
+        updatedFields = prev.fields.map(f =>
+          f.id === fieldId ? { ...f, ...updates } : f
+        );
+      }
+      
+      return { ...prev, fields: updatedFields };
+    });
   };
 
   const deleteField = (fieldId: string) => {
@@ -140,17 +142,37 @@ export function SchemaBuilderEditor({
     });
   };
 
+  // Convert label to camelCase field name
+  const labelToCamelCase = (label: string): string => {
+    if (!label) return '';
+    
+    return label
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .split(/[\s_-]+/) // Split on spaces, underscores, or hyphens
+      .map((word, index) => {
+        if (index === 0) {
+          return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join('');
+  };
+
   const addField = (sectionId: string) => {
     if (!schema) return;
     const sectionFields = schema.fields.filter(f => f.sectionId === sectionId);
     const maxOrder = sectionFields.length > 0 
-      ? Math.max(...sectionFields.map(f => f.order || 0))
+      ? Math.max(...sectionFields.map(f => f.order || 1))
       : 0;
+    
+    const defaultLabel = 'New Field';
+    const defaultName = labelToCamelCase(defaultLabel);
     
     const newField: FormField = {
       id: `field-${Date.now()}`,
-      name: 'new_field',
-      label: 'New Field',
+      name: defaultName,
+      label: defaultLabel,
       sectionId,
       type: 'text',
       component: 'text',
@@ -321,6 +343,7 @@ export function SchemaBuilderEditor({
               onSectionDragEnd={handleSectionDragEnd}
               onFieldDragEnd={handleFieldDragEnd}
               onCollapseAll={collapseAllSections}
+              currentSchemaId={schema.id}
             />
           </TabsContent>
         </Tabs>

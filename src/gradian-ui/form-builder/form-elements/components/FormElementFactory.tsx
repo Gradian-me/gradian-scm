@@ -25,6 +25,7 @@ import { DateInput } from './DateInput';
 import { DateTimeInput } from './DateTimeInput';
 import { FileInput } from './FileInput';
 import { PickerInput } from './PickerInput';
+import { IconInput } from './IconInput';
 import { UnknownControl } from './UnknownControl';
 
 // Support both config-based and field-based interfaces
@@ -69,23 +70,26 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
 
   // Use component if available, otherwise fall back to type
   const elementType = (config as any).component || config.type;
+  
+  // Extract canCopy from config if it exists
+  const canCopy = (config as any).canCopy ?? false;
 
   switch (elementType) {
     case 'text':
-      return <TextInput config={config} {...restProps} />;
+      return <TextInput config={config} {...restProps} canCopy={canCopy} />;
     
     case 'email':
-      return <EmailInput config={config} {...restProps} />;
+      return <EmailInput config={config} {...restProps} canCopy={canCopy} />;
     
     case 'phone':
     case 'tel':
-      return <PhoneInput config={config} {...restProps} />;
+      return <PhoneInput config={config} {...restProps} canCopy={canCopy} />;
     
     case 'password':
       return <PasswordInput config={config} {...restProps} />;
     
     case 'number':
-      return <NumberInput config={config} {...restProps} />;
+      return <NumberInput config={config} {...restProps} canCopy={canCopy} />;
     
     case 'select':
       // Convert options to SelectOption[] format if they have icon/color
@@ -112,7 +116,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       );
     
     case 'textarea':
-      return <Textarea config={config} {...restProps} />;
+      return <Textarea config={config} {...restProps} canCopy={canCopy} />;
     
     case 'checkbox':
       return <Checkbox config={config} {...restProps} />;
@@ -135,6 +139,9 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'picker':
       return <PickerInput config={config} {...restProps} />;
+    
+    case 'icon':
+      return <IconInput config={config} {...restProps} canCopy={canCopy} />;
     
     case 'image-text':
       return <ImageText config={config} value={restProps.value} {...restProps} />;

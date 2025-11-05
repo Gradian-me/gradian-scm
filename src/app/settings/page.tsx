@@ -290,10 +290,10 @@ export default function SettingsPage() {
                          }}
                          value={settings.notifications.emailNotifications}
                          onChange={(checked: boolean) => setSettings(prev => ({
-                           ...prev,
+                          ...prev,
                            notifications: { ...prev.notifications, emailNotifications: checked }
-                         }))}
-                       />
+                        }))}
+                      />
                        <Switch
                          config={{
                            name: 'pushNotifications',
@@ -302,12 +302,12 @@ export default function SettingsPage() {
                          }}
                          value={settings.notifications.pushNotifications}
                          onChange={(checked: boolean) => setSettings(prev => ({
-                           ...prev,
+                          ...prev,
                            notifications: { ...prev.notifications, pushNotifications: checked }
-                         }))}
-                       />
-                     </div>
-                  </div>
+                        }))}
+                      />
+                    </div>
+                      </div>
 
                                     {/* Business Updates */}
                   <div className="space-y-4">
@@ -321,10 +321,10 @@ export default function SettingsPage() {
                          }}
                          value={settings.notifications.tenderUpdates}
                          onChange={(checked: boolean) => setSettings(prev => ({
-                           ...prev,
+                          ...prev,
                            notifications: { ...prev.notifications, tenderUpdates: checked }
-                         }))}
-                       />
+                        }))}
+                      />
                        <Switch
                          config={{
                            name: 'vendorUpdates',
@@ -333,12 +333,12 @@ export default function SettingsPage() {
                          }}
                          value={settings.notifications.vendorUpdates}
                          onChange={(checked: boolean) => setSettings(prev => ({
-                           ...prev,
+                          ...prev,
                            notifications: { ...prev.notifications, vendorUpdates: checked }
-                         }))}
-                       />
-                     </div>
-                  </div>
+                        }))}
+                      />
+                    </div>
+                      </div>
 
                                     {/* System Notifications */}
                   <div className="space-y-4">
@@ -352,11 +352,11 @@ export default function SettingsPage() {
                          }}
                          value={settings.notifications.systemAlerts}
                          onChange={(checked: boolean) => setSettings(prev => ({
-                           ...prev,
+                          ...prev,
                            notifications: { ...prev.notifications, systemAlerts: checked }
-                         }))}
-                       />
-                     </div>
+                        }))}
+                      />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -370,29 +370,29 @@ export default function SettingsPage() {
                 </CardHeader>
                                   <CardContent className="space-y-6">
                     {/* Two-Factor Authentication Section */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <Label className="text-base font-semibold">Two-Factor Authentication</Label>
                           <p className="text-sm text-gray-600">
                             Add an extra layer of security to your account by requiring a verification code in addition to your password.
                           </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={settings.security.twoFactorAuth ? 'success' : 'secondary'}>
-                            {settings.security.twoFactorAuth ? 'Enabled' : 'Disabled'}
-                          </Badge>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={settings.security.twoFactorAuth ? 'success' : 'secondary'}>
+                          {settings.security.twoFactorAuth ? 'Enabled' : 'Disabled'}
+                        </Badge>
                           {twoFactorSetup.step === 'idle' && (
                             <Button 
                               variant="outline" 
                               size="sm"
                               onClick={handleEnable2FA}
                             >
-                              {settings.security.twoFactorAuth ? 'Disable' : 'Enable'}
-                            </Button>
+                          {settings.security.twoFactorAuth ? 'Disable' : 'Enable'}
+                        </Button>
                           )}
-                        </div>
                       </div>
+                    </div>
 
                       {/* Setup Flow: QR Code Step */}
                       {twoFactorSetup.step === 'qr' && (
@@ -409,24 +409,21 @@ export default function SettingsPage() {
                                 src={twoFactorSetup.qrCode} 
                                 alt="QR Code for 2FA setup" 
                                 className="w-48 h-48"
-                              />
-                            </div>
-                            <div className="flex-1 space-y-4">
-                              <div>
-                                <Label className="text-sm font-medium mb-2 block">Can't scan? Enter this code manually:</Label>
-                                <div className="flex items-center space-x-2">
-                                  <code className="px-3 py-2 bg-white border border-gray-300 rounded font-mono text-sm">
-                                    {twoFactorSetup.secretKey}
-                                  </code>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => navigator.clipboard.writeText(twoFactorSetup.secretKey)}
-                                  >
-                                    Copy
-                                  </Button>
-                                </div>
-                              </div>
+                      />
+                    </div>
+                              <div className="flex-1 space-y-4">
+                                <TextInput
+                                  config={{
+                                    name: 'secretKey',
+                                    label: 'Can\'t scan? Enter this code manually:',
+                                    type: 'text',
+                                    placeholder: 'Enter secret key'
+                                  }}
+                                  value={twoFactorSetup.secretKey}
+                                  onChange={() => {}}
+                                  disabled={true}
+                                  canCopy={true}
+                                />
                               <div className="flex space-x-2">
                                 <Button
                                   onClick={() => setTwoFactorSetup({ ...twoFactorSetup, step: 'verify' })}
@@ -471,24 +468,24 @@ export default function SettingsPage() {
                                   setTwoFactorSetup({ ...twoFactorSetup, verificationCode: digits });
                                 }}
                                 maxLength={6}
-                              />
-                            </div>
-                            <div className="flex space-x-2">
+                      />
+                    </div>
+                      <div className="flex space-x-2">
                               <Button
                                 onClick={handleVerify2FA}
                                 disabled={twoFactorSetup.verificationCode.length !== 6}
-                                className="flex-1"
+                          className="flex-1"
                               >
                                 Verify & Enable
                               </Button>
-                              <Button
-                                variant="outline"
+                        <Button
+                          variant="outline"
                                 onClick={() => setTwoFactorSetup({ ...twoFactorSetup, step: 'qr', verificationCode: '' })}
-                              >
+                        >
                                 Back
-                              </Button>
-                            </div>
-                          </div>
+                        </Button>
+                      </div>
+                    </div>
                         </div>
                       )}
 
