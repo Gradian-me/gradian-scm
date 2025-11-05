@@ -23,6 +23,14 @@ export interface TextInputProps extends FormElementProps {
   canCopy?: boolean;
 }
 
+export interface SearchInputProps extends FormElementProps {
+  placeholder?: string;
+  maxLength?: number;
+  minLength?: number;
+  pattern?: string;
+  onClear?: () => void;
+}
+
 export interface NumberInputProps extends FormElementProps {
   placeholder?: string;
   min?: number;

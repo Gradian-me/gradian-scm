@@ -6,8 +6,8 @@ export interface FormField {
   name: string;
   label: string;
   sectionId: string; // Reference to the section this field belongs to
-  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'file' | 'picker' | 'icon';
-  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'file' | 'picker' | 'icon';
+  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'icon-input' | 'image-text' | 'button' | 'input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
+  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'icon-input' | 'image-text' | 'button' | 'input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
   placeholder?: string;
   icon?: string;
   displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';

@@ -2257,5 +2257,198 @@
     ],
     "showInNavigation": false,
     "icon": "Package"
+  },
+  {
+    "id": "applications",
+    "description": "Define and manage applications in your system",
+    "singular_name": "Application",
+    "plural_name": "Applications",
+    "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-builder",
+        "label": "Back to Builder",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder"
+      }
+    ],
+    "cardMetadata": [
+      {
+        "id": "application-info",
+        "title": "Application Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "application-name",
+          "application-icon",
+          "application-color"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "application-name",
+        "name": "name",
+        "label": "Application Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter application name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "colSpan": 2,
+        "order": 1
+      },
+      {
+        "id": "application-icon",
+        "name": "icon",
+        "label": "Icon",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "icon-input",
+        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "required": true,
+        "validation": {
+          "required": true
+        },
+        "colSpan": 1,
+        "order": 2
+      },
+      {
+        "id": "application-color",
+        "name": "color",
+        "label": "Color",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "color-picker",
+        "placeholder": "#000000",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "colSpan": 1,
+        "order": 3
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "Application name, icon, and color",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "application-overview",
+          "title": "Application Overview",
+          "description": "Basic application information",
+          "colSpan": 2,
+          "fieldIds": [
+            "application-name",
+            "application-icon",
+            "application-color"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "AppWindow"
+  },
+  {
+    "id": "user-roles",
+    "description": "Define and manage user roles in your system",
+    "singular_name": "User Role",
+    "plural_name": "User Roles",
+    "isSystemSchema": true,
+    "customButtons": [
+      {
+        "id": "go-to-builder",
+        "label": "Back to Builder",
+        "icon": "ArrowLeft",
+        "variant": "outline",
+        "action": "goToUrl",
+        "targetUrl": "/builder"
+      }
+    ],
+    "cardMetadata": [
+      {
+        "id": "user-role-info",
+        "title": "User Role Information",
+        "colSpan": 1,
+        "fieldIds": [
+          "user-role-name",
+          "user-role-color"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "id": "user-role-name",
+        "name": "name",
+        "label": "User Role Name",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter user role name",
+        "required": true,
+        "role": "title",
+        "validation": {
+          "required": true,
+          "minLength": 2
+        },
+        "colSpan": 2,
+        "order": 1
+      },
+      {
+        "id": "user-role-color",
+        "name": "color",
+        "label": "User Role Color",
+        "sectionId": "basic-information",
+        "type": "text",
+        "component": "color-picker",
+        "placeholder": "#000000",
+        "required": true,
+        "validation": {
+          "required": true,
+          "pattern": "^#[0-9A-Fa-f]{6}$"
+        },
+        "colSpan": 1,
+        "order": 2
+      }
+    ],
+    "sections": [
+      {
+        "id": "basic-information",
+        "title": "Basic Information",
+        "description": "User role name and color",
+        "initialState": "expanded",
+        "columns": 2
+      }
+    ],
+    "detailPageMetadata": {
+      "sections": [
+        {
+          "id": "user-role-overview",
+          "title": "User Role Overview",
+          "description": "Basic user role information",
+          "colSpan": 2,
+          "fieldIds": [
+            "user-role-name",
+            "user-role-color"
+          ]
+        }
+      ]
+    },
+    "showInNavigation": false,
+    "icon": "UserCircle"
   }
 ]

@@ -17,7 +17,8 @@ import {
   Search,
   Loader2,
   ArrowLeft,
-  LayoutList
+  LayoutList,
+  RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -120,6 +121,7 @@ export default function SchemaBuilderPage() {
   const router = useRouter();
   const [schemas, setSchemas] = useState<FormSchema[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; schema: FormSchema | null }>({ open: false, schema: null });
   const [createDialog, setCreateDialog] = useState(false);
@@ -130,9 +132,13 @@ export default function SchemaBuilderPage() {
     fetchSchemas();
   }, []);
 
-  const fetchSchemas = async () => {
+  const fetchSchemas = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       const response = await fetch(config.schemaApi.basePath);
       const result = await response.json();
       
@@ -145,7 +151,12 @@ export default function SchemaBuilderPage() {
       console.error('Error fetching schemas:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchSchemas(true);
   };
 
   const handleDelete = async () => {
@@ -238,16 +249,28 @@ export default function SchemaBuilderPage() {
           Back to Builder
         </Button>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-          <Input
-            type="text"
-            placeholder="Search schemas..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search Bar and Refresh Button */}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              type="text"
+              placeholder="Search schemas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={loading || refreshing}
+            className="h-10 w-10"
+            title="Refresh schemas"
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
         {/* Loading State */}
