@@ -84,11 +84,14 @@ export function TableHeader<T = any>({
             key={column.id}
             className={thClasses(column)}
             style={{
+              // Only set width if explicitly provided, otherwise let content determine width
               width: column.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined,
-              minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
+              // Only set maxWidth to prevent columns from being too wide
               maxWidth: column.maxWidth ? `${column.maxWidth}px` : undefined,
               // Ensure width constraints are strictly applied
               boxSizing: 'border-box',
+              // Use white-space nowrap for headers without maxWidth to prevent wrapping
+              whiteSpace: column.maxWidth ? 'normal' : 'nowrap',
             }}
             onClick={() => handleHeaderClick(column)}
           >

@@ -42,9 +42,8 @@ export function TableBody<T = any>({
   const tdClasses = (column: TableColumn<T>, rowIndex: number, isSelected: boolean) =>
     cn(
       'px-4 py-3 text-xs text-gray-900',
-      // Only apply whitespace-nowrap if maxWidth is not set (to allow wrapping when maxWidth is set)
-      !column.maxWidth && 'whitespace-nowrap',
-      column.maxWidth && 'break-words', // Allow word wrapping when maxWidth is set
+      // Use better word breaking for columns with maxWidth - break on words, not characters
+      column.maxWidth && 'break-words',
       column.align === 'center' && 'text-center',
       column.align === 'right' && 'text-right',
       // For sticky columns, match the row background for zebra striping and selection
@@ -110,26 +109,50 @@ export function TableBody<T = any>({
                   ? column.cellClassName(row, rowIndex)
                   : column.cellClassName;
 
+              // Allow wrapping for columns with maxWidth (badge columns should have maxWidth set)
+              const shouldAllowWrapping = !!column.maxWidth;
+
               return (
                 <td
                   key={column.id}
                   className={cn(tdClasses(column, rowIndex, isSelected), cellClassName)}
                   style={{
-                    minWidth: column.minWidth ? `${column.minWidth}px` : undefined,
-                    maxWidth: column.maxWidth ? `${column.maxWidth}px` : undefined,
+                    // Only set width if explicitly provided, otherwise let content determine width
                     width: column.width ? (typeof column.width === 'number' ? `${column.width}px` : column.width) : undefined,
+                    // Only set maxWidth to prevent columns from being too wide
+                    maxWidth: column.maxWidth ? `${column.maxWidth}px` : undefined,
                     // Actions column should always be middle-aligned, others with maxWidth should be top-aligned for wrapping
-                    verticalAlign: column.id === 'actions' ? 'middle' : (column.maxWidth ? 'top' : 'middle'),
+                    verticalAlign: column.id === 'actions' ? 'middle' : (shouldAllowWrapping ? 'top' : 'middle'),
                     // Ensure width constraints are strictly applied
                     boxSizing: 'border-box',
+                    // Better word breaking for wrapped text
+                    wordBreak: shouldAllowWrapping ? 'break-word' : 'normal',
+                    overflowWrap: shouldAllowWrapping ? 'break-word' : 'normal',
+                    // Allow wrapping for badge columns or columns with maxWidth
+                    whiteSpace: shouldAllowWrapping ? 'normal' : 'nowrap',
+                    // Prevent horizontal overflow, allow vertical growth for wrapped content
+                    overflowX: 'hidden',
+                    overflowY: shouldAllowWrapping ? 'visible' : 'hidden',
                   }}
                   onClick={() => handleCellClick(value, row, column, rowIndex)}
                 >
+                  <div 
+                    className={shouldAllowWrapping ? "min-w-0 w-full" : ""} // Allow shrinking and full width if wrapping is allowed
+                    style={{
+                      // Limit to 3 lines max for wrapped text columns with ellipsis
+                      // For badge columns, we rely on BadgeViewer's flex-wrap to handle wrapping
+                      ...(column.maxWidth ? {
+                        // Don't apply line clamp - let content wrap naturally
+                        overflow: 'visible',
+                      } : {})
+                    }}
+                  >
                   {column.render ? (
                     column.render(value, row, rowIndex)
                   ) : (
-                    <span>{value != null ? String(value) : '—'}</span>
+                    <span className="block">{value != null ? String(value) : '—'}</span>
                   )}
+                  </div>
                 </td>
               );
             })}

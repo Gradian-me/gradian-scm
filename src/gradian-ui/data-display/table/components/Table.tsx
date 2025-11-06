@@ -32,18 +32,20 @@ export function Table<T = any>({
   } = useTable({ config });
 
   const tableClasses = cn(
-    'w-full border-collapse',
+    'border-collapse',
     config.compact && 'text-sm',
     className
   );
 
-  // Use fixed table layout to ensure column widths are respected
+  // Use auto table layout to let columns size based on their content
+  // This allows horizontal scrolling when columns exceed viewport width
   const tableStyle: React.CSSProperties = {
-    tableLayout: 'fixed',
+    tableLayout: 'auto',
+    width: 'max-content', // Let table width be determined by column content
   };
 
   const containerClasses = cn(
-    'overflow-x-auto',
+    'overflow-x-auto w-full',
     config.bordered && 'border border-gray-200 rounded-lg m-2',
     className
   );

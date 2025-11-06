@@ -19,6 +19,72 @@ import { Badge } from '../../form-builder/form-elements/components/Badge';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../utils';
 import { useSchemaStore } from '@/stores/schema.store';
 
+/**
+ * Column width configuration for different field types
+ * Maps field types to min and max width constraints
+ */
+export interface ColumnWidthConfig {
+  minWidth?: number;
+  maxWidth?: number;
+  width?: number;
+}
+
+/**
+ * Default column width configuration for different field types
+ * These values are used when no custom configuration is provided
+ */
+export const DEFAULT_COLUMN_WIDTHS: Record<string, ColumnWidthConfig> = {
+  // Text fields - can be long, allow wrapping with better min widths
+  text: { minWidth: 150, maxWidth: 400 },
+  textarea: { minWidth: 180, maxWidth: 500 },
+  
+  // Email and URL - medium length
+  email: { minWidth: 200, maxWidth: 300 },
+  url: { minWidth: 220, maxWidth: 350 },
+  
+  // Phone numbers - consistent width
+  phone: { minWidth: 150, maxWidth: 200 },
+  tel: { minWidth: 150, maxWidth: 200 },
+  
+  // Numbers - compact
+  number: { minWidth: 100, maxWidth: 150 },
+  currency: { minWidth: 120, maxWidth: 180 },
+  percentage: { minWidth: 100, maxWidth: 130 },
+  
+  // Dates - consistent width
+  date: { minWidth: 120, maxWidth: 150 },
+  'datetime-local': { minWidth: 180, maxWidth: 220 },
+  datetime: { minWidth: 180, maxWidth: 220 },
+  
+  // Selection fields - medium width
+  select: { minWidth: 150, maxWidth: 250 },
+  picker: { minWidth: 150, maxWidth: 280 },
+  radio: { minWidth: 120, maxWidth: 200 },
+  
+  // Checkbox fields - compact
+  checkbox: { minWidth: 100, maxWidth: 150 },
+  'checkbox-list': { minWidth: 150, maxWidth: 300 },
+  
+  // File and media - medium width
+  file: { minWidth: 150, maxWidth: 250 },
+  avatar: { minWidth: 80, maxWidth: 120 },
+  'image-text': { minWidth: 200, maxWidth: 350 },
+  
+  // Special fields
+  icon: { minWidth: 80, maxWidth: 120 },
+  'icon-input': { minWidth: 100, maxWidth: 150 },
+  'color-picker': { minWidth: 100, maxWidth: 150 },
+  rating: { minWidth: 100, maxWidth: 150 },
+  badge: { minWidth: 100, maxWidth: 200 },
+  countdown: { minWidth: 120, maxWidth: 180 },
+  button: { minWidth: 100, maxWidth: 200 },
+  input: { minWidth: 120, maxWidth: 300 },
+  password: { minWidth: 120, maxWidth: 200 },
+  
+  // Default fallback
+  default: { minWidth: 100, maxWidth: 300 },
+};
+
 export interface DynamicRepeatingTableViewerProps {
   config: RepeatingTableRendererConfig;
   schema: FormSchema;
@@ -148,33 +214,49 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
 
 /**
  * Build table columns from schema fields
+ * Uses column width configuration based on field types
  */
 const buildTableColumns = (
   fields: any[],
-  schema: FormSchema
+  schema: FormSchema,
+  columnWidths?: Record<string, ColumnWidthConfig>
 ): TableColumn[] => {
+  // Use provided column widths or default configuration
+  const widthConfig = columnWidths || DEFAULT_COLUMN_WIDTHS;
+  
   return fields.map((field) => {
-    // Set maxWidth based on field type to allow wrapping
-    let maxWidth: number | undefined;
-    if (field.type === 'text' || field.type === 'textarea') {
-      maxWidth = 400; // Allow text fields to wrap at 400px
-    } else if (field.type === 'number' || field.type === 'currency') {
-      maxWidth = 200; // Numbers are shorter
-    } else if (field.type === 'date' || field.type === 'datetime-local') {
-      maxWidth = 220; // Dates have consistent width
-    } else if (field.type === 'select' || field.type === 'picker') {
-      maxWidth = 250; // Select/picker fields
-    } else {
-      maxWidth = 300; // Default max width
+    // Get width configuration for this field type
+    const fieldType = field.type || 'default';
+    let widthSettings = widthConfig[fieldType] || widthConfig.default || {};
+    
+    // Special handling for address and location fields - set maxWidth to allow wrapping
+    if (field.name?.toLowerCase().includes('address') || field.role === 'location') {
+      widthSettings = { maxWidth: 400, ...widthSettings };
     }
+    // Special handling for city, state, zip - set maxWidth to allow wrapping if needed
+    else if (['city', 'state', 'zipcode', 'zip'].includes(field.name?.toLowerCase() || '')) {
+      widthSettings = { maxWidth: 200, ...widthSettings };
+    }
+    // Special handling for badge fields - set maxWidth to allow wrapping
+    else if (field.role === 'badge') {
+      widthSettings = { maxWidth: 300, ...widthSettings };
+    }
+    
+    // Determine alignment based on field type
+    const align = field.type === 'number' || field.type === 'currency' || field.type === 'percentage' 
+      ? 'right' 
+      : 'left';
 
     return {
       id: field.id,
       label: field.label || field.name,
       accessor: field.name,
       sortable: true,
-      align: field.type === 'number' || field.type === 'currency' ? 'right' : 'left',
-      maxWidth,
+      align,
+      // Only set maxWidth to prevent columns from being too wide, let content determine width otherwise
+      maxWidth: widthSettings.maxWidth,
+      // Only set explicit width if provided
+      width: widthSettings.width,
       render: (value, row) => formatFieldValue(field, value, row),
     };
   });
@@ -435,33 +517,38 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const columns = useMemo(
     () => {
       const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
-      const baseColumns = buildTableColumns(fieldsToDisplay, schemaToUse);
+      // Get column width config from table properties if provided, otherwise use defaults
+      const columnWidths = config.tableProperties?.columnWidths;
+      const baseColumns = buildTableColumns(fieldsToDisplay, schemaToUse, columnWidths);
       
       // Add view button column as the first column
+      // This column gets all standard table styles (padding, borders, etc.) like other columns
       const viewColumn: TableColumn = {
         id: 'actions',
         label: 'Actions',
         accessor: 'id',
         sortable: false,
         align: 'center',
-        maxWidth: 80, // Fit the button width
-        cellClassName: 'flex items-center justify-center',
+        width: 80, // Fixed width for the actions column
         render: (value: any, row: any) => {
           const itemId = row.id || value;
           if (!itemId) return null;
           
+          // Use a wrapper div to center the button while preserving table cell styles
           return (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/page/${navigationSchemaId}/${itemId}?showBack=true`);
-              }}
-              className="h-8 w-8 p-0 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-700 transition-all duration-200"
-            >
-              <IconRenderer iconName="Eye" className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/page/${navigationSchemaId}/${itemId}?showBack=true`);
+                }}
+                className="h-8 w-8 p-0 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-700 transition-all duration-200"
+              >
+                <IconRenderer iconName="Eye" className="h-4 w-4" />
+              </Button>
+            </div>
           );
         },
       };
@@ -624,7 +711,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             </>
           ) : (
             <>
-              <div className="overflow-x-auto mx-0">
+              <div className="mx-0 min-w-0">
                 <Table config={tableConfig} />
               </div>
               {aggregations.length > 0 && (

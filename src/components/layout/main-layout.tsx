@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, PanelLeftOpen, PencilRuler, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoToTop } from '../../gradian-ui/layout';
 import { Sidebar } from '../../gradian-ui/layout/sidebar';
 import { IconRenderer } from '../../shared/utils';
@@ -41,7 +41,18 @@ export function MainLayout({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notificationCount] = useState(3);
+  const [isDesktop, setIsDesktop] = useState(false);
   const { selectedCompany } = useCompanyStore();
+
+  // Check if we're on desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed(!isSidebarCollapsed);
@@ -65,10 +76,13 @@ export function MainLayout({
     }
   };
 
+  // Calculate sidebar width for margin adjustment (only on desktop)
+  const sidebarWidth = isDesktop ? (isSidebarCollapsed ? 80 : 280) : 0;
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block">
+    <div className="flex h-screen bg-gray-50 relative">
+      {/* Desktop Sidebar - Fixed Position */}
+      <div className="hidden md:block fixed left-0 top-0 h-full z-30">
         <Sidebar 
           isCollapsed={isSidebarCollapsed} 
           onToggle={toggleSidebar}
@@ -116,8 +130,15 @@ export function MainLayout({
         )}
       </AnimatePresence>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Main Content - Adjust margin based on sidebar width */}
+      <motion.div 
+        className="flex-1 flex flex-col min-h-0"
+        animate={{ 
+          marginLeft: `${sidebarWidth}px`
+        }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        style={{ width: `calc(100% - ${sidebarWidth}px)` }}
+      >
         {/* Header */}
         <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-6">
           <div className="flex items-center justify-between">
@@ -246,7 +267,7 @@ export function MainLayout({
         
         {/* Go to Top Button */}
         <GoToTop scrollContainerSelector="[data-scroll-container='main-content']" threshold={100} />
-      </div>
+      </motion.div>
     </div>
   );
 }

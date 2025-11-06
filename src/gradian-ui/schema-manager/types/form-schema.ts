@@ -255,6 +255,11 @@ export interface RepeatingTableRendererConfig {
       unit?: string; // Unit to display after the value (e.g., "USD", "%", "kg")
       precision?: number; // Number of decimal places (default: 2)
     }>;
+    columnWidths?: Record<string, {
+      minWidth?: number;
+      maxWidth?: number;
+      width?: number;
+    }>; // Custom column width configuration by field type (overrides defaults)
   };
   colSpan?: number; // Number of columns this table should span
   columnArea?: 'main' | 'sidebar'; // Which area to place this table in (main or sidebar)
