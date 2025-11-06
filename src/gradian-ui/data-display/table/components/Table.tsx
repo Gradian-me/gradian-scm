@@ -41,7 +41,7 @@ export function Table<T = any>({
   // This allows horizontal scrolling when columns exceed viewport width
   const tableStyle: React.CSSProperties = {
     tableLayout: 'auto',
-    width: 'max-content', // Let table width be determined by column content
+    width: '-webkit-fill-available', // Let table width be determined by column content
   };
 
   const containerClasses = cn(
@@ -64,7 +64,7 @@ export function Table<T = any>({
   }
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} style={{ width: '-webkit-fill-available' }}>
       <table className={tableClasses} style={tableStyle}>
         <TableHeader
           columns={config.columns}

@@ -612,20 +612,20 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const description = config.description || (isRelationBased ? undefined : section?.description);
 
   // Track window size for responsive behavior
-  const [isMobile, setIsMobile] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 640); // sm breakpoint (640px)
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Determine if we should show cards
-  const shouldShowCards = showAsCards && isMobile;
+  // Determine if we should show cards on small screens
+  const shouldShowCards = showAsCards && isSmallScreen;
 
   // For cards view, we'll show all data (pagination can be added later if needed)
   // The table component handles pagination, but for simplicity in cards view,
