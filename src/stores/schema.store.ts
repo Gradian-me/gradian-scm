@@ -11,11 +11,17 @@ interface SchemaState {
   // Cache for schemas by ID
   schemaCache: Map<string, SchemaCacheEntry>;
   
+  // In-flight fetch promises to deduplicate concurrent requests
+  fetchPromises: Map<string, Promise<FormSchema | null>>;
+  
   // Get schema from cache
   getSchema: (schemaId: string) => FormSchema | null;
   
   // Set schema in cache
   setSchema: (schemaId: string, schema: FormSchema) => void;
+  
+  // Fetch schema with deduplication (returns cached if available, or waits for in-flight request)
+  fetchSchema: (schemaId: string) => Promise<FormSchema | null>;
   
   // Clear specific schema from cache
   clearSchema: (schemaId: string) => void;
@@ -34,6 +40,7 @@ export const useSchemaStore = create<SchemaState>()(
   devtools(
     (set, get) => ({
       schemaCache: new Map(),
+      fetchPromises: new Map(),
       
       getSchema: (schemaId: string) => {
         const entry = get().schemaCache.get(schemaId);
@@ -51,6 +58,56 @@ export const useSchemaStore = create<SchemaState>()(
         }, false, 'setSchema');
       },
       
+      fetchSchema: async (schemaId: string): Promise<FormSchema | null> => {
+        // Check cache first
+        const cached = get().getSchema(schemaId);
+        if (cached) {
+          return cached;
+        }
+        
+        // Check if there's already a fetch in progress
+        const existingPromise = get().fetchPromises.get(schemaId);
+        if (existingPromise) {
+          return existingPromise;
+        }
+        
+        // Create new fetch promise
+        const fetchPromise = (async () => {
+          try {
+            const response = await fetch(`/api/schemas/${schemaId}`);
+            if (!response.ok) {
+              return null;
+            }
+            const result = await response.json();
+            if (result.success && result.data) {
+              // Cache the schema
+              get().setSchema(schemaId, result.data);
+              return result.data;
+            }
+            return null;
+          } catch (error) {
+            console.error(`Error fetching schema ${schemaId}:`, error);
+            return null;
+          } finally {
+            // Remove the promise from the map after completion
+            set((state) => {
+              const newPromises = new Map(state.fetchPromises);
+              newPromises.delete(schemaId);
+              return { fetchPromises: newPromises };
+            }, false, 'removeFetchPromise');
+          }
+        })();
+        
+        // Store the promise to deduplicate concurrent requests
+        set((state) => {
+          const newPromises = new Map(state.fetchPromises);
+          newPromises.set(schemaId, fetchPromise);
+          return { fetchPromises: newPromises };
+        }, false, 'addFetchPromise');
+        
+        return fetchPromise;
+      },
+      
       clearSchema: (schemaId: string) => {
         set((state) => {
           const newCache = new Map(state.schemaCache);
@@ -60,7 +117,7 @@ export const useSchemaStore = create<SchemaState>()(
       },
       
       clearAllSchemas: () => {
-        set({ schemaCache: new Map() }, false, 'clearAllSchemas');
+        set({ schemaCache: new Map(), fetchPromises: new Map() }, false, 'clearAllSchemas');
       },
       
       hasSchema: (schemaId: string) => {

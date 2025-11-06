@@ -16,8 +16,8 @@ import { apiRequest } from '@/shared/utils/api';
 import { Button } from '../../../components/ui/button';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Badge } from '../../form-builder/form-elements/components/Badge';
-import { Rating } from '../../form-builder/form-elements/components/Rating';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../utils';
+import { useSchemaStore } from '@/stores/schema.store';
 
 export interface DynamicRepeatingTableViewerProps {
   config: RepeatingTableRendererConfig;
@@ -112,19 +112,6 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
     );
   }
 
-  // Handle rating role fields - display as Rating component
-  if (field?.role === 'rating') {
-    const ratingValue = typeof value === 'number' ? value : parseFloat(String(value)) || 0;
-    return (
-      <Rating
-        value={ratingValue}
-        maxValue={5}
-        size="sm"
-        showValue={false}
-      />
-    );
-  }
-
   switch (displayType) {
     case 'currency':
       return <span>{formatCurrency(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
@@ -204,6 +191,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   sourceId,
 }) => {
   const router = useRouter();
+  const { getSchema, fetchSchema } = useSchemaStore();
   
   // Check if this is a relation-based table
   // Can be relation-based with just targetSchema (all relations to that schema) or with both targetSchema and relationTypeId
@@ -227,25 +215,29 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const isFetchingRelationsRef = useRef(false);
   const lastFetchParamsRef = useRef<string>('');
 
-  // Fetch target schema for relation-based tables (only once)
+  // Fetch target schema for relation-based tables (using schema store with deduplication)
   useEffect(() => {
     if (isRelationBased && targetSchema && !targetSchemaData) {
       setIsLoadingTargetSchema(true);
-      const fetchTargetSchema = async () => {
+      const loadSchema = async () => {
         try {
-          const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
-          if (response.success && response.data) {
-            setTargetSchemaData(response.data);
+          // Use fetchSchema which handles deduplication and caching
+          const schema = await fetchSchema(targetSchema);
+          if (schema) {
+            setTargetSchemaData(schema);
           }
         } catch (error) {
-          console.error('Error fetching target schema:', error);
+          console.error('Error loading target schema:', error);
         } finally {
           setIsLoadingTargetSchema(false);
         }
       };
-      fetchTargetSchema();
+      loadSchema();
+    } else if (isRelationBased && targetSchema && targetSchemaData) {
+      // Already have schema, no need to load
+      setIsLoadingTargetSchema(false);
     }
-  }, [isRelationBased, targetSchema, targetSchemaData]);
+  }, [isRelationBased, targetSchema, targetSchemaData, fetchSchema]);
 
   // Fetch relations and related entities for relation-based tables
   const fetchRelations = useCallback(async () => {
@@ -256,105 +248,60 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     isFetchingRelationsRef.current = true;
     setIsLoadingRelations(true);
     try {
-      // Ensure target schema is loaded (fetch if not available)
+      // Ensure target schema is loaded (use fetchSchema for deduplication)
       let schemaToUse = targetSchemaData;
       if (!schemaToUse && targetSchema) {
-        try {
-          const schemaResponse = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
-          if (schemaResponse.success && schemaResponse.data) {
-            schemaToUse = schemaResponse.data;
-            // Update state only if we fetched it
-            setTargetSchemaData(schemaResponse.data);
-          }
-        } catch (error) {
-          console.error('Error fetching target schema in fetchRelations:', error);
+        // Use fetchSchema which handles deduplication and caching
+        const schema = await fetchSchema(targetSchema);
+        if (schema) {
+          schemaToUse = schema;
+          setTargetSchemaData(schema);
         }
       }
       
-      // Fetch relations using the new unified API - if relationTypeId is provided, filter by it; otherwise get all relations to targetSchema
-      let relationsUrl = `/api/relations?schema=${effectiveSourceSchemaId}&id=${effectiveSourceId}&direction=both&otherSchema=${targetSchema}`;
-      if (relationTypeId) {
-        relationsUrl += `&relationTypeId=${relationTypeId}`;
-      }
+      // Use the new all-relations endpoint to get all related entities in one call
+      let allRelationsUrl = `/api/data/all-relations?schema=${effectiveSourceSchemaId}&id=${effectiveSourceId}&direction=both&otherSchema=${targetSchema}`;
       
-      const relationsResponse = await apiRequest<DataRelation[]>(relationsUrl);
+      const allRelationsResponse = await apiRequest<Array<{
+        schema: string;
+        direction: 'source' | 'target';
+        relation_type: string;
+        data: any[];
+      }>>(allRelationsUrl);
       
-      if (relationsResponse.success && relationsResponse.data) {
-        const relationsList = Array.isArray(relationsResponse.data) 
-          ? relationsResponse.data 
+      if (allRelationsResponse.success && allRelationsResponse.data) {
+        const groupedData = Array.isArray(allRelationsResponse.data) 
+          ? allRelationsResponse.data 
           : [];
         
-        // Fetch related entities
-        // For source relations: fetch targetId from targetSchema
-        // For target relations: fetch sourceId from sourceSchema (but we want to show targetSchema, so filter)
-        // Track directions for badge display
+        // Filter by relationTypeId if provided, otherwise combine all groups for the target schema
+        let entities: any[] = [];
         const directionsSet = new Set<'source' | 'target'>();
         
-        const entitiesPromises = relationsList
-          .filter((relation: DataRelation) => {
-            // Only include relations where the target schema matches (for source relations)
-            // or where we need to show the target (for target relations, we'd show source but that's handled by grouping)
-            if (relation.direction === 'source') {
-              if (relation.targetSchema === targetSchema) {
-                directionsSet.add('source');
-                return true;
-              }
-              return false;
-            } else if (relation.direction === 'target') {
-              // For target relations, we want to show the source entity, but only if it's in the targetSchema
-              // Actually, this is tricky - if direction is 'target', the entity is the target, so we show source entities
-              // But the targetSchema parameter filters relations, so we need to check if sourceSchema matches
-              if (relation.sourceSchema === targetSchema) {
-                directionsSet.add('target');
-                return true;
-              }
-              return false;
-            }
-            // Fallback for relations without direction
-            if (relation.targetSchema === targetSchema) {
-              return true;
-            }
-            return false;
-          })
-          .map(async (relation: DataRelation) => {
-            // Determine which entity ID and schema to fetch based on direction
-            let entityIdToFetch: string;
-            let schemaToFetch: string;
-            
-            if (relation.direction === 'source') {
-              // Entity is source, fetch target entity
-              entityIdToFetch = relation.targetId;
-              schemaToFetch = relation.targetSchema;
-            } else if (relation.direction === 'target') {
-              // Entity is target, fetch source entity
-              entityIdToFetch = relation.sourceId;
-              schemaToFetch = relation.sourceSchema;
-            } else {
-              // Fallback: use target (backward compatibility)
-              entityIdToFetch = relation.targetId;
-              schemaToFetch = relation.targetSchema;
+        for (const group of groupedData) {
+          // Only process groups that match our target schema
+          if (group.schema === targetSchema) {
+            // If relationTypeId is specified, only include matching relation types
+            if (relationTypeId && group.relation_type !== relationTypeId) {
+              continue;
             }
             
-            // Only fetch if the schema matches our target schema
-            if (schemaToFetch !== targetSchema) {
-              return null;
-            }
-            
-            const entityResponse = await apiRequest<any>(`/api/data/${schemaToFetch}/${entityIdToFetch}`);
-          if (!entityResponse.success || !entityResponse.data) {
-            return null;
+            directionsSet.add(group.direction);
+            entities.push(...group.data);
           }
+        }
           
-          let entity = entityResponse.data;
-          
-          // Resolve picker fields if target schema is available
-          if (schemaToUse && schemaToUse.fields) {
+        // Resolve picker fields for all entities if target schema is available
+        if (schemaToUse && schemaToUse.fields && entities.length > 0) {
             const pickerFields = schemaToUse.fields.filter(
-              (field: any) => field.type === 'picker' && field.targetSchema && entity[field.name]
+            (field: any) => field.type === 'picker' && field.targetSchema
             );
             
-            // Resolve each picker field
-            const resolvedPromises = pickerFields.map(async (field: any) => {
+          // Resolve each picker field for each entity
+          const resolvedPromises = entities.map(async (entity) => {
+            const entityResolvedPromises = pickerFields
+              .filter((field: any) => entity[field.name])
+              .map(async (field: any) => {
               const fieldValue = entity[field.name];
               if (typeof fieldValue === 'string' && fieldValue.trim() !== '') {
                 try {
@@ -363,16 +310,13 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                   if (resolvedResponse.success && resolvedResponse.data) {
                     const resolvedEntity = resolvedResponse.data;
                     
-                    // Fetch the target schema to get the title role
-                    let targetSchemaForPicker: FormSchema | null = null;
-                    try {
-                      const targetSchemaResponse = await apiRequest<FormSchema>(`/api/schemas/${field.targetSchema}`);
-                      if (targetSchemaResponse.success && targetSchemaResponse.data) {
-                        targetSchemaForPicker = targetSchemaResponse.data;
-                      }
-                    } catch (schemaError) {
-                      console.error(`Error fetching target schema for picker field ${field.name}:`, schemaError);
-                    }
+                     // Fetch the target schema to get the title role (using deduplicated fetch)
+                     let targetSchemaForPicker: FormSchema | null = null;
+                     try {
+                       targetSchemaForPicker = await fetchSchema(field.targetSchema);
+                     } catch (schemaError) {
+                       console.error(`Error fetching target schema for picker field ${field.name}:`, schemaError);
+                     }
                     
                     // Get the label using the target schema's title role
                     let resolvedLabel = resolvedEntity.name || resolvedEntity.title || fieldValue;
@@ -395,14 +339,14 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
               }
             });
             
-            await Promise.all(resolvedPromises);
-          }
+            await Promise.all(entityResolvedPromises);
+            return entity;
+          });
           
-          return entity;
-        });
+          entities = await Promise.all(resolvedPromises);
+        }
         
-        const entities = await Promise.all(entitiesPromises);
-        setRelatedEntities(entities.filter(e => e !== null));
+        setRelatedEntities(entities);
         setRelationDirections(directionsSet);
       }
     } catch (error) {
@@ -413,7 +357,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       setIsLoadingRelations(false);
       isFetchingRelationsRef.current = false;
     }
-  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId]);
+  }, [isRelationBased, effectiveSourceId, targetSchema, relationTypeId, effectiveSourceSchemaId, targetSchemaData, fetchSchema]);
 
   // Fetch relations when component mounts or dependencies change
   // Use a ref to track fetch params to prevent duplicate fetches
