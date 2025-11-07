@@ -282,7 +282,7 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 10,
-            "cardColumns": 1
+            "cardColumns": 2
           },
           "colSpan": 2,
           "columnArea": "main"

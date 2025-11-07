@@ -245,7 +245,7 @@ export interface RepeatingTableRendererConfig {
     paginationEnabled?: boolean;
     paginationPageSize?: number;
     alwaysShowPagination?: boolean; // If true, always show pagination even with one page (default: false)
-    cardColumns?: 1 | 2 | 3; // Number of columns for key-value pairs in cards (default: 1)
+    cardColumns?: 1 | 2 | 3; // Number of columns for key-value pairs in cards (default: 2)
     aggregationAlignment?: 'start' | 'center' | 'end'; // Alignment for aggregation values (default: 'end')
     aggregationColumns?: 1 | 2 | 3; // Number of columns for aggregation grid (default: 3, 1 = full width)
     aggregations?: Array<{

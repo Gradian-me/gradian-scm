@@ -2,6 +2,10 @@
 
 import { TableColumn, TableConfig } from '../types';
 
+export * from './column-config';
+export * from './field-formatters';
+export * from './column-builder';
+
 /**
  * Get value from row using column accessor
  */

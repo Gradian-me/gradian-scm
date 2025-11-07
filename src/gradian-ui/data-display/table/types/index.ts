@@ -79,3 +79,5 @@ export interface TableState {
   columnFilters: Record<string, any>;
 }
 
+export * from './repeating-table';
+
