@@ -48,7 +48,10 @@ function reconstructRegExp(obj: any): any {
 function ensureSchemaActions(schema: FormSchema): FormSchema {
   if (!schema.actions || !Array.isArray(schema.actions)) {
     // Set default actions as an array of action types
-    schema.actions = ['cancel', 'reset', 'submit'];
+    return {
+      ...schema,
+      actions: ['cancel', 'reset', 'submit'],
+    };
   }
   return schema;
 }
@@ -62,12 +65,11 @@ export function DynamicDetailPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const showBack = searchParams?.get('showBack') === 'true';
-  
-  // Reconstruct RegExp objects in the schema
-  let schema = reconstructRegExp(rawSchema) as FormSchema;
-  // Ensure schema has actions
-  schema = ensureSchemaActions(schema);
-  
+  const [schemaState, setSchemaState] = useState<FormSchema>(() => {
+    const reconstructed = reconstructRegExp(rawSchema) as FormSchema;
+    return ensureSchemaActions(reconstructed);
+  });
+
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +77,50 @@ export function DynamicDetailPageClient({
   // Use the dynamic entity hook for CRUD operations
   const {
     deleteEntity,
-  } = useDynamicEntity(schema);
+  } = useDynamicEntity(schemaState);
+
+  useEffect(() => {
+    const reconstructed = reconstructRegExp(rawSchema) as FormSchema;
+    setSchemaState(ensureSchemaActions(reconstructed));
+  }, [rawSchema]);
+
+  const refreshSchema = useCallback(async () => {
+    try {
+      const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
+      if (response.success && response.data) {
+        const updated = reconstructRegExp(response.data) as FormSchema;
+        setSchemaState(ensureSchemaActions(updated));
+      } else {
+        console.warn(`Schema ${schemaId} could not be reloaded after cache clear.`);
+      }
+    } catch (err) {
+      console.error('Error refreshing schema after cache clear:', err);
+    }
+  }, [schemaId]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleCacheCleared = () => {
+      refreshSchema();
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'schema-cache-cleared') {
+        refreshSchema();
+      }
+    };
+
+    window.addEventListener('schema-cache-cleared', handleCacheCleared);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('schema-cache-cleared', handleCacheCleared);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, [refreshSchema]);
 
   // Fetch entity data
   useEffect(() => {
@@ -130,13 +175,13 @@ export function DynamicDetailPageClient({
   }, [data, dataId, entityName, deleteEntity, router, schemaId]);
 
 
-  const pageTitle = getPageTitle(schema, data, dataId);
-  const pageSubtitle = getPageSubtitle(schema, entityName);
+  const pageTitle = getPageTitle(schemaState, data, dataId);
+  const pageSubtitle = getPageSubtitle(schemaState, entityName);
 
   return (
     <MainLayout title={pageTitle} subtitle={pageSubtitle}>
       <DynamicDetailPageRenderer
-        schema={schema}
+        schema={schemaState}
         data={data}
         isLoading={isLoading}
         error={error}

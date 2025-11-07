@@ -230,9 +230,19 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                     </TooltipTrigger>
                     <TooltipContent>
                       <div className="flex items-center gap-1 text-xs text-gray-900">
-                        <span>{schema.title || schema.plural_name || schema.name}</span>
-                        <IconRenderer iconName="ArrowRight" className="h-3 w-3" />
-                        <span>{targetSchemaData?.title || targetSchemaData?.plural_name || targetSchemaData?.name || config.targetSchema}</span>
+                        {relationDirections.has('target') ? (
+                          <>
+                            <span>{targetSchemaData?.title || targetSchemaData?.plural_name || targetSchemaData?.name || config.targetSchema}</span>
+                            <IconRenderer iconName="ArrowRight" className="h-3 w-3" />
+                            <span>{schema.title || schema.plural_name || schema.name}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>{schema.title || schema.plural_name || schema.name}</span>
+                            <IconRenderer iconName="ArrowRight" className="h-3 w-3" />
+                            <span>{targetSchemaData?.title || targetSchemaData?.plural_name || targetSchemaData?.name || config.targetSchema}</span>
+                          </>
+                        )}
                       </div>
                     </TooltipContent>
                   </Tooltip>

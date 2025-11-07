@@ -90,7 +90,7 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
 
   // Container classes - responsive with wrapping
   const containerClasses = cn(
-    "flex flex-nowrap justify-start items-center gap-2 overflow-x-auto",
+    "flex flex-wrap justify-start items-center gap-2",
     className
   );
 

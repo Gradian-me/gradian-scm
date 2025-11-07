@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 
 export const metadata: Metadata = {
-  title: "Gradian Supply Chain Management",
-  description: "Comprehensive supply chain management system for pharmaceutical companies",
+  title: "Gradian App",
+  description: "We help you trust you decision",
 };
 
 export default function RootLayout({

@@ -80,7 +80,6 @@ export const formatFieldValue = (
         value={value}
         badgeVariant="outline"
         animate={true}
-        className="flex-nowrap overflow-x-auto"
       />
     );
   }

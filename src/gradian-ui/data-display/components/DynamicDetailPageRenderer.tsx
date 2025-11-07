@@ -230,6 +230,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const [isLoadingAutoTables, setIsLoadingAutoTables] = useState(false);
   const detailMetadata = schema.detailPageMetadata;
   const isFetchingRef = useRef(false);
+  const [documentTitle, setDocumentTitle] = useState<string>('');
   
   // Memoize tableRenderers to prevent infinite loops - use stable reference
   const tableRenderersFromMetadata = useMemo(() => {
@@ -584,6 +585,25 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   
   // Check if avatar field exists in schema
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const previousTitle = document.title;
+    const schemaTitle = schema?.plural_name || schema?.title || schema?.name || 'Schema';
+    const dynamicTitle = headerInfo.title || headerInfo.subtitle || headerInfo.code || data?.name || '';
+    const fullTitle = dynamicTitle
+      ? `${schemaTitle} - ${dynamicTitle} | Gradian App`
+      : `${schemaTitle} | Gradian App`;
+
+    document.title = fullTitle;
+
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [schema?.plural_name, schema?.title, schema?.name, headerInfo.title, headerInfo.subtitle, headerInfo.code, data?.name]);
 
   // Separate sections, component renderers, and table renderers
   const metadataSections = detailMetadata?.sections || [];

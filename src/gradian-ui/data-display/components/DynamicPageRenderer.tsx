@@ -69,6 +69,20 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const router = useRouter();
   // Reconstruct RegExp objects in the schema
   const schema = reconstructRegExp(rawSchema) as FormSchema;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const previousTitle = document.title;
+    const schemaTitle = schema.plural_name || schema.title || schema.name || 'Listing';
+    document.title = `${schemaTitle} | Gradian App`;
+
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [schema.plural_name, schema.title, schema.name]);
   
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [formError, setFormError] = useState<string | null>(null);

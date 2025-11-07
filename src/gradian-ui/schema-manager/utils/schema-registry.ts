@@ -118,7 +118,7 @@ export async function fetchSchemaById(schemaId: string): Promise<FormSchema | nu
     if (typeof window === 'undefined') {
       // Server side - use API endpoint (configured via NEXT_PUBLIC_SCHEMA_API_BASE)       
       // Direct import path works here since we're already inside server-side check        
-      const { loadSchemaById } = await import('./schema-loader');
+      const { loadSchemaById } = await import('./schema-loader') as typeof import('./schema-loader');
       const schema = await loadSchemaById(schemaId);
       return schema ? processSchema(schema) : null;
     } else {

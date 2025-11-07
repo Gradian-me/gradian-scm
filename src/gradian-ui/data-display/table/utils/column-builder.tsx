@@ -1,6 +1,6 @@
 import React from 'react';
 import { TableColumn } from '../types';
-import { formatFieldValue } from './field-formatters';
+import { formatFieldValue, getFieldValue } from './field-formatters';
 import { ColumnWidthMap } from '../types';
 import { resolveColumnWidth, shouldAllowWrap } from './column-config';
 
@@ -19,7 +19,7 @@ export const buildTableColumns = (
     return {
       id: field.id,
       label: field.label || field.name,
-      accessor: field.name,
+      accessor: (row: any) => getFieldValue(field, row),
       sortable: true,
       align,
       maxWidth: widthSettings.maxWidth,
