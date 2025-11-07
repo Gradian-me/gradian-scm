@@ -241,7 +241,6 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 20,
-            "showAsCards": false,
             "aggregations": [
               {
                 "column": "item-row-number",
@@ -283,7 +282,6 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 10,
-            "showAsCards": true,
             "cardColumns": 1
           },
           "colSpan": 2,
@@ -1177,7 +1175,6 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 10,
-            "showAsCards": true,
             "cardColumns": 2,
             "aggregationColumns": 3,
             "aggregations": [
@@ -1231,7 +1228,6 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 10,
-            "showAsCards": true,
             "cardColumns": 2,
             "aggregationColumns": 3,
             "aggregations": [
@@ -2120,7 +2116,6 @@
             "sortingEnabled": true,
             "paginationEnabled": true,
             "paginationPageSize": 20,
-            "showAsCards": false,
             "aggregations": [
               {
                 "column": "unit-price",
