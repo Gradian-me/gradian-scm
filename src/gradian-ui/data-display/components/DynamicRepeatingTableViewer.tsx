@@ -300,7 +300,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
   const [isLoadingTargetSchema, setIsLoadingTargetSchema] = useState(false);
   const [relationDirections, setRelationDirections] = useState<Set<'source' | 'target'>>(new Set());
-  const [relationTypeLabel, setRelationTypeLabel] = useState<string | null>(null);
   const [detectedRelationTypes, setDetectedRelationTypes] = useState<string[]>([]);
   const isFetchingRelationsRef = useRef(false);
   const lastFetchParamsRef = useRef<string>('');
@@ -328,41 +327,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       setIsLoadingTargetSchema(false);
     }
   }, [isRelationBased, targetSchema, targetSchemaData, fetchSchema]);
-
-  // Fetch relation type label when relationTypeId is provided
-  useEffect(() => {
-    if (!relationTypeId) {
-      setRelationTypeLabel(null);
-      return;
-    }
-
-    let isMounted = true;
-
-    const fetchRelationType = async () => {
-      try {
-        const response = await apiRequest<any>(`/api/data/relation-types/${relationTypeId}`);
-        if (!isMounted) return;
-
-        if (response.success && response.data) {
-          const label = response.data.label || response.data.name || relationTypeId;
-          setRelationTypeLabel(label);
-        } else {
-          setRelationTypeLabel(relationTypeId);
-        }
-      } catch (error) {
-        console.error('Error fetching relation type label:', error);
-        if (isMounted) {
-          setRelationTypeLabel(relationTypeId);
-        }
-      }
-    };
-
-    fetchRelationType();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [relationTypeId]);
 
   // Fetch relations and related entities for relation-based tables
   const fetchRelations = useCallback(async () => {
@@ -555,14 +519,20 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   // Determine which fields to display as columns
   const fieldsToDisplay = useMemo(() => {
     const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
-    
+
+    // If columns are provided, use them
     if (config.columns && config.columns.length > 0) {
-      // Use specified columns
       return config.columns
         .map((fieldId) => resolveFieldById(schemaToUse, fieldId))
         .filter(Boolean);
     }
-    // Use all fields (from target schema for relation-based, or from section for non-relation-based)
+
+    // For relation-based tables with no specified columns, use all target schema fields
+    if (isRelationBased && targetSchemaData) {
+      return targetSchemaData.fields || [];
+    }
+
+    // Otherwise, use fields from the repeating section
     return fieldsToUse;
   }, [config.columns, isRelationBased, targetSchemaData, schema, fieldsToUse]);
 
@@ -680,10 +650,9 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const relationTypeTexts = useMemo(() => {
     if (!isRelationBased) return [];
 
-    const primary = relationTypeLabel || relationTypeId;
+    const primary = relationTypeId ? (formatRelationType(relationTypeId) || relationTypeId) : null;
     if (primary) {
-      const formatted = formatRelationType(primary) || primary;
-      return [formatted];
+      return [primary];
     }
 
     if (detectedRelationTypes.length > 0) {
@@ -737,7 +706,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             </div>
 
             {/* Show direction badge(s) and relation type for relation-based tables */}
-            {isRelationBased && relationDirections.size > 0 && (
+              {isRelationBased && relationDirections.size > 0 && (
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-2">
                   {relationDirections.has('source') && (
