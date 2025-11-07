@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DynamicPageRenderer } from '@/gradian-ui/data-display/components/DynamicPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -127,7 +127,10 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
   const { getSchema, setSchema } = useSchemaStore();
   
   // Reconstruct RegExp objects from serialized schema from server
-  const reconstructedInitialSchema = reconstructRegExp(initialSchema) as FormSchema;
+  const reconstructedInitialSchema = useMemo(
+    () => reconstructRegExp(initialSchema) as FormSchema,
+    [initialSchema]
+  );
   
   // Initialize with cached schema if available, otherwise use initial schema from server
   const [schema, setSchemaState] = useState<FormSchema>(() => {
@@ -135,8 +138,6 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     if (cachedSchema) {
       return cachedSchema;
     }
-    // Cache the reconstructed initial schema from server
-    setSchema(schemaId, reconstructedInitialSchema);
     return reconstructedInitialSchema;
   });
 

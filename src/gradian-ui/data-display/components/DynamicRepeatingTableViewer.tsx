@@ -300,7 +300,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
   const [isLoadingTargetSchema, setIsLoadingTargetSchema] = useState(false);
   const [relationDirections, setRelationDirections] = useState<Set<'source' | 'target'>>(new Set());
-  const [detectedRelationTypes, setDetectedRelationTypes] = useState<string[]>([]);
   const isFetchingRelationsRef = useRef(false);
   const lastFetchParamsRef = useRef<string>('');
 
@@ -331,7 +330,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   // Fetch relations and related entities for relation-based tables
   const fetchRelations = useCallback(async () => {
     if (!isRelationBased || !effectiveSourceId || !targetSchema || isFetchingRelationsRef.current) {
-      setDetectedRelationTypes([]);
       return;
     }
     
@@ -367,7 +365,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         // Filter by relationTypeId if provided, otherwise combine all groups for the target schema
         let entities: any[] = [];
         const directionsSet = new Set<'source' | 'target'>();
-        const relationTypesSet = new Set<string>();
         
         for (const group of groupedData) {
           // Only process groups that match our target schema
@@ -378,10 +375,11 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             }
             
             directionsSet.add(group.direction);
-            entities.push(...group.data);
-            if (group.relation_type) {
-              relationTypesSet.add(group.relation_type);
-            }
+            const annotatedData = group.data.map((item) => ({
+              ...item,
+              __relationType: group.relation_type,
+            }));
+            entities.push(...annotatedData);
           }
         }
           
@@ -442,16 +440,14 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         
         setRelatedEntities(entities);
         setRelationDirections(directionsSet);
-        setDetectedRelationTypes(Array.from(relationTypesSet));
-      }
-      else {
-        setDetectedRelationTypes([]);
+      } else {
+        setRelatedEntities([]);
+        setRelationDirections(new Set());
       }
     } catch (error) {
       console.error('Error fetching relations:', error);
       setRelatedEntities([]);
       setRelationDirections(new Set());
-      setDetectedRelationTypes([]);
     } finally {
       setIsLoadingRelations(false);
       isFetchingRelationsRef.current = false;
@@ -519,7 +515,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   // Determine which fields to display as columns
   const fieldsToDisplay = useMemo(() => {
     const schemaToUse = isRelationBased && targetSchemaData ? targetSchemaData : schema;
-
+    
     // If columns are provided, use them
     if (config.columns && config.columns.length > 0) {
       return config.columns
@@ -655,14 +651,16 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       return [primary];
     }
 
-    if (detectedRelationTypes.length > 0) {
-      return detectedRelationTypes
-        .map((type) => formatRelationType(type) || type)
-        .filter(Boolean) as string[];
+    const typesFromData = (sectionData as any[] | undefined)?.map((item) => item?.__relationType).filter(Boolean) as string[];
+    if (!typesFromData || typesFromData.length === 0) {
+      return [];
     }
 
-    return [];
-  }, [isRelationBased, relationTypeLabel, relationTypeId, detectedRelationTypes]);
+    const unique = Array.from(new Set(typesFromData));
+    return unique
+      .map((type) => formatRelationType(type) || type)
+      .filter(Boolean) as string[];
+  }, [isRelationBased, relationTypeId, sectionData]);
 
   // For cards view, we'll show all data (pagination can be added later if needed)
   // The table component handles pagination, but for simplicity in cards view,
