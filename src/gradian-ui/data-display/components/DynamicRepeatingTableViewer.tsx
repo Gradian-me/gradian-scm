@@ -742,13 +742,13 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                 <div className="flex items-center gap-2">
                   {relationDirections.has('source') && (
                     <Badge variant="primary" size="sm">
-                      <IconRenderer iconName="ArrowRight" className="h-3 w-3 mr-1" />
+                      <IconRenderer iconName="ArrowDown" className="h-3 w-3 mr-1" />
                       Source
                     </Badge>
                   )}
                   {relationDirections.has('target') && (
                     <Badge variant="secondary" size="sm">
-                      <IconRenderer iconName="ArrowLeft" className="h-3 w-3 mr-1" />
+                      <IconRenderer iconName="ArrowUp" className="h-3 w-3 mr-1" />
                       Target
                     </Badge>
                   )}
