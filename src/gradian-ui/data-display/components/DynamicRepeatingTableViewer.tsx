@@ -564,9 +564,8 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const paginationEnabled = tableProps.paginationEnabled ?? (sectionData.length > 10);
   const paginationPageSize = tableProps.paginationPageSize || 10;
   const alwaysShowPagination = tableProps.alwaysShowPagination ?? false;
-  // showAsCards: if undefined, default to true (auto-responsive on mobile)
-  // if explicitly set to false, disable cards even on mobile
-  const showAsCards = tableProps.showAsCards !== false; // Default to true (responsive)
+  // showAsCards: when true, also render cards on larger screens
+  const showCardsOnDesktop = tableProps.showAsCards === true;
   const cardColumns = tableProps.cardColumns ?? 1;
   const aggregations = tableProps.aggregations || [];
   const aggregationAlignment = tableProps.aggregationAlignment ?? 'end';
@@ -624,8 +623,8 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  // Determine if we should show cards on small screens
-  const shouldShowCards = showAsCards && isSmallScreen;
+  // Determine if we should show cards: always on small screens, optionally on larger ones
+  const shouldShowCards = isSmallScreen || showCardsOnDesktop;
 
   // For cards view, we'll show all data (pagination can be added later if needed)
   // The table component handles pagination, but for simplicity in cards view,
@@ -662,28 +661,29 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-            <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
-              {/* Show direction badge(s) for relation-based tables */}
-              {isRelationBased && relationDirections.size > 0 && (
-                <>
-                  {relationDirections.has('source') && (
-                    <Badge variant="primary" size="sm">
-                      <IconRenderer iconName="ArrowRight" className="h-3 w-3 mr-1" />
-                      Source
-                    </Badge>
-                  )}
-                  {relationDirections.has('target') && (
-                    <Badge variant="secondary" size="sm">
-                      <IconRenderer iconName="ArrowLeft" className="h-3 w-3 mr-1" />
-                      Target
-                    </Badge>
-                  )}
-                </>
-              )}
-            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
-              {sectionData.length}
-            </span>
+              <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
+              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+                {sectionData.length}
+              </span>
             </div>
+
+            {/* Show direction badge(s) for relation-based tables */}
+            {isRelationBased && relationDirections.size > 0 && (
+              <div className="flex items-center gap-2">
+                {relationDirections.has('source') && (
+                  <Badge variant="primary" size="sm">
+                    <IconRenderer iconName="ArrowRight" className="h-3 w-3 mr-1" />
+                    Source
+                  </Badge>
+                )}
+                {relationDirections.has('target') && (
+                  <Badge variant="secondary" size="sm">
+                    <IconRenderer iconName="ArrowLeft" className="h-3 w-3 mr-1" />
+                    Target
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
           {description && (
             <p className="text-sm text-gray-500 mt-1.5">{description}</p>

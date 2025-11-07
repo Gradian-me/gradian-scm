@@ -146,7 +146,7 @@ export function TableBody<T = any>({
                         overflow: 'visible',
                       } : {})
                     }}
-                  >
+                >
                   {column.render ? (
                     column.render(value, row, rowIndex)
                   ) : (
