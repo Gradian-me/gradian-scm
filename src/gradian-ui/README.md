@@ -1,202 +1,112 @@
 # Gradian UI
 
-A comprehensive, configurable UI component library built for the Gradian Supply Chain Management system.
+The design system and experience kit behind the Gradian Integrated Graph Platform. Gradian UI translates decision graphs into interfaces that feel intuitive, data-aware, and ready for orchestration across every Gradian-powered app.
 
-## Overview
+## ✨ Philosophy
 
-Gradian UI provides a complete set of reusable, configurable components organized into logical domains. All components are designed to be data-driven and configuration-based, eliminating hardcoded values and promoting consistency across the application.
+- **Graph-Native Experiences** – Components speak the language of nodes, edges, and signals. Every card, chart, and control can reference schema metadata directly.
+- **Composable Storytelling** – Build dashboards, narratives, and command centers by assembling configuration-driven modules.
+- **Trust-Forward Design** – Clarity, accessibility, and explainability come first so teams can act with confidence.
+- **Cross-App Harmony** – Shared tokens, motion, and interaction patterns keep satellite apps aligned with the Gradian.me brand.
 
-## Architecture
+## 🧭 Library Map
 
-The library is organized into the following main domains:
+```
+src/gradian-ui/
+├── analytics/         # KPI cards, graph metrics, narrative widgets
+├── data-display/      # Tables, lists, badges, relationship viewers
+├── form-builder/      # Schema-aware form engine & inputs
+├── layout/            # Shells, navigation, grid builders
+├── profile/           # Identity, avatars, persona switchers
+├── relation-manager/  # Graph relation explorers and editors
+├── schema-manager/    # Schema wizards, inspectors, config helpers
+├── shared/            # Tokens, hooks, utilities, theme contracts
+└── index.ts           # Barrel exports for the full kit
+```
 
-### 🏗️ Form Builder
-- **Form Elements**: TextInput, SelectInput, Textarea, Checkbox, RadioGroup
-- **Form Wrapper**: FormWrapper, FormHeader, FormContent, FormFooter, FormActions
+Each domain follows a consistent structure: `components/`, `hooks/`, `types/`, `utils/`, and optional `docs/` to keep code discoverable and extendable.
 
-### 🎨 Layout
-- **Grid Builder**: GridBuilder, GridItem, GridRow, GridColumn
-- **Header**: Header, HeaderBrand, HeaderNavigation, HeaderActions
-- **Profile Selector**: ProfileSelector, ProfileDropdown, ProfileItem
-- **Notification Bar**: NotificationBar, NotificationContainer, NotificationItem
+## 🚀 What You Get
 
-### 📊 Analytics
-- **Charts**: Line, Bar, Pie, Donut charts
-- **Indicators**: KPI indicators with trends and progress
+- **Decision Canvas Components** – KPI tiles, sparkline stories, insight timelines, and trend narratives.
+- **Graph-Aware Tables** – Auto-format relations, status badges, and nested data in one cohesive grid.
+- **Schema-Driven Forms** – Build or edit entities through metadata-only definitions, including validation and layout logic.
+- **Experience Primitives** – Headers, sidebars, selectors, toasts, and overlays tuned for multi-app orchestration.
+- **Theme System** – Tailwind-first tokens with light/dark palettes and custom brand channels.
 
-### 📋 Data Display
-- **Card**: Card, CardHeader, CardContent, CardFooter, CardImage
-- **List**: List components for data display
+## 🔧 Working With Gradian UI
 
-## Key Features
+### Install (already part of the monorepo)
 
-### 🎯 Configuration-Driven
-All components accept configuration objects that define their behavior, styling, and data requirements.
-
-### 🔧 Generic and Reusable
-Components are designed to work with any data structure through configuration metadata.
-
-### 🎨 Consistent Styling
-Built on Tailwind CSS with consistent design tokens and theming support.
-
-### ♿ Accessible
-All components include proper ARIA attributes and keyboard navigation support.
-
-### 📱 Responsive
-Components adapt to different screen sizes and breakpoints.
-
-### 🎭 Themeable
-Support for light/dark themes and custom color schemes.
-
-## Usage
-
-### Basic Example
+Components are local packages—import directly from `@/gradian-ui`:
 
 ```tsx
-import { FormWrapper, Card, KPIIndicator } from '@/gradian-ui';
+import { KPIIndicator, RelationTable } from '@/gradian-ui';
 
-// Form with configuration
-const formConfig = {
-  id: 'user-form',
-  name: 'User Form',
-  fields: [
-    {
-      name: 'email',
-      label: 'Email Address',
-      type: 'email',
-      validation: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }
-    }
-  ]
-};
-
-// Card with configuration
-const cardConfig = {
-  id: 'user-card',
-  name: 'User Card',
-  title: 'John Doe',
-  subtitle: 'Software Engineer',
-  actions: [
-    { id: 'edit', label: 'Edit', variant: 'primary' }
-  ]
-};
-
-// KPI with configuration
 const kpiConfig = {
-  id: 'revenue-kpi',
-  name: 'Revenue KPI',
-  title: 'Total Revenue',
-  format: 'currency',
-  trend: { enabled: true, period: 'month' }
+  id: 'confidence-score',
+  title: 'Decision Confidence',
+  format: 'percent',
+  trend: { period: '7d' }
 };
 
-function MyComponent() {
+function ConfidencePanel({ value, previous }) {
   return (
-    <div>
-      <FormWrapper config={formConfig} onSubmit={handleSubmit} />
-      <Card config={cardConfig} />
-      <KPIIndicator config={kpiConfig} value={125000} previousValue={100000} />
-    </div>
+    <KPIIndicator config={kpiConfig} value={value} previousValue={previous} />
   );
 }
 ```
 
-### Using Hooks
+### Configuration-First Patterns
 
-```tsx
-import { useFormState, useComponentData } from '@/gradian-ui';
-
-function MyForm() {
-  const { values, errors, setValue, validateForm } = useFormState({
-    email: '',
-    password: ''
-  }, {
-    email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
-    password: { required: true, minLength: 8 }
-  });
-
-  return (
-    <form>
-      {/* Form fields */}
-    </form>
-  );
-}
-```
-
-## Component Structure
-
-Each component follows a consistent structure:
-
-```
-component-name/
-├── components/          # React components
-├── types/              # TypeScript type definitions
-├── utils/              # Component-specific utilities
-├── hooks/              # Component-specific hooks
-├── configs/            # Default configurations
-├── docs/               # Documentation and examples
-└── index.ts            # Exports
-```
-
-## Configuration Schema
-
-All components use a standardized configuration schema:
+Most components accept a `config` object that maps directly to schema metadata:
 
 ```typescript
-interface ComponentConfig {
+type ComponentConfig = {
   id: string;
-  name: string;
-  type: string;
-  props?: Record<string, any>;
-  children?: ComponentConfig[];
-  metadata?: {
-    description?: string;
-    version?: string;
-    author?: string;
-    lastModified?: string;
+  title?: string;
+  description?: string;
+  props?: Record<string, unknown>;
+  relations?: Array<{ source: string; target: string; type: string }>;
+  layout?: {
+    span?: number;
+    priority?: number;
   };
-}
+};
 ```
 
-## Theming
+Leverage these configs to keep UIs declarative and aligned with the underlying decision graph.
 
-The library supports theming through configuration:
+### Hooks & Utilities
 
-```typescript
-import { defaultTheme, darkTheme } from '@/gradian-ui';
+- `useFormState` – Schema-driven form state and validation.
+- `useComponentData` – Fetch and normalize component data from the graph.
+- `useThemeTokens` – Access brand gradients, elevations, and motion presets.
 
-// Use default theme
-<Component theme={defaultTheme} />
+## 🎨 Theming & Tokens
 
-// Use dark theme
-<Component theme={darkTheme} />
+Gradian UI centralizes design tokens under `shared/`:
 
-// Custom theme
-<Component theme={{
-  primary: '#FF6B6B',
-  secondary: '#4ECDC4',
-  // ... other theme properties
-}} />
-```
+- **Foundations** – Color ramps, typography scale, spacing, shadows.
+- **Modes** – `light`, `dark`, and `command` (high-contrast) palettes.
+- **Customization** – Extend tokens via configuration: `setTheme({ primary: '#4F46E5', accent: '#14B8A6' })`.
 
-## Best Practices
+## 🧠 Building New Components
 
-1. **Always use configuration objects** instead of hardcoded props
-2. **Leverage hooks** for state management and data fetching
-3. **Use TypeScript** for better type safety
-4. **Follow the component structure** for consistency
-5. **Document your configurations** for better maintainability
+1. Mirror the domain structure (`components`, `hooks`, `types`, `utils`).
+2. Define TypeScript-first configuration models.
+3. Wire configuration to runtime behavior—no hardcoded copy or data.
+4. Document usage in `docs/` with at least one narrative example.
+5. Validate accessibility (focus, semantics, screen readers).
+6. Test visuals in light and dark themes at multiple breakpoints.
 
-## Contributing
+## 🤝 Contributing to the Vision
 
-When adding new components:
+- Share new patterns that make decision graphs feel even more tangible.
+- Keep the storytelling focus—every component should reinforce trust.
+- Align naming, tone, and interaction with the Gradian.me brand guidelines.
+- Capture learnings in the docs so satellite teams can move fast with confidence.
 
-1. Follow the established folder structure
-2. Include comprehensive TypeScript types
-3. Add configuration support
-4. Include documentation and examples
-5. Add proper accessibility attributes
-6. Test with different themes and screen sizes
+## 📄 License
 
-## License
-
-This library is part of the Gradian Supply Chain Management system.
+Part of the proprietary Gradian.me applications and platforms. Reach out to the Gradian team for partnership opportunities.

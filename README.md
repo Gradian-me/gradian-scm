@@ -1,161 +1,140 @@
-# Gradian Supply Chain Management (SCM)
+# Gradian Integrated Graph Platform
 
-A modern, dynamic supply chain management system built with Next.js 16, featuring a fully schema-driven architecture.
+Helping connected enterprises trust every decision through graph-powered, schema-driven applications inspired by the [Gradian.me](https://gradian.me) vision.
 
-## 🚀 Key Features
+## 🌌 Why Gradian
 
-- **100% Dynamic Schema System** - Add new entities by editing JSON, no code changes needed
-- **Automatic CRUD Operations** - API routes and pages generated automatically from schemas
-- **Type-Safe** - Full TypeScript support with runtime validation
-- **Server & Client Compatible** - Seamless data fetching on both sides
-- **Domain-Driven Design** - Clean architecture with Repository, Service, and Controller layers
-- **Modern UI** - Built with Tailwind CSS and shadcn/ui components
+- **Decision Graph DNA** – Model every relationship, signal, and event as a living graph that powers analytics, workflows, and automation.
+- **Integrated App Experiences** – Launch analytics, operations, and collaboration suites from one harmonized platform.
+- **Confidence by Design** – Blend qualitative judgment with quantitative evidence so teams can act with conviction.
+- **Composable by Default** – Shape new modules in minutes using a dynamic schema system—no brittle rewrites, just orchestration.
 
-## 📁 Project Structure
+## 🧭 Vision
+
+Gradian turns complex ecosystems into explainable narratives. By bringing strategy, execution, and telemetry into a single decision graph, organizations can:
+
+- Reveal hidden dependencies across products, partners, and people.
+- Continuously test hypotheses with live operational data.
+- Share trustworthy insights that align executives, operators, and builders.
+
+Every screen, dashboard, and workflow in Gradian exists to earn trust at the moment of decision.
+
+## 🏛️ Platform Architecture
 
 ```
 gradian-scm/
-├── data/
-│   ├── all-schemas.json          # All entity schemas (single source of truth)
-│   ├── all-data.json             # All entity data
-│   └── *.json                    # Individual entity data files
+├── data/                   # Graph definitions, settings, sync payloads
+│   ├── all-schemas.json    # Entity blueprints & layout logic
+│   ├── all-data.json       # Seeded records for local development
+│   ├── all-data-relations.json
+│   ├── all-builders.json
+│   └── notifications.json
 ├── src/
 │   ├── app/
-│   │   ├── page/[schema-id]/     # Dynamic entity pages
-│   │   ├── api/
-│   │   │   ├── schemas/          # Schema API endpoint
-│   │   │   └── data/[schema-id]/ # Dynamic CRUD API routes
-│   │   └── ...                   # Other pages
-│   ├── components/
-│   │   └── dynamic/              # Dynamic page renderer
-│   ├── shared/
-│   │   ├── schemas/              # Schema TypeScript definitions
-│   │   ├── utils/                # Utilities (schema-registry, schema-loader)
-│   │   └── domain/               # DDD base classes (Repository, Service, Controller)
-│   └── gradian-ui/               # Reusable UI component library
-└── docs/                         # Documentation
+│   │   ├── analytics/      # Insight workspaces & decision trails
+│   │   ├── builder/        # Low-code schema + relation designers
+│   │   ├── erp/            # Operational cockpit (finance, ops, supply)
+│   │   ├── calendar/       # Temporal graph & coordination views
+│   │   ├── notifications/  # Signal center & command bus
+│   │   ├── page/[schema-id]/[data-id]/
+│   │   └── api/            # Graph-aware APIs (schemas, data, auth…)
+│   ├── domains/            # Domain-driven services, controllers, schemas
+│   ├── gradian-ui/         # Gradian design system & graph widgets
+│   ├── components/         # App-specific compositions
+│   ├── stores/             # Zustand stores for realtime state
+│   └── shared/             # Cross-cutting utils, types, constants
+├── docs/                   # Vision, prompts, architecture deep dives
+└── prisma/                 # Optional relational mirror of the graph
 ```
 
-## 🎯 Quick Start
+### Core Layers
 
-### 1. Installation
+- **Graph Data Layer** – JSON-first graph definitions fed into Prisma or external sources when needed.
+- **Decision Services** – Domain services transform raw signals into alerts, recommendations, or automation triggers.
+- **Experience Kit** – `gradian-ui` delivers interactive graph canvases, analytics lenses, and narrative dashboards.
+
+## 🚀 Capabilities
+
+- **Graph Analytics & Storytelling** – Explore relationships with dynamic metrics, pathfinding, and trend narratives.
+- **Schema-Driven Apps** – Add new entities, relations, and layouts using JSON builders and immediately deploy experiences.
+- **Operational Suites** – Analytics, ERP, Calendar, Notifications, and Settings modules share a single identity and data graph.
+- **Adaptive Automation** – Configure triggers, notifications, and follow-up actions directly from schema metadata.
+- **Trusted Collaboration** – Access controls, profiles, and company selectors ensure the right teams see the right facts.
+
+## 🧪 Getting Started
+
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Run Development Server
+### 2. Launch the Platform
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Visit `http://localhost:3000` and sign in to explore analytics, operations, and builder workspaces.
 
-### 3. Add a New Entity
+### 3. Shape the Graph
 
-Simply edit `data/all-schemas.json`:
+Edit `data/all-schemas.json` and `data/all-data-relations.json` to add entities, attributes, and relationships. The platform instantly renders:
 
-```json
-{
-  "id": "products",
-  "name": "products",
-  "title": "Create New Product",
-  "singular_name": "Product",
-  "plural_name": "Products",
-  "sections": [
-    {
-      "id": "basic-info",
-      "title": "Basic Information",
-      "fields": [
-        {
-          "id": "product-name",
-          "name": "name",
-          "label": "Product Name",
-          "type": "text",
-          "component": "text",
-          "required": true
-        }
-      ]
-    }
-  ]
-}
-```
+- Workspace routes under `/page/<schema-id>` and `/page/<schema-id>/<data-id>`
+- Builder tools in `/builder` for human-friendly editing
+- API endpoints at `/api/schemas`, `/api/data/<schema-id>`, `/api/relations`
 
-**That's it!** The following are now automatically available:
-- Page: `/page/products`
-- API: `GET/POST /api/data/products`
-- Forms, validation, and CRUD operations
+## 🔍 Explore the Modules
 
-## 📚 Documentation
+- **Analytics** – `src/app/analytics` surfaces decision trails, KPI cards, and graph-driven dashboards.
+- **Builder** – `src/app/builder` provides schema designers, relation mappers, and generative entity templates.
+- **ERP** – `src/app/erp` connects finance, supply, and revenue operations to the graph.
+- **Calendar** – `src/app/calendar` bridges events, tasks, and dependencies with timeline intelligence.
+- **Notifications** – `src/app/notifications` orchestrates signals, alerts, and multi-channel nudges.
+- **Profiles & Settings** – `src/app/profiles`, `src/app/settings` manage trust, roles, and personalization.
 
-- [Quick Start Guide](./QUICK_START_GUIDE.md) - Detailed setup and usage
-- [Dynamic Schema System](./DYNAMIC_SCHEMA_REFACTOR.md) - How the schema system works
-- [CRUD Architecture](./DYNAMIC_CRUD_ARCHITECTURE.md) - Domain-driven design implementation
-- [Mock Data Guide](./MOCK_DATA_REFACTOR.md) - Data structure and metrics
-- [Database Setup](./DATABASE_SETUP.md) - Prisma configuration
+## 🧱 Gradian UI Design System
 
-## 🛠️ Technology Stack
+`src/gradian-ui` packages our reusable graph components:
 
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Data Access**: Prisma (optional, JSON files by default)
-- **Validation**: Zod
-- **State Management**: Zustand
-- **Charts**: Recharts
+- Data display tables, badges, and relation viewers
+- Form builder with smart defaults for schema-driven forms
+- Analytics charts, path visualizers, and story panels
+- Layout primitives, navigation shells, and profile widgets
 
-## 📦 Available Scripts
+Embed them across modules or export them to satellite apps to extend the Gradian experience.
+
+## ⚙️ Scripts & Tooling
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
+npm run dev       # Development server with Turbopack
+npm run build     # Production build
+npm run start     # Run production build locally
+npm run lint      # ESLint + formatting checks
 ```
 
-## 🎨 Key Concepts
+Additional scripts live in `scripts/` for data conversion, schema cleanup, and database setup. See `DATABASE_SETUP.md` for Prisma usage.
 
-### Dynamic Schema System
+## 📚 Deep Dives
 
-All entities are defined in `data/all-schemas.json`. The system automatically:
-1. Generates API routes
-2. Creates UI pages with forms
-3. Handles CRUD operations
-4. Validates data
-5. Manages state
-
-### Server-Side vs Client-Side
-
-**Server-Side Functions** (sync):
-```typescript
-import { getSchemaById } from '@/shared/utils/schema-registry';
-const schema = getSchemaById('vendors');
-```
-
-**Client-Side Functions** (async):
-```typescript
-import { fetchSchemaById } from '@/shared/utils/schema-registry';
-const schema = await fetchSchemaById('vendors');
-```
+- [Quick Start Guide](./QUICK_START_GUIDE.md)
+- [Dynamic CRUD Architecture](./DYNAMIC_CRUD_ARCHITECTURE.md)
+- [Schema to Page Flow](./SCHEMA_TO_PAGE_FLOW.md)
+- [Mock Data Refactor](./MOCK_DATA_REFACTOR.md)
+- [Schema API Configuration](./SCHEMA_API_CONFIGURATION.md)
 
 ## 🤝 Contributing
 
-1. Add schemas to `data/all-schemas.json`
-2. Add data to corresponding JSON files in `data/`
-3. Use existing components from `gradian-ui/`
-4. Follow the domain-driven architecture
+- Use the Builder module or JSON definitions to propose new graph entities.
+- Extend `gradian-ui` with reusable, theme-aligned components.
+- Document decisions in `docs/` so the graph remains explainable.
+- Share vision-aligned stories that reinforce Gradian's trust mission.
 
-## 📄 License
+## 🔐 License
 
-This project is proprietary and confidential.
-
-## 🔗 Related Projects
-
-- Gradian UI - Custom component library
-- Schema Manager - Auto-generation utilities
+Proprietary and confidential. Contact the Gradian team for partnership opportunities.
 
 ---
 
-Built with ❤️ by the Gradian Team
+Made with ❤️ by Gradian.me
