@@ -90,7 +90,7 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
 
   // Container classes - responsive with wrapping
   const containerClasses = cn(
-    "flex flex-wrap justify-start items-start gap-2",
+    "flex flex-nowrap justify-start items-center gap-2 overflow-x-auto",
     className
   );
 
@@ -114,13 +114,14 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
     // Apply custom color if provided, otherwise use the variant
     const badgeStyle = itemColor ? { backgroundColor: itemColor, borderColor: itemColor } : {};
     const badgeClasses = cn(
-      "text-[0.625rem] px-2 py-0 transition-transform duration-100",
+      "text-[0.625rem] px-2 py-0 transition-transform duration-100 whitespace-nowrap",
       itemColor && "border text-white"
     );
     
       return (
         <motion.div
           key={itemId}
+          className="flex-shrink-0"
           initial={{ opacity: 0, scale: 0.8, y: 5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ 
@@ -149,13 +150,14 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
     if (!hasMoreBadges) return null;
     
     const moreBadge = (
-      <Badge variant={badgeVariant} className="text-[0.625rem] px-2 py-0 h-fit">
+      <Badge variant={badgeVariant} className="text-[0.625rem] px-2 py-0 h-fit whitespace-nowrap">
         +{extraBadgesCount}
       </Badge>
     );
     
       return (
         <motion.div
+          className="flex-shrink-0"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ 

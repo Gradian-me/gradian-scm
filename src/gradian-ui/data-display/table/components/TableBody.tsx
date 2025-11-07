@@ -109,8 +109,8 @@ export function TableBody<T = any>({
                   ? column.cellClassName(row, rowIndex)
                   : column.cellClassName;
 
-              // Allow wrapping for columns with maxWidth (badge columns should have maxWidth set)
-              const shouldAllowWrapping = !!column.maxWidth;
+              // Allow wrapping when explicitly enabled or when maxWidth is provided (backward compatible)
+              const shouldAllowWrapping = column.allowWrap ?? !!column.maxWidth;
 
               return (
                 <td

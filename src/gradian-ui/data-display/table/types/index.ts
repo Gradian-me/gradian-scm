@@ -13,6 +13,11 @@ export interface TableColumn<T = any> {
   headerRender?: () => React.ReactNode;
   cellClassName?: string | ((row: T, index: number) => string);
   sticky?: 'left' | 'right';
+  /**
+   * Whether the column content is allowed to wrap to multiple lines.
+   * Defaults to true when maxWidth is provided for backward compatibility.
+   */
+  allowWrap?: boolean;
 }
 
 export interface TableConfig<T = any> {

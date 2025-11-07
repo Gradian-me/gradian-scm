@@ -163,8 +163,8 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
     const statusOptions = field.options || [];
     const badgeConfig = getBadgeConfig(String(value), statusOptions);
     return (
-      <div className="inline-flex">
-        <Badge variant={mapBadgeColorToVariant(badgeConfig.color)} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] leading-tight w-auto">
+      <div className="inline-flex items-center whitespace-nowrap">
+        <Badge variant={mapBadgeColorToVariant(badgeConfig.color)} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] leading-tight w-auto whitespace-nowrap">
           {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-2.5 w-2.5" />}
           <span>{badgeConfig.label}</span>
         </Badge>
@@ -180,18 +180,19 @@ const formatFieldValue = (field: any, value: any, row?: any): React.ReactNode =>
         value={value}
         badgeVariant="outline"
         animate={true}
+        className="flex-nowrap overflow-x-auto"
       />
     );
   }
 
   switch (displayType) {
     case 'currency':
-      return <span>{formatCurrency(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
+      return <span className="whitespace-nowrap">{formatCurrency(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
     case 'percentage':
       const numValue = typeof value === 'number' ? value : parseFloat(value) || 0;
-      return <span>{numValue.toFixed(2)}%</span>;
+      return <span className="whitespace-nowrap">{numValue.toFixed(2)}%</span>;
     case 'number':
-      return <span>{formatNumber(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
+      return <span className="whitespace-nowrap">{formatNumber(typeof value === 'number' ? value : parseFloat(value) || 0)}</span>;
     case 'date':
     case 'datetime-local':
       try {
@@ -253,6 +254,13 @@ const buildTableColumns = (
       ? 'right' 
       : 'left';
 
+    // Determine if this column should allow wrapping
+    const isNumericType = ['number', 'currency', 'percentage'].includes(field.type);
+    const isStatusType = field.role === 'status';
+    const isBadgeType = field.role === 'badge';
+    const baseAllowWrap = widthSettings.maxWidth != null;
+    const allowWrap = baseAllowWrap && !isNumericType && !isStatusType && !isBadgeType;
+
     return {
       id: field.id,
       label: field.label || field.name,
@@ -263,6 +271,7 @@ const buildTableColumns = (
       maxWidth: widthSettings.maxWidth,
       // Only set explicit width if provided
       width: widthSettings.width,
+      allowWrap,
       render: (value, row) => formatFieldValue(field, value, row),
     };
   });
