@@ -182,7 +182,7 @@ export function TableAggregations<T = any>({
                 key={aggIndex} 
                 className={cn(
                   "space-y-2",
-                  aggIndex > 0 && "border-e border-gray-300 pe-4"
+                  aggIndex >= 0 && "border-e border-gray-300 pe-4"
                 )}
               >
                 {hasSingleAggregation ? (

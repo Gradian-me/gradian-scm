@@ -14,6 +14,7 @@ import {
   ColumnWidthMap,
 } from '../table';
 import { CardWrapper, CardHeader, CardTitle, CardContent } from '../card/components/CardWrapper';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '../../shared/utils';
 import { Button } from '../../../components/ui/button';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
@@ -209,20 +210,33 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
 
             {isRelationBased && relationDirections.size > 0 && (
               <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-2">
-                  {relationDirections.has('source') && (
-                    <Badge variant="primary" size="sm">
-                      <IconRenderer iconName="ArrowDown" className="h-3 w-3 mr-1" />
-                      Source
-                    </Badge>
-                  )}
-                  {relationDirections.has('target') && (
-                    <Badge variant="secondary" size="sm">
-                      <IconRenderer iconName="ArrowUp" className="h-3 w-3 mr-1" />
-                      Target
-                    </Badge>
-                  )}
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-2">
+                        {relationDirections.has('source') && (
+                          <Badge variant="primary" size="sm">
+                            <IconRenderer iconName="ArrowDown" className="h-3 w-3 mr-1" />
+                            Source
+                          </Badge>
+                        )}
+                        {relationDirections.has('target') && (
+                          <Badge variant="secondary" size="sm">
+                            <IconRenderer iconName="ArrowUp" className="h-3 w-3 mr-1" />
+                            Target
+                          </Badge>
+                        )}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="flex items-center gap-1 text-xs text-gray-900">
+                        <span>{schema.title || schema.plural_name || schema.name}</span>
+                        <IconRenderer iconName="ArrowRight" className="h-3 w-3" />
+                        <span>{targetSchemaData?.title || targetSchemaData?.plural_name || targetSchemaData?.name || config.targetSchema}</span>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 {relationTypeTexts.length > 0 && (
                   <div className="text-xs font-medium text-gray-500 text-right">
                     {relationTypeTexts.map((text, relationIndex) => (
