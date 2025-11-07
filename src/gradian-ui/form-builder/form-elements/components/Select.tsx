@@ -1,11 +1,19 @@
 // Select Component
 
 import React from 'react';
-import { Select as RadixSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
+import {
+  Select as RadixSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../../../components/ui/select';
 import { SelectProps } from '../types';
 import { cn } from '../../../shared/utils';
 import { IconRenderer } from '../../../../shared/utils/icon-renderer';
 import { Badge } from '../../../../components/ui/badge';
+import { motion } from 'framer-motion';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 export interface SelectOption {
   value: string;
@@ -163,14 +171,24 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {validOptions.map((option) => (
-              <SelectItem
+            {validOptions.map((option, index) => (
+              <motion.div
                 key={option.value}
-                value={option.value}
-                disabled={option.disabled}
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.2,
+                  delay: Math.min(
+                    index * UI_PARAMS.CARD_INDEX_DELAY.STEP,
+                    UI_PARAMS.CARD_INDEX_DELAY.SKELETON_MAX
+                  ),
+                  ease: 'easeOut',
+                }}
               >
-                {renderBadgeContent(option)}
-              </SelectItem>
+                <SelectItem value={option.value} disabled={option.disabled}>
+                  {renderBadgeContent(option)}
+                </SelectItem>
+              </motion.div>
             ))}
           </SelectContent>
         </RadixSelect>
@@ -203,7 +221,23 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
           <SelectValue placeholder={fieldPlaceholder} />
         </SelectTrigger>
         <SelectContent>
-          {children}
+          {React.Children.map(children, (child, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{
+                duration: 0.2,
+                delay: Math.min(
+                  index * UI_PARAMS.CARD_INDEX_DELAY.STEP,
+                  UI_PARAMS.CARD_INDEX_DELAY.SKELETON_MAX
+                ),
+                ease: 'easeOut',
+              }}
+            >
+              {child}
+            </motion.div>
+          ))}
         </SelectContent>
       </RadixSelect>
       {error && (

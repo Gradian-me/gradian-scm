@@ -26,7 +26,7 @@ import { FormModal } from '../../form-builder';
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { apiRequest } from '@/shared/utils/api';
-import { DataRelation, RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
+import { RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -267,37 +267,38 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
       setIsLoadingAutoTables(true);
       try {
         // Fetch all relations for this entity (both as source and target)
-        const relationsResponse = await apiRequest<DataRelation[]>(
-          `/api/relations?schema=${schema.id}&id=${data.id}&direction=both`
-        );
+        const relationsResponse = await apiRequest<
+          Array<{
+            schema: string;
+            direction: 'source' | 'target';
+            relation_type: string;
+            data: any[];
+            sourceSchema?: string;
+            targetSchema?: string;
+          }>
+        >(`/api/data/all-relations?schema=${schema.id}&id=${data.id}&direction=both`);
 
-        if (!relationsResponse.success || !relationsResponse.data) {
+        if (!relationsResponse.success || !Array.isArray(relationsResponse.data)) {
           setRelatedSchemas([]);
           setIsLoadingAutoTables(false);
           isFetchingRef.current = false;
           return;
         }
 
-        const allRelations = Array.isArray(relationsResponse.data) ? relationsResponse.data : [];
+        const groupedRelations = relationsResponse.data;
 
-        // Find distinct related schemas
-        // For source relations: use targetSchema
-        // For target relations: use sourceSchema (the entity is the target, so we show relations to the source)
         const relatedSchemasSet = new Set<string>();
-        allRelations.forEach((relation) => {
+        groupedRelations.forEach((group) => {
           let schemaToUse: string | undefined;
-          
-          if (relation.direction === 'source') {
-            // Entity is the source, so show relations to targetSchema
-            schemaToUse = relation.targetSchema;
-          } else if (relation.direction === 'target') {
-            // Entity is the target, so show relations to sourceSchema (reverse direction)
-            schemaToUse = relation.sourceSchema;
+
+          if (group.direction === 'source') {
+            schemaToUse = group.targetSchema || group.schema;
+          } else if (group.direction === 'target') {
+            schemaToUse = group.sourceSchema || group.schema;
           } else {
-            // Fallback: use targetSchema (for backward compatibility)
-            schemaToUse = relation.targetSchema;
+            schemaToUse = group.targetSchema || group.schema;
           }
-          
+
           if (schemaToUse) {
             relatedSchemasSet.add(schemaToUse);
           }
@@ -1014,19 +1015,20 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
             )}
 
             {/* Table Renderers - Full Width (Always after components and sections) */}
-            {tableRenderers.length > 0 && (
+                {tableRenderers.length > 0 && (
               <div className="space-y-6 mt-6 w-full min-w-0">
                 {tableRenderers.map((tableConfig, index) => (
-                  <DynamicRepeatingTableViewer
-                    key={tableConfig.id}
-                    config={tableConfig}
-                    schema={schema}
-                    data={data}
-                    index={index + mainComponents.length + sectionsForMain.length}
-                    disableAnimation={disableAnimation}
-                    sourceSchemaId={schema.id}
-                    sourceId={data?.id}
-                  />
+                      <DynamicRepeatingTableViewer
+                        key={tableConfig.id}
+                        config={tableConfig}
+                        schema={schema}
+                        data={data}
+                        index={index + mainComponents.length + sectionsForMain.length}
+                        disableAnimation={disableAnimation}
+                        sourceSchemaId={schema.id}
+                        sourceId={data?.id}
+                        showRefreshButton
+                      />
                 ))}
               </div>
             )}
@@ -1050,6 +1052,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     disableAnimation={disableAnimation}
                     sourceSchemaId={schema.id}
                     sourceId={data?.id}
+                        showRefreshButton
                   />
                 ))}
               </div>
@@ -1072,6 +1075,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 disableAnimation={disableAnimation}
                 sourceSchemaId={schema.id}
                 sourceId={data?.id}
+                showRefreshButton
               />
             ))}
           </div>
@@ -1096,6 +1100,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     disableAnimation={disableAnimation}
                     sourceSchemaId={schema.id}
                     sourceId={data?.id}
+                        showRefreshButton
                   />
                 ))}
               </div>

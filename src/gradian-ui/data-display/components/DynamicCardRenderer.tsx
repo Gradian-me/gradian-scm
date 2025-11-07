@@ -14,6 +14,7 @@ import { BadgeViewer, BadgeRenderer } from '../../form-builder/form-elements/uti
 import { getFieldsByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -239,11 +240,18 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     <motion.div
       initial={disableAnimation ? false : { opacity: 0, y: 8 }}
       animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-      transition={disableAnimation ? {} : {
-        duration: 0.3,
-        delay: index * 0.02,
-          ease: "easeOut"
-      }}
+      transition={
+        disableAnimation
+          ? {}
+          : {
+              duration: 0.3,
+              delay: Math.min(
+                index * UI_PARAMS.CARD_INDEX_DELAY.STEP,
+                UI_PARAMS.CARD_INDEX_DELAY.MAX
+              ),
+              ease: 'easeOut',
+            }
+      }
       whileHover={undefined}
       whileTap={disableAnimation ? undefined : {
         scale: 0.995,

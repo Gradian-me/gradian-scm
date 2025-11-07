@@ -1610,7 +1610,6 @@
         "title": "Quotation Information",
         "colSpan": 1,
         "fieldIds": [
-          "quotation-number",
           "quotation-date",
           "expiration-date",
           "quotation-state"

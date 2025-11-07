@@ -19,6 +19,8 @@ import { cn } from '../../shared/utils';
 import { Button } from '../../../components/ui/button';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Badge } from '../../form-builder/form-elements/components/Badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { RefreshCw } from 'lucide-react';
 
 /**
  * Column width configuration for different field types
@@ -33,6 +35,7 @@ export interface DynamicRepeatingTableViewerProps {
   className?: string;
   sourceSchemaId?: string; // Source schema ID for relation-based tables
   sourceId?: string; // Source entity ID for relation-based tables
+  showRefreshButton?: boolean;
 }
 
 export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerProps> = ({
@@ -44,6 +47,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   className,
   sourceSchemaId,
   sourceId,
+  showRefreshButton = false,
 }) => {
   const router = useRouter();
 
@@ -64,6 +68,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     isLoadingRelations,
     isLoadingTargetSchema,
     relationInfo,
+    refresh,
   } = tableDataState;
 
   const navigationSchemaId = isRelationBased && config.targetSchema ? config.targetSchema : schema.id;
@@ -85,6 +90,15 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       router.push(`/page/${navigationSchemaId}/${itemId}?showBack=true`);
     },
     [navigationSchemaId, router]
+  );
+
+  const handleRefreshClick = useCallback(
+    async (event: React.MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await refresh();
+    },
+    [refresh]
   );
 
   const actionCellRenderer = useCallback(
@@ -121,6 +135,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const paginationEnabled = tableProps.paginationEnabled ?? (sectionData.length > 10);
   const paginationPageSize = tableProps.paginationPageSize || 10;
   const alwaysShowPagination = tableProps.alwaysShowPagination ?? false;
+  const isLoading = isLoadingRelations || (isRelationBased && isLoadingTargetSchema);
 
   const tableConfig: TableConfig = useMemo(
     () => ({
@@ -150,7 +165,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             : 'No items found'
           : section?.repeatingConfig?.emptyMessage || 'No items found',
       },
-      loading: isLoadingRelations || (isRelationBased && isLoadingTargetSchema),
+      loading: isLoading,
       striped: true,
       hoverable: true,
       bordered: true,
@@ -160,8 +175,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
       columns,
       config.sectionId,
       config.title,
-      isLoadingRelations,
-      isLoadingTargetSchema,
+      isLoading,
       isRelationBased,
       paginationEnabled,
       paginationPageSize,
@@ -203,12 +217,30 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
               <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
-              <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
-                {sectionData.length}
-              </span>
+              {showRefreshButton && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRefreshClick}
+                  disabled={isLoading}
+                  className="text-gray-400 hover:text-violet-600 hover:bg-violet-50 transition-colors duration-200 p-1.5"
+                  aria-label="Refresh table"
+                >
+                  <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin text-violet-600')} />
+                </Button>
+              )}
+              {isLoading ? (
+                <Skeleton className="h-5 w-12 rounded-full" />
+              ) : (
+                <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+                  {sectionData.length}
+                </span>
+              )}
             </div>
 
-            {isRelationBased && relationDirections.size > 0 && (
+            <div className="flex items-center gap-2">
+              {isRelationBased && relationDirections.size > 0 && (
               <div className="flex flex-col items-end gap-1">
                 <TooltipProvider>
                   <Tooltip>
@@ -256,6 +288,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                 )}
               </div>
             )}
+            </div>
           </div>
           {description && <p className="text-sm text-gray-500 mt-1.5">{description}</p>}
         </CardHeader>
@@ -271,6 +304,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             aggregations={aggregations}
             aggregationAlignment={aggregationAlignment}
             aggregationColumns={aggregationColumns}
+            isLoading={isLoading}
           />
         </CardContent>
       </CardWrapper>

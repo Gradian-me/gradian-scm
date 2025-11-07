@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { cn } from '../../../shared/utils';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 interface SidebarNavigationDynamicProps {
   isCollapsed: boolean;
@@ -88,12 +89,19 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
           </AccordionTrigger>
           <AccordionContent className="pl-3 pr-0 pb-0">
             <nav className="space-y-1 mt-1">
-              {schemas.map((schema) => {
+              {schemas.map((schema, index) => {
                 const active = isActive(schema.id);
                 return (
                   <Link key={schema.id} href={`/page/${schema.id}`}>
                     <motion.div
-                      whileHover={{ x: 4 }}
+                      initial={{ opacity: 0, x:-1, y: 0}}
+                      animate={{ opacity: 1, x:0, y: 0}}
+                      transition={{
+                        duration: 0.25,
+                        delay: Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX),
+                        ease: 'easeOut',
+                      }}
+                      whileHover={{ scale: 1.02 }}
                       className={cn(
                         "flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200",
                         active

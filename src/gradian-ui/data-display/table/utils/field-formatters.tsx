@@ -73,6 +73,22 @@ export const formatFieldValue = (
     );
   }
 
+  if (field?.role === 'rating') {
+    const numericValue = Number(value) || 0;
+    const clampedValue = Math.max(0, Math.min(5, numericValue));
+    return (
+      <span className="inline-flex items-center gap-1 text-amber-500">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <IconRenderer
+            key={`rating-${index}`}
+            iconName={index < Math.round(clampedValue) ? 'Star' : 'StarOff'}
+            className="h-4 w-4"
+          />
+        ))}
+      </span>
+    );
+  }
+
   if (field?.role === 'badge' && Array.isArray(value)) {
     return (
       <BadgeViewer

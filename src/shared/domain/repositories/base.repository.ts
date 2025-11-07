@@ -162,7 +162,13 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
         } else if (processed.password !== undefined && processed._passwordHashed) {
           // Use the processed password (which will be hashed if it wasn't already)
           processedData.password = processed.password;
-          console.log(`[PASSWORD] Password updated - original length: ${data.password?.length || 0}, hashed length: ${processed.password.length}`);
+          const originalLength =
+            typeof data.password === 'string' ? data.password.length : 0;
+          const hashedLength =
+            typeof processed.password === 'string' ? processed.password.length : 0;
+          console.log(
+            `[PASSWORD] Password updated - original length: ${originalLength}, hashed length: ${hashedLength}`
+          );
         } else if (processed.password === undefined && 'password' in data) {
           // Password was removed during processing (hashing failed), don't update it
           delete processedData.password;

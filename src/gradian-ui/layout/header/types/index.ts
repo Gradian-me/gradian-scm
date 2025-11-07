@@ -1,5 +1,6 @@
 // Header Types
 
+import type { ReactNode } from 'react';
 import { BaseComponentProps, UserProfile, MenuItem } from '../../../shared/types';
 
 // Re-export types for use in components
@@ -10,6 +11,18 @@ export interface HeaderProps extends BaseComponentProps {
   user?: UserProfile;
   onUserAction?: (action: string) => void;
   onMenuClick?: (item: MenuItem) => void;
+  /**
+   * Optional custom content to render in place of the default brand section.
+   */
+  brandContent?: ReactNode;
+  /**
+   * Optional custom content to render instead of the default navigation items.
+   */
+  navigationContent?: ReactNode;
+  /**
+   * Optional custom content to render instead of the default actions component.
+   */
+  actionsContent?: ReactNode;
 }
 
 export interface HeaderConfig {

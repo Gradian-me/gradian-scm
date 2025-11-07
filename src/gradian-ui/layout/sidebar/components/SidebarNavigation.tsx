@@ -9,6 +9,7 @@ import { SidebarNavigationProps } from '../types';
 import { isActiveNavigationItem } from '../utils';
 import { cn } from '../../../shared/utils';
 import { SidebarNavigationDynamic } from './SidebarNavigationDynamic';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   items,
@@ -24,14 +25,21 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   return (
     <ScrollArea className={cn("flex-1 px-4", className)}>
       <nav className="space-y-3">
-        {items.map((item) => {
+        {items.map((item, index) => {
           const isActive = isActiveNavigationItem(item, currentPath);
           const Icon = item.icon;
           
           return (
             <Link key={item.name} href={item.href} onClick={() => onItemClick?.(item)}>
               <motion.div
-                whileHover={{ x: 4 }}
+                initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  duration: 0.25,
+                  delay: Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX),
+                  ease: 'easeOut',
+                }}
+                whileHover={{ scale: 1.02 }}
                 className={cn(
                   "flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200",
                   isActive

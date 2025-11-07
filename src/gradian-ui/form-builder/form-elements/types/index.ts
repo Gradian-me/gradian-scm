@@ -29,6 +29,7 @@ export interface SearchInputProps extends FormElementProps {
   minLength?: number;
   pattern?: string;
   onClear?: () => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export interface NumberInputProps extends FormElementProps {

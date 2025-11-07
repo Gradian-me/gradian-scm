@@ -7,6 +7,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CTAButton } from '@/gradian-ui/form-builder/form-elements';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { 
   FileText,
@@ -159,9 +160,7 @@ export default function BuilderPage() {
 
         {/* Builder Cards Grid */}
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <RefreshCw className="h-8 w-8 animate-spin text-violet-600" />
-          </div>
+          <BuilderSkeletonGrid />
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {builderOptions.map((option, index) => {
@@ -274,6 +273,62 @@ export default function BuilderPage() {
         </motion.div>
       </div>
     </MainLayout>
+  );
+}
+
+
+function BuilderSkeletonGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <motion.div
+          key={`builder-skeleton-${index}`}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.05 }}
+          className="h-full"
+        >
+          <div className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm">
+            <div className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
+                  </div>
+                </div>
+                <Skeleton className="h-5 w-5 rounded-full" />
+              </div>
+
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, featureIdx) => (
+                  <div key={`feature-skeleton-${featureIdx}`} className="flex items-center gap-2">
+                    <Skeleton className="h-2 w-2 rounded-full" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <div className="flex flex-wrap gap-3 border-t border-dashed border-gray-200 pt-4">
+                {Array.from({ length: 3 }).map((_, statIdx) => (
+                  <div key={`stat-skeleton-${statIdx}`} className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-4 rounded-md" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 pt-4">
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
   );
 }
 

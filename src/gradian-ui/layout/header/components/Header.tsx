@@ -14,6 +14,9 @@ export const Header: React.FC<HeaderProps> = ({
   onUserAction,
   onMenuClick,
   className,
+  brandContent,
+  navigationContent,
+  actionsContent,
   ...props
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -63,37 +66,41 @@ export const Header: React.FC<HeaderProps> = ({
       >
         <div className={containerClasses}>
           {/* Brand */}
-          <HeaderBrand
-            logo={logo}
-            title={title}
-          />
+          {brandContent ?? (
+            <HeaderBrand
+              logo={logo}
+              title={title}
+            />
+          )}
 
           {/* Desktop Navigation */}
-          {navigation && !responsive?.mobileMenu && (
-            <HeaderNavigation
-              items={navigation.items}
-              variant={navigation.variant}
-              onItemClick={onMenuClick}
-            />
-          )}
+          {navigationContent ??
+            (navigation && !responsive?.mobileMenu && (
+              <HeaderNavigation
+                items={navigation.items}
+                variant={navigation.variant}
+                onItemClick={onMenuClick}
+              />
+            ))}
 
           {/* Actions */}
-          {actions && (
-            <HeaderActions
-              actions={actions}
-              user={user}
-              onAction={(action, data) => {
-                if (action === 'mobile-menu-toggle') {
-                  handleMobileMenuToggle();
-                } else {
-                  onUserAction?.(action);
-                }
-              }}
-            />
-          )}
+          {actionsContent ??
+            (actions && (
+              <HeaderActions
+                actions={actions}
+                user={user}
+                onAction={(action, data) => {
+                  if (action === 'mobile-menu-toggle') {
+                    handleMobileMenuToggle();
+                  } else {
+                    onUserAction?.(action);
+                  }
+                }}
+              />
+            ))}
 
           {/* Mobile Menu Button */}
-          {responsive?.mobileMenu && (
+          {responsive?.mobileMenu && !actionsContent && (
             <button
               onClick={handleMobileMenuToggle}
               className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"

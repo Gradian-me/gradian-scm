@@ -41,3 +41,12 @@ export const AUTH_CONFIG = {
     LOGIN_REQUIRED: 'Please log in to continue'
   }
 };
+
+// Shared animation delays for card collections
+export const UI_PARAMS = {
+  CARD_INDEX_DELAY: {
+    STEP: 0.05,
+    MAX: 0.4,
+    SKELETON_MAX: 0.25,
+  },
+} as const;

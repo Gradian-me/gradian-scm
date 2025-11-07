@@ -37,7 +37,7 @@ const withTooltip = (content: React.ReactNode, field: any): React.ReactNode => {
   }
   
   return (
-    <TooltipProvider>
+    <TooltipProvider disableHoverableContent>
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="cursor-default">
@@ -251,6 +251,23 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
         </div>,
         field
       );
+    case 'number': {
+      const parsedValue =
+        typeof value === 'number'
+          ? value
+          : typeof value === 'string'
+            ? parseFloat(value.replace(/,/g, ''))
+            : NaN;
+      const displayValue = Number.isFinite(parsedValue) ? formatNumber(parsedValue) : value;
+
+      return withTooltip(
+        <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
+          {customIcon || <IconRenderer iconName="Hash" className="h-3 w-3 shrink-0" />}
+          <span className="whitespace-nowrap">{displayValue}</span>
+        </div>,
+        field
+      );
+    }
     default:
       // For default text fields, check if value looks like a date string and format it
       const displayValue = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value)

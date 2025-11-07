@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignInPage, Testimonial } from "@/components/ui/sign-in";
 import { useUserStore } from "@/stores/user.store";
@@ -32,6 +32,11 @@ export default function LoginPage() {
   const { setUser } = useUserStore();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.title = 'Login | Gradian App';
+  }, []);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     setError(null); // Clear previous errors

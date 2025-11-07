@@ -23,6 +23,7 @@ export const SearchInput = forwardRef<FormElementRef, SearchInputProps>(
       className,
       touched,
       onClear,
+      onKeyDown,
       ...props
     },
     ref
@@ -106,6 +107,7 @@ export const SearchInput = forwardRef<FormElementRef, SearchInputProps>(
             onChange={handleChange}
             onBlur={handleBlur}
             onFocus={handleFocus}
+          onKeyDown={onKeyDown}
             placeholder={fieldPlaceholder}
             maxLength={maxLength || (config as any).validation?.maxLength}
             minLength={minLength || (config as any).validation?.minLength}

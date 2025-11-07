@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, PanelLeftOpen, PencilRuler, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { GoToTop } from '../../gradian-ui/layout';
+import { GoToTop, Header } from '../../gradian-ui/layout';
 import { Sidebar } from '../../gradian-ui/layout/sidebar';
 import { IconRenderer } from '../../shared/utils';
 import { Badge } from '../ui/badge';
@@ -13,6 +13,7 @@ import { CompanySelector } from './CompanySelector';
 import { useCompanyStore } from '@/stores/company.store';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileSelector } from './UserProfileSelector';
+import type { HeaderConfig } from '@/gradian-ui/layout/header';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -43,6 +44,12 @@ export function MainLayout({
   const [notificationCount] = useState(3);
   const [isDesktop, setIsDesktop] = useState(false);
   const { selectedCompany } = useCompanyStore();
+  const pageTitle = title ? `${title} | Gradian App` : 'Gradian App';
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   // Check if we're on desktop
   useEffect(() => {
@@ -66,10 +73,6 @@ export function MainLayout({
     window.location.href = '/notifications';
   };
 
-  const handleUserProfileClick = () => {
-    window.location.href = '/settings/profile';
-  };
-
   const handleEditSchemaClick = () => {
     if (editSchemaPath) {
       router.push(editSchemaPath);
@@ -78,6 +81,118 @@ export function MainLayout({
 
   // Calculate sidebar width for margin adjustment (only on desktop)
   const sidebarWidth = isDesktop ? (isSidebarCollapsed ? 80 : 280) : 0;
+
+  const headerConfig: HeaderConfig = {
+    id: 'main-layout-header',
+    name: 'main-layout-header',
+    title,
+    styling: {
+      variant: 'default',
+      size: 'md',
+    },
+  };
+
+  const headerBrandContent = (
+    <div className="flex items-center gap-3">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleMobileMenu}
+        className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+        aria-label="Toggle sidebar"
+      >
+        <PanelLeftOpen className="h-5 w-5" />
+      </Button>
+      <div className="flex flex-col">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="flex items-center gap-2"
+        >
+          {icon && (
+            <IconRenderer
+              iconName={icon}
+              className="h-5 w-5 md:h-6 md:w-6 text-violet-600"
+            />
+          )}
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+            {title}
+          </h1>
+          {isAdmin && editSchemaPath && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEditSchemaClick}
+              className="hidden md:inline-flex h-8 w-8 p-0 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+              aria-label="Edit schema"
+              title="Edit schema"
+            >
+              <PencilRuler className="h-4 w-4" />
+            </Button>
+          )}
+        </motion.div>
+        {subtitle && (
+          <motion.p
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+            className="text-sm text-gray-500 mt-0.5"
+          >
+            {subtitle}
+          </motion.p>
+        )}
+      </div>
+    </div>
+  );
+
+  const headerActionsContent = (
+    <div className="flex items-center gap-2">
+      <div className="hidden md:flex items-center space-x-4">
+        <CompanySelector />
+        <NotificationsDropdown initialCount={3} />
+        <UserProfileSelector />
+        {showCreateButton && (
+          <Button
+            onClick={onCreateClick}
+            className="flex items-center space-x-2"
+            aria-label={createButtonText}
+          >
+            <Plus className="h-4 w-4" />
+            <span>{createButtonText}</span>
+          </Button>
+        )}
+      </div>
+      <div className="flex md:hidden items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative"
+          onClick={handleNotificationClick}
+        >
+          <Bell className="h-5 w-5" />
+          {notificationCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+            >
+              {notificationCount}
+            </Badge>
+          )}
+        </Button>
+        {showCreateButton && (
+          <Button
+            onClick={onCreateClick}
+            size="sm"
+            className="bg-violet-600 hover:bg-violet-700 text-white"
+            aria-label={createButtonText}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-gray-50 relative">
@@ -140,118 +255,13 @@ export function MainLayout({
         style={{ width: `calc(100% - ${sidebarWidth}px)` }}
       >
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-4 md:px-8 py-4 md:py-6">
-          <div className="flex items-center justify-between">
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMobileMenu}
-              className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            >
-              <PanelLeftOpen className="h-5 w-5" />
-            </Button>
-            
-            {/* Title */}
-            <div className="flex flex-col">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="flex items-center gap-2"
-              >
-                {icon && (
-                  <IconRenderer 
-                    iconName={icon} 
-                    className="h-5 w-5 md:h-6 md:w-6 text-violet-600" 
-                  />
-                )}
-                <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                  {title}
-                </h1>
-                {isAdmin && editSchemaPath && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleEditSchemaClick}
-                    className="h-8 w-8 p-0 hover:bg-violet-50 hover:text-violet-600 transition-colors"
-                    aria-label="Edit schema"
-                    title="Edit schema"
-                  >
-                    <PencilRuler className="h-4 w-4" />
-                  </Button>
-                )}
-              </motion.div>
-              {subtitle && (
-                <motion.p
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-                  className="text-sm text-gray-500 mt-0.5"
-                >
-                  {subtitle}
-                </motion.p>
-              )}
-            </div>
-            
-            {/* Desktop Header Content */}
-            <div className="hidden md:flex items-center space-x-4">
-              {/* Company Dropdown */}
-              <CompanySelector />
-              
-              {/* Notifications */}
-              <NotificationsDropdown initialCount={3} />
-              
-              {/* User Profile */}
-              <UserProfileSelector />
-              
-              {/* Create Button */}
-              {showCreateButton && (
-                <Button 
-                  onClick={onCreateClick} 
-                  className="flex items-center space-x-2"
-                  aria-label={createButtonText}
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>{createButtonText}</span>
-                </Button>
-              )}
-            </div>
-            
-            {/* Mobile Header Actions */}
-            <div className="flex md:hidden items-center space-x-2">
-              {/* Mobile Notifications */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="relative"
-                onClick={handleNotificationClick}
-              >
-                <Bell className="h-5 w-5" />
-                {notificationCount > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
-                  >
-                    {notificationCount}
-                  </Badge>
-                )}
-              </Button>
-              
-              {/* Mobile Create Button */}
-              {showCreateButton && (
-                <Button
-                  onClick={onCreateClick}
-                  size="sm"
-                  className="bg-violet-600 hover:bg-violet-700 text-white"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-        
+        <Header
+          config={headerConfig}
+          brandContent={headerBrandContent}
+          actionsContent={headerActionsContent}
+          className="bg-white border-b border-gray-200"
+        />
+
         {/* Page Content */}
         <motion.main
           initial={{ opacity: 0, y: 20 }}

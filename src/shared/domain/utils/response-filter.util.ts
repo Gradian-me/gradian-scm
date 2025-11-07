@@ -41,20 +41,22 @@ export async function filterPasswordFields<T>(
   }
 
   // Get field names to exclude
-  const passwordFieldNames = passwordFields.map((field: any) => field.name);
+  const passwordFieldNames: string[] = passwordFields.map(
+    (field: { name: string }) => field.name as string
+  );
 
   // Filter out password fields from data
   if (Array.isArray(data)) {
     return data.map((item) => {
       const filtered = { ...item };
-      passwordFieldNames.forEach((fieldName) => {
+      passwordFieldNames.forEach((fieldName: string) => {
         delete filtered[fieldName as keyof typeof filtered];
       });
       return filtered;
     }) as T;
   } else if (data && typeof data === 'object') {
     const filtered = { ...data };
-    passwordFieldNames.forEach((fieldName) => {
+    passwordFieldNames.forEach((fieldName: string) => {
       delete filtered[fieldName as keyof typeof filtered];
     });
     return filtered as T;

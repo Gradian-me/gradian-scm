@@ -31,6 +31,7 @@ import { apiRequest } from '@/shared/utils/api';
 import { useCompanies } from '@/shared/hooks/use-companies';
 import { debounce } from '@/gradian-ui/shared/utils';
 import { toast } from 'sonner';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -611,7 +612,20 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             {isLoading ? (
               // Skeleton cards while loading
               Array.from({ length: 8 }).map((_, index) => (
-                <div key={`skeleton-${index}`} className="rounded-xl bg-white border border-gray-100 overflow-hidden">
+                <motion.div
+                  key={`skeleton-${index}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: Math.min(
+                      index * UI_PARAMS.CARD_INDEX_DELAY.STEP,
+                      UI_PARAMS.CARD_INDEX_DELAY.SKELETON_MAX
+                    ),
+                    ease: 'easeOut',
+                  }}
+                  className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                >
                   <div className="p-4 sm:p-6">
                     {/* Header with avatar and title */}
                     <div className="flex items-start gap-3 mb-3">
@@ -640,7 +654,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                       <Skeleton className="h-7 w-14" />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))
             ) : (
               filteredEntities.map((entity: any, index: number) => (

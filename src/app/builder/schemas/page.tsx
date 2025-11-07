@@ -39,20 +39,24 @@ import { config } from '@/lib/config';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 interface SchemaCardProps {
   schema: FormSchema;
+  index: number;
   onEdit: () => void;
   onDelete: () => void;
   onView: () => void;
 }
 
-function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
+function SchemaCard({ schema, index, onEdit, onDelete, onView }: SchemaCardProps) {
+  const animationDelay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, delay: animationDelay, ease: 'easeOut' }}
     >
       <Card className="hover:shadow-sm transition-all duration-200 h-full flex flex-col border border-gray-200">
         <CardHeader className="pb-3 pt-4 px-4">
@@ -60,9 +64,9 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5">
                 {schema.icon && (
-                  <IconRenderer 
-                    iconName={schema.icon} 
-                    className="h-5 w-5 text-violet-600 flex-shrink-0" 
+                <IconRenderer 
+                  iconName={schema.icon} 
+                  className="h-5 w-5 text-violet-600 shrink-0" 
                   />
                 )}
                 <CardTitle className="text-base font-semibold truncate">{schema.plural_name}</CardTitle>
@@ -73,7 +77,7 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
                 </p>
               )}
             </div>
-            <div className="flex gap-0.5 ml-2 flex-shrink-0">
+            <div className="flex gap-0.5 ml-2 shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
@@ -121,32 +125,40 @@ function SchemaCard({ schema, onEdit, onDelete, onView }: SchemaCardProps) {
   );
 }
 
-function SchemaCardSkeleton() {
+function SchemaCardSkeleton({ index }: { index: number }) {
+  const animationDelay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.SKELETON_MAX);
+
   return (
-    <Card className="h-full flex flex-col border border-gray-200">
-      <CardHeader className="pb-3 pt-4 px-4">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Skeleton className="h-5 w-5 rounded shrink-0" />
-              <Skeleton className="h-5 w-32" />
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: animationDelay, ease: 'easeOut' }}
+    >
+      <Card className="h-full flex flex-col border border-gray-200">
+        <CardHeader className="pb-3 pt-4 px-4">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Skeleton className="h-5 w-5 rounded shrink-0" />
+                <Skeleton className="h-5 w-32" />
+              </div>
+              <Skeleton className="h-3 w-48 mt-1" />
             </div>
-            <Skeleton className="h-3 w-48 mt-1" />
+            <div className="flex gap-0.5 ml-2 shrink-0">
+              <Skeleton className="h-7 w-7 rounded" />
+              <Skeleton className="h-7 w-7 rounded" />
+              <Skeleton className="h-7 w-7 rounded" />
+            </div>
           </div>
-          <div className="flex gap-0.5 ml-2 shrink-0">
-            <Skeleton className="h-7 w-7 rounded" />
-            <Skeleton className="h-7 w-7 rounded" />
-            <Skeleton className="h-7 w-7 rounded" />
+        </CardHeader>
+        <CardContent className="pt-2 px-4 pb-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-16" />
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-2 px-4 pb-4">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-16" />
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -348,7 +360,7 @@ export default function SchemaBuilderPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, index) => (
-              <SchemaCardSkeleton key={`skeleton-${index}`} />
+              <SchemaCardSkeleton key={`skeleton-${index}`} index={index} />
             ))}
           </div>
         ) : filteredSchemas.length === 0 ? (
@@ -376,10 +388,11 @@ export default function SchemaBuilderPage() {
         ) : (
           /* Schema Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSchemas.map((schema) => (
+            {filteredSchemas.map((schema, index) => (
               <SchemaCard
                 key={schema.id}
                 schema={schema}
+                index={index}
                 onEdit={() => router.push(`/builder/schemas/${schema.id}`)}
                 onView={() => router.push(`/page/${schema.id}`)}
                 onDelete={() => setDeleteDialog({ open: true, schema })}

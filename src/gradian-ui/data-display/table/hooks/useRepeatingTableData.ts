@@ -278,6 +278,12 @@ export function useRepeatingTableData(
     [relationDirections, relationTypeTexts]
   );
 
+  const refresh = useCallback(async () => {
+    if (isRelationBased) {
+      await fetchRelations();
+    }
+  }, [fetchRelations, isRelationBased]);
+
   return {
     isRelationBased,
     section,
@@ -287,6 +293,7 @@ export function useRepeatingTableData(
     isLoadingRelations,
     isLoadingTargetSchema,
     relationInfo,
+    refresh,
   };
 }
 

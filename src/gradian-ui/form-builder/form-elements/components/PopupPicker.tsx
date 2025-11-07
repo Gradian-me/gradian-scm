@@ -20,9 +20,11 @@ import { apiRequest } from '@/shared/utils/api';
 import { getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../utils/field-resolver';
 import { getInitials, getBadgeConfig } from '@/gradian-ui/data-display/utils';
 import { BadgeViewer } from '../utils/badge-viewer';
-import { Loader2, List } from 'lucide-react';
+import { Loader2, List, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
 import { SearchInput } from './SearchInput';
+import { motion } from 'framer-motion';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
 
 export interface PopupPickerProps {
   isOpen: boolean;
@@ -92,10 +94,58 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       setFilteredItems([]);
       setSearchQuery('');
       setError(null);
-      setSessionSelectedIds(new Set());
-      // Don't reset refs here - we want to track changes across opens
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const normalized = new Set((selectedIds ?? []).map((id) => String(id)));
+    setSessionSelectedIds((prev) => {
+      if (prev.size === normalized.size) {
+        let isEqual = true;
+        normalized.forEach((id) => {
+          if (!prev.has(id)) {
+            isEqual = false;
+          }
+        });
+        if (isEqual) {
+          return prev;
+        }
+      }
+      return normalized;
+    });
+  }, [selectedIds]);
+
+  const loadItems = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Build query params
+      const queryParams = new URLSearchParams();
+      
+      if (includeIds && includeIds.length > 0) {
+        queryParams.append('includeIds', includeIds.join(','));
+      }
+      
+      if (excludeIds && excludeIds.length > 0) {
+        queryParams.append('excludeIds', excludeIds.join(','));
+      }
+      
+      const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiRequest<any[]>(url);
+      
+      if (response.success && response.data) {
+        const itemsArray = Array.isArray(response.data) ? response.data : [];
+        setItems(itemsArray);
+        setFilteredItems(itemsArray);
+      } else {
+        setError(response.error || 'Failed to fetch items');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch items');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch items - only when modal opens
   // Array comparisons are done inside the effect to avoid dependency issues
@@ -127,47 +177,17 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     prevExcludeIdsRef.current = excludeIdsKey;
     prevIncludeIdsRef.current = includeIdsKey;
 
-    setIsLoading(true);
-    setError(null);
-    
-    const fetchItems = async () => {
-      try {
-        // Build query params
-        const queryParams = new URLSearchParams();
-        
-        // Add includeIds if provided
-        if (includeIds && includeIds.length > 0) {
-          queryParams.append('includeIds', includeIds.join(','));
-        }
-        
-        // Add excludeIds if provided
-        if (excludeIds && excludeIds.length > 0) {
-          queryParams.append('excludeIds', excludeIds.join(','));
-        }
-        
-        const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-        const response = await apiRequest<any[]>(url);
-        
-        if (response.success && response.data) {
-          // Items are already filtered by the API
-          const itemsArray = Array.isArray(response.data) ? response.data : [];
-          setItems(itemsArray);
-          setFilteredItems(itemsArray);
-        } else {
-          setError(response.error || 'Failed to fetch items');
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch items');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchItems();
+    loadItems();
     // Note: excludeIds and includeIds are intentionally not in dependencies
     // We compare them inside the effect using refs to avoid infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schemaId, isOpen]);
+  const handleRefresh = async (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    await loadItems();
+  };
+
 
   // Filter items based on search query
   useEffect(() => {
@@ -216,36 +236,50 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
   const handleViewList = () => {
     const url = viewListUrl || `/page/${schemaId}`;
-    router.push(url);
-    onClose();
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const renderItemCard = (item: any, index: number) => {
     const isSelected = isItemSelected(item);
     
+    const delay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX);
+
+    const baseCardClasses = "relative p-4 rounded-xl border cursor-pointer transition-all duration-200 group";
+    const selectedCardClasses = "border-violet-500 bg-gradient-to-br from-violet-50 via-white to-white shadow-lg ring-1 ring-violet-200";
+    const defaultCardClasses = "border-gray-200 bg-white hover:border-violet-300 hover:shadow-md";
+
     if (!schema) {
       // Fallback rendering
       const displayName = item.name || item.title || item.id || `Item ${index + 1}`;
       return (
-        <div
+        <motion.div
           key={item.id || index}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSelect(item);
-          }}
-          className={cn(
-            "p-4 rounded-lg border cursor-pointer transition-all",
-            isSelected
-              ? "border-violet-500 bg-violet-50 shadow-md"
-              : "border-gray-200 hover:border-violet-300 hover:shadow-md bg-white"
-          )}
+          initial={{ opacity: 0, y: 6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.25, delay, ease: 'easeOut' }}
         >
-          <div className={cn(
-            "font-medium text-sm",
-            isSelected ? "text-violet-900" : "text-gray-900"
-          )}>{displayName}</div>
-        </div>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSelect(item);
+            }}
+            className={cn(
+              baseCardClasses,
+              isSelected ? selectedCardClasses : defaultCardClasses
+            )}
+          >
+            {isSelected && (
+              <span className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm">
+                <Check className="h-3.5 w-3.5" />
+              </span>
+            )}
+            <div className={cn(
+              "font-medium text-sm",
+              isSelected ? "text-violet-900" : "text-gray-900"
+            )}>{displayName}</div>
+          </div>
+        </motion.div>
       );
     }
 
@@ -296,92 +330,88 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     const codeField = getSingleValueByRole(schema, item, 'code');
 
     return (
-      <div
+      <motion.div
         key={item.id || index}
-        onClick={() => handleSelect(item)}
-        className={cn(
-          "p-4 rounded-xl border cursor-pointer transition-all duration-200",
-          "group",
-          isSelected
-            ? "border-violet-500 bg-violet-50 shadow-md"
-            : "border-gray-200 bg-white hover:border-violet-300 hover:shadow-md"
-        )}
+        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.25, delay, ease: 'easeOut' }}
       >
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <Avatar
-            fallback={getInitials(avatarField)}
-            size="md"
-            variant="primary"
-            className={cn(
-              "border shrink-0 transition-colors",
-              isSelected
-                ? "border-violet-400"
-                : "border-gray-200 group-hover:border-violet-300"
-            )}
-          >
-            {getInitials(avatarField)}
-          </Avatar>
+        <div
+          onClick={() => handleSelect(item)}
+          className={cn(
+            baseCardClasses,
+            isSelected ? selectedCardClasses : defaultCardClasses
+          )}
+        >
+          {isSelected && (
+            <span className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm">
+              <Check className="h-3.5 w-3.5" />
+            </span>
+          )}
+          <div className="flex items-start gap-3">
+            {/* Avatar */}
+            <Avatar
+              fallback={getInitials(avatarField)}
+              size="md"
+              variant="primary"
+              className={cn(
+                "border shrink-0 transition-colors",
+                isSelected
+                  ? "border-violet-400"
+                  : "border-gray-200 group-hover:border-violet-300"
+              )}
+            >
+              {getInitials(avatarField)}
+            </Avatar>
 
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h4 className={cn(
-                    "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
-                    isSelected
-                      ? "text-violet-900"
-                      : "text-gray-900 group-hover:text-violet-700"
-                  )}>
-                    {title}
-                  </h4>
-                  {/* Code Badge */}
-                  {hasCodeField && codeField && (
-                    <CodeBadge code={codeField} />
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className={cn(
+                      "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
+                      isSelected
+                        ? "text-violet-900"
+                        : "text-gray-900 group-hover:text-violet-700"
+                    )}>
+                      {title}
+                    </h4>
+                    {/* Code Badge */}
+                    {hasCodeField && codeField && (
+                      <CodeBadge code={codeField} />
+                    )}
+                  </div>
+                  {subtitle && (
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      {subtitle}
+                    </p>
                   )}
+
                 </div>
-                {subtitle && (
-                  <p className="text-xs text-gray-500 truncate mt-0.5">
-                    {subtitle}
-                  </p>
-                )}
 
-                {/* Badges */}
-                {combinedBadgeField && badgeValues.length > 0 && (
-                  <div className="mt-2">
-                    <BadgeViewer
-                      field={combinedBadgeField}
-                      value={badgeValues}
-                      maxBadges={2}
-                      badgeVariant="outline"
-                      animate={false}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Rating and Status */}
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
-                {hasRatingField && (
-                  <div className="text-xs text-gray-600 font-medium">
-                    ⭐ {Number(ratingField) || 0}
-                  </div>
-                )}
-                {hasStatusField && statusField && (() => {
-                  const badgeConfig = getBadgeConfig(statusField, statusOptions);
-                  return (
-                    <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
-                      {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                      <span>{badgeConfig.label}</span>
-                    </Badge>
-                  );
-                })()}
+                {/* Rating and Status */}
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  {hasRatingField && (
+                    <div className="text-xs text-gray-600 font-medium">
+                      ⭐ {Number(ratingField) || 0}
+                    </div>
+                  )}
+                  {hasStatusField && statusField && (() => {
+                    const badgeConfig = getBadgeConfig(statusField, statusOptions);
+                    return (
+                      <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
+                        {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
+                        <span>{badgeConfig.label}</span>
+                      </Badge>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -406,27 +436,39 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         }
       }}>
         <DialogHeader>
-          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
             <div className="flex-1">
               <DialogTitle>{title || `Select ${schemaName}`}</DialogTitle>
               {description && <DialogDescription>{description}</DialogDescription>}
             </div>
-            {canViewList && (
+            <div className="flex items-center gap-2">
               <Button
                 type="button"
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleViewList();
-                }}
-                className="flex items-center gap-2 me-4"
+                variant="ghost"
+                size="icon"
+                onClick={handleRefresh}
+                disabled={isLoading}
+                aria-label="Refresh items"
               >
-                <List className="h-4 w-4" />
-                View All
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-violet-600' : ''}`} />
               </Button>
-            )}
+              {canViewList && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleViewList();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <List className="h-4 w-4" />
+                  View List
+                </Button>
+              )}
+            </div>
           </div>
         </DialogHeader>
 

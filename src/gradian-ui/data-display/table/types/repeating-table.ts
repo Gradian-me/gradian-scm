@@ -32,6 +32,7 @@ export interface UseRepeatingTableDataResult<T = any> {
   isLoadingRelations: boolean;
   isLoadingTargetSchema: boolean;
   relationInfo: RelationInfo;
+  refresh: () => Promise<void>;
 }
 
 
