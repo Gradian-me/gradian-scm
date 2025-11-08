@@ -39,3 +39,4 @@ export { Label } from './components/Label';
 export * from './components/CTAButton';
 export * from './components/ButtonMinimal';
 export * from './go-to-top-form';
+export * from './components/Tabs';

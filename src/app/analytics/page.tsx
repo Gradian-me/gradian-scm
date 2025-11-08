@@ -5,7 +5,16 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/gradian-ui/form-builder/form-elements/components/Select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  FormTabs,
+  FormTabsList,
+  FormTabsTrigger,
+} from '@/gradian-ui/form-builder/form-elements';
 import { SpendAnalysisChart } from '@/components/dashboard/charts/spend-analysis-chart';
 import { MonthlyTrendChart } from '@/components/dashboard/charts/monthly-trend-chart';
 import {
@@ -447,18 +456,24 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.5 }}
-          className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit"
         >
-          {tabs.map(tab => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </Button>
-          ))}
+          <FormTabs
+            value={activeTab}
+            onValueChange={value => setActiveTab(value as typeof activeTab)}
+            className="w-full"
+          >
+            <FormTabsList className="min-w-full bg-gray-100">
+              {tabs.map(tab => (
+                <FormTabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="px-4 py-1.5 text-sm"
+                >
+                  {tab.label}
+                </FormTabsTrigger>
+              ))}
+            </FormTabsList>
+          </FormTabs>
         </motion.div>
 
         {activeTab === 'spend' && (
