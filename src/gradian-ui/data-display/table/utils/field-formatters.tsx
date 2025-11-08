@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatCurrency, formatDate, formatNumber } from '@/gradian-ui/shared/utils';
 import { BadgeViewer } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
+import type { BadgeItem } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
 import { Badge } from '@/gradian-ui/form-builder/form-elements/components/Badge';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../../utils';
@@ -94,7 +95,38 @@ export const formatFieldValue = (
     );
   }
 
-  if (field?.role === 'badge' && Array.isArray(value)) {
+  const candidateComponents = new Set([
+    'select',
+    'checkbox',
+    'radio',
+    'popup-picker',
+    'popuppicker',
+    'popup-picker-input',
+    'picker',
+    'pickerinput',
+    'combo',
+    'multiselect',
+    'multi-select',
+  ]);
+  const componentKey = (field?.component || field?.type || '').toString().toLowerCase();
+  const hasFieldOptions = Array.isArray(field?.options) && field.options.length > 0;
+  const shouldRenderAsBadges =
+    (field?.role === 'badge' || candidateComponents.has(componentKey)) &&
+    (hasStructuredOptions || hasFieldOptions || Array.isArray(value));
+
+  if (shouldRenderAsBadges) {
+    const handleBadgeClick = (item: BadgeItem) => {
+      const candidateId = item.normalized?.id ?? item.id;
+      if (!candidateId) return;
+      const targetSchema = field?.targetSchema;
+      if (!targetSchema) return;
+
+      const url = `/page/${targetSchema}/${encodeURIComponent(candidateId)}?showBack=true`;
+      if (typeof window !== 'undefined') {
+        window.open(url, '_self');
+      }
+    };
+
     return (
       <BadgeViewer
         field={field}
@@ -102,6 +134,12 @@ export const formatFieldValue = (
         badgeVariant="default"
         enforceVariant
         animate={true}
+        onBadgeClick={field?.targetSchema ? handleBadgeClick : undefined}
+        isItemClickable={
+          field?.targetSchema
+            ? (item) => Boolean(item.normalized?.id ?? item.id)
+            : () => false
+        }
       />
     );
   }

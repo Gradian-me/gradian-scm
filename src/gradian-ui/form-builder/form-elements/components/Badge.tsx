@@ -30,7 +30,7 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const badgeClasses = cn(
-    'inline-flex items-center rounded-full border font-medium',
+    'inline-flex items-center rounded-full border font-medium cursor-default',
     variantClasses[variant],
     sizeClasses[size],
     className

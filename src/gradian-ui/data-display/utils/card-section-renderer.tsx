@@ -59,6 +59,10 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3, onBad
             const valuesHaveColor = normalizedValues.some((opt) => Boolean(opt?.color));
             const allowOptionColor = field.role === 'status';
             const labelText = field?.label || field?.name || 'Badge';
+            const isItemClickable = (item: any) => {
+              const itemId = item.normalized?.id ?? item.id;
+              return Boolean(field.targetSchema && itemId);
+            };
             return (
               <motion.div
                 key={fieldId}
@@ -75,15 +79,18 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3, onBad
                           maxBadges={(field as any).maxDisplay ?? 5}
                           badgeVariant="default"
                           enforceVariant={!(allowOptionColor && valuesHaveColor)}
-                          onBadgeClick={(item) => {
-                            const itemId = item.normalized?.id ?? item.id;
-                            if (!itemId) {
-                              return;
-                            }
-                            if (field.targetSchema) {
-                              onBadgeNavigate?.(field.targetSchema, itemId);
-                            }
-                          }}
+                          onBadgeClick={
+                            field.targetSchema
+                              ? (item) => {
+                                  const itemId = item.normalized?.id ?? item.id;
+                                  if (!itemId) return;
+                                  onBadgeNavigate?.(field.targetSchema!, itemId);
+                                }
+                              : undefined
+                          }
+                          isItemClickable={
+                            field.targetSchema ? isItemClickable : () => false
+                          }
                         />
                       </div>
                     </TooltipTrigger>

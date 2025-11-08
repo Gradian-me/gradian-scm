@@ -66,6 +66,11 @@ export interface BadgeRendererProps {
    * Callback when a badge is clicked
    */
   onBadgeClick?: (item: BadgeItem, event: React.MouseEvent<HTMLDivElement>) => void;
+
+  /**
+   * Optional function to determine if a specific badge item is clickable
+   */
+  isItemClickable?: (item: BadgeItem) => boolean;
 }
 
 /**
@@ -81,6 +86,7 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
   renderBadge,
   enforceVariant = false,
   onBadgeClick,
+  isItemClickable,
 }) => {
   // Early return if no items
   if (!items || items.length === 0) {
@@ -208,17 +214,20 @@ const getBadgePresentation = (color?: string) => {
       badgePresentation.className
     );
     
+    const clickable =
+      Boolean(onBadgeClick) &&
+      (typeof isItemClickable === 'function' ? isItemClickable(badgeObject) : true);
+
     const handleItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
+      if (!clickable) return;
       event.stopPropagation();
-      if (onBadgeClick) {
-        onBadgeClick(badgeObject, event);
-      }
+      onBadgeClick?.(badgeObject, event);
     };
 
       return (
         <motion.div
           key={itemId}
-          className="shrink-0"
+          className={cn("shrink-0", clickable && "cursor-pointer")}
           initial={{ opacity: 0, scale: 0.8, y: 5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ 
@@ -226,11 +235,15 @@ const getBadgePresentation = (color?: string) => {
             delay: idx * 0.05,
             ease: [0.25, 0.46, 0.45, 0.94]
           }}
-          whileHover={{ 
-            scale: 1.05,
-            transition: { duration: 0.1, ease: "easeOut" }
-          }}
-          onClick={handleItemClick}
+          whileHover={
+            clickable
+              ? {
+                  scale: 1.05,
+                  transition: { duration: 0.1, ease: "easeOut" },
+                }
+              : undefined
+          }
+          onClick={clickable ? handleItemClick : undefined}
         >
           <Badge 
             variant={enforceVariant ? badgeVariant : (badgePresentation.variant as any) ?? (itemColor ? undefined : badgeVariant)} 
@@ -281,54 +294,6 @@ const getBadgePresentation = (color?: string) => {
 
 BadgeRenderer.displayName = 'BadgeRenderer';
 
-export interface BadgeViewerProps {
-  /**
-   * Field configuration
-   */
-  field: FormField;
-  
-  /**
-   * Field value (can be array of strings or array of field option values)
-   */
-  value: any;
-  
-  /**
-   * Maximum number of badges to display before showing +X more
-   * @default field.maxDisplay || 5
-   */
-  maxBadges?: number;
-  
-  /**
-   * Badge variant
-   * @default "outline"
-   */
-  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
-  
-  /**
-   * Whether to animate the badges
-   * @default true
-   */
-  animate?: boolean;
-  
-  /**
-   * CSS class name
-   */
-  className?: string;
-
-  /**
-   * When true, ignore option color/icon styling and use badgeVariant instead
-   */
-  enforceVariant?: boolean;
-
-  /**
-   * Callback when a badge is clicked
-   */
-  onBadgeClick?: (item: BadgeItem) => void;
-}
-
-/**
- * Convert field value (array of option values) to badge items with labels and metadata
- */
 const convertValueToBadgeItems = (
   field: FormField,
   value: any
@@ -407,6 +372,56 @@ const convertValueToBadgeItems = (
  * BadgeViewer - Renders badges from field values using BadgeRenderer
  * Handles conversion of field option values to badge items with proper labels, icons, and colors
  */
+export interface BadgeViewerProps {
+  /**
+   * Field configuration
+   */
+  field: FormField;
+  
+  /**
+   * Field value (can be array of strings or array of field option values)
+   */
+  value: any;
+  
+  /**
+   * Maximum number of badges to display before showing +X more
+   * @default field.maxDisplay || 5
+   */
+  maxBadges?: number;
+  
+  /**
+   * Badge variant
+   * @default "outline"
+   */
+  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
+  
+  /**
+   * Whether to animate the badges
+   * @default true
+   */
+  animate?: boolean;
+  
+  /**
+   * CSS class name
+   */
+  className?: string;
+
+  /**
+   * When true, ignore option color/icon styling and use badgeVariant instead
+   */
+  enforceVariant?: boolean;
+
+  /**
+   * Callback when a badge is clicked
+   */
+  onBadgeClick?: (item: BadgeItem) => void;
+
+  /**
+   * Optional function to determine if specific badge item should be clickable
+   */
+  isItemClickable?: (item: BadgeItem) => boolean;
+}
+
 export const BadgeViewer: React.FC<BadgeViewerProps> = ({
   field,
   value,
@@ -416,6 +431,7 @@ export const BadgeViewer: React.FC<BadgeViewerProps> = ({
   className,
   enforceVariant = false,
   onBadgeClick,
+  isItemClickable,
 }) => {
   // Handle null/undefined/empty values
   if (!value || (Array.isArray(value) && value.length === 0)) {
@@ -443,6 +459,7 @@ export const BadgeViewer: React.FC<BadgeViewerProps> = ({
         onBadgeClick?.(item);
       }}
       enforceVariant={enforceVariant}
+      isItemClickable={isItemClickable}
     />
   );
 };

@@ -129,7 +129,9 @@ export const getDefaultSections = (schema: FormSchema): DetailPageSection[] => {
       colSpan: 1,
       columnArea: 'sidebar',
       fieldIds: [],
-      badgeVariant: 'default'
+      badgeVariant: 'default',
+      enforceBadgeVariant: true,
+      badgeClickable: false,
     });
   }
 

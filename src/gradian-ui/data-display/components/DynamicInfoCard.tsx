@@ -25,12 +25,77 @@ export interface DynamicInfoCardProps {
 /**
  * Format field value based on field type and configuration
  */
-const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode => {
+const formatFieldValue = (
+  field: any,
+  value: any,
+  data?: any,
+  section?: DetailPageSection
+): React.ReactNode => {
   if (value === null || value === undefined || value === '') {
     return <span className="text-gray-400">N/A</span>;
   }
 
   const optionLabels = getDisplayStrings(value);
+
+  // Handle badge-like fields (select, popup picker, etc.)
+  const candidateComponents = new Set([
+    'select',
+    'checkbox',
+    'radio',
+    'popup-picker',
+    'popuppicker',
+    'popup-picker-input',
+    'picker',
+    'pickerinput',
+    'combo',
+    'multiselect',
+    'multi-select'
+  ]);
+
+  const componentKey = (field?.component || field?.type || '').toString().toLowerCase();
+  const renderAsBadges =
+    (field?.role === 'badge' || candidateComponents.has(componentKey)) &&
+    (Array.isArray(value) || optionLabels.length > 0 || Array.isArray(field?.options));
+
+  if (renderAsBadges) {
+    const isPopupOrPicker =
+      field?.role === 'badge' ||
+      componentKey.includes('popup') ||
+      componentKey === 'picker' ||
+      field?.type === 'picker';
+    const badgeVariant = isPopupOrPicker
+      ? 'default'
+      : section?.badgeVariant ?? 'outline';
+    const enforceVariant = (
+      isPopupOrPicker ||
+      Boolean(section?.enforceBadgeVariant) ||
+      Boolean(section?.badgeVariant)
+    );
+    const handleBadgeClick = (item: any) => {
+      const candidateId = item.normalized?.id ?? item.id;
+      if (!candidateId || !field?.targetSchema) return;
+      const url = `/page/${field.targetSchema}/${encodeURIComponent(candidateId)}?showBack=true`;
+      if (typeof window !== 'undefined') {
+        window.open(url, '_self');
+      }
+    };
+
+    return (
+      <BadgeViewer
+        field={field}
+        value={value}
+        badgeVariant={badgeVariant}
+        enforceVariant={enforceVariant}
+        animate={true}
+        onBadgeClick={field?.targetSchema ? handleBadgeClick : undefined}
+        isItemClickable={
+          field?.targetSchema
+            ? (item) => Boolean(item.normalized?.id ?? item.id)
+            : () => Boolean(section?.badgeClickable)
+        }
+      />
+    );
+  }
 
   // Handle picker fields - check for object values or resolved data
   if (field?.type === 'picker' && field.targetSchema) {
@@ -43,18 +108,6 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
 
   // Use field type
   const displayType = field?.type || 'text';
-
-  // Handle badge fields (checkbox or array types with badge role)
-  if (field?.role === 'badge' && Array.isArray(value)) {
-    return (
-      <BadgeViewer
-        field={field}
-        value={value}
-        badgeVariant="outline"
-        animate={true}
-      />
-    );
-  }
 
   if (field?.role === 'rating') {
     return (
@@ -260,6 +313,11 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                 badgeVariant={section.badgeVariant ?? 'outline'}
                 enforceVariant={Boolean(section?.badgeVariant)}
                 animate={!disableAnimation}
+                isItemClickable={
+                  section.badgeClickable
+                    ? (item) => Boolean(item.normalized?.id ?? item.id)
+                    : () => false
+                }
               />
             </CardContent>
           </CardWrapper>
@@ -327,7 +385,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                   {field.label}
                 </label>
                 <div className="text-sm text-gray-900 overflow-wrap-anywhere wrap-break-word">
-                  {formatFieldValue(field, field.value, data)}
+                  {formatFieldValue(field, field.value, data, section)}
                 </div>
               </motion.div>
             ))}

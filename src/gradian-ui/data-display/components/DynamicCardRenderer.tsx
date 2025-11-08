@@ -229,9 +229,18 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     router.push(`/page/${schemaId}/${encodeURIComponent(entityId)}?showBack=true`);
   };
 
-  const handleBadgeClick = (item: BadgeItem) => {
+  const isBadgeItemClickable = (item: BadgeItem): boolean => {
     const candidateId = item.normalized?.id ?? item.id;
-    if (!candidateId) return;
+    if (!candidateId) return false;
+    return (
+      badgeValueTargetSchema.has(candidateId) ||
+      badgeValueTargetSchema.has(item.id)
+    );
+  };
+
+  const handleBadgeClick = (item: BadgeItem) => {
+    if (!isBadgeItemClickable(item)) return;
+    const candidateId = item.normalized?.id ?? item.id;
     const targetSchema =
       badgeValueTargetSchema.get(candidateId) ||
       badgeValueTargetSchema.get(item.id);
@@ -504,7 +513,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     badgeVariant="default"
                     enforceVariant
                     animate={!disableAnimation}
-                    onBadgeClick={handleBadgeClick}
+                    onBadgeClick={
+                      badgeValueTargetSchema.size > 0 ? handleBadgeClick : undefined
+                    }
+                    isItemClickable={isBadgeItemClickable}
                   />
                 ) : (
                   cardConfig.badgeValues.length > 0 && (
@@ -514,7 +526,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       className="w-full"
                       badgeVariant="outline"
                       animate={!disableAnimation}
-                      onBadgeClick={handleBadgeClick}
+                      onBadgeClick={
+                        badgeValueTargetSchema.size > 0 ? handleBadgeClick : undefined
+                      }
+                      isItemClickable={isBadgeItemClickable}
                     />
                   )
                 )}
@@ -664,14 +679,17 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     onKeyDown={(e) => e.stopPropagation()}
                   >
                   {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
-                    <BadgeViewer
+                  <BadgeViewer
                       field={cardConfig.badgeField}
                       value={cardConfig.badgeValues}
                       maxBadges={maxBadges}
                         badgeVariant="default"
                         enforceVariant
                       animate={!disableAnimation}
-                        onBadgeClick={handleBadgeClick}
+                      onBadgeClick={
+                        badgeValueTargetSchema.size > 0 ? handleBadgeClick : undefined
+                      }
+                      isItemClickable={isBadgeItemClickable}
                     />
                   ) : (
                     cardConfig.badgeValues.length > 0 && (
@@ -680,7 +698,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         maxBadges={maxBadges}
                         badgeVariant="outline"
                         animate={!disableAnimation}
-                          onBadgeClick={handleBadgeClick}
+                          onBadgeClick={
+                            badgeValueTargetSchema.size > 0 ? handleBadgeClick : undefined
+                          }
+                          isItemClickable={isBadgeItemClickable}
                       />
                     )
                   )}
