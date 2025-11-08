@@ -63,13 +63,13 @@ export default function AnalyticsPage() {
       ...CHART_THEME,
       grid: {
         ...CHART_THEME.grid,
-        top: '15%',
-        bottom: '15%',
+        top: '20%',
+        bottom: '18%',
       },
       legend: {
         ...CHART_THEME.legend,
         data: ['On-Time Delivery', 'Quality Score', 'Responsiveness'],
-        top: '5%',
+        top: '2%',
       },
       tooltip: {
         ...CHART_THEME.tooltip,
@@ -162,8 +162,8 @@ export default function AnalyticsPage() {
         {
           type: 'funnel',
           left: '10%',
-          top: '10%',
-          bottom: '10%',
+          top: '16%',
+          bottom: '6%',
           width: '80%',
           min: 0,
           max: tenderFunnelData[0]?.value ?? 100,
@@ -213,8 +213,8 @@ export default function AnalyticsPage() {
       ...CHART_THEME,
       grid: {
         ...CHART_THEME.grid,
-        top: '12%',
-        bottom: '18%',
+        top: '20%',
+        bottom: '20%',
       },
       tooltip: {
         ...CHART_THEME.tooltip,
@@ -223,7 +223,7 @@ export default function AnalyticsPage() {
       legend: {
         ...CHART_THEME.legend,
         data: ['Avg Cycle Time', 'Tenders Awarded'],
-        top: '5%',
+        top: '2%',
       },
       xAxis: {
         ...CHART_THEME.xAxis,
@@ -298,10 +298,17 @@ export default function AnalyticsPage() {
         splitArea: {
           show: true,
         },
+        center: ['50%', '45%'],
+        radius: '52%',
       },
       tooltip: {
         ...CHART_THEME.tooltip,
         trigger: 'item',
+      },
+      legend: {
+        ...CHART_THEME.legend,
+        show: true,
+        top: '2%',
       },
       series: [
         {

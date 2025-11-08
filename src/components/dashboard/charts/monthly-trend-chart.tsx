@@ -29,8 +29,8 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
       animationEasing: CHART_ANIMATION_CONFIG.easing,
       grid: {
         ...CHART_THEME.grid,
-        top: '10%',
-        bottom: '15%',
+        top: '18%',
+        bottom: '18%',
       },
       xAxis: {
         ...CHART_THEME.xAxis,
@@ -182,7 +182,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
       },
       legend: {
         ...CHART_THEME.legend,
-        top: '5%',
+        top: '2%',
         right: '5%',
         orient: 'vertical',
         itemGap: 15,

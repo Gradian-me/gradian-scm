@@ -45,8 +45,8 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
         {
           name: 'Spend by Category',
           type: 'pie',
-          radius: ['40%', '70%'],
-          center: ['50%', '50%'],
+          radius: ['40%', '68%'],
+          center: ['50%', '40%'],
           avoidLabelOverlap: false,
           itemStyle: {
             borderRadius: 8,
@@ -102,7 +102,7 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
       legend: {
         ...CHART_THEME.legend,
         orient: 'horizontal',
-        bottom: '5%',
+        bottom: '-2%',
         left: 'center',
         itemGap: 20,
         itemWidth: 14,
