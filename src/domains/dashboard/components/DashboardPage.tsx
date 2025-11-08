@@ -53,7 +53,7 @@ export function DashboardPage() {
 
   if (isLoading) {
     return (
-      <MainLayout title="Supply Chain Dashboard">
+      <MainLayout title="Business Dashboard">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -62,7 +62,7 @@ export function DashboardPage() {
   }
 
   return (
-    <MainLayout title="Supply Chain Dashboard">
+    <MainLayout title="Business Dashboard">
       <div className="space-y-6">
         {/* Welcome Section */}
         <motion.div
@@ -76,7 +76,7 @@ export function DashboardPage() {
               Welcome back, Mahyar! 👋
             </h2>
             <p className="text-lg text-gray-600 mb-6">
-              Here's what's happening with your supply chain today.
+              Here's what's happening with your business today.
             </p>
             <div className="flex flex-wrap gap-3">
               <Badge variant="secondary" className="text-sm px-3 py-1">
@@ -211,7 +211,7 @@ export function DashboardPage() {
                   <span>Recent Activity</span>
                 </CardTitle>
                 <p className="text-sm text-gray-600">
-                  Latest updates from your supply chain operations.
+                  Latest updates from your business operations.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -381,7 +381,7 @@ export function DashboardPage() {
               <CardHeader>
                 <CardTitle>Performance Metrics</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Key performance indicators for your supply chain operations.
+                  Key performance indicators for your business operations.
                 </p>
               </CardHeader>
               <CardContent>

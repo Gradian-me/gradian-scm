@@ -14,8 +14,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   onToggle,
   className,
 }) => {
-  const displayTitle = brand?.title || 'Gradian';
-  const displaySubtitle = brand?.subtitle || 'Supply Chain Management';
+  const displayTitle = brand?.title || 'Gradia App';
+  const displaySubtitle = brand?.subtitle || 'Trust Your Decision';
 
   return (
     <div className={cn("flex items-center justify-between p-6 border-b border-gray-700", className)}>

@@ -104,7 +104,7 @@ export default function RelationTypesBuilderPage() {
   return (
     <MainLayout
       title="Relation Types"
-      subtitle="Define and manage relationships between entities in your supply chain"
+      subtitle="Define and manage relationships between entities in your application"
       icon="Link2"
     >
       <div className="space-y-6">

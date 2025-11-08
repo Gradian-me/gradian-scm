@@ -131,7 +131,7 @@ export default function BuilderPage() {
         >
           <div className="flex items-start justify-between gap-4 mb-4 w-full flex-wrap">
             <p className="text-gray-600 text-md max-w-4xl">
-              Use the builders below to configure your supply chain management system.
+              Use the builders below to configure your application.
               Define schemas for your entities and establish relationships between them.
             </p>
             <div className="flex items-end">

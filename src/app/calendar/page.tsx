@@ -184,18 +184,18 @@ export default function CalendarPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-between"
+          className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:items-center"
         >
-          <div>
+          <div className="text-center sm:text-left space-y-1">
             <h2 className="text-2xl font-bold text-gray-900">Tender Calendar</h2>
             <p className="text-gray-600">Track important dates and deadlines</p>
           </div>
-          <div className="flex space-x-2">
-            <Button variant="outline">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" className="w-full sm:w-auto justify-center">
               <Calendar className="h-4 w-4 mr-2" />
               View Calendar
             </Button>
-            <Button>
+            <Button className="w-full sm:w-auto justify-center">
               <Plus className="h-4 w-4 mr-2" />
               Add Event
             </Button>
@@ -203,7 +203,7 @@ export default function CalendarPage() {
         </motion.div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

@@ -1,6 +1,6 @@
 // Profile Dropdown Component
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { ProfileDropdownProps } from '../types';
 import { cn } from '../../../shared/utils';
 import { Settings, User, LogOut, ChevronDown } from 'lucide-react';
@@ -18,10 +18,14 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [panelPlacement, setPanelPlacement] = useState<'top' | 'bottom'>('bottom');
 
   const {
     layout = { variant: 'dropdown' },
   } = config;
+  const fullWidth = layout.fullWidth ?? false;
+  const desiredPlacement = layout.popoverPlacement ?? 'auto';
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -45,69 +49,145 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     className
   );
 
+  const isDarkTheme = (config.styling?.theme || 'light') === 'dark';
   const buttonClasses = cn(
-    'flex items-center gap-2 px-2 py-1.5 rounded-lg',
-    'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200',
-    'transition-all duration-200 text-sm'
+    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 text-sm justify-between',
+    isDarkTheme
+      ? 'bg-gray-800 text-gray-200 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600'
+      : 'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 bg-white'
   );
 
+  const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-50';
+  const panelThemeClasses = isDarkTheme
+    ? 'bg-gray-900 border-gray-700 text-gray-100'
+    : 'bg-white border-gray-100 text-gray-900';
+  const panelPlacementClasses = 'opacity-0 invisible transform scale-95';
+
   const panelClasses = cn(
-    'absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100',
-    'opacity-0 invisible transform scale-95 transition-all duration-200 z-50',
+    panelBaseClasses,
+    panelThemeClasses,
+    panelPlacementClasses,
     isOpen && 'opacity-100 visible transform scale-100'
   );
 
   const avatarClasses = cn(
-    'h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-sm font-medium text-white',
-    'ring-2 ring-white shadow-sm'
+    'h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium',
+    'bg-gradient-to-br from-violet-500 to-purple-600 text-white',
+    isDarkTheme ? 'ring-2 ring-gray-800 shadow-md' : 'ring-2 ring-white shadow-sm'
   );
 
   const menuItemClasses = cn(
-    'flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700',
-    'hover:bg-gray-50 cursor-pointer transition-colors duration-150',
-    'first:rounded-t-xl last:rounded-b-xl'
+    'flex items-center gap-3 px-3 py-2.5 text-sm cursor-pointer transition-colors duration-150',
+    isDarkTheme
+      ? 'text-gray-200 hover:bg-gray-800'
+      : 'text-gray-700 hover:bg-gray-50'
   );
+
+  const menuIconClasses = cn('h-4 w-4', isDarkTheme ? 'text-gray-400' : 'text-gray-400');
+
+  useLayoutEffect(() => {
+    if (!isOpen || desiredPlacement === 'bottom') {
+      if (desiredPlacement === 'bottom') {
+        setPanelPlacement('bottom');
+      }
+      return;
+    }
+
+    if (desiredPlacement === 'top') {
+      setPanelPlacement('top');
+      return;
+    }
+
+    const dropdownEl = dropdownRef.current;
+    const panelEl = panelRef.current;
+    if (!dropdownEl || !panelEl) {
+      return;
+    }
+
+    const dropdownRect = dropdownEl.getBoundingClientRect();
+    const panelRect = panelEl.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+
+    const spaceBelow = viewportHeight - dropdownRect.bottom;
+    const spaceAbove = dropdownRect.top;
+    const panelHeight = panelRect.height;
+
+    if (spaceBelow < panelHeight && spaceAbove > spaceBelow) {
+      setPanelPlacement('top');
+    } else {
+      setPanelPlacement('bottom');
+    }
+  }, [isOpen, desiredPlacement]);
 
   return (
     <div className={dropdownClasses} ref={dropdownRef} {...props}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          const nextOpen = !isOpen;
+          setIsOpen(nextOpen);
+          if (!nextOpen) {
+            setPanelPlacement('bottom');
+          }
+        }}
         className={buttonClasses}
         aria-label="User menu"
+        style={{ width: fullWidth ? '100%' : undefined }}
       >
-        {layout.showAvatar !== false && (
-          <div className={avatarClasses}>
-            {currentProfile?.avatar ? (
-              <img
-                src={currentProfile.avatar}
-                alt={currentProfile?.name || 'User'}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              <span>{currentProfile?.name?.charAt(0).toUpperCase() || 'U'}</span>
-            )}
-          </div>
-        )}
-        
-        {layout.showName !== false && (
-          <span className="text-sm font-medium text-gray-900 hidden sm:block">
-            {currentProfile?.name || 'User'}
-            {currentProfile?.lastname ? ` ${currentProfile.lastname}` : ''}
-          </span>
-        )}
-        
+        <div className="flex flex-row items-center gap-2">
+          {layout.showAvatar !== false && (
+            <div className={avatarClasses}>
+              {currentProfile?.avatar ? (
+                <img
+                  src={currentProfile.avatar}
+                  alt={currentProfile?.name || 'User'}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : (
+                <span>{currentProfile?.name?.charAt(0).toUpperCase() || 'U'}</span>
+              )}
+            </div>
+          )}
+
+          {layout.showName !== false && (
+            <span className={cn(
+              'text-sm font-medium hidden sm:block',
+              isDarkTheme ? 'text-gray-100' : 'text-gray-900'
+            )}>
+              {currentProfile?.name || 'User'}
+              {currentProfile?.lastname ? ` ${currentProfile.lastname}` : ''}
+            </span>
+          )}
+        </div>
         <ChevronDown className={cn(
-          'h-4 w-4 text-gray-400 transition-transform duration-200',
+          'h-4 w-4 transition-transform duration-200',
+          isDarkTheme ? 'text-gray-400' : 'text-gray-400',
           isOpen && 'transform rotate-180'
         )} />
       </button>
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className={panelClasses}>
+        <div
+          className={panelClasses}
+          style={{
+            width: fullWidth ? '100%' : undefined,
+            minWidth: fullWidth ? undefined : '14rem',
+            right: fullWidth ? 0 : 0,
+            left: fullWidth ? 0 : undefined,
+            maxWidth: fullWidth ? '100%' : 'min(24rem, calc(100vw - 1rem))',
+            top: panelPlacement === 'bottom' ? '100%' : 'auto',
+            bottom: panelPlacement === 'top' ? '100%' : 'auto',
+            marginTop: panelPlacement === 'bottom' ? '0.5rem' : undefined,
+            marginBottom: panelPlacement === 'top' ? '0.5rem' : undefined,
+          }}
+          ref={panelRef}
+        >
           {/* User Info Header */}
           {currentProfile && (
-            <div className="px-4 py-3 border-b border-gray-100">
+            <div className={cn(
+              'px-4 py-3 border-b',
+              isDarkTheme ? 'border-gray-800' : 'border-gray-100'
+            )}>
               <div className="flex items-center gap-3">
                 <div className={avatarClasses}>
                   {currentProfile.avatar ? (
@@ -121,12 +201,18 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className={cn(
+                    'text-sm font-medium truncate',
+                    isDarkTheme ? 'text-gray-100' : 'text-gray-900'
+                  )}>
                     {currentProfile.name || 'User'}
                     {currentProfile.lastname ? ` ${currentProfile.lastname}` : ''}
                   </p>
                   {layout.showEmail && currentProfile.email && (
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className={cn(
+                      'text-xs truncate',
+                      isDarkTheme ? 'text-gray-400' : 'text-gray-500'
+                    )}>
                       {currentProfile.email}
                     </p>
                   )}
@@ -147,7 +233,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               }}
               className={menuItemClasses}
             >
-              <User className="h-4 w-4 text-gray-400" />
+              <User className={menuIconClasses} />
               <span>Profile</span>
             </div>
 
@@ -161,12 +247,15 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               }}
               className={menuItemClasses}
             >
-              <Settings className="h-4 w-4 text-gray-400" />
+              <Settings className={menuIconClasses} />
               <span>Settings</span>
             </div>
 
             {/* Divider */}
-            <div className="my-1 border-t border-gray-100" />
+            <div className={cn(
+              'my-1 border-t',
+              isDarkTheme ? 'border-gray-800' : 'border-gray-100'
+            )} />
 
             {/* Logout */}
             <div
@@ -174,9 +263,12 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
                 onProfileDelete?.(currentProfile!);
                 setIsOpen(false);
               }}
-              className={cn(menuItemClasses, 'text-red-600 hover:bg-red-50')}
+              className={cn(
+                menuItemClasses,
+                isDarkTheme ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'
+              )}
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className={cn('h-4 w-4', isDarkTheme ? 'text-red-400' : '')} />
               <span>Logout</span>
             </div>
           </div>

@@ -29,6 +29,8 @@ export interface ProfileSelectorConfig {
     showEmail?: boolean;
     showRole?: boolean;
     showStatus?: boolean;
+    fullWidth?: boolean;
+    popoverPlacement?: 'auto' | 'top' | 'bottom';
   };
   styling?: {
     variant?: 'default' | 'minimal' | 'card';

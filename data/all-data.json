@@ -954,5 +954,9 @@
       "password": "$argon2id$v=19$m=32768,t=3,p=4$Tmjsw/ky+1ddGne+kHBAGQ$1fGOK9NGUd00tNTofddywakFodiHTuHfeNsAkSlo1q0",
       "hashType": "argon2"
     }
-  ]
+  ],
+  "purchaseOrders": [],
+  "tenders": [],
+  "shipments": [],
+  "invoices": []
 }

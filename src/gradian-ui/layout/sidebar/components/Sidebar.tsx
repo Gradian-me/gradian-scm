@@ -7,9 +7,9 @@ import { SidebarProps } from '../types';
 import { defaultNavigationItems } from '../utils';
 import { defaultSidebarConfig } from '../configs';
 import { SidebarHeader } from './SidebarHeader';
-import { SidebarCompanyBadge } from './SidebarCompanyBadge';
+import { CompanySelector } from '@/components/layout/CompanySelector';
 import { SidebarNavigation } from './SidebarNavigation';
-import { SidebarUserProfile } from './SidebarUserProfile';
+import { UserProfileSelector } from '@/components/layout/UserProfileSelector';
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
@@ -17,7 +17,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobile = false,
   config = defaultSidebarConfig,
   navigationItems = defaultNavigationItems,
-  user,
+  user: _user,
   company,
   className,
 }) => {
@@ -41,12 +41,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onToggle={onToggle}
       />
 
-      {/* Company Badge */}
-      <SidebarCompanyBadge
-        company={company}
-        isCollapsed={isCollapsed}
-        isMobile={isMobile}
-      />
+      {/* Company Selector */}
+      <div className="px-4 py-3 border-b border-gray-800 sm:block md:hidden">
+        <CompanySelector variant="dark" fullWidth showLogo="sidebar-avatar" />
+      </div>
 
       {/* Navigation */}
       <SidebarNavigation
@@ -56,11 +54,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
       />
 
       {/* User Profile */}
-      <SidebarUserProfile
-        user={user}
-        isCollapsed={isCollapsed}
-        isMobile={isMobile}
-      />
+      <div className="mt-auto border-t border-gray-800 p-4 sm:block md:hidden">
+        <UserProfileSelector
+          className={cn(
+            "w-full",
+            isCollapsed && !isMobile ? "justify-center" : ""
+          )}
+          config={{
+            layout: {
+              variant: 'dropdown',
+              size: isCollapsed && !isMobile ? 'sm' : 'md',
+              showAvatar: true,
+              showName: !isCollapsed || isMobile,
+              showEmail: false,
+              showRole: false,
+              showStatus: false,
+              fullWidth: true,
+              popoverPlacement: 'auto',
+            },
+            styling: {
+              variant: 'minimal',
+              theme: 'dark',
+              rounded: true,
+            },
+          }}
+        />
+      </div>
     </motion.div>
   );
 };

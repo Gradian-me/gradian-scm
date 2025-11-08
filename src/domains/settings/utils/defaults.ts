@@ -24,8 +24,8 @@ export const DEFAULT_PROFILE_SETTINGS: ProfileSettings = {
 export const EXAMPLE_PROFILE_SETTINGS: ProfileSettings = {
   name: 'Mahyar Abidi',
   email: 'mahyar.abidi@gradian.com',
-  role: 'Supply Chain Manager',
-  department: 'Supply Chain',
+  role: 'Director of Data Analytics',
+  department: 'Data Analytics',
   phone: '+1-555-0123',
   isAdmin: true,
 };

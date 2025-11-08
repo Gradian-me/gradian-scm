@@ -1451,7 +1451,7 @@
   },
   {
     "id": "relation-types",
-    "description": "Define and manage relationships between entities in your supply chain",
+    "description": "Define and manage relationships between entities in your application",
     "singular_name": "Relation Type",
     "plural_name": "Relation Types",
     "isSystemSchema": true,

@@ -9,7 +9,8 @@ import { cn } from '../../../shared/utils';
 
 const defaultUser = {
   name: 'Mahyar Abidi',
-  role: 'Supply Chain Manager',
+  role: 'Director of Data Analytics',
+  department: 'Data Analytics',
   avatar: '/avatars/mahyar.jpg',
   initials: 'MA',
 };

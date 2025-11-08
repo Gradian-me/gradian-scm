@@ -398,8 +398,8 @@ export default function SettingsPage() {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
-                          activeTab === tab.id ? 'bg-violet-50 text-violet-600 border-r-2 border-violet-600' : 'text-gray-700'
+                        className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-100 transition-colors first:rounded-t-xl last:rounded-b-xl ${
+                          activeTab === tab.id ? 'bg-violet-100 text-violet-600 border-b-2 last:border-b-0 border-violet-600' : 'text-gray-700'
                         }`}
                       >
                         <Icon className="h-4 w-4" />

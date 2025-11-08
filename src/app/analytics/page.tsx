@@ -5,6 +5,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { SpendAnalysisChart } from '@/components/dashboard/charts/spend-analysis-chart';
 import { MonthlyTrendChart } from '@/components/dashboard/charts/monthly-trend-chart';
 import { 
@@ -23,6 +24,7 @@ export default function AnalyticsPage() {
   const [spendAnalysis, setSpendAnalysis] = useState<SpendAnalysis[]>([]);
   const [monthlyTrends, setMonthlyTrends] = useState<MonthlyTrend[]>([]);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('last12');
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -63,28 +65,16 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-between"
+          className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:items-center"
         >
-          <div>
+          <div className="text-center sm:text-left space-y-1">
             <h2 className="text-2xl font-bold text-gray-900">Analytics & Reporting</h2>
-            <p className="text-gray-600">Comprehensive insights into your supply chain performance</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <select className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option>Last 12 months</option>
-              <option>Last 6 months</option>
-              <option>Last 3 months</option>
-              <option>This year</option>
-            </select>
-            <Button>
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </Button>
+            <p className="text-gray-600">Comprehensive insights into your business performance</p>
           </div>
         </motion.div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
