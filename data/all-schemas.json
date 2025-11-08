@@ -1684,6 +1684,7 @@
         "component": "picker",
         "placeholder": "Click to select vendor",
         "required": true,
+        "allowMultiselect": true,
         "description": "Select vendor from popup picker",
         "targetSchema": "vendors",
         "validation": {
@@ -1860,11 +1861,11 @@
         "name": "paymentMethod",
         "label": "Payment Method",
         "sectionId": "basic-information",
-        "type": "toggle-group",
-        "component": "toggle-group",
+        "type": "select",
+        "component": "select",
         "placeholder": "Choose payment method",
         "required": false,
-        "selectionType": "single",
+        "allowMultiselect": true,
         "orientation": "horizontal",
         "options": [
           {

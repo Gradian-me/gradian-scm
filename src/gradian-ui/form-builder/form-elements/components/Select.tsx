@@ -1,6 +1,6 @@
 // Select Component
 
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Select as RadixSelect,
   SelectContent,
@@ -15,6 +15,8 @@ import { Badge } from '../../../../components/ui/badge';
 import { motion } from 'framer-motion';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
+import { BadgeViewer } from '../utils/badge-viewer';
+import { Check } from 'lucide-react';
 
 export interface SelectOption {
   id?: string;
@@ -48,6 +50,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   error,
   required,
   onNormalizedChange,
+  onOpenChange,
   ...props
 }) => {
   const sizeClasses = {
@@ -64,6 +67,71 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   const fieldName = config?.name || 'unknown';
   const fieldLabel = config?.label;
   const fieldPlaceholder = placeholder || config?.placeholder || 'Select an option...';
+  const allowMultiselect = Boolean(
+    config?.metadata?.allowMultiselect ??
+    (config as any)?.allowMultiselect
+  );
+
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const shouldReopenRef = useRef(false);
+
+  useEffect(() => {
+    if (!allowMultiselect) {
+      setIsSelectOpen(false);
+    }
+  }, [allowMultiselect]);
+
+  const normalizedValueArray = useMemo(
+    () => normalizeOptionArray(value),
+    [value]
+  );
+
+  const normalizedValueIds = useMemo(
+    () =>
+      normalizedValueArray
+        .map((opt) => opt.id)
+        .filter((id): id is string => Boolean(id)),
+    [normalizedValueArray]
+  );
+
+  const normalizedValueIdsKey = useMemo(
+    () => JSON.stringify(normalizedValueIds),
+    [normalizedValueIds]
+  );
+
+  const [multiSelectionIds, setMultiSelectionIds] = useState<string[]>(normalizedValueIds);
+
+  useEffect(() => {
+    if (!allowMultiselect) {
+      setMultiSelectionIds([]);
+      return;
+    }
+
+    const idsFromValue: string[] = normalizedValueIdsKey
+      ? JSON.parse(normalizedValueIdsKey)
+      : [];
+
+    setMultiSelectionIds((prev) => {
+      if (prev.length === idsFromValue.length) {
+        let isEqual = true;
+        for (let i = 0; i < prev.length; i += 1) {
+          if (prev[i] !== idsFromValue[i]) {
+            isEqual = false;
+            break;
+          }
+        }
+        if (isEqual) {
+          return prev;
+        }
+      }
+      return idsFromValue;
+    });
+  }, [allowMultiselect, normalizedValueIdsKey]);
+
+  const multiSelectionSet = useMemo(
+    () => new Set(multiSelectionIds),
+    [multiSelectionIds]
+  );
 
   // Check if color is a valid badge variant, custom color, or Tailwind classes
   const isValidBadgeVariant = (color?: string): boolean => {
@@ -148,7 +216,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
 
   // If options are provided, render them with badges
   const normalizedCurrentValue = extractFirstId(value);
-  const normalizedValueEntry = normalizeOptionArray(value)[0];
+  const normalizedValueEntry = normalizedValueArray[0];
 
   if (options && options.length > 0) {
     const normalizedOptions = normalizeOptionArray(options).map((opt) => ({
@@ -156,17 +224,29 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
       label: opt.label ?? opt.id,
     }));
 
-    const selectedOption = normalizedOptions.find(opt => opt.id === normalizedCurrentValue);
+    const selectedOption = normalizedOptions.find((opt) => opt.id === normalizedCurrentValue);
     // Filter out empty string values as Radix doesn't allow them
-    const validOptions = normalizedOptions.filter(opt => opt.id !== '');
+    const validOptions = normalizedOptions.filter((opt) => opt.id && opt.id !== '');
     // Convert empty string to undefined so placeholder shows
-    const selectValue = selectedOption?.id ?? (normalizedCurrentValue === '' ? undefined : normalizedCurrentValue);
-    const displayOption = selectedOption ?? (normalizedValueEntry
-      ? {
-          ...normalizedValueEntry,
-          label: normalizedValueEntry.label ?? normalizedValueEntry.id,
-        }
-      : undefined);
+    const selectValue = allowMultiselect
+      ? undefined
+      : selectedOption?.id ?? (normalizedCurrentValue === '' ? undefined : normalizedCurrentValue);
+    const displayOption =
+      !allowMultiselect
+        ? selectedOption ??
+          (normalizedValueEntry
+            ? {
+                ...normalizedValueEntry,
+                label: normalizedValueEntry.label ?? normalizedValueEntry.id,
+              }
+            : undefined)
+        : undefined;
+
+    const multiSelectedOptions = allowMultiselect
+      ? multiSelectionIds
+          .map((id) => normalizedOptions.find((opt) => opt.id === id))
+          .filter((opt): opt is NormalizedOption => Boolean(opt))
+      : [];
 
     const handleRadixChange = (selectedId: string) => {
       if (onValueChange) {
@@ -180,6 +260,34 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
         const matched = normalizedOptions.find(opt => opt.id === selectedId);
         onNormalizedChange(matched ? [matched] : []);
       }
+    };
+
+    const handleMultiOptionToggle = (option: NormalizedOption) => {
+      const optionId = option.id;
+      if (!optionId) {
+        return;
+      }
+
+      setMultiSelectionIds((prev) => {
+        const alreadySelected = prev.includes(optionId);
+        const next = alreadySelected
+          ? prev.filter((id) => id !== optionId)
+          : [...prev, optionId];
+
+        if (onNormalizedChange) {
+          const normalizedSelection = next
+            .map((id) => normalizedOptions.find((opt) => opt.id === id))
+            .filter((opt): opt is NormalizedOption => Boolean(opt));
+          onNormalizedChange(normalizedSelection);
+        }
+
+        shouldReopenRef.current = true;
+        // Re-open asynchronously to ensure Radix has time to process its close event
+        requestAnimationFrame(() => {
+          setIsSelectOpen(true);
+        });
+        return next;
+      });
     };
     
     return (
@@ -196,13 +304,68 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
             {fieldLabel}
           </label>
         )}
-        <RadixSelect value={selectValue} onValueChange={handleRadixChange} {...props}>
-          <SelectTrigger className={selectClasses} id={fieldName}>
+        <RadixSelect
+          value={selectValue}
+          onValueChange={allowMultiselect ? undefined : handleRadixChange}
+          {...(allowMultiselect
+            ? {
+                open: isSelectOpen,
+                onOpenChange: (nextOpen: boolean) => {
+                  if (!nextOpen) {
+                    if (shouldReopenRef.current) {
+                      shouldReopenRef.current = false;
+                      requestAnimationFrame(() => setIsSelectOpen(true));
+                      return;
+                    }
+                  } else {
+                    shouldReopenRef.current = false;
+                  }
+                  setIsSelectOpen(nextOpen);
+                  onOpenChange?.(nextOpen);
+                },
+              }
+            : {
+                onOpenChange,
+              })}
+          {...props}
+        >
+          <SelectTrigger
+            className={cn(
+              selectClasses,
+              allowMultiselect && 'min-h-10 items-start py-2'
+            )}
+            id={fieldName}
+          >
             <SelectValue placeholder={fieldPlaceholder}>
-              {displayOption && renderBadgeContent(displayOption)}
+              {allowMultiselect ? (
+                multiSelectedOptions.length > 0 ? (
+                  <BadgeViewer
+                    field={{
+                      name: fieldName,
+                      label: fieldLabel ?? fieldName,
+                      type: 'select',
+                      component: 'select',
+                      sectionId: '',
+                      options: normalizedOptions,
+                    } as any}
+                    value={multiSelectedOptions}
+                    maxBadges={0}
+                    className="flex flex-wrap gap-1"
+                    enforceVariant={false}
+                  />
+                ) : null
+              ) : (
+                displayOption && renderBadgeContent(displayOption)
+              )}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent
+            onCloseAutoFocus={(event) => {
+              if (allowMultiselect) {
+                event.preventDefault();
+              }
+            }}
+          >
             {validOptions.map((option, index) => (
               <motion.div
                 key={option.id ?? index}
@@ -217,7 +380,42 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
                   ease: 'easeOut',
                 }}
               >
-                <SelectItem value={option.id} disabled={option.disabled}>
+                <SelectItem
+                  value={option.id as string}
+                  disabled={option.disabled}
+                  className={cn(
+                    allowMultiselect && 'relative pl-8',
+                    allowMultiselect &&
+                      option.id &&
+                      multiSelectionSet.has(option.id) &&
+                      'bg-violet-50 text-violet-700'
+                  )}
+                  {...(allowMultiselect
+                    ? {
+                        onSelect: (event: Event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          handleMultiOptionToggle(option);
+                        },
+                        onPointerDown: (event: React.PointerEvent) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        },
+                      }
+                    : {})}
+                >
+                  {allowMultiselect && (
+                    <span className="absolute left-2 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded border border-gray-300 bg-white">
+                      <Check
+                        className={cn(
+                          'h-3 w-3 text-violet-600 transition-opacity',
+                          option.id && multiSelectionSet.has(option.id)
+                            ? 'opacity-100'
+                            : 'opacity-0'
+                        )}
+                      />
+                    </span>
+                  )}
                   {renderBadgeContent(option)}
                 </SelectItem>
               </motion.div>

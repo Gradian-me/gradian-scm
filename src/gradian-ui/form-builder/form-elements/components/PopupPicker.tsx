@@ -18,7 +18,7 @@ import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { motion } from 'framer-motion';
 import { Check, List, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getArrayValuesByRole, getFieldsByRole, getSingleValueByRole, getValueByRole } from '../utils/field-resolver';
 import { Avatar } from './Avatar';
 import { CodeBadge } from './CodeBadge';
@@ -27,6 +27,12 @@ import { extractFirstId, normalizeOptionArray, normalizeOptionEntry, NormalizedO
 import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
 
 const BADGE_VARIANTS = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
+
+interface PendingSelection {
+  action: 'add' | 'remove';
+  normalized?: NormalizedOption | null;
+  raw?: any | null;
+}
 
 const isValidBadgeVariant = (color?: string | null): boolean => {
   if (!color) return false;
@@ -100,6 +106,7 @@ export interface PopupPickerProps {
   selectedIds?: string[]; // IDs of items that are already selected (will be shown with distinct styling)
   canViewList?: boolean; // If true, shows a button to navigate to the list page
   viewListUrl?: string; // Custom URL for the list page (defaults to /page/{schemaId})
+  allowMultiselect?: boolean; // Enables multi-select mode with confirm button
 }
 
 export const PopupPicker: React.FC<PopupPickerProps> = ({
@@ -115,6 +122,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   selectedIds = [],
   canViewList = false,
   viewListUrl,
+  allowMultiselect = false,
 }) => {
   const router = useRouter();
   const [schema, setSchema] = useState<FormSchema | null>(providedSchema || null);
@@ -124,6 +132,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionSelectedIds, setSessionSelectedIds] = useState<Set<string>>(new Set());
+  const [pendingSelections, setPendingSelections] = useState<Map<string, PendingSelection>>(new Map());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const baseSelectedIds = useMemo(
+    () => new Set((selectedIds ?? []).map((id) => String(id))),
+    [selectedIds]
+  );
 
   // Use refs to track previous array values for comparison
   const prevExcludeIdsRef = useRef<string>('');
@@ -155,25 +170,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       setFilteredItems([]);
       setSearchQuery('');
       setError(null);
+      setPendingSelections(new Map());
+      setSessionSelectedIds(new Set(baseSelectedIds));
     }
-  }, [isOpen]);
+  }, [isOpen, baseSelectedIds]);
 
   useEffect(() => {
     const normalized = new Set((selectedIds ?? []).map((id) => String(id)));
-    setSessionSelectedIds((prev) => {
-      if (prev.size === normalized.size) {
-        let isEqual = true;
-        normalized.forEach((id) => {
-          if (!prev.has(id)) {
-            isEqual = false;
-          }
-        });
-        if (isEqual) {
-          return prev;
-        }
-      }
-      return normalized;
-    });
+    setSessionSelectedIds(new Set(normalized));
+    setPendingSelections(new Map());
   }, [selectedIds]);
 
   const loadItems = async () => {
@@ -274,26 +279,180 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     setFilteredItems(filtered);
   }, [searchQuery, items, schema]);
 
-  const handleSelect = async (item: any) => {
-    // Prevent form submission
+  const commitSingleSelection = async (item: any) => {
+    if (isSubmitting) return;
     try {
-      // Track selection in session
       if (item.id) {
-        setSessionSelectedIds(prev => new Set([...prev, String(item.id)]));
+        setSessionSelectedIds((prev) => new Set([...prev, String(item.id)]));
       }
       const selectionEntry = buildSelectionEntry(item, schema);
       await onSelect([selectionEntry], [item]);
       onClose();
     } catch (error) {
-      console.error('Error in handleSelect:', error);
-      // Don't close on error
+      console.error('Error in commitSingleSelection:', error);
     }
   };
+
+  const toggleSelection = (item: any) => {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (!allowMultiselect) {
+      void commitSingleSelection(item);
+      return;
+    }
+
+    const itemId = String(item?.id ?? '');
+    if (!itemId) {
+      return;
+    }
+
+    const currentlySelected = sessionSelectedIds.has(itemId);
+    const nextSelected = !currentlySelected;
+
+    setSessionSelectedIds((prevIds) => {
+      const updated = new Set(prevIds);
+      if (nextSelected) {
+        updated.add(itemId);
+      } else {
+        updated.delete(itemId);
+      }
+      return updated;
+    });
+
+    setPendingSelections((prev) => {
+      const next = new Map(prev);
+      const existing = next.get(itemId);
+      const selectionEntry = buildSelectionEntry(item, schema);
+      const isBaseSelection = baseSelectedIds.has(itemId);
+
+      if (nextSelected) {
+        // Selecting item
+        if (isBaseSelection && existing?.action === 'remove') {
+          next.delete(itemId);
+        } else if (!isBaseSelection) {
+          next.set(itemId, { action: 'add', normalized: selectionEntry, raw: item });
+        } else {
+          // Base item re-selected without pending removal - no change needed
+          next.delete(itemId);
+        }
+      } else {
+        // Deselecting item
+        if (existing?.action === 'add') {
+          next.delete(itemId);
+        } else if (isBaseSelection) {
+          next.set(itemId, { action: 'remove', normalized: selectionEntry, raw: item });
+        } else {
+          next.delete(itemId);
+        }
+      }
+
+      return next;
+    });
+
+  };
+
+  const buildSelectionData = (id: string): { normalized: NormalizedOption; raw: any } => {
+    const pendingEntry = pendingSelections.get(id);
+    if (pendingEntry && pendingEntry.action === 'add' && pendingEntry.normalized) {
+      return {
+        normalized: pendingEntry.normalized,
+        raw: pendingEntry.raw ?? { id },
+      };
+    }
+
+    const match = items.find((candidate) => String(candidate?.id ?? '') === id);
+    if (match) {
+      return {
+        normalized: buildSelectionEntry(match, schema),
+        raw: match,
+      };
+    }
+
+    return {
+      normalized: {
+        id,
+        label: id,
+      },
+      raw: { id },
+    };
+  };
+
+  const handleClearSelection = () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    if (!allowMultiselect) {
+      return;
+    }
+
+    setSessionSelectedIds(new Set());
+    setPendingSelections(() => {
+      const next = new Map<string, PendingSelection>();
+      baseSelectedIds.forEach((id) => {
+        next.set(id, { action: 'remove' });
+      });
+      return next;
+    });
+  };
+
+  const handleConfirmSelections = async () => {
+    if (!allowMultiselect) {
+      return;
+    }
+
+    let hasChanges = false;
+    pendingSelections.forEach((entry) => {
+      if (entry && (entry.action === 'add' || entry.action === 'remove')) {
+        hasChanges = true;
+      }
+    });
+
+    if (!hasChanges) {
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const finalSelectionIds = Array.from(sessionSelectedIds);
+      const normalizedSelections: NormalizedOption[] = [];
+      const rawSelections: any[] = [];
+
+      finalSelectionIds.forEach((id) => {
+        const data = buildSelectionData(id);
+        normalizedSelections.push(data.normalized);
+        rawSelections.push(data.raw);
+      });
+
+      await onSelect(normalizedSelections, rawSelections);
+      setPendingSelections(new Map());
+      onClose();
+    } catch (error) {
+      console.error('Error confirming selections:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const pendingStats = useMemo(() => {
+    let additions = 0;
+    let removals = 0;
+    pendingSelections.forEach((entry) => {
+      if (!entry) return;
+      if (entry.action === 'add') additions += 1;
+      if (entry.action === 'remove') removals += 1;
+    });
+    return { additions, removals };
+  }, [pendingSelections]);
+
+  const hasPendingSelections = pendingStats.additions + pendingStats.removals > 0;
+  const selectedCount = sessionSelectedIds.size;
 
   // Check if an item is selected
   const isItemSelected = (item: any): boolean => {
     const itemId = String(item.id || '');
-    return selectedIds.includes(itemId) || sessionSelectedIds.has(itemId);
+    return sessionSelectedIds.has(itemId);
   };
 
   const handleViewList = () => {
@@ -324,18 +483,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleSelect(item);
+              toggleSelection(item);
             }}
             className={cn(
               baseCardClasses,
               isSelected ? selectedCardClasses : defaultCardClasses
             )}
           >
-            {isSelected && (
-              <span className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm">
-                <Check className="h-3.5 w-3.5" />
-              </span>
-            )}
             <div className={cn(
               "font-medium text-sm",
               isSelected ? "text-violet-900" : "text-gray-900"
@@ -405,17 +559,12 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         transition={{ duration: 0.25, delay, ease: 'easeOut' }}
       >
         <div
-          onClick={() => handleSelect(item)}
+          onClick={() => toggleSelection(item)}
           className={cn(
             baseCardClasses,
             isSelected ? selectedCardClasses : defaultCardClasses
           )}
         >
-          {isSelected && (
-            <span className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-violet-600 text-white shadow-sm">
-              <Check className="h-3.5 w-3.5" />
-            </span>
-          )}
           <div className="flex items-start gap-3">
             {/* Avatar */}
             <Avatar
@@ -520,13 +669,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       }
     }}>
       <DialogContent className="max-w-3xl w-full h-full rounded-none md:rounded-2xl md:max-h-[70vh] flex flex-col" onPointerDownOutside={(e) => {
-        // Prevent closing on outside click during loading
-        if (isLoading) {
+        // Prevent closing on outside click during loading or submission
+        if (isLoading || isSubmitting) {
           e.preventDefault();
         }
       }} onEscapeKeyDown={(e) => {
-        // Prevent closing on escape during loading
-        if (isLoading) {
+        // Prevent closing on escape during loading or submission
+        if (isLoading || isSubmitting) {
           e.preventDefault();
         }
       }}>
@@ -542,7 +691,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={handleRefresh}
-                disabled={isLoading}
+                disabled={isLoading || isSubmitting}
                 aria-label="Refresh items"
               >
                 <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin text-violet-600' : ''}`} />
@@ -557,6 +706,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                     e.stopPropagation();
                     handleViewList();
                   }}
+                  disabled={isSubmitting}
                   className="flex items-center gap-2"
                 >
                   <List className="h-4 w-4" />
@@ -598,18 +748,50 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex justify-end items-center gap-2 pt-4 border-t">
           <Button 
             type="button"
-            variant="outline" 
+            variant="ghost" 
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onClose();
             }}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
+          {allowMultiselect && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClearSelection();
+              }}
+              disabled={isSubmitting || selectedCount === 0}
+            >
+              Clear Selection
+            </Button>
+          )}
+          {allowMultiselect && (
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                void handleConfirmSelections();
+              }}
+              disabled={!hasPendingSelections || isSubmitting}
+              className="inline-flex items-center gap-2"
+            >
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting
+                ? 'Applying...'
+                : `Apply${hasPendingSelections ? ` (${selectedCount})` : ''}`}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

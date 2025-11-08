@@ -34,6 +34,10 @@ export interface FormField {
   source?: string; // Data path for nested values (e.g., "user.profile.name")
   compute?: (data: any) => any; // Function to compute field value from data
   targetSchema?: string; // Target schema ID for picker component (popup picker to another schema)
+  metadata?: {
+    allowMultiselect?: boolean;
+    [key: string]: any;
+  };
   // Keep layout and styling for backward compatibility (form-builder)
   layout?: {
     width?: string;

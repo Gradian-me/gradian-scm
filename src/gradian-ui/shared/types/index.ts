@@ -48,6 +48,10 @@ export interface FormFieldConfig {
   validation?: ValidationRule;
   options?: Array<{ label: string; value: any }>;
   defaultValue?: any;
+  metadata?: {
+    allowMultiselect?: boolean;
+    [key: string]: any;
+  };
 }
 
 export interface ChartDataPoint {

@@ -59,17 +59,45 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
     ref
   ) => {
     const groupRef = useRef<React.ElementRef<typeof ToggleGroupRoot>>(null);
+    const allowMultiselectSetting =
+      config?.metadata?.allowMultiselect ??
+      (config as any)?.allowMultiselect;
+    const allowMultiselect =
+      allowMultiselectSetting === undefined
+        ? undefined
+        : Boolean(allowMultiselectSetting);
 
     const resolvedType: 'single' | 'multiple' = useMemo(() => {
+      const explicitType =
+        type === 'multiple' || type === 'multi'
+          ? 'multiple'
+          : type === 'single'
+            ? 'single'
+            : undefined;
+
+      if (allowMultiselect === true) {
+        return 'multiple';
+      }
+
+      if (allowMultiselect === false) {
+        return explicitType ?? 'single';
+      }
+
+      if (explicitType) {
+        return explicitType;
+      }
+
       const configMode =
         config?.selectionType ||
         config?.selectionMode ||
         config?.mode ||
         (config?.multiple ? 'multiple' : undefined) ||
         config?.typeMode;
-      const candidate = type || configMode;
-      return candidate === 'multiple' || candidate === 'multi' ? 'multiple' : 'single';
-    }, [config, type]);
+
+      return configMode === 'multiple' || configMode === 'multi'
+        ? 'multiple'
+        : 'single';
+    }, [allowMultiselect, config, type]);
 
     const resolvedOrientation: 'horizontal' | 'vertical' =
       orientation || config?.orientation || 'horizontal';

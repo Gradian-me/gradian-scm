@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PopupPicker } from './PopupPicker';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '@/shared/utils/api';
 import { getValueByRole, getSingleValueByRole } from '../utils/field-resolver';
-import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
+import { NormalizedOption, normalizeOptionArray, extractFirstId } from '../utils/option-normalizer';
 import { Search, X } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
 
@@ -43,6 +43,22 @@ export const PickerInput: React.FC<PickerInputProps> = ({
 
   // Get targetSchema from config
   const targetSchemaId = (config as any).targetSchema;
+  const allowMultiselect = Boolean(
+    (config as any)?.metadata?.allowMultiselect ??
+    (config as any)?.allowMultiselect
+  );
+  const normalizedSelection = useMemo(
+    () => normalizeOptionArray(value),
+    [value]
+  );
+  const selectedIdsForPicker = useMemo(
+    () =>
+      normalizedSelection
+        .map((opt) => opt.id)
+        .filter((id): id is string => Boolean(id))
+        .map((id) => String(id)),
+    [normalizedSelection]
+  );
 
   // Fetch target schema when component mounts or targetSchemaId changes
   useEffect(() => {
@@ -68,35 +84,42 @@ export const PickerInput: React.FC<PickerInputProps> = ({
   useEffect(() => {
     const fetchSelectedItem = async (primaryValue: any) => {
       try {
-        if (!primaryValue || !targetSchemaId || !targetSchema) {
+        if (!targetSchemaId || !targetSchema) {
           setSelectedItem(null);
           return;
         }
 
-        // If primaryValue already contains label information
-        if (typeof primaryValue === 'object' && primaryValue.id) {
-          const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${primaryValue.id}`);
-          if (response.success && response.data) {
-            setSelectedItem(response.data);
-          } else if (primaryValue.label) {
-            setSelectedItem({ id: primaryValue.id, name: primaryValue.label, title: primaryValue.label });
+        if (primaryValue === null || primaryValue === undefined) {
+          setSelectedItem(null);
+          return;
+        }
+
+        const resolvedId = extractFirstId(primaryValue);
+        if (!resolvedId) {
+          setSelectedItem(null);
+          return;
+        }
+
+        const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${resolvedId}`);
+        if (response.success && response.data) {
+          setSelectedItem(response.data);
+          return;
+        }
+
+        if (typeof primaryValue === 'object') {
+          if (primaryValue.label) {
+            setSelectedItem({
+              id: resolvedId,
+              name: primaryValue.label,
+              title: primaryValue.label,
+            });
           } else {
             setSelectedItem(primaryValue);
           }
           return;
         }
 
-        if (typeof primaryValue === 'string') {
-          const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${primaryValue}`);
-          if (response.success && response.data) {
-            setSelectedItem(response.data);
-          } else {
-            setSelectedItem({ id: primaryValue });
-          }
-          return;
-        }
-
-        setSelectedItem(null);
+        setSelectedItem({ id: resolvedId });
       } catch (err) {
         console.error('Error fetching selected item:', err);
       }
@@ -107,10 +130,9 @@ export const PickerInput: React.FC<PickerInputProps> = ({
       return;
     }
 
-    const normalizedValues = Array.isArray(value) ? value : [value];
-    const primaryValue = normalizedValues.length > 0 ? normalizedValues[0] : null;
+    const primaryValue = normalizedSelection[0] ?? value;
     fetchSelectedItem(primaryValue);
-  }, [value, targetSchemaId, targetSchema]);
+  }, [value, normalizedSelection, targetSchemaId, targetSchema]);
 
   const handleSelect = (selectedOptions: NormalizedOption[], rawItems: any[]) => {
     if (!selectedOptions || selectedOptions.length === 0) {
@@ -140,7 +162,20 @@ export const PickerInput: React.FC<PickerInputProps> = ({
   };
 
   const getDisplayValue = () => {
+    if (allowMultiselect) {
+      if (normalizedSelection.length === 0) {
+        return '';
+      }
+      if (normalizedSelection.length > 1) {
+        return `${normalizedSelection.length} items selected`;
+      }
+    }
+
     if (!selectedItem || !targetSchema) {
+      const fallbackOption = normalizedSelection[0];
+      if (fallbackOption) {
+        return fallbackOption.label ?? fallbackOption.id ?? '';
+      }
       return '';
     }
 
@@ -229,6 +264,8 @@ export const PickerInput: React.FC<PickerInputProps> = ({
           description={`Choose a ${targetSchema?.singular_name || 'item'}`}
           canViewList={true}
           viewListUrl={`/page/${targetSchemaId}`}
+          allowMultiselect={allowMultiselect}
+          selectedIds={selectedIdsForPicker}
         />
       )}
     </div>
