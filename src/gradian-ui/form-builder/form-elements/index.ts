@@ -32,6 +32,8 @@ export * from './components/FileInput';
 export * from './components/PickerInput';
 export * from './components/IconInput';
 export * from './components/Switch';
+export * from './components/Toggle';
+export * from './components/ToggleGroup';
 export * from './components/Slider';
 export { Label } from './components/Label';
 export * from './components/CTAButton';

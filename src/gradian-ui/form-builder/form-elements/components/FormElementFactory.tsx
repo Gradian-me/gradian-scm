@@ -9,7 +9,7 @@ import { Checkbox } from './Checkbox';
 import { CheckboxList } from './CheckboxList';
 import { RadioGroup } from './RadioGroup';
 import { Select } from './Select';
-import { NormalizedOption } from '../utils/option-normalizer';
+import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
 import { ImageText } from './ImageText';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -27,6 +27,8 @@ import { DateTimeInput } from './DateTimeInput';
 import { FileInput } from './FileInput';
 import { PickerInput } from './PickerInput';
 import { IconInput } from './IconInput';
+import { Toggle } from './Toggle';
+import { ToggleGroup } from './ToggleGroup';
 import { UnknownControl } from './UnknownControl';
 
 // Support both config-based and field-based interfaces
@@ -133,6 +135,59 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'checkbox-list':
       return <CheckboxList config={config} options={config.options || []} {...restProps} />;
+
+    case 'toggle':
+      return (
+        <Toggle
+          config={config}
+          {...restProps}
+          required={
+            restProps.required ??
+            config.validation?.required ??
+            config.required
+          }
+        />
+      );
+
+    case 'toggle-group': {
+      const toggleGroupOptions = normalizeOptionArray(
+        (restProps as any).options ?? config.options ?? []
+      );
+
+      const handleToggleGroupChange = (selection: NormalizedOption[]) => {
+        restProps.onChange?.(selection);
+      };
+
+      const resolvedType =
+        (config.selectionType ||
+          config.selectionMode ||
+          config.mode ||
+          (config.multiple ? 'multiple' : undefined)) ??
+        undefined;
+
+      return (
+        <ToggleGroup
+          config={config}
+          value={restProps.value}
+          defaultValue={(restProps as any).defaultValue}
+          disabled={restProps.disabled}
+          error={restProps.error}
+          onBlur={restProps.onBlur}
+          onFocus={restProps.onFocus}
+          className={restProps.className}
+          required={
+            restProps.required ??
+            config.validation?.required ??
+            config.required
+          }
+          options={toggleGroupOptions}
+          type={resolvedType}
+          orientation={config.orientation}
+          selectionBehavior={config.selectionBehavior}
+          onNormalizedChange={handleToggleGroupChange}
+        />
+      );
+    }
     
     case 'radio':
       const radioOptions = (config.options || [])

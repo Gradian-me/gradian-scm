@@ -849,7 +849,14 @@
       "expirationDate": "2025-11-10",
       "transportType": "AIR",
       "purchaseMethod": "NEGOTIATION",
-      "paymentMethod": "CREDIT_CARD",
+      "paymentMethod": [
+        {
+          "id": "OPEN_ACCOUNT",
+          "label": "Open Account",
+          "icon": "Notebook",
+          "color": "muted"
+        }
+      ],
       "advancedPaymentAmount": 20000,
       "additions": 2500,
       "deductions": 1500,
@@ -857,7 +864,7 @@
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "id": "01K9724JFPP7A6RX7H6NTFHE1D",
       "createdAt": "2025-11-04T09:11:01.375Z",
-      "updatedAt": "2025-11-08T05:27:10.742Z",
+      "updatedAt": "2025-11-08T11:04:20.752Z",
       "vendorId": [
         {
           "id": "01K8QVCWS0ZSTMSVD5C6K7A806",

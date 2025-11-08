@@ -1,6 +1,7 @@
 // Form Elements Types
 
 import { BaseComponentProps, FormFieldConfig, ValidationRule } from '../../../shared/types';
+import { NormalizedOption } from '../utils/option-normalizer';
 
 export interface FormElementProps {
   config: any;
@@ -71,6 +72,31 @@ export interface SwitchProps extends FormElementProps {
   checked?: boolean;
 }
 
+export interface ToggleProps extends FormElementProps {
+  pressed?: boolean;
+  onLabel?: string;
+  offLabel?: string;
+}
+
+export interface ToggleGroupOption {
+  id: string;
+  label: string;
+  icon?: string;
+  color?: string;
+  disabled?: boolean;
+}
+
+export interface ToggleGroupProps extends FormElementProps {
+  value?: string | string[] | null;
+  defaultValue?: string | string[];
+  type?: 'single' | 'multiple';
+  options: ToggleGroupOption[];
+  orientation?: 'horizontal' | 'vertical';
+  size?: 'sm' | 'md' | 'lg';
+  selectionBehavior?: 'force' | 'default';
+  onNormalizedChange?: (selection: NormalizedOption[]) => void;
+}
+
 export interface RadioProps extends FormElementProps {
   options: Array<{ id: string; label: string; disabled?: boolean }>;
   direction?: 'horizontal' | 'vertical';
@@ -91,7 +117,7 @@ export interface FileInputProps extends FormElementProps {
 }
 
 export interface FormElementConfig extends FormFieldConfig {
-  component: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'file' | 'picker';
+  component: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'file' | 'picker' | 'toggle' | 'toggle-group';
   layout?: {
     width?: string;
     order?: number;

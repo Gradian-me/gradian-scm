@@ -1860,34 +1860,47 @@
         "name": "paymentMethod",
         "label": "Payment Method",
         "sectionId": "basic-information",
-        "type": "select",
-        "component": "select",
-        "placeholder": "Select payment method",
+        "type": "toggle-group",
+        "component": "toggle-group",
+        "placeholder": "Choose payment method",
         "required": false,
+        "selectionType": "single",
+        "orientation": "horizontal",
         "options": [
           {
             "id": "CASH",
-            "label": "Cash"
+            "label": "Cash",
+            "icon": "DollarSign"
           },
           {
             "id": "BANK_TRANSFER",
-            "label": "Bank Transfer"
+            "label": "Bank Transfer",
+            "icon": "Banknote",
+            "color": "info"
           },
           {
             "id": "LETTER_OF_CREDIT",
-            "label": "Letter of Credit"
+            "label": "Letter of Credit",
+            "icon": "FileSignature",
+            "color": "warning"
           },
           {
             "id": "DOCUMENTARY_COLLECTION",
-            "label": "Documentary Collection"
+            "label": "Documentary Collection",
+            "icon": "FolderOpen",
+            "color": "secondary"
           },
           {
             "id": "OPEN_ACCOUNT",
-            "label": "Open Account"
+            "label": "Open Account",
+            "icon": "Notebook",
+            "color": "muted"
           },
           {
             "id": "CREDIT_CARD",
-            "label": "Credit Card"
+            "label": "Credit Card",
+            "icon": "CreditCard",
+            "color": "success"
           }
         ],
         "colSpan": 1,
