@@ -9,7 +9,7 @@ import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-
 import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
 import { CardWrapper } from '../card/components/CardWrapper';
-import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection, extractLabels } from '../utils';
+import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection } from '../utils';
 import { BadgeViewer, BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
 import { getFieldsByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
@@ -19,6 +19,7 @@ import { CopyContent } from '../../form-builder/form-elements/components/CopyCon
 import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
 import type { BadgeItem } from '../../form-builder/form-elements/utils/badge-viewer';
 import { useRouter } from 'next/navigation';
+import { getDisplayStrings, getPrimaryDisplayString, hasDisplayValue } from '../utils/value-display';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -70,60 +71,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     return undefined;
   };
 
+  const statusFieldDef = schema?.fields?.find(field => field.role === 'status');
   const statusRoleValues = getArrayValuesByRole(schema, data, 'status');
-  const statusFieldArray = statusRoleValues.length > 0
-    ? statusRoleValues
-    : Array.isArray(data.status)
-      ? data.status
-      : data.status
-        ? [data.status]
-        : [];
-  const primaryStatusObject = statusFieldArray[0] || null;
+  const statusFieldArray = statusRoleValues.length > 0 ? statusRoleValues : [];
+  const rawStatusValueFromField = statusFieldDef ? data?.[statusFieldDef.name] : undefined;
   const statusOptions = findStatusFieldOptions();
-
-  const getDisplayStrings = (value: any): string[] => {
-    const labels = extractLabels(value);
-    if (labels.length > 0) {
-      return labels;
-    }
-
-    if (Array.isArray(value)) {
-      return value
-        .map((entry) => {
-          if (entry === null || entry === undefined) {
-            return '';
-          }
-          if (typeof entry === 'object') {
-            return entry.label ?? entry.name ?? entry.title ?? entry.id ?? '';
-          }
-          return String(entry);
-        })
-        .filter((entry): entry is string => Boolean(entry && entry.length > 0));
-    }
-
-    if (value && typeof value === 'object') {
-      const fallback = value.label ?? value.name ?? value.title ?? value.id;
-      if (fallback !== undefined && fallback !== null) {
-        return [String(fallback)];
-      }
-    }
-
-    if (value !== null && value !== undefined && value !== '') {
-      return [String(value)];
-    }
-
-    return [];
-  };
-
-  const getPrimaryDisplayString = (value: any): string | null => {
-    const strings = getDisplayStrings(value);
-    return strings.length > 0 ? strings[0] : null;
-  };
-
-  const hasDisplayValue = (value: any): boolean => {
-    const strings = getDisplayStrings(value);
-    return strings.some((str) => str.trim() !== '');
-  };
 
   // Check if rating, status, duedate, code, and avatar fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
@@ -190,18 +142,39 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
   const codeFieldValue = getSingleValueByRole(schema, data, 'code');
 
-  const normalizedStatusValue = primaryStatusObject
-    ? getPrimaryDisplayString(primaryStatusObject) ?? (primaryStatusObject.id ? String(primaryStatusObject.id) : 'PENDING')
-    : getPrimaryDisplayString(data.status) || 'PENDING';
-  
-  const normalizedStatusMetadata = primaryStatusObject
-    ? {
-        color: primaryStatusObject.color ?? 'outline',
-        icon: primaryStatusObject.icon,
-        label: primaryStatusObject.label ?? normalizedStatusValue,
-        value: primaryStatusObject.id ?? normalizedStatusValue,
-      }
-    : getBadgeConfig(normalizedStatusValue, statusOptions);
+  const normalizedStatusOption =
+    normalizeOptionArray(rawStatusValueFromField)[0] ??
+    normalizeOptionArray(statusFieldArray)[0] ??
+    normalizeOptionArray(data?.status)[0];
+  const statusValueFromRole = getSingleValueByRole(schema, data, 'status', '');
+
+  const statusIdentifier =
+    normalizedStatusOption?.id ??
+    (typeof rawStatusValueFromField === 'string' || typeof rawStatusValueFromField === 'number'
+      ? String(rawStatusValueFromField)
+      : undefined) ??
+    (typeof data?.status === 'string' || typeof data?.status === 'number'
+      ? String(data.status)
+      : undefined);
+
+  const statusLabel =
+    normalizedStatusOption?.label ??
+    (statusValueFromRole && statusValueFromRole.trim() !== '' ? statusValueFromRole : undefined) ??
+    getPrimaryDisplayString(rawStatusValueFromField) ??
+    getPrimaryDisplayString(statusFieldArray) ??
+    getPrimaryDisplayString(data?.status) ??
+    statusIdentifier ??
+    'PENDING';
+
+  const statusValueForConfig = statusIdentifier ?? statusLabel ?? 'PENDING';
+  const configMetadata = getBadgeConfig(statusValueForConfig, statusOptions);
+
+  const normalizedStatusMetadata = {
+    color: normalizedStatusOption?.color ?? configMetadata.color ?? 'outline',
+    icon: normalizedStatusOption?.icon ?? configMetadata.icon,
+    label: statusLabel,
+    value: statusValueForConfig,
+  };
 
   // Check if subtitle role exists in schema
   const hasSubtitleRole = schema?.fields?.some(field => field.role === 'subtitle') || false;
@@ -479,7 +452,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <Rating
-                          value={Number(cardConfig.ratingField) || 0}
+                          value={cardConfig.ratingField}
                           size="sm"
                           showValue={true}
                         />
@@ -748,7 +721,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         }}
                       >
                         <Rating
-                          value={Number(cardConfig.ratingField) || 0}
+                          value={cardConfig.ratingField}
                           size="sm"
                           showValue={true}
                         />

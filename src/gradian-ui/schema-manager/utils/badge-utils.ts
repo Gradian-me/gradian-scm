@@ -128,7 +128,8 @@ export const getDefaultSections = (schema: FormSchema): DetailPageSection[] => {
       description: 'Associated tags',
       colSpan: 1,
       columnArea: 'sidebar',
-      fieldIds: []
+      fieldIds: [],
+      badgeVariant: 'default'
     });
   }
 

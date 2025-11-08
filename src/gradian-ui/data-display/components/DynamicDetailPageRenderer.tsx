@@ -28,6 +28,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { apiRequest } from '@/shared/utils/api';
 import { RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
+import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -43,6 +44,7 @@ export interface DynamicDetailPageRendererProps {
   showBack?: boolean; // If true, show "Back" instead of schema name
   // Custom components registry
   customComponents?: Record<string, React.ComponentType<any>>;
+  onRefreshData?: () => Promise<void> | void;
 }
 
 /**
@@ -206,7 +208,28 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     avatar = data.avatarUrl || data.avatar || undefined;
   }
   
-  const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
+  const statusField = schema.fields?.find(f => f.role === 'status');
+  const rawStatusValueFromField = statusField ? data?.[statusField.name] : undefined;
+  const normalizedStatusOption =
+    normalizeOptionArray(rawStatusValueFromField)[0] ??
+    normalizeOptionArray(data?.status)[0];
+  const statusValueFromRole = getSingleValueByRole(schema, data, 'status');
+  const statusIdentifier =
+    normalizedStatusOption?.id ??
+    (typeof rawStatusValueFromField === 'string' || typeof rawStatusValueFromField === 'number'
+      ? String(rawStatusValueFromField)
+      : undefined) ??
+    (typeof data?.status === 'string' || typeof data?.status === 'number'
+      ? String(data.status)
+      : undefined);
+  const statusLabel =
+    normalizedStatusOption?.label ??
+    (statusValueFromRole && statusValueFromRole.trim() !== '' ? statusValueFromRole : undefined) ??
+    getPrimaryDisplayString(rawStatusValueFromField) ??
+    getPrimaryDisplayString(data?.status) ??
+    statusIdentifier ??
+    '';
+  const status = statusLabel;
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
   const codeFieldExists = schema?.fields?.some(field => field.role === 'code');
   
@@ -231,8 +254,6 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   const codeDisplayStrings = getDisplayStrings(codeValueRaw);
   const code = codeDisplayStrings.length > 0 ? codeDisplayStrings[0] : '';
 
-  // Find status field options
-  const statusField = schema.fields?.find(f => f.role === 'status');
   const statusOptions = statusField?.options;
 
   return {
@@ -244,7 +265,12 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     duedate,
     code,
     statusOptions,
-    statusMeta: undefined
+    statusMetadata: {
+      color: normalizedStatusOption?.color,
+      icon: normalizedStatusOption?.icon,
+      label: statusLabel,
+      value: statusIdentifier ?? statusLabel ?? '',
+    }
   };
 };
 
@@ -272,7 +298,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   disableAnimation = false,
   className,
   showBack = false,
-  customComponents = {}
+  customComponents = {},
+  onRefreshData,
 }) => {
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
   const [relatedSchemas, setRelatedSchemas] = useState<string[]>([]);
@@ -391,7 +418,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
     duedate: null,
     code: '',
     statusOptions: undefined,
-    statusMeta: undefined
+    statusMetadata: undefined
   };
   const headerStatusRoleValues = getArrayValuesByRole(schema, data, 'status');
   const headerStatusArray = headerStatusRoleValues.length > 0
@@ -409,7 +436,14 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
         label: headerStatusObject.label ?? headerStatusObject.id ?? '',
         value: headerStatusObject.id ?? headerStatusObject.label ?? '',
       }
-    : getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
+    : headerInfo.statusMetadata
+      ? {
+          value: headerInfo.statusMetadata.value,
+          label: headerInfo.statusMetadata.label ?? headerInfo.status,
+          icon: headerInfo.statusMetadata.icon,
+          color: headerInfo.statusMetadata.color ?? 'outline',
+        }
+      : getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
   
   // Check if avatar field exists in schema
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
@@ -902,7 +936,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                       />
                     </motion.div>
                   )}
-                  {headerInfo.status && (
+                  {(headerInfo.status && headerInfo.status.trim() !== '') || headerInfo.statusMetadata?.label ? (
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
                       animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
@@ -920,7 +954,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                         {badgeConfig.label}
                       </Badge>
                     </motion.div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -1212,13 +1246,16 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           schemaId={schema.id}
           entityId={editEntityId}
           mode="edit"
-          onSuccess={() => {
+        onSuccess={async () => {
             // Reset edit state and refresh the page to get updated data
             setEditEntityId(null);
-            // Refresh the page to get updated data
-            if (typeof window !== 'undefined') {
-              window.location.reload();
+          if (onRefreshData) {
+            try {
+              await onRefreshData();
+            } catch (error) {
+              console.error('Failed to refresh entity data after edit:', error);
             }
+          }
           }}
           onClose={() => {
             setEditEntityId(null);

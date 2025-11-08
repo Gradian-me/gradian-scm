@@ -5,6 +5,12 @@ import { Badge } from '@/gradian-ui/form-builder/form-elements/components/Badge'
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../../utils';
 import { normalizeOptionArray } from '@/gradian-ui/form-builder/form-elements/utils/option-normalizer';
+import {
+  getDisplayStrings,
+  getJoinedDisplayString,
+  getPickerDisplayValue,
+  renderRatingValue,
+} from '../../utils/value-display';
 
 export const getFieldValue = (field: any, row: any): any => {
   if (!field || !row) return null;
@@ -42,25 +48,17 @@ export const formatFieldValue = (
   }
 
   const normalizedOptions = normalizeOptionArray(value);
-  const hasStructuredOptions = normalizedOptions.length > 0 && (
-    Array.isArray(value) ||
-    (typeof value === 'object' && value !== null)
-  );
+  const displayStrings = getDisplayStrings(value);
+  const hasStructuredOptions =
+    displayStrings.length > 0 &&
+    (Array.isArray(value) || (typeof value === 'object' && value !== null));
 
   if (field?.type === 'picker' && field.targetSchema && row) {
-    if (normalizedOptions.length > 0) {
-      const primaryOption = normalizedOptions[0];
-      return <span>{String(primaryOption.label ?? primaryOption.id)}</span>;
+    const pickerDisplay = getPickerDisplayValue(field, value, { row });
+    if (pickerDisplay) {
+      return <span>{pickerDisplay}</span>;
     }
-
-    const resolvedKey = `_${field.name}_resolved`;
-    const resolvedData = row[resolvedKey];
-    if (resolvedData) {
-      const displayValue = resolvedData._resolvedLabel || resolvedData.name || resolvedData.title || value;
-      return <span>{String(displayValue)}</span>;
-    }
-
-    return <span>{String(value)}</span>;
+    return <span className="text-gray-400">—</span>;
   }
 
   const displayType = field?.type || 'text';
@@ -89,18 +87,10 @@ export const formatFieldValue = (
   }
 
   if (field?.role === 'rating') {
-    const numericValue = Number(value) || 0;
-    const clampedValue = Math.max(0, Math.min(5, numericValue));
     return (
-      <span className="inline-flex items-center gap-1 text-amber-500">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <IconRenderer
-            key={`rating-${index}`}
-            iconName={index < Math.round(clampedValue) ? 'Star' : 'StarOff'}
-            className="h-4 w-4"
-          />
-        ))}
-      </span>
+      <div className="inline-flex items-center">
+        {renderRatingValue(value, { size: 'sm', showValue: true })}
+      </div>
     );
   }
 
@@ -109,7 +99,8 @@ export const formatFieldValue = (
       <BadgeViewer
         field={field}
         value={value}
-        badgeVariant="outline"
+        badgeVariant="default"
+        enforceVariant
         animate={true}
       />
     );
@@ -153,9 +144,8 @@ export const formatFieldValue = (
       }
     case 'array':
     case 'checkbox':
-      if (normalizedOptions.length > 0) {
-        const labels = normalizedOptions.map(opt => opt.label ?? opt.id).filter(Boolean);
-        return <span>{labels.join(', ')}</span>;
+      if (displayStrings.length > 0) {
+        return <span>{displayStrings.join(', ')}</span>;
       }
       if (Array.isArray(value)) {
         return <span>{value.join(', ')}</span>;
@@ -163,9 +153,9 @@ export const formatFieldValue = (
       return <span>{String(value)}</span>;
     default:
       if (hasStructuredOptions) {
-        const labels = normalizedOptions.map(opt => opt.label ?? opt.id).filter(Boolean);
-        if (labels.length > 0) {
-          return <span>{labels.join(', ')}</span>;
+        const joined = getJoinedDisplayString(value);
+        if (joined) {
+          return <span>{joined}</span>;
         }
       }
       if (normalizedOptions.length > 0 && !(Array.isArray(value) || typeof value === 'object')) {

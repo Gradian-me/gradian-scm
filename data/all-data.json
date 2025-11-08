@@ -17,11 +17,18 @@
         "manufacturing",
         "finance"
       ],
-      "status": "PENDING",
+      "status": [
+        {
+          "id": "ACTIVE",
+          "label": "Active",
+          "icon": "CheckCircle",
+          "color": "success"
+        }
+      ],
       "rating": 4,
       "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
       "createdAt": "2025-10-29T11:24:37.540Z",
-      "updatedAt": "2025-11-04T06:45:44.976Z",
+      "updatedAt": "2025-11-08T08:30:56.740Z",
       "performanceMetrics": [
         {
           "id": "onTimeDelivery",
@@ -91,7 +98,8 @@
       "certifications": [
         "iso9001",
         "fda",
-        "reach"
+        "reach",
+        "iso14001"
       ],
       "section-1762088953746": [
         {
@@ -104,7 +112,25 @@
         }
       ],
       "establishedYear": 1800,
-      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "contacts": [
+        {
+          "id": "01K94Q59VYS8JA1VRMG7Q343GM",
+          "label": "Ghader | Ghaderi"
+        },
+        {
+          "id": "01K94KYJ0TQCGVHJRJ3Q0D0E7G",
+          "label": "Masoud | Mirghasemi"
+        },
+        {
+          "id": "01K94Q1ZE6M64MSHAXJARG7F8G",
+          "label": "Mahyar | Abidi"
+        },
+        {
+          "id": "01K94KB42QKQNNH7VED2K06Y40",
+          "label": "Arash | Zarandi"
+        }
+      ]
     },
     {
       "name": "Mana Pharma",
@@ -475,24 +501,43 @@
       "number": "CGN-2025-09",
       "inquiryDate": "2025-11-03T09:38",
       "inquiryDeadlineDate": "2025-11-14T11:30",
-      "state": "2",
+      "state": [
+        {
+          "id": "1",
+          "label": "Submitted",
+          "icon": "Send",
+          "color": "info"
+        }
+      ],
       "description": "Test Description",
       "inquiry-items": [
         {
-          "partCode": "5052",
-          "partName": "Himedia Feed Alpha",
-          "quantity": 120,
-          "unit": "4",
-          "demandDate": "2026-02-26T09:39",
-          "minimumExpirationDate": "2026-07-22T09:39",
-          "description": "",
-          "id": "01K945ABFQ3VDR3WJBSNYYK480"
+          "id": "01K96E06Z9H5G8FKH5QY0538JB",
+          "label": "Himedia Feed Alpha"
+        },
+        {
+          "id": "01K96WRHRE30636NDY6QVJT5AR",
+          "label": "HPLC Equipment Agilent 2190 "
         }
       ],
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-04T10:27:09.101Z",
-      "companyId": "01K94V4PJSFKCXS6AVX07P86N5"
+      "updatedAt": "2025-11-08T08:34:31.562Z",
+      "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
+      "inquiry-vendors": [
+        {
+          "id": "01K97208RABW053BGN3A6W05FD",
+          "label": "Transfarma"
+        },
+        {
+          "id": "01K9720G4M9G75V3YWB9PGKBTM",
+          "label": "Exapilog"
+        },
+        {
+          "id": "01K97F0QV3S1JH1R8NJ1XWEPEG",
+          "label": "Ottana Pharmed"
+        }
+      ]
     },
     {
       "number": "AGN-2025-12",

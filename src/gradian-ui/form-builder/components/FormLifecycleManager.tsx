@@ -385,11 +385,20 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         )
         .map(async (section) => {
           try {
-            const response = await apiRequest<{ count: number; data: any[] }>(
+            const response = await apiRequest<any>(
               `/api/relations?sourceSchema=${schema.id}&sourceId=${state.values.id}&relationTypeId=${section.repeatingConfig!.relationTypeId}&targetSchema=${section.repeatingConfig!.targetSchema}`
             );
             if (response.success) {
-              relationCounts[section.id] = response.data?.count || (Array.isArray(response.data?.data) ? response.data.data.length : 0);
+              const countFromResponse = (response as { count?: number }).count;
+              const resolvedCount =
+                typeof countFromResponse === 'number'
+                  ? countFromResponse
+                  : Array.isArray(response.data)
+                    ? response.data.length
+                    : 0;
+              relationCounts[section.id] = resolvedCount;
+            } else {
+              relationCounts[section.id] = 0;
             }
           } catch (error) {
             console.error(`Error fetching relations count for section ${section.id}:`, error);

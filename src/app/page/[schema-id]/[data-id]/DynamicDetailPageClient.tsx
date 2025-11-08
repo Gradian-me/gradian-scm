@@ -123,14 +123,15 @@ export function DynamicDetailPageClient({
   }, [refreshSchema]);
 
   // Fetch entity data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
+  const loadData = useCallback(
+    async ({ silent }: { silent?: boolean } = {}) => {
+      if (!silent) {
         setIsLoading(true);
+      }
+      try {
         setError(null);
-        
         const response = await apiRequest<any>(`/api/data/${schemaId}/${dataId}`);
-        
+
         if (response.success && response.data) {
           setData(response.data);
         } else {
@@ -139,14 +140,19 @@ export function DynamicDetailPageClient({
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch entity');
       } finally {
-        setIsLoading(false);
+        if (!silent) {
+          setIsLoading(false);
+        }
       }
-    };
+    },
+    [dataId, schemaId]
+  );
 
+  useEffect(() => {
     if (dataId) {
-      fetchData();
+      loadData();
     }
-  }, [dataId, schemaId]);
+  }, [dataId, loadData]);
 
   const handleBack = useCallback(() => {
     if (showBack) {
@@ -188,6 +194,7 @@ export function DynamicDetailPageClient({
         onBack={handleBack}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onRefreshData={() => loadData({ silent: true })}
         disableAnimation={false}
         showBack={showBack}
       />

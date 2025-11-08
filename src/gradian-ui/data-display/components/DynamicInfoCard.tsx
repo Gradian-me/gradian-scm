@@ -11,7 +11,7 @@ import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
 import { isBadgeSection, getBadgeFields } from '../../schema-manager/utils/badge-utils';
 import { BadgeViewer } from '../../form-builder/form-elements/utils/badge-viewer';
-import { extractLabels } from '../utils';
+import { getDisplayStrings, getJoinedDisplayString, getPickerDisplayValue, renderRatingValue } from '../utils/value-display';
 
 export interface DynamicInfoCardProps {
   section: DetailPageSection;
@@ -30,45 +30,15 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
     return <span className="text-gray-400">N/A</span>;
   }
 
-  const optionLabels = extractLabels(value);
+  const optionLabels = getDisplayStrings(value);
 
   // Handle picker fields - check for object values or resolved data
   if (field?.type === 'picker' && field.targetSchema) {
-    if (optionLabels.length > 0) {
-      return <span>{optionLabels[0]}</span>;
+    const pickerDisplay = getPickerDisplayValue(field, value, { data });
+    if (pickerDisplay) {
+      return <span>{pickerDisplay}</span>;
     }
-    // If the value is {id, label} format, use the label
-    if (typeof value === 'object' && value !== null && value.id && value.label) {
-      return <span>{String(value.label)}</span>;
-    }
-    
-    // If the value is an object with resolved data, extract the label
-    if (typeof value === 'object' && value !== null) {
-      // Check if it has a resolved label
-      if (value._resolvedLabel) {
-        return <span>{String(value._resolvedLabel)}</span>;
-      }
-      // Try to get name or title from the object
-      if (value.name) return <span>{String(value.name)}</span>;
-      if (value.title) return <span>{String(value.title)}</span>;
-      // If it has an id, it might be a partial object - show the id
-      if (value.id) return <span>{String(value.id)}</span>;
-      // Last resort: try to stringify safely
-      return <span>{String(value)}</span>;
-    }
-    
-    // Check if resolved data exists in the parent data object
-    if (data) {
-      const resolvedKey = `_${field.name}_resolved`;
-      const resolvedData = data[resolvedKey];
-      if (resolvedData) {
-        const displayValue = resolvedData._resolvedLabel || resolvedData.name || resolvedData.title || value;
-        return <span>{String(displayValue)}</span>;
-      }
-    }
-    
-    // If no resolved data, just show the value (might be an ID string)
-    return <span>{String(value)}</span>;
+    return <span className="text-gray-400">N/A</span>;
   }
 
   // Use field type
@@ -83,6 +53,14 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
         badgeVariant="outline"
         animate={true}
       />
+    );
+  }
+
+  if (field?.role === 'rating') {
+    return (
+      <div className="inline-flex items-center">
+        {renderRatingValue(value, { size: 'sm', showValue: true })}
+      </div>
     );
   }
 
@@ -120,8 +98,9 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
       return <span>{String(value)}</span>;
     default:
       // For URLs and long text, add word-break styling
-      if (optionLabels.length > 0) {
-        return <span>{optionLabels.join(', ')}</span>;
+      const joined = getJoinedDisplayString(value);
+      if (joined) {
+        return <span>{joined}</span>;
       }
       const stringValue = String(value);
       const isUrl = stringValue.startsWith('http://') || stringValue.startsWith('https://') || stringValue.startsWith('//');
@@ -278,7 +257,8 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                 field={combinedField}
                 value={allBadgeValues}
                 maxBadges={0}
-                badgeVariant="outline"
+                badgeVariant={section.badgeVariant ?? 'outline'}
+                enforceVariant={Boolean(section?.badgeVariant)}
                 animate={!disableAnimation}
               />
             </CardContent>
