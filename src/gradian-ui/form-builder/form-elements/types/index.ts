@@ -89,7 +89,7 @@ export interface ToggleGroupOption {
 export interface ToggleGroupProps extends FormElementProps {
   value?: string | string[] | null;
   defaultValue?: string | string[];
-  type?: 'single' | 'multiple';
+  type?: 'single' | 'multiple' | 'multi';
   options: ToggleGroupOption[];
   orientation?: 'horizontal' | 'vertical';
   size?: 'sm' | 'md' | 'lg';

@@ -35,6 +35,7 @@ export interface SelectWithBadgesProps extends Omit<SelectProps, 'children'> {
   error?: string;
   required?: boolean;
   onNormalizedChange?: (selection: NormalizedOption[]) => void;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const Select: React.FC<SelectWithBadgesProps> = ({
@@ -74,8 +75,8 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   );
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const panelRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   const normalizedValueArray = useMemo(
     () => normalizeOptionArray(value),
@@ -165,6 +166,70 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   );
 
   const [multiSelectionIds, setMultiSelectionIds] = useState<string[]>(normalizedValueIds);
+
+  const [panelPlacement, setPanelPlacement] = useState<'bottom' | 'top'>('bottom');
+  const [panelMaxHeight, setPanelMaxHeight] = useState<number>(256);
+  const [panelOffset, setPanelOffset] = useState<number>(8);
+
+  const updatePanelPosition = useCallback(() => {
+    if (!allowMultiselect || !isDropdownOpen || disabled) {
+      return;
+    }
+
+    const triggerEl = containerRef.current;
+    if (!triggerEl) {
+      return;
+    }
+
+    const triggerRect = triggerEl.getBoundingClientRect();
+    const panelEl = panelRef.current;
+    const panelHeight = panelEl?.offsetHeight ?? 0;
+    const viewportHeight = window.innerHeight;
+    const spacing = 12;
+
+    const dialogEl = triggerEl.closest('[role="dialog"]');
+    const dialogRect = dialogEl?.getBoundingClientRect();
+
+    const boundaryTop = dialogRect ? dialogRect.top + spacing : spacing;
+    const boundaryBottom = dialogRect ? dialogRect.bottom - spacing : viewportHeight - spacing;
+
+    const spaceAbove = triggerRect.top - boundaryTop;
+    const spaceBelow = boundaryBottom - triggerRect.bottom;
+
+    let placement: 'bottom' | 'top' = 'bottom';
+    let availableSpace = spaceBelow;
+
+    if ((spaceBelow < panelHeight && spaceAbove > spaceBelow) || (spaceBelow < 160 && spaceAbove > spaceBelow)) {
+      placement = 'top';
+      availableSpace = spaceAbove;
+    }
+
+    const safeSpace = Math.max(80, availableSpace);
+    const maxHeight = Math.max(120, Math.min(Math.floor(safeSpace), 360));
+    const offset = Math.max(6, Math.min(12, Math.floor(Math.min(safeSpace / 6, 12))));
+
+    setPanelPlacement(placement);
+    setPanelMaxHeight(maxHeight);
+    setPanelOffset(offset);
+  }, [allowMultiselect, disabled, isDropdownOpen]);
+
+  useLayoutEffect(() => {
+    updatePanelPosition();
+  }, [updatePanelPosition, multiSelectionIds, normalizedOptionsLookup]);
+
+  useEffect(() => {
+    if (!allowMultiselect || !isDropdownOpen) {
+      return;
+    }
+
+    window.addEventListener('resize', updatePanelPosition);
+    window.addEventListener('scroll', updatePanelPosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePanelPosition);
+      window.removeEventListener('scroll', updatePanelPosition, true);
+    };
+  }, [allowMultiselect, isDropdownOpen, updatePanelPosition]);
 
   useEffect(() => {
     if (!allowMultiselect) {
@@ -388,75 +453,6 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
         'items-start gap-2',
         className
       );
-
-      const [panelPlacement, setPanelPlacement] = useState<'bottom' | 'top'>('bottom');
-      const [panelMaxHeight, setPanelMaxHeight] = useState<number>(256);
-      const [panelOffset, setPanelOffset] = useState<number>(8);
-
-      const updatePanelPosition = useCallback(() => {
-        if (!allowMultiselect || !isDropdownOpen || disabled) {
-          return;
-        }
-
-        const triggerEl = containerRef.current;
-        if (!triggerEl) {
-          return;
-        }
-
-        const triggerRect = triggerEl.getBoundingClientRect();
-        const panelEl = panelRef.current;
-        const panelHeight = panelEl?.offsetHeight ?? 0;
-        const viewportHeight = window.innerHeight;
-        const spacing = 12;
-
-        const dialogEl = triggerEl.closest('[role="dialog"]');
-        const dialogRect = dialogEl?.getBoundingClientRect();
-
-        const boundaryTop = dialogRect ? dialogRect.top + spacing : spacing;
-        const boundaryBottom = dialogRect
-          ? dialogRect.bottom - spacing
-          : viewportHeight - spacing;
-
-        const spaceAbove = triggerRect.top - boundaryTop;
-        const spaceBelow = boundaryBottom - triggerRect.bottom;
-
-        let placement: 'bottom' | 'top' = 'bottom';
-        let availableSpace = spaceBelow;
-
-        if (
-          (spaceBelow < panelHeight && spaceAbove > spaceBelow) ||
-          (spaceBelow < 160 && spaceAbove > spaceBelow)
-        ) {
-          placement = 'top';
-          availableSpace = spaceAbove;
-        }
-
-        const safeSpace = Math.max(80, availableSpace);
-        const maxHeight = Math.max(120, Math.min(Math.floor(safeSpace), 360));
-        const offset = Math.max(6, Math.min(12, Math.floor(Math.min(safeSpace / 6, 12))));
-
-        setPanelPlacement(placement);
-        setPanelMaxHeight(maxHeight);
-        setPanelOffset(offset);
-      }, [allowMultiselect, disabled, isDropdownOpen]);
-
-      useLayoutEffect(() => {
-        updatePanelPosition();
-      }, [updatePanelPosition, multiSelectionIds, normalizedOptionsLookup]);
-
-      useEffect(() => {
-        if (!allowMultiselect || !isDropdownOpen) {
-          return;
-        }
-
-        window.addEventListener('resize', updatePanelPosition);
-        window.addEventListener('scroll', updatePanelPosition, true);
-
-        return () => {
-          window.removeEventListener('resize', updatePanelPosition);
-          window.removeEventListener('scroll', updatePanelPosition, true);
-        };
-      }, [allowMultiselect, isDropdownOpen, updatePanelPosition]);
 
       const panelClasses = cn(
         'absolute left-0 right-0 z-50 rounded-lg border border-gray-200 bg-white shadow-xl overflow-hidden',

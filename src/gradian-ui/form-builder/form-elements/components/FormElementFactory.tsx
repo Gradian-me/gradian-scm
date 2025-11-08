@@ -1,7 +1,7 @@
 // Form Element Factory Component
 
 import React from 'react';
-import { FormElementConfig, FormElementProps } from '../types';
+import { FormElementConfig, FormElementProps, ToggleGroupOption } from '../types';
 import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { TextInput } from './TextInput';
 import { Textarea } from './Textarea';
@@ -150,9 +150,15 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       );
 
     case 'toggle-group': {
-      const toggleGroupOptions = normalizeOptionArray(
+      const toggleGroupOptions: ToggleGroupOption[] = normalizeOptionArray(
         (restProps as any).options ?? config.options ?? []
-      );
+      ).map((option) => ({
+        id: option.id,
+        label: option.label ?? option.id,
+        icon: option.icon,
+        color: option.color,
+        disabled: option.disabled,
+      }));
 
       const handleToggleGroupChange = (selection: NormalizedOption[]) => {
         restProps.onChange?.(selection);

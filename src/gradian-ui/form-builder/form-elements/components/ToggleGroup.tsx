@@ -7,10 +7,9 @@ import { ToggleGroup as ToggleGroupRoot, ToggleGroupItem } from '@/components/ui
 import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 
-const isBadgeVariant = (color?: string): boolean => {
+const isBadgeVariant = (color?: string): color is keyof typeof BADGE_SELECTED_VARIANT_CLASSES => {
   if (!color) return false;
-  const validVariants = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
-  return validVariants.includes(color);
+  return Object.prototype.hasOwnProperty.call(BADGE_SELECTED_VARIANT_CLASSES, color);
 };
 
 const isHexColor = (color?: string): boolean => {
@@ -233,6 +232,21 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
 
     const hasLabel = Boolean(config?.label);
 
+    const toggleGroupTypeProps =
+      resolvedType === 'single'
+        ? {
+            type: 'single' as const,
+            value: selectedIds[0] ?? undefined,
+            defaultValue: typeof defaultIds === 'string' ? defaultIds : undefined,
+            onValueChange: handleSingleChange,
+          }
+        : {
+            type: 'multiple' as const,
+            value: selectedIds,
+            defaultValue: Array.isArray(defaultIds) ? defaultIds : undefined,
+            onValueChange: handleMultipleChange,
+          };
+
     return (
       <div className="w-full space-y-2">
         {hasLabel && (
@@ -251,19 +265,9 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
         )}
         <ToggleGroupRoot
           ref={groupRef}
-          type={resolvedType}
-          value={
-            resolvedType === 'single'
-              ? (selectedIds[0] ?? undefined)
-              : selectedIds
-          }
-          defaultValue={defaultIds}
           orientation={resolvedOrientation}
           rovingFocus={true}
           disabled={disabled}
-          onValueChange={
-            resolvedType === 'single' ? handleSingleChange : handleMultipleChange
-          }
           {...(selectionBehavior
             ? { selectionBehavior }
             : config?.selectionBehavior
@@ -271,6 +275,7 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
               : {})}
           className={rootClasses}
           {...props}
+          {...toggleGroupTypeProps}
         >
           {normalizedOptions.length > 0 ? (
             normalizedOptions.map(renderOption)
