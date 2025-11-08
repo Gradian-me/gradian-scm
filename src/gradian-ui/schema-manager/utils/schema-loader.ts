@@ -15,6 +15,38 @@ import path from 'path';
 const SCHEMAS_ROUTE_KEY = 'schemas';
 
 /**
+ * Safely read schemas from the local filesystem.
+ * Returns null when the file is missing or invalid so callers can fall back to other strategies.
+ */
+function readSchemasFromFile(): FormSchema[] | null {
+  try {
+    const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+
+    if (!fs.existsSync(dataPath)) {
+      loggingCustom(LogType.SCHEMA_LOADER, 'warn', `Schemas file not found at path: ${dataPath}`);
+      return null;
+    }
+
+    const fileContents = fs.readFileSync(dataPath, 'utf8');
+    const schemas = JSON.parse(fileContents);
+
+    if (!Array.isArray(schemas)) {
+      loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file does not contain an array');
+      return null;
+    }
+
+    return schemas.map(processSchema);
+  } catch (error) {
+    loggingCustom(
+      LogType.SCHEMA_LOADER,
+      'error',
+      `Error reading schemas from filesystem: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+    return null;
+  }
+}
+
+/**
  * Clear the schema cache (useful for testing or manual cache invalidation)
  */
 export function clearSchemaCache(): void {
@@ -32,7 +64,7 @@ function stringToRegExp(pattern: string | undefined): RegExp | undefined {
 
   try {
     return new RegExp(pattern);
-  } catch (error) {
+  } catch {
     loggingCustom(LogType.SCHEMA_LOADER, 'warn', `Invalid pattern: ${pattern}`);
     return undefined;
   }
@@ -126,48 +158,49 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
   const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
   
   if (isBuildTime) {
-    try {
-      const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
-      
-      if (!fs.existsSync(dataPath)) {
-        loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found during build');
-        return [];
-      }
-      
-      const fileContents = fs.readFileSync(dataPath, 'utf8');
-      const schemas = JSON.parse(fileContents);
-      
-      if (!Array.isArray(schemas)) {
-        loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file does not contain an array');
-        return [];
-      }
-      
-      // Process each schema to convert patterns
-      return schemas.map(processSchema);
-    } catch (error) {
-      loggingCustom(LogType.SCHEMA_LOADER, 'error', `Error reading schemas file during build: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return [];
+    const schemasFromFile = readSchemasFromFile();
+    if (schemasFromFile) {
+      return schemasFromFile;
     }
+
+    loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found during build');
+    return [];
   }
   
   // Normal runtime: use API endpoint
   const apiPath = config.schemaApi.basePath;
   
-  return await loadData<FormSchema[]>(
-    SCHEMAS_ROUTE_KEY,
-    apiPath,
-    {
-      processor: (data: any) => {
-        if (!Array.isArray(data)) {
-          loggingCustom(LogType.SCHEMA_LOADER, 'error', 'API response does not contain an array');
-          return [];
-        }
-        // Process each schema to convert patterns
-        return data.map(processSchema);
-      },
-      logType: LogType.SCHEMA_LOADER,
+  try {
+    return await loadData<FormSchema[]>(
+      SCHEMAS_ROUTE_KEY,
+      apiPath,
+      {
+        processor: (data: any) => {
+          if (!Array.isArray(data)) {
+            loggingCustom(LogType.SCHEMA_LOADER, 'error', 'API response does not contain an array');
+            return [];
+          }
+          // Process each schema to convert patterns
+          return data.map(processSchema);
+        },
+        logType: LogType.SCHEMA_LOADER,
+      }
+    );
+  } catch (error) {
+    loggingCustom(
+      LogType.SCHEMA_LOADER,
+      'warn',
+      `Failed to load schemas from API (${error instanceof Error ? error.message : 'Unknown error'}). Falling back to filesystem.`
+    );
+
+    const schemasFromFile = readSchemasFromFile();
+    if (schemasFromFile) {
+      return schemasFromFile;
     }
-  );
+
+    loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found while attempting filesystem fallback.');
+    return [];
+  }
 }
 
 /**
@@ -222,20 +255,35 @@ export async function loadSchemaById(schemaId: string): Promise<FormSchema | nul
   }
   
   const apiBasePath = config.schemaApi.basePath;
-  return await loadDataById<FormSchema>(
-    SCHEMAS_ROUTE_KEY,
-    apiBasePath,
-    schemaId,
-    {
-      processor: (data: any) => processSchema(data),
-      findInCache: (cache: any, id: string) => {
-        if (Array.isArray(cache)) {
-          return cache.find((s: FormSchema) => s.id === id) || null;
-        }
-        return null;
-      },
-      logType: LogType.SCHEMA_LOADER,
+  try {
+    return await loadDataById<FormSchema>(
+      SCHEMAS_ROUTE_KEY,
+      apiBasePath,
+      schemaId,
+      {
+        processor: (data: any) => processSchema(data),
+        findInCache: (cache: any, id: string) => {
+          if (Array.isArray(cache)) {
+            return cache.find((s: FormSchema) => s.id === id) || null;
+          }
+          return null;
+        },
+        logType: LogType.SCHEMA_LOADER,
+      }
+    );
+  } catch (error) {
+    loggingCustom(
+      LogType.SCHEMA_LOADER,
+      'warn',
+      `Failed to load schema "${schemaId}" from API (${error instanceof Error ? error.message : 'Unknown error'}). Falling back to filesystem.`
+    );
+
+    const schemasFromFile = readSchemasFromFile();
+    if (schemasFromFile) {
+      return schemasFromFile.find(s => s.id === schemaId) ?? null;
     }
-  );
+
+    return null;
+  }
 }
 
