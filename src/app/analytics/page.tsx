@@ -63,13 +63,19 @@ export default function AnalyticsPage() {
       ...CHART_THEME,
       grid: {
         ...CHART_THEME.grid,
-        top: '20%',
+        top: '28%',
         bottom: '18%',
       },
       legend: {
         ...CHART_THEME.legend,
         data: ['On-Time Delivery', 'Quality Score', 'Responsiveness'],
-        top: '2%',
+        top: '5%',
+        left: '2%',
+        orient: 'horizontal',
+        align: 'left',
+        itemGap: 16,
+        itemWidth: 14,
+        itemHeight: 14,
       },
       tooltip: {
         ...CHART_THEME.tooltip,

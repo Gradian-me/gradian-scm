@@ -33,7 +33,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
       animationEasing: CHART_ANIMATION_CONFIG.easing,
       grid: {
         ...CHART_THEME.grid,
-        top: '15%',
+        top: '26%',
         bottom: '15%',
       },
       xAxis: {
@@ -272,10 +272,11 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
       },
       legend: {
         ...CHART_THEME.legend,
-        top: '5%',
-        right: '5%',
-        orient: 'vertical',
-        itemGap: 15,
+        top: '6%',
+        left: '2%',
+        orient: 'horizontal',
+        align: 'left',
+        itemGap: 18,
         itemWidth: 14,
         itemHeight: 14,
       },
