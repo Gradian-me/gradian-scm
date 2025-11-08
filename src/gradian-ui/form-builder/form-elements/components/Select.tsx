@@ -14,9 +14,11 @@ import { IconRenderer } from '../../../../shared/utils/icon-renderer';
 import { Badge } from '../../../../components/ui/badge';
 import { motion } from 'framer-motion';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 
 export interface SelectOption {
-  value: string;
+  id: string;
+  value?: string;
   label: string;
   disabled?: boolean;
   icon?: string;
@@ -30,6 +32,7 @@ export interface SelectWithBadgesProps extends Omit<SelectProps, 'children'> {
   placeholder?: string;
   error?: string;
   required?: boolean;
+  onNormalizedChange?: (selection: NormalizedOption[]) => void;
 }
 
 export const Select: React.FC<SelectWithBadgesProps> = ({
@@ -44,6 +47,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   config,
   error,
   required,
+  onNormalizedChange,
   ...props
 }) => {
   const sizeClasses = {
@@ -82,7 +86,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   };
 
   // Render badge or custom colored badge
-  const renderBadgeContent = (option: SelectOption) => {
+  const renderBadgeContent = (option: NormalizedOption) => {
     if (!option.color) {
       return (
         <div className="flex items-center gap-2">
@@ -143,12 +147,40 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   };
 
   // If options are provided, render them with badges
+  const normalizedCurrentValue = extractFirstId(value);
+  const normalizedValueEntry = normalizeOptionArray(value)[0];
+
   if (options && options.length > 0) {
-    const selectedOption = options.find(opt => opt.value === value);
+    const normalizedOptions = normalizeOptionArray(options).map((opt) => ({
+      ...opt,
+      label: opt.label ?? opt.id,
+    }));
+
+    const selectedOption = normalizedOptions.find(opt => opt.id === normalizedCurrentValue);
     // Filter out empty string values as Radix doesn't allow them
-    const validOptions = options.filter(opt => opt.value !== '');
+    const validOptions = normalizedOptions.filter(opt => opt.id !== '');
     // Convert empty string to undefined so placeholder shows
-    const selectValue = value === '' ? undefined : value;
+    const selectValue = selectedOption?.id ?? (normalizedCurrentValue === '' ? undefined : normalizedCurrentValue);
+    const displayOption = selectedOption ?? (normalizedValueEntry
+      ? {
+          ...normalizedValueEntry,
+          label: normalizedValueEntry.label ?? normalizedValueEntry.id,
+        }
+      : undefined);
+
+    const handleRadixChange = (selectedId: string) => {
+      if (onValueChange) {
+        onValueChange(selectedId);
+      }
+      if (onNormalizedChange) {
+        if (!selectedId) {
+          onNormalizedChange([]);
+          return;
+        }
+        const matched = normalizedOptions.find(opt => opt.id === selectedId);
+        onNormalizedChange(matched ? [matched] : []);
+      }
+    };
     
     return (
       <div className="w-full">
@@ -164,16 +196,16 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
             {fieldLabel}
           </label>
         )}
-        <RadixSelect value={selectValue} onValueChange={onValueChange} {...props}>
+        <RadixSelect value={selectValue} onValueChange={handleRadixChange} {...props}>
           <SelectTrigger className={selectClasses} id={fieldName}>
             <SelectValue placeholder={fieldPlaceholder}>
-              {selectedOption && renderBadgeContent(selectedOption)}
+              {displayOption && renderBadgeContent(displayOption)}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {validOptions.map((option, index) => (
               <motion.div
-                key={option.value}
+                key={option.id ?? index}
                 initial={{ opacity: 0, y: 6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{
@@ -185,7 +217,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
                   ease: 'easeOut',
                 }}
               >
-                <SelectItem value={option.value} disabled={option.disabled}>
+                <SelectItem value={option.id} disabled={option.disabled}>
                   {renderBadgeContent(option)}
                 </SelectItem>
               </motion.div>

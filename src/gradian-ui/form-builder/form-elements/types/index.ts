@@ -72,7 +72,7 @@ export interface SwitchProps extends FormElementProps {
 }
 
 export interface RadioProps extends FormElementProps {
-  options: Array<{ label: string; value: any; disabled?: boolean }>;
+  options: Array<{ id: string; label: string; disabled?: boolean }>;
   direction?: 'horizontal' | 'vertical';
 }
 
@@ -168,8 +168,8 @@ export interface InputProps extends BaseComponentProps {
 export interface SelectProps extends BaseComponentProps {
   variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
   size?: 'sm' | 'md' | 'lg';
-  value?: string;
-  onValueChange?: (value: string) => void;
+  value?: any;
+  onValueChange?: (value: any) => void;
   disabled?: boolean;
   children?: React.ReactNode;
 }

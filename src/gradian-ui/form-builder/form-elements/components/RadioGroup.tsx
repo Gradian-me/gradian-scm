@@ -3,6 +3,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { RadioProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
+import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 
 export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
   (
@@ -64,6 +65,10 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
       className
     );
 
+    const normalizedOptions: NormalizedOption[] = normalizeOptionArray(options);
+
+    const resolvedValue = extractFirstId(value);
+
     return (
       <div className="w-full">
         {config.label && (
@@ -78,14 +83,14 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
               {config.label}
             </legend>
             <div ref={groupRef} className={groupClasses} {...props}>
-              {options.map((option, index) => (
-                <div key={index} className="flex items-center">
+              {normalizedOptions.map((option, index) => (
+                <div key={option.id ?? index} className="flex items-center">
                   <input
-                    id={`${config.name}-${index}`}
+                    id={`${config.name}-${option.id ?? index}`}
                     name={config.name}
                     type="radio"
-                    value={option.value}
-                    checked={value === option.value}
+                    value={option.id}
+                    checked={resolvedValue === option.id}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     onFocus={handleFocus}

@@ -34,7 +34,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </SelectTrigger>
             <SelectContent>
               {filter.options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem key={option.id} value={option.id}>
                   {option.label}
                 </SelectItem>
               ))}

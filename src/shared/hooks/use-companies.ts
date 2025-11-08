@@ -1,6 +1,7 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientContext, useQuery } from '@tanstack/react-query';
+import { useContext, useState } from 'react';
 import { apiRequest } from '@/shared/utils/api';
 
 interface Company {
@@ -15,6 +16,10 @@ interface Company {
  * This deduplicates requests and shares cache across all components
  */
 export function useCompanies() {
+  const queryClientFromContext = useContext(QueryClientContext);
+  const [localQueryClient] = useState(() => new QueryClient());
+  const activeQueryClient = queryClientFromContext ?? localQueryClient;
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['companies'],
     queryFn: async () => {
@@ -33,7 +38,7 @@ export function useCompanies() {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes - cache persists for 10 minutes (formerly cacheTime)
-  });
+  }, activeQueryClient);
 
   return {
     companies: data || [],

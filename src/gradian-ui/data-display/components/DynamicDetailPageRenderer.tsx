@@ -13,7 +13,7 @@ import { DynamicInfoCard } from './DynamicInfoCard';
 import { ComponentRenderer } from './ComponentRenderer';
 import { DynamicRepeatingTableViewer } from './DynamicRepeatingTableViewer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
-import { getValueByRole, getSingleValueByRole } from '../utils';
+import { getValueByRole, getSingleValueByRole, extractLabels, getArrayValuesByRole } from '../utils';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
@@ -22,6 +22,7 @@ import { DynamicQuickActions } from './DynamicQuickActions';
 import { GoToTop } from '../../layout/go-to-top';
 import { Rating, Countdown } from '../../form-builder';
 import { CodeBadge } from '../../form-builder/form-elements';
+import { CopyContent } from '../../form-builder/form-elements/components/CopyContent';
 import { FormModal } from '../../form-builder';
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
@@ -63,6 +64,50 @@ export const getPageSubtitle = (schema: FormSchema, entityName: string): React.R
   );
 };
 
+const getDisplayStrings = (value: any): string[] => {
+  const labels = extractLabels(value);
+  if (labels.length > 0) {
+    return labels;
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => {
+        if (entry === null || entry === undefined) {
+          return '';
+        }
+        if (typeof entry === 'object') {
+          return entry.label ?? entry.name ?? entry.title ?? entry.id ?? '';
+        }
+        return String(entry);
+      })
+      .filter((entry): entry is string => Boolean(entry && entry.length > 0));
+  }
+
+  if (value && typeof value === 'object') {
+    const fallback = value.label ?? value.name ?? value.title ?? value.id;
+    if (fallback !== undefined && fallback !== null) {
+      return [String(fallback)];
+    }
+  }
+
+  if (value !== null && value !== undefined && value !== '') {
+    return [String(value)];
+  }
+
+  return [];
+};
+
+const getPrimaryDisplayString = (value: any): string | null => {
+  const strings = getDisplayStrings(value);
+  return strings.length > 0 ? strings[0] : null;
+};
+
+const hasDisplayValue = (value: any): boolean => {
+  const strings = getDisplayStrings(value);
+  return strings.some((str) => str.trim() !== '');
+};
+
 /**
  * Get page title for MainLayout based on schema and data
  * Priority: 1) Field with role "title", 2) First text field (excluding code, subtitle, description), 3) id
@@ -88,15 +133,17 @@ export const getPageTitle = (schema: FormSchema, data: any, dataId?: string): st
       .filter(field => 
         field.type === 'text' && 
         (!field.role || !excludedRoles.includes(field.role)) &&
-        data[field.name] !== undefined && 
-        data[field.name] !== null && 
-        String(data[field.name]).trim() !== ''
+        hasDisplayValue(data[field.name])
       )
       .sort((a, b) => (a.order || 999) - (b.order || 999)); // Sort by order field
     
     if (textFields.length > 0) {
       const firstTextField = textFields[0];
       const value = data[firstTextField.name];
+      const primary = getPrimaryDisplayString(value);
+      if (primary) {
+        return primary;
+      }
       if (value && String(value).trim() !== '') {
         return String(value);
       }
@@ -125,9 +172,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
       ?.filter(field => 
         field.type === 'text' && 
         (!field.role || !excludedRoles.includes(field.role)) &&
-        data[field.name] !== undefined && 
-        data[field.name] !== null && 
-        String(data[field.name]).trim() !== ''
+        hasDisplayValue(data[field.name])
       )
       .sort((a, b) => (a.order || 999) - (b.order || 999)) || [];
     
@@ -135,13 +180,16 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     
     if (firstTextField) {
       const fieldValue = data[firstTextField.name];
-      title = fieldValue ? String(fieldValue).trim() : (data.name || 'Details');
+      const primary = getPrimaryDisplayString(fieldValue);
+      title = primary ?? (fieldValue ? String(fieldValue).trim() : (data.name || 'Details'));
     } else {
       title = data.name || 'Details';
     }
   }
   // Get subtitle value(s) - concatenate multiple fields with same role using |
-  const subtitle = getValueByRole(schema, data, 'subtitle') || data.email || '';
+  const subtitleValue = getValueByRole(schema, data, 'subtitle') || data.email || '';
+  const subtitleStrings = getDisplayStrings(subtitleValue);
+  const subtitle = subtitleStrings.length > 0 ? subtitleStrings.join(' | ') : '';
   
   // Get avatar - try to get from field with role="avatar", then fallback to common field names
   let avatar: string | undefined = undefined;
@@ -160,6 +208,7 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
   
   const status = getSingleValueByRole(schema, data, 'status') || data.status || '';
   const rating = getSingleValueByRole(schema, data, 'rating') || data.rating || 0;
+  const codeFieldExists = schema?.fields?.some(field => field.role === 'code');
   
   // Get duedate value - check if it's a valid date
   const duedateValue = getSingleValueByRole(schema, data, 'duedate', '') || data.duedate || data.expirationDate;
@@ -178,10 +227,9 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     }
   }
 
-  // Get code field value - only if field with role "code" exists
-  const codeFieldExists = schema?.fields?.some(field => field.role === 'code') || false;
-  const codeValue = codeFieldExists ? (getSingleValueByRole(schema, data, 'code') || data.code || '') : '';
-  const code = codeValue && String(codeValue).trim() !== '' ? codeValue : '';
+  const codeValueRaw = codeFieldExists ? (getSingleValueByRole(schema, data, 'code') || data.code || '') : '';
+  const codeDisplayStrings = getDisplayStrings(codeValueRaw);
+  const code = codeDisplayStrings.length > 0 ? codeDisplayStrings[0] : '';
 
   // Find status field options
   const statusField = schema.fields?.find(f => f.role === 'status');
@@ -195,7 +243,8 @@ const getHeaderInfo = (schema: FormSchema, data: any) => {
     rating,
     duedate,
     code,
-    statusOptions
+    statusOptions,
+    statusMeta: undefined
   };
 };
 
@@ -341,9 +390,26 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
     rating: 0,
     duedate: null,
     code: '',
-    statusOptions: undefined
+    statusOptions: undefined,
+    statusMeta: undefined
   };
-  const badgeConfig = getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
+  const headerStatusRoleValues = getArrayValuesByRole(schema, data, 'status');
+  const headerStatusArray = headerStatusRoleValues.length > 0
+    ? headerStatusRoleValues
+    : Array.isArray(data?.status)
+      ? data.status
+      : data?.status
+        ? [data.status]
+        : [];
+  const headerStatusObject = headerStatusArray[0] || null;
+  const badgeConfig = headerStatusObject
+    ? {
+        color: headerStatusObject.color ?? 'default',
+        icon: headerStatusObject.icon,
+        label: headerStatusObject.label ?? headerStatusObject.id ?? '',
+        value: headerStatusObject.id ?? headerStatusObject.label ?? '',
+      }
+    : getBadgeConfig(headerInfo.status, headerInfo.statusOptions);
   
   // Check if avatar field exists in schema
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
@@ -778,14 +844,39 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 </Avatar>
                 )}
                 <div>
-                  <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-gray-900">{headerInfo.title}</h1>
+                  <motion.div
+                    className="flex items-center gap-2"
+                    whileHover={{ x: 2 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <motion.div
+                      className="flex items-center gap-2"
+                      whileHover={{ x: 2 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <motion.h1
+                        className="text-2xl font-bold text-gray-900"
+                        whileHover={{ x: 2 }}
+                        transition={{ duration: 0.15 }}
+                      >
+                        {headerInfo.title}
+                      </motion.h1>
+                      {headerInfo.title && (
+                        <CopyContent content={headerInfo.title} />
+                      )}
+                    </motion.div>
                     {headerInfo.code && (
                       <CodeBadge code={headerInfo.code} />
                     )}
-                  </div>
+                  </motion.div>
                   {headerInfo.subtitle && (
-                    <p className="text-sm text-gray-500 mt-1">{headerInfo.subtitle}</p>
+                    <motion.p
+                      className="text-sm text-gray-500 mt-1"
+                      whileHover={{ x: 2 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      {headerInfo.subtitle}
+                    </motion.p>
                   )}
                 </div>
               </div>
@@ -802,12 +893,14 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 )}
                 <div className="flex items-end flex-col justify-end gap-2">
                   {headerInfo.rating > 0 && (
-                    <Rating
-                      value={headerInfo.rating}
-                      maxValue={5}
-                      size="md"
-                      showValue={true}
-                    />
+                    <motion.div whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
+                      <Rating
+                        value={headerInfo.rating}
+                        maxValue={5}
+                        size="md"
+                        showValue={true}
+                      />
+                    </motion.div>
                   )}
                   {headerInfo.status && (
                     <motion.div
@@ -818,9 +911,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                         delay: 0.2,
                         ease: [0.25, 0.46, 0.45, 0.94]
                       }}
-                      whileHover={disableAnimation ? undefined : { scale: 1.05 }}
+                      whileHover={disableAnimation ? undefined : { x: 2, scale: 1.05 }}
                     >
-                      <Badge variant={badgeConfig.color}>
+                      <Badge variant={badgeConfig.color ?? 'outline'}>
                         {badgeConfig.icon && (
                           <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3 mr-1" />
                         )}

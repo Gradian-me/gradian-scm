@@ -1,10 +1,31 @@
 // Table Viewer Utilities
 
 import { TableColumn, TableConfig } from '../types';
+import { extractLabels } from '../../../form-builder/form-elements/utils/option-normalizer';
 
 export * from './column-config';
 export * from './field-formatters';
 export * from './column-builder';
+
+const toComparableString = (input: any): string => {
+  if (input === null || input === undefined) return '';
+  const isStructured = Array.isArray(input) || (typeof input === 'object' && input !== null);
+  if (isStructured) {
+    const labels = extractLabels(input);
+    if (labels.length > 0) {
+      return labels.join(', ');
+    }
+    if (Array.isArray(input)) {
+      return input.map(entry => toComparableString(entry)).join(', ');
+    }
+    try {
+      return JSON.stringify(input);
+    } catch {
+      return String(input);
+    }
+  }
+  return String(input);
+};
 
 /**
  * Get value from row using column accessor
@@ -46,8 +67,8 @@ export function sortData<T>(
       return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
     }
 
-    const aStr = String(aValue).toLowerCase();
-    const bStr = String(bValue).toLowerCase();
+    const aStr = toComparableString(aValue).toLowerCase();
+    const bStr = toComparableString(bValue).toLowerCase();
 
     if (sortDirection === 'asc') {
       return aStr.localeCompare(bStr);
@@ -76,7 +97,7 @@ export function filterData<T>(
     filtered = filtered.filter(row => {
       return columns.some(column => {
         const value = getCellValue(row, column);
-        return String(value).toLowerCase().includes(searchLower);
+        return toComparableString(value).toLowerCase().includes(searchLower);
       });
     });
   }
@@ -93,7 +114,7 @@ export function filterData<T>(
     const filterLower = String(filterValue).toLowerCase();
     filtered = filtered.filter(row => {
       const value = getCellValue(row, column);
-      return String(value).toLowerCase().includes(filterLower);
+      return toComparableString(value).toLowerCase().includes(filterLower);
     });
   });
 

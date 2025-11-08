@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
+import { NormalizedOption } from '../form-elements/utils/option-normalizer';
 import { BadgeViewer } from '../form-elements/utils/badge-viewer';
 
 export const AccordionFormSection: React.FC<FormSectionProps> = ({
@@ -132,6 +133,30 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   useEffect(() => {
     fetchRelations();
   }, [fetchRelations, refreshRelationsTrigger]); // Also refresh when trigger changes
+
+  useEffect(() => {
+    if (!isRelationBased || !onChange) {
+      return;
+    }
+
+    const normalized = relatedEntities.map((entity) => {
+      const label = targetSchemaData
+        ? (getValueByRole(targetSchemaData, entity, 'title') || entity.name || entity.title || String(entity.id))
+        : (entity.name || entity.title || String(entity.id));
+      return {
+        id: String(entity.id ?? ''),
+        label,
+      };
+    });
+
+    const currentValue = Array.isArray(values?.[section.id]) ? values[section.id] : [];
+    const currentSerialized = JSON.stringify(currentValue);
+    const normalizedSerialized = JSON.stringify(normalized);
+
+    if (currentSerialized !== normalizedSerialized) {
+      onChange(section.id, normalized);
+    }
+  }, [isRelationBased, relatedEntities, onChange, section.id, targetSchemaData, values]);
   
   
   // Use controlled state if provided, otherwise use internal state
@@ -140,6 +165,16 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   
   // Get section-level error
   const sectionError = errors?.[section.id];
+  let displaySectionError = sectionError;
+
+  const relatedValueArray = Array.isArray(values?.[section.id]) ? values[section.id] : [];
+
+  // If relation-based repeating section already has related entities, suppress min-item validation message
+  if (section.isRepeatingSection && section.repeatingConfig?.targetSchema && sectionError) {
+    if (relatedEntities.length > 0 || relatedValueArray.length > 0) {
+      displaySectionError = undefined;
+    }
+  }
 
   const toggleExpanded = () => {
     if (onToggleExpanded) {
@@ -338,28 +373,56 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   };
 
   // Handler for selecting an item from popup picker
-  const handleSelectFromPicker = async (selectedItem: any) => {
-    if (!currentEntityId || !relationTypeId || !targetSchema || !selectedItem?.id) {
+  const handleSelectFromPicker = async (selectedItems: NormalizedOption[], rawItems: any[]) => {
+    if (!currentEntityId || !relationTypeId || !targetSchema) {
       return;
     }
 
     try {
-      const relationResponse = await apiRequest('/api/relations', {
+      const normalizedSelections = Array.isArray(selectedItems) ? selectedItems : [];
+      const operations = normalizedSelections.map(selection => {
+        if (!selection?.id) {
+          return null;
+        }
+
+        return apiRequest('/api/relations', {
         method: 'POST',
         body: {
           sourceSchema: sourceSchemaId,
           sourceId: currentEntityId,
           targetSchema: targetSchema,
-          targetId: selectedItem.id,
+            targetId: selection.id,
           relationTypeId: relationTypeId,
         },
       });
+      }).filter(Boolean) as Promise<any>[];
 
-      if (relationResponse.success) {
-        // Refresh relations to show the newly added item
-        fetchRelations();
+      if (operations.length === 0 && rawItems?.length) {
+        const fallbackId = rawItems[0]?.id;
+        if (fallbackId) {
+          operations.push(apiRequest('/api/relations', {
+            method: 'POST',
+            body: {
+              sourceSchema: sourceSchemaId,
+              sourceId: currentEntityId,
+              targetSchema: targetSchema,
+              targetId: fallbackId,
+              relationTypeId: relationTypeId,
+            },
+          }));
+        }
+      }
+
+      if (operations.length === 0) {
+        return;
+      }
+
+      const results = await Promise.all(operations);
+      const hasFailure = results.some(response => !response?.success);
+      if (hasFailure) {
+        console.error('Failed to create one or more relations from picker:', results);
       } else {
-        console.error('Failed to create relation:', relationResponse.error);
+        fetchRelations();
       }
     } catch (error) {
       console.error('Error creating relation from picker:', error);
@@ -580,9 +643,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                   <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
                     {itemsCount}
                   </span>
-                  {sectionError && (
+                  {displaySectionError && (
                     <span className="text-sm text-red-600 mt-0.5" role="alert">
-                      • {sectionError}
+                      • {displaySectionError}
                     </span>
                   )}
                   <Button
@@ -850,9 +913,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
                   {(repeatingItems || []).length}
                 </span>
-                {sectionError && (
-                  <span className="text-sm text-red-600 mt-0.5" role="alert">
-                    • {sectionError}
+                {displaySectionError && (
+                  <span className="text-sm text-red-600" role="alert">
+                    • {displaySectionError}
                   </span>
                 )}
               </div>
@@ -960,9 +1023,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-              {sectionError && (
-                <span className="text-sm text-red-600 mt-0.5" role="alert">
-                  • {sectionError}
+              {displaySectionError && (
+                <span className="text-sm text-red-600" role="alert">
+                  • {displaySectionError}
                 </span>
               )}
             </div>

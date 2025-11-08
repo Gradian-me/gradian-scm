@@ -836,16 +836,27 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   // Get first validation error for display (prioritize section-level errors, then repeating item errors)
   const firstValidationError = useMemo(() => {
     // First check for section-level errors (min/max items)
+    const suppressedSectionErrors = new Set<string>();
     const sectionErrors = Object.entries(state.errors).filter(([key, value]) => {
       const section = schema.sections.find(s => s.id === key);
       return section?.isRepeatingSection && value;
     });
     
     if (sectionErrors.length > 0) {
-      const [sectionId, errorMessage] = sectionErrors[0];
+      for (const [sectionId, errorMessage] of sectionErrors) {
       const section = schema.sections.find(s => s.id === sectionId);
-      // Add section title for FormAlert display
-      return section ? `${section.title}: ${errorMessage}` : errorMessage;
+        if (section?.isRepeatingSection && section.repeatingConfig?.targetSchema) {
+          const sectionValue = state.values[sectionId];
+          if (Array.isArray(sectionValue) && sectionValue.length > 0) {
+            suppressedSectionErrors.add(sectionId);
+            continue;
+          }
+        }
+        if (section) {
+          return `${section.title}: ${errorMessage}`;
+        }
+        return errorMessage;
+      }
     }
     
     // Then check for repeating item field errors
@@ -869,8 +880,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     }
     
     // Finally check for regular field errors
-    return Object.values(state.errors).find(err => err) || '';
-  }, [state.errors, schema.sections]);
+    const remainingErrorEntry = Object.entries(state.errors).find(([key, err]) => err && !suppressedSectionErrors.has(key));
+    return remainingErrorEntry ? remainingErrorEntry[1] : '';
+  }, [state.errors, schema.sections, schema.fields, state.values]);
 
   const formContent = (
     <>

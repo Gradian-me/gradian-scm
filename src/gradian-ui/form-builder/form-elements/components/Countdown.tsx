@@ -100,8 +100,8 @@ export const Countdown: React.FC<CountdownProps> = ({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className="flex items-center gap-2">
-        {showIcon && <Clock className={`${size === 'sm' ? 'h-3 w-3' : size === 'md' ? 'h-4 w-4' : 'h-5 w-5'} text-pink-600`} />}
-        <div className="flex items-center gap-1 border border-gray-200 rounded-md px-2 py-1 bg-violet-50">
+        {showIcon && <Clock className={`${size === 'sm' ? 'h-3 w-3' : size === 'md' ? 'h-4 w-4' : 'h-5 w-5'} text-red-500`} />}
+        <div className="flex items-center gap-1 border border-red-200 rounded-md px-2 py-1 bg-red-50">
           {timeLeft.days > 0 && (
             <>
               <div className="inline-block relative text-gray-900">
@@ -109,7 +109,7 @@ export const Countdown: React.FC<CountdownProps> = ({
                   value={100 + timeLeft.days} 
                   theme="minimal"
                 />
-                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-violet-50"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-red-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>d</span>
             </>
@@ -122,7 +122,7 @@ export const Countdown: React.FC<CountdownProps> = ({
                   value={100 + timeLeft.hours} 
                   theme="minimal"
                 />
-                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-violet-50"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-red-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>h</span>
             </>
@@ -135,7 +135,7 @@ export const Countdown: React.FC<CountdownProps> = ({
                   value={100 + timeLeft.minutes} 
                   theme="minimal"
                 />
-                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-violet-50"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-red-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>m</span>
             </>
@@ -148,7 +148,7 @@ export const Countdown: React.FC<CountdownProps> = ({
                   value={100 + timeLeft.seconds} 
                   theme="minimal"
                 />
-                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-violet-50"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-red-50"></div>
               </div>
               <span className={`text-gray-500 ${sizeClasses[size]}`}>s</span>
             </React.Fragment>

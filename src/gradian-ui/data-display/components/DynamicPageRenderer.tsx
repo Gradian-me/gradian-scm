@@ -521,7 +521,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4"}>
+                    <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4 mx-2"}>
                       {companyEntities.map((entity: any, index: number) => (
                         <div key={entity.id} className="relative">
                           {isEditLoading[entity.id] && (
@@ -570,7 +570,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4"}>
+                  <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 pt-2 md:pt-4 mx-2" : "space-y-4 pt-2 md:pt-4 mx-2"}>
                     {groupedEntities.ungrouped.map((entity: any, index: number) => (
                       <div key={entity.id} className="relative">
                         {isEditLoading[entity.id] && (
@@ -763,6 +763,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             const hasContactsField = schema?.fields?.some((f: any) => f.name === 'contacts') || 
                                     schema?.sections?.some((s: any) => s.id === 'contacts' || s.title?.toLowerCase().includes('contact'));
             const isUsersSchema = schema?.id === 'users';
+            const hasStatusRole = schema?.fields?.some((f: any) => f.role === 'status');
+            const hasRatingRole = schema?.fields?.some((f: any) => f.role === 'rating');
 
             // Remove contacts from formData if it's users schema
             const { contacts: _, ...formDataWithoutContacts } = formData;
@@ -787,8 +789,12 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   isPrimary: true,
                 }] : []
               } : {}),
-              status: formData.status || 'ACTIVE',
-              rating: formData.rating ? Number(formData.rating) : 5,
+              ...(hasStatusRole && formData.status !== undefined && formData.status !== null && formData.status !== ''
+                ? { status: formData.status }
+                : {}),
+              ...(hasRatingRole && formData.rating !== undefined && formData.rating !== null && formData.rating !== ''
+                ? { rating: Number(formData.rating) }
+                : {}),
             };
           }}
           onSuccess={async () => {
@@ -871,6 +877,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             const hasContactsField = schema?.fields?.some((f: any) => f.name === 'contacts') || 
                                     schema?.sections?.some((s: any) => s.id === 'contacts' || s.title?.toLowerCase().includes('contact'));
             const isUsersSchema = schema?.id === 'users';
+            const hasStatusRole = schema?.fields?.some((f: any) => f.role === 'status');
+            const hasRatingRole = schema?.fields?.some((f: any) => f.role === 'rating');
 
             // Remove contacts from formData if it's users schema
             const { contacts: _, ...formDataWithoutContacts } = formData;
@@ -896,8 +904,12 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                   isPrimary: true,
                 }] : []
               } : {}),
-              status: formData.status || 'ACTIVE',
-              rating: formData.rating ? Number(formData.rating) : 5,
+              ...(hasStatusRole && formData.status !== undefined && formData.status !== null && formData.status !== ''
+                ? { status: formData.status }
+                : {}),
+              ...(hasRatingRole && formData.rating !== undefined && formData.rating !== null && formData.rating !== ''
+                ? { rating: Number(formData.rating) }
+                : {}),
             };
           }}
           onSuccess={async () => {

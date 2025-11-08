@@ -489,12 +489,6 @@
           "id": "01K945ABFQ3VDR3WJBSNYYK480"
         }
       ],
-      "categories": [
-        "general"
-      ],
-      "contacts": [],
-      "status": "ACTIVE",
-      "rating": 5,
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
       "updatedAt": "2025-11-04T10:27:09.101Z",
@@ -507,12 +501,6 @@
       "state": "3",
       "description": "Buffers and Raw materials",
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
-      "categories": [
-        "general"
-      ],
-      "contacts": [],
-      "status": "ACTIVE",
-      "rating": 5,
       "id": "01K971SXSZZ6SBNF152M93FY64",
       "createdAt": "2025-11-04T09:05:12.518Z",
       "updatedAt": "2025-11-04T10:18:06.044Z"
@@ -751,11 +739,11 @@
         "id": "01K9OP000000000000000000001",
         "label": "Ottana Pharmed"
       },
-      "status": "rejected",
+      "status": "reviewed",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
       "id": "01K97F0QV3S1JH1R8NJ1XWEPEG",
       "createdAt": "2025-11-04T12:56:07.272Z",
-      "updatedAt": "2025-11-04T12:56:07.272Z"
+      "updatedAt": "2025-11-07T22:11:31.588Z"
     }
   ],
   "inquiry-items": [
@@ -814,12 +802,6 @@
       "number": "QTN-120513",
       "quotationDate": "2025-11-04",
       "expirationDate": "2025-11-10",
-      "vendorId": {
-        "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
-        "label": "Transfarma"
-      },
-      "state": "ACCEPTED",
-      "currency": "EUR",
       "transportType": "AIR",
       "purchaseMethod": "NEGOTIATION",
       "paymentMethod": "CREDIT_CARD",
@@ -828,15 +810,40 @@
       "deductions": 1500,
       "netPrice": 21000,
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
-      "categories": [
-        "general"
-      ],
-      "contacts": [],
-      "status": "ACTIVE",
-      "rating": 5,
       "id": "01K9724JFPP7A6RX7H6NTFHE1D",
       "createdAt": "2025-11-04T09:11:01.375Z",
-      "updatedAt": "2025-11-04T13:00:28.469Z"
+      "updatedAt": "2025-11-08T05:27:10.742Z",
+      "vendorId": [
+        {
+          "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
+          "label": "Transfarma",
+          "color": "warning"
+        }
+      ],
+      "currency": [
+        {
+          "id": "EUR",
+          "label": "EUR - Euro"
+        }
+      ],
+      "state": [
+        {
+          "id": "ACCEPTED",
+          "label": "Accepted",
+          "icon": "CheckCircle",
+          "color": "success"
+        }
+      ],
+      "quotation-items": [
+        {
+          "id": "01K9725HNMEAFXGB98SCER6JVK",
+          "label": "HPLC Equipment Agilent 2190 "
+        },
+        {
+          "id": "01K9726N9T00JAG6QC7ZWMX650",
+          "label": "Himedia Feed Alpha"
+        }
+      ]
     }
   ],
   "quotation-items": [

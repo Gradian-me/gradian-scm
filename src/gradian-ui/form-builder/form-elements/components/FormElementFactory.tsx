@@ -9,6 +9,7 @@ import { Checkbox } from './Checkbox';
 import { CheckboxList } from './CheckboxList';
 import { RadioGroup } from './RadioGroup';
 import { Select } from './Select';
+import { NormalizedOption } from '../utils/option-normalizer';
 import { ImageText } from './ImageText';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -93,19 +94,28 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'select':
       // Convert options to SelectOption[] format if they have icon/color
-      const selectOptions = config.options?.map((opt: any) => ({
+      const selectOptions = config.options
+        ?.filter((opt: any) => opt?.id)
+        .map((opt: any) => ({
+          id: String(opt.id),
         value: opt.value,
         label: opt.label,
         disabled: opt.disabled,
         icon: opt.icon,
         color: opt.color,
       }));
+
+      const handleSelectNormalizedChange = (selection: NormalizedOption[]) => {
+        if (restProps.onChange) {
+          (restProps.onChange as any)(selection);
+        }
+      };
       
       return (
         <Select
           config={config}
           value={restProps.value}
-          onValueChange={restProps.onChange}
+          onNormalizedChange={handleSelectNormalizedChange}
           disabled={restProps.disabled}
           options={selectOptions}
           className={restProps.className}
@@ -125,7 +135,13 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       return <CheckboxList config={config} options={config.options || []} {...restProps} />;
     
     case 'radio':
-      return <RadioGroup config={config} options={config.options || []} {...restProps} />;
+      const radioOptions = (config.options || [])
+        .filter((opt: any) => opt?.id)
+        .map((opt: any) => ({
+          ...opt,
+          id: String(opt.id),
+        }));
+      return <RadioGroup config={config} options={radioOptions} {...restProps} />;
     
     case 'date':
       return <DateInput config={config} {...restProps} />;

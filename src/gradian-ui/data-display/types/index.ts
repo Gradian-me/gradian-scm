@@ -286,8 +286,9 @@ export interface SearchBarProps extends BaseComponentProps {
 
 // Filter Bar Component Types
 export interface FilterOption {
+  id: string;
   label: string;
-  value: string;
+  value?: string;
 }
 
 export interface FilterConfig {

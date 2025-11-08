@@ -92,44 +92,44 @@ export function NotificationsPage() {
 
   // Define options for Type filter
   const typeOptions: SelectOption[] = [
-    { value: 'all', label: `All Types (${filterCounts.all || 0})` },
-    { value: 'success', label: `Success (${filterCounts.success || 0})`, color: 'success', icon: 'CheckCircle' },
-    { value: 'info', label: `Info (${filterCounts.info || 0})`, color: 'info', icon: 'Info' },
-    { value: 'warning', label: `Warning (${filterCounts.warning || 0})`, color: 'warning', icon: 'AlertTriangle' },
-    { value: 'important', label: `Important (${filterCounts.important || 0})`, color: 'destructive', icon: 'XCircle' }
+    { id: 'all', label: `All Types (${filterCounts.all || 0})` },
+    { id: 'success', label: `Success (${filterCounts.success || 0})`, color: 'success', icon: 'CheckCircle' },
+    { id: 'info', label: `Info (${filterCounts.info || 0})`, color: 'info', icon: 'Info' },
+    { id: 'warning', label: `Warning (${filterCounts.warning || 0})`, color: 'warning', icon: 'AlertTriangle' },
+    { id: 'important', label: `Important (${filterCounts.important || 0})`, color: 'destructive', icon: 'XCircle' }
   ];
 
   // Define options for Category filter
   const categoryOptions: SelectOption[] = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'quotation', label: 'Quotations' },
-    { value: 'purchase_order', label: 'Purchase Orders' },
-    { value: 'shipment', label: 'Shipments' },
-    { value: 'vendor', label: 'Vendors' },
-    { value: 'tender', label: 'Tenders' },
-    { value: 'system', label: 'System' }
+    { id: 'all', label: 'All Categories' },
+    { id: 'quotation', label: 'Quotations' },
+    { id: 'purchase_order', label: 'Purchase Orders' },
+    { id: 'shipment', label: 'Shipments' },
+    { id: 'vendor', label: 'Vendors' },
+    { id: 'tender', label: 'Tenders' },
+    { id: 'system', label: 'System' }
   ];
 
   // Define options for Status filter
   const statusOptions: SelectOption[] = [
-    { value: 'all', label: 'All Status' },
-    { value: 'unread', label: `Unread (${filterCounts.unread || 0})`, color: 'warning' },
-    { value: 'read', label: 'Read', color: 'success' }
+    { id: 'all', label: 'All Status' },
+    { id: 'unread', label: `Unread (${filterCounts.unread || 0})`, color: 'warning' },
+    { id: 'read', label: 'Read', color: 'success' }
   ];
 
   // Define options for Source filter
   const sourceOptions: SelectOption[] = [
-    { value: 'all', label: 'All Sources' },
-    { value: 'createdByMe', label: 'Created by Me' },
-    { value: 'assignedToMe', label: 'Assigned to Me' }
+    { id: 'all', label: 'All Sources' },
+    { id: 'createdByMe', label: 'Created by Me' },
+    { id: 'assignedToMe', label: 'Assigned to Me' }
   ];
 
   // Define options for Group By select
   const groupByOptions: SelectOption[] = [
-    { value: 'category', label: 'By Category' },
-    { value: 'type', label: 'By Type' },
-    { value: 'priority', label: 'By Priority' },
-    { value: 'status', label: 'By Status' }
+    { id: 'category', label: 'By Category' },
+    { id: 'type', label: 'By Type' },
+    { id: 'priority', label: 'By Priority' },
+    { id: 'status', label: 'By Status' }
   ];
 
   return (

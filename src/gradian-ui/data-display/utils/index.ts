@@ -31,6 +31,8 @@ export {
   getAvatarContent,
 } from '../../form-builder/form-elements/utils/avatar-utils';
 
+export { extractLabels } from '../../form-builder/form-elements/utils/option-normalizer';
+
 // Card renderers
 export {
   renderCardSection,

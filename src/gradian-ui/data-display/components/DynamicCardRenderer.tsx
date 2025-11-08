@@ -9,12 +9,16 @@ import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-
 import { cn } from '../../shared/utils';
 import { CardContent } from '../card/components/CardContent';
 import { CardWrapper } from '../card/components/CardWrapper';
-import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection } from '../utils';
+import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection, extractLabels } from '../utils';
 import { BadgeViewer, BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
 import { getFieldsByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { CopyContent } from '../../form-builder/form-elements/components/CopyContent';
+import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
+import type { BadgeItem } from '../../form-builder/form-elements/utils/badge-viewer';
+import { useRouter } from 'next/navigation';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -45,6 +49,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   maxMetrics = 3,
   disableAnimation = false
 }) => {
+  const router = useRouter();
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || [] as CardSection[];
 
@@ -65,7 +70,60 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     return undefined;
   };
 
+  const statusRoleValues = getArrayValuesByRole(schema, data, 'status');
+  const statusFieldArray = statusRoleValues.length > 0
+    ? statusRoleValues
+    : Array.isArray(data.status)
+      ? data.status
+      : data.status
+        ? [data.status]
+        : [];
+  const primaryStatusObject = statusFieldArray[0] || null;
   const statusOptions = findStatusFieldOptions();
+
+  const getDisplayStrings = (value: any): string[] => {
+    const labels = extractLabels(value);
+    if (labels.length > 0) {
+      return labels;
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((entry) => {
+          if (entry === null || entry === undefined) {
+            return '';
+          }
+          if (typeof entry === 'object') {
+            return entry.label ?? entry.name ?? entry.title ?? entry.id ?? '';
+          }
+          return String(entry);
+        })
+        .filter((entry): entry is string => Boolean(entry && entry.length > 0));
+    }
+
+    if (value && typeof value === 'object') {
+      const fallback = value.label ?? value.name ?? value.title ?? value.id;
+      if (fallback !== undefined && fallback !== null) {
+        return [String(fallback)];
+      }
+    }
+
+    if (value !== null && value !== undefined && value !== '') {
+      return [String(value)];
+    }
+
+    return [];
+  };
+
+  const getPrimaryDisplayString = (value: any): string | null => {
+    const strings = getDisplayStrings(value);
+    return strings.length > 0 ? strings[0] : null;
+  };
+
+  const hasDisplayValue = (value: any): boolean => {
+    const strings = getDisplayStrings(value);
+    return strings.some((str) => str.trim() !== '');
+  };
 
   // Check if rating, status, duedate, code, and avatar fields exist in schema
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
@@ -84,19 +142,32 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   const allBadgeValues: any[] = [];
   const allOptions = new Map<string, any>();
   let combinedBadgeField: any = null;
+  const badgeValueTargetSchema = new Map<string, string>();
 
   // Collect values from all badge fields and combine options
   badgeFields.forEach(field => {
     const value = data[field.name];
-    if (value && Array.isArray(value)) {
-      allBadgeValues.push(...value);
+    const valuesArray = Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [];
+    if (valuesArray.length > 0) {
+      allBadgeValues.push(...valuesArray);
+    }
+
+    if (field.targetSchema) {
+      valuesArray.forEach((entry) => {
+        const normalized = normalizeOptionArray(entry)[0];
+        const entryId = normalized?.id ?? (typeof entry === 'string' ? entry : undefined);
+        if (entryId) {
+          badgeValueTargetSchema.set(entryId, field.targetSchema as string);
+        }
+      });
     }
 
     // Collect options from all fields
     if (field.options && Array.isArray(field.options)) {
       field.options.forEach((opt: any) => {
-        if (!allOptions.has(opt.value)) {
-          allOptions.set(opt.value, opt);
+        const optionKey = opt?.id ?? opt?.value;
+        if (optionKey && !allOptions.has(optionKey)) {
+          allOptions.set(optionKey, opt);
         }
       });
     }
@@ -117,12 +188,28 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     ? allBadgeValues
     : (getArrayValuesByRole(schema, data, 'badge') || data.categories || []);
 
+  const codeFieldValue = getSingleValueByRole(schema, data, 'code');
+
+  const normalizedStatusValue = primaryStatusObject
+    ? getPrimaryDisplayString(primaryStatusObject) ?? (primaryStatusObject.id ? String(primaryStatusObject.id) : 'PENDING')
+    : getPrimaryDisplayString(data.status) || 'PENDING';
+  
+  const normalizedStatusMetadata = primaryStatusObject
+    ? {
+        color: primaryStatusObject.color ?? 'outline',
+        icon: primaryStatusObject.icon,
+        label: primaryStatusObject.label ?? normalizedStatusValue,
+        value: primaryStatusObject.id ?? normalizedStatusValue,
+      }
+    : getBadgeConfig(normalizedStatusValue, statusOptions);
+
   // Check if subtitle role exists in schema
   const hasSubtitleRole = schema?.fields?.some(field => field.role === 'subtitle') || false;
   
   // Get subtitle value(s) - concatenate multiple fields with same role using |
   const subtitleValue = hasSubtitleRole ? getValueByRole(schema, data, 'subtitle') : null;
-  const subtitle = subtitleValue && (typeof subtitleValue === 'string' ? subtitleValue.trim() !== '' : subtitleValue != null) ? subtitleValue : null;
+  const subtitleStrings = getDisplayStrings(subtitleValue);
+  const subtitle = subtitleStrings.length > 0 ? subtitleStrings.join(' | ') : null;
 
   // Check if description role exists in schema OR if any field label contains "description"
   const hasDescriptionRole = schema?.fields?.some(field => 
@@ -135,8 +222,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   if (hasDescriptionRole) {
     // First try to get by role (concatenates multiple fields with |)
     const roleBasedDescription = getValueByRole(schema, data, 'description');
-    if (roleBasedDescription && roleBasedDescription.trim() !== '') {
-      descriptionValue = roleBasedDescription;
+    const roleDescriptionStrings = getDisplayStrings(roleBasedDescription);
+    if (roleDescriptionStrings.length > 0) {
+      descriptionValue = roleDescriptionStrings.join(' | ');
     } else {
       // If not found by role, find by field label containing "description"
       if (schema?.fields) {
@@ -148,8 +236,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
         );
         if (descriptionFields.length > 0) {
           const values = descriptionFields
-            .map(field => data[field.name])
-            .filter(val => val !== undefined && val !== null && val !== '');
+            .map(field => getDisplayStrings(data[field.name]).join(' | '))
+            .filter(val => val && val.trim() !== '');
           if (values.length > 0) {
             descriptionValue = values.join(' | ');
           }
@@ -158,9 +246,25 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     }
   }
   
-  const description = descriptionValue && (typeof descriptionValue === 'string' ? descriptionValue.trim() !== '' : descriptionValue != null) ? descriptionValue : null;
-  
-  const codeField = getSingleValueByRole(schema, data, 'code');
+  const descriptionStrings = getDisplayStrings(descriptionValue);
+  const description = descriptionStrings.length > 0 ? descriptionStrings.join(' | ') : null;
+
+  const handleNavigateToEntity = (schemaId: string, entityId: string) => {
+    if (!schemaId || !entityId) {
+      return;
+    }
+    router.push(`/page/${schemaId}/${encodeURIComponent(entityId)}?showBack=true`);
+  };
+
+  const handleBadgeClick = (item: BadgeItem) => {
+    const candidateId = item.normalized?.id ?? item.id;
+    if (!candidateId) return;
+    const targetSchema =
+      badgeValueTargetSchema.get(candidateId) ||
+      badgeValueTargetSchema.get(item.id);
+    if (!targetSchema) return;
+    handleNavigateToEntity(targetSchema, candidateId);
+  };
 
   // Get duedate value - check if it's a valid date
   const duedateValue = getSingleValueByRole(schema, data, 'duedate', '') || data.duedate || data.expirationDate;
@@ -193,9 +297,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
       ?.filter(field => 
         field.type === 'text' && 
         (!field.role || !excludedRoles.includes(field.role)) &&
-        data[field.name] !== undefined && 
-        data[field.name] !== null && 
-        String(data[field.name]).trim() !== ''
+        hasDisplayValue(data[field.name])
       )
       .sort((a, b) => (a.order || 999) - (b.order || 999)) || [];
     
@@ -203,7 +305,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     
     if (firstTextField) {
       const fieldValue = data[firstTextField.name];
-      title = fieldValue ? String(fieldValue).trim() : (data.name || 'Unknown');
+      const primaryText = getPrimaryDisplayString(fieldValue);
+      title = primaryText ?? (fieldValue ? String(fieldValue).trim() : (data.name || 'Unknown'));
     } else {
       title = data.name || 'Unknown';
     }
@@ -213,11 +316,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
     title,
     subtitle,
     avatarField: getSingleValueByRole(schema, data, 'avatar', data.name) || data.name || 'V',
-    statusField: getSingleValueByRole(schema, data, 'status') || data.status || 'PENDING',
-    ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
-    codeField,
+    statusField: normalizedStatusMetadata.value,
+    statusMetadata: normalizedStatusMetadata,
     badgeField: combinedBadgeField,
     badgeValues,
+    ratingField: getSingleValueByRole(schema, data, 'rating') || data.rating || 0,
+    codeField: codeFieldValue,
     metricsField: data.performanceMetrics || null,
     duedateField,
     sections: filteredSections,
@@ -302,7 +406,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
                       animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                      transition={disableAnimation ? {} : { duration: 0.3 }}
                       whileHover={disableAnimation ? undefined : { scale: 1.01, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                     >
                       <Avatar
@@ -317,21 +421,35 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <motion.h3
+                      <motion.div
+                        className="flex items-center gap-1.5 flex-1 min-w-0"
                         initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                         animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
+                        whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
+                      >
+                        <motion.h3
                         className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate flex-1 min-w-0"
-                        whileHover={{ x: 2 }}
+                          whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         {cardConfig.title}
                       </motion.h3>
+                        {cardConfig.title && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                          >
+                            <CopyContent content={cardConfig.title} />
+                          </div>
+                        )}
+                      </motion.div>
                       {/* Code Badge */}
                       {hasCodeField && cardConfig.codeField && (
                         <motion.div
                           initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
                           animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                          transition={disableAnimation ? {} : { duration: 0.2, delay: 0.1 }}
+                          transition={disableAnimation ? {} : { duration: 0.2 }}
                         >
                           <CodeBadge code={cardConfig.codeField} />
                         </motion.div>
@@ -341,9 +459,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
                       className="text-xs text-gray-500 truncate"
-                      whileHover={{ x: 2 }}
+                        whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <p className="text-xs text-gray-500 truncate">{cardConfig.subtitle}</p>
                     </motion.div>
@@ -357,7 +475,8 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, y: -10 }}
                         animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
+                        whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <Rating
                           value={Number(cardConfig.ratingField) || 0}
@@ -367,22 +486,17 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       </motion.div>
                     )}
                     {/* Status */}
-                    {hasStatusField && (
+                    {hasStatusField && cardConfig.statusMetadata.label && (
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
                         animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
-                        whileHover={disableAnimation ? undefined : { scale: 1.01 }}
+                        transition={disableAnimation ? {} : { duration: 0.2 }}
+                        whileHover={disableAnimation ? undefined : { x: 2, scale: 1.05, transition: { duration: 0.1, delay: 0 } }}
                       >
-                        {(() => {
-                          const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
-                          return (
-                            <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
-                              {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                              <span className="text-[0.625rem]">{badgeConfig.label}</span>
+                        <Badge variant={cardConfig.statusMetadata.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                          {cardConfig.statusMetadata.icon && <IconRenderer iconName={cardConfig.statusMetadata.icon} className="h-3 w-3" />}
+                          <span className="text-[0.625rem]">{cardConfig.statusMetadata.label}</span>
                             </Badge>
-                          );
-                        })()}
                       </motion.div>
                     )}
                   </div>
@@ -394,22 +508,30 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, y: 5 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                  transition={disableAnimation ? {} : { duration: 0.3 }}
                   className="w-full mb-2"
+                  whileHover={{ x: 2, transition: { duration: 0.15} }}
                 >
                   <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
                 </motion.div>
               )}
 
-              <div className="w-full items-center justify-start mb-2">
+              <div
+                className="w-full items-center justify-start mb-2"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
                 {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
                   <BadgeViewer
                     field={cardConfig.badgeField}
                     value={cardConfig.badgeValues}
                     maxBadges={maxBadges}
                     className="w-full"
-                    badgeVariant="outline"
+                    badgeVariant="default"
+                    enforceVariant
                     animate={!disableAnimation}
+                    onBadgeClick={handleBadgeClick}
                   />
                 ) : (
                   cardConfig.badgeValues.length > 0 && (
@@ -419,6 +541,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       className="w-full"
                       badgeVariant="outline"
                       animate={!disableAnimation}
+                      onBadgeClick={handleBadgeClick}
                     />
                   )
                 )}
@@ -429,7 +552,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, y: 10 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.35 }}
+                  transition={disableAnimation ? {} : { duration: 0.3}}
                   className="w-full mb-2 border-t border-gray-100 pt-2 mt-2"
                 >
                   <div className="text-xs text-gray-500 mb-1">Performance:</div>
@@ -452,7 +575,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <motion.div
                   initial={disableAnimation ? false : { opacity: 0, y: 10 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                  transition={disableAnimation ? {} : { duration: 0.3, delay: 0.4 }}
+                  transition={disableAnimation ? {} : { duration: 0.3 }}
                   className="w-full mb-3"
                 >
                   <Countdown
@@ -470,7 +593,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
+                  transition={{ delay: 0.2 }}
                 >
                   {filteredSections.map((section) => (
                     <div
@@ -480,7 +603,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         section.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
                       )}
                     >
-                      {renderCardSection({ section, schema, data, maxMetrics })}
+                      {renderCardSection({ section, schema, data, maxMetrics, onBadgeNavigate: handleNavigateToEntity })}
                     </div>
                   ))}
                 </motion.div>
@@ -494,7 +617,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   <motion.div
                     initial={disableAnimation ? false : { opacity: 0, scale: 0.8 }}
                     animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.1 }}
+                    transition={disableAnimation ? {} : { duration: 0.3 }}
                     whileHover={disableAnimation ? undefined : { scale: 1.01, transition: { type: "spring", stiffness: 300, damping: 30 } }}
                   >
                     <Avatar
@@ -512,7 +635,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     <motion.h3
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                      transition={disableAnimation ? {} : { duration: 0.3, delay: 0.15 }}
+                      transition={disableAnimation ? {} : { duration: 0.3 }}
                       className={cn(
                         "text-base font-semibold text-gray-900 truncate flex-1 min-w-0",
                         !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
@@ -524,12 +647,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     >
                       {cardConfig.title}
                     </motion.h3>
+                    {cardConfig.title && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      >
+                        <CopyContent content={cardConfig.title} />
+                      </div>
+                    )}
                     {/* Code Badge */}
                     {hasCodeField && cardConfig.codeField && (
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
                         animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                        transition={disableAnimation ? {} : { duration: 0.2, delay: 0.1 }}
+                        transition={disableAnimation ? {} : { duration: 0.2 }}
                       >
                         <CodeBadge code={cardConfig.codeField} />
                       </motion.div>
@@ -539,7 +671,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   <motion.p
                     initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                     animate={disableAnimation ? false : { opacity: 1, x: 0 }}
-                    transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                    transition={disableAnimation ? {} : { duration: 0.3 }}
                     className={cn(
                       "text-xs text-gray-500 truncate",
                       !disableAnimation && "group-hover:text-gray-700 transition-colors duration-200"
@@ -552,26 +684,34 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     {cardConfig.subtitle}
                   </motion.p>
                   )}
+                  <div
+                    className="mt-1"
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
                   {cardConfig.badgeField && Array.isArray(cardConfig.badgeValues) && cardConfig.badgeValues.length > 0 ? (
                     <BadgeViewer
                       field={cardConfig.badgeField}
                       value={cardConfig.badgeValues}
                       maxBadges={maxBadges}
-                      className="mt-1"
-                      badgeVariant="outline"
+                        badgeVariant="default"
+                        enforceVariant
                       animate={!disableAnimation}
+                        onBadgeClick={handleBadgeClick}
                     />
                   ) : (
                     cardConfig.badgeValues.length > 0 && (
                       <BadgeRenderer
                         items={cardConfig.badgeValues}
                         maxBadges={maxBadges}
-                        className="mt-1"
                         badgeVariant="outline"
                         animate={!disableAnimation}
+                          onBadgeClick={handleBadgeClick}
                       />
                     )
                   )}
+                  </div>
                 </div>
               </div>
               {(hasRatingField || hasStatusField || hasDuedateField) && (
@@ -581,7 +721,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, y: -10 }}
                         animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.2 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
                         whileHover={disableAnimation ? undefined : {
                           scale: 1.01,
                           transition: { type: "spring", stiffness: 300, damping: 30 }
@@ -601,7 +741,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, y: -10 }}
                         animate={disableAnimation ? false : { opacity: 1, y: 0 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.25 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
                         whileHover={disableAnimation ? undefined : {
                           scale: 1.01,
                           transition: { type: "spring", stiffness: 300, damping: 30 }
@@ -618,21 +758,21 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       <motion.div
                         initial={disableAnimation ? false : { opacity: 0, scale: 0.9 }}
                         animate={disableAnimation ? false : { opacity: 1, scale: 1 }}
-                        transition={disableAnimation ? {} : { duration: 0.3, delay: 0.3 }}
+                        transition={disableAnimation ? {} : { duration: 0.3 }}
                         whileHover={disableAnimation ? undefined : {
                           scale: 1.01,
                           transition: { type: "spring", stiffness: 300, damping: 30 }
                         }}
                       >
-                        {(() => {
-                          const badgeConfig = getBadgeConfig(cardConfig.statusField, cardConfig.statusOptions);
-                          return (
-                            <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
-                              {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                              <span className="text-xs">{badgeConfig.label}</span>
+                        <Badge
+                          variant={cardConfig.statusMetadata.color ?? 'outline'}
+                          className="flex items-center gap-1 px-1 py-0.5 shadow-sm"
+                        >
+                          {cardConfig.statusMetadata.icon && (
+                            <IconRenderer iconName={cardConfig.statusMetadata.icon} className="h-3 w-3" />
+                          )}
+                          <span className="text-xs">{cardConfig.statusMetadata.label ?? cardConfig.statusField}</span>
                             </Badge>
-                          );
-                        })()}
                       </motion.div>
                     )}
                   </div>

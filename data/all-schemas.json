@@ -87,38 +87,38 @@
         "role": "status",
         "options": [
           {
+            "id": "0",
             "label": "Draft",
-            "value": "0",
             "icon": "FileText",
             "color": "default"
           },
           {
+            "id": "1",
             "label": "Submitted",
-            "value": "1",
             "icon": "Send",
             "color": "info"
           },
           {
+            "id": "2",
             "label": "In Review",
-            "value": "2",
             "icon": "Clock",
             "color": "warning"
           },
           {
+            "id": "3",
             "label": "Approved",
-            "value": "3",
             "icon": "CheckCircle",
             "color": "success"
           },
           {
+            "id": "4",
             "label": "Rejected",
-            "value": "4",
             "icon": "XCircle",
             "color": "destructive"
           },
           {
+            "id": "5",
             "label": "Closed",
-            "value": "5",
             "icon": "Archive",
             "color": "muted"
           }
@@ -301,7 +301,6 @@
             "inquiry-deadline-date",
             "inquiry-status",
             "inquiry-description"
-
           ]
         }
       ]
@@ -375,36 +374,36 @@
         "required": true,
         "options": [
           {
-            "label": "Piece",
-            "value": "1"
+            "id": "1",
+            "label": "Piece"
           },
           {
-            "label": "Box",
-            "value": "2"
+            "id": "2",
+            "label": "Box"
           },
           {
-            "label": "Pallet",
-            "value": "3"
+            "id": "3",
+            "label": "Pallet"
           },
           {
-            "label": "Kilogram",
-            "value": "4"
+            "id": "4",
+            "label": "Kilogram"
           },
           {
-            "label": "Liter",
-            "value": "5"
+            "id": "5",
+            "label": "Liter"
           },
           {
-            "label": "Meter",
-            "value": "6"
+            "id": "6",
+            "label": "Meter"
           },
           {
-            "label": "Square Meter",
-            "value": "7"
+            "id": "7",
+            "label": "Square Meter"
           },
           {
-            "label": "Cubic Meter",
-            "value": "8"
+            "id": "8",
+            "label": "Cubic Meter"
           }
         ],
         "validation": {
@@ -485,7 +484,7 @@
         "placeholder": "Click to select vendor",
         "required": true,
         "description": "Select vendor from popup picker",
-        "role":"title",
+        "role": "title",
         "targetSchema": "vendors",
         "validation": {
           "required": true
@@ -505,32 +504,32 @@
         "role": "status",
         "options": [
           {
+            "id": "pending",
             "label": "Pending",
-            "value": "pending",
             "icon": "Clock",
             "color": "default"
           },
           {
+            "id": "reviewed",
             "label": "Reviewed",
-            "value": "reviewed",
             "icon": "Eye",
             "color": "info"
           },
           {
+            "id": "quotation_added",
             "label": "Quotation Added",
-            "value": "quotation_added",
             "icon": "FileText",
             "color": "warning"
           },
           {
+            "id": "awarded",
             "label": "Awarded",
-            "value": "awarded",
             "icon": "CheckCircle",
             "color": "success"
           },
           {
+            "id": "rejected",
             "label": "Rejected",
-            "value": "rejected",
             "icon": "XCircle",
             "color": "destructive"
           }
@@ -676,44 +675,44 @@
         "role": "location",
         "options": [
           {
-            "label": "United States",
-            "value": "USA"
+            "id": "USA",
+            "label": "United States"
           },
           {
-            "label": "Canada",
-            "value": "CAN"
+            "id": "CAN",
+            "label": "Canada"
           },
           {
-            "label": "United Kingdom",
-            "value": "UK"
+            "id": "UK",
+            "label": "United Kingdom"
           },
           {
-            "label": "Germany",
-            "value": "DE"
+            "id": "DE",
+            "label": "Germany"
           },
           {
-            "label": "France",
-            "value": "FR"
+            "id": "FR",
+            "label": "France"
           },
           {
-            "label": "Japan",
-            "value": "JP"
+            "id": "JP",
+            "label": "Japan"
           },
           {
-            "label": "China",
-            "value": "CN"
+            "id": "CN",
+            "label": "China"
           },
           {
-            "label": "India",
-            "value": "IN"
+            "id": "IN",
+            "label": "India"
           },
           {
-            "label": "Turkey",
-            "value": "TR"
+            "id": "TR",
+            "label": "Turkey"
           },
           {
-            "label": "Other",
-            "value": "OTHER"
+            "id": "OTHER",
+            "label": "Other"
           }
         ],
         "validation": {
@@ -734,28 +733,28 @@
         "role": "badge",
         "options": [
           {
-            "label": "ISO 9001",
-            "value": "iso9001"
+            "id": "iso9001",
+            "label": "ISO 9001"
           },
           {
-            "label": "ISO 14001",
-            "value": "iso14001"
+            "id": "iso14001",
+            "label": "ISO 14001"
           },
           {
-            "label": "FDA Approved",
-            "value": "fda"
+            "id": "fda",
+            "label": "FDA Approved"
           },
           {
-            "label": "CE Marking",
-            "value": "ce"
+            "id": "ce",
+            "label": "CE Marking"
           },
           {
-            "label": "RoHS Compliant",
-            "value": "rohs"
+            "id": "rohs",
+            "label": "RoHS Compliant"
           },
           {
-            "label": "REACH Compliant",
-            "value": "reach"
+            "id": "reach",
+            "label": "REACH Compliant"
           }
         ],
         "colSpan": 2,
@@ -833,36 +832,36 @@
         "role": "badge",
         "options": [
           {
-            "label": "Technology",
-            "value": "technology"
+            "id": "technology",
+            "label": "Technology"
           },
           {
-            "label": "Manufacturing",
-            "value": "manufacturing"
+            "id": "manufacturing",
+            "label": "Manufacturing"
           },
           {
-            "label": "Services",
-            "value": "services"
+            "id": "services",
+            "label": "Services"
           },
           {
-            "label": "Logistics",
-            "value": "logistics"
+            "id": "logistics",
+            "label": "Logistics"
           },
           {
-            "label": "Healthcare",
-            "value": "healthcare"
+            "id": "healthcare",
+            "label": "Healthcare"
           },
           {
-            "label": "Finance",
-            "value": "finance"
+            "id": "finance",
+            "label": "Finance"
           },
           {
-            "label": "Education",
-            "value": "education"
+            "id": "education",
+            "label": "Education"
           },
           {
-            "label": "Retail",
-            "value": "retail"
+            "id": "retail",
+            "label": "Retail"
           }
         ],
         "validation": {
@@ -941,26 +940,26 @@
         "role": "status",
         "options": [
           {
+            "id": "ACTIVE",
             "label": "Active",
-            "value": "ACTIVE",
             "icon": "CheckCircle",
             "color": "success"
           },
           {
+            "id": "PENDING",
             "label": "Pending",
-            "value": "PENDING",
             "icon": "Clock",
             "color": "warning"
           },
           {
+            "id": "INACTIVE",
             "label": "Inactive",
-            "value": "INACTIVE",
             "icon": "XCircle",
             "color": "muted"
           },
           {
+            "id": "FORBIDDEN",
             "label": "Forbidden",
-            "value": "FORBIDDEN",
             "icon": "XCircle",
             "color": "destructive"
           }
@@ -1612,7 +1611,8 @@
         "fieldIds": [
           "quotation-date",
           "expiration-date",
-          "quotation-state"
+          "quotation-state",
+          "vendor"
         ]
       },
       {
@@ -1704,38 +1704,38 @@
         "role": "status",
         "options": [
           {
+            "id": "DRAFT",
             "label": "Draft",
-            "value": "DRAFT",
             "icon": "FileText",
             "color": "default"
           },
           {
+            "id": "SUBMITTED",
             "label": "Submitted",
-            "value": "SUBMITTED",
             "icon": "Send",
             "color": "info"
           },
           {
+            "id": "UNDER_REVIEW",
             "label": "Under Review",
-            "value": "UNDER_REVIEW",
             "icon": "Clock",
             "color": "warning"
           },
           {
+            "id": "ACCEPTED",
             "label": "Accepted",
-            "value": "ACCEPTED",
             "icon": "CheckCircle",
             "color": "success"
           },
           {
+            "id": "REJECTED",
             "label": "Rejected",
-            "value": "REJECTED",
             "icon": "XCircle",
             "color": "destructive"
           },
           {
+            "id": "EXPIRED",
             "label": "Expired",
-            "value": "EXPIRED",
             "icon": "CalendarX",
             "color": "muted"
           }
@@ -1757,28 +1757,28 @@
         "required": true,
         "options": [
           {
-            "label": "USD - US Dollar",
-            "value": "USD"
+            "id": "USD",
+            "label": "USD - US Dollar"
           },
           {
-            "label": "EUR - Euro",
-            "value": "EUR"
+            "id": "EUR",
+            "label": "EUR - Euro"
           },
           {
-            "label": "GBP - British Pound",
-            "value": "GBP"
+            "id": "GBP",
+            "label": "GBP - British Pound"
           },
           {
-            "label": "JPY - Japanese Yen",
-            "value": "JPY"
+            "id": "JPY",
+            "label": "JPY - Japanese Yen"
           },
           {
-            "label": "IRR - Iranian Rial",
-            "value": "IRR"
+            "id": "IRR",
+            "label": "IRR - Iranian Rial"
           },
           {
-            "label": "AED - UAE Dirham",
-            "value": "AED"
+            "id": "AED",
+            "label": "AED - UAE Dirham"
           }
         ],
         "validation": {
@@ -1798,24 +1798,24 @@
         "required": false,
         "options": [
           {
-            "label": "Road",
-            "value": "ROAD"
+            "id": "ROAD",
+            "label": "Road"
           },
           {
-            "label": "Air",
-            "value": "AIR"
+            "id": "AIR",
+            "label": "Air"
           },
           {
-            "label": "Sea",
-            "value": "SEA"
+            "id": "SEA",
+            "label": "Sea"
           },
           {
-            "label": "Rail",
-            "value": "RAIL"
+            "id": "RAIL",
+            "label": "Rail"
           },
           {
-            "label": "Express",
-            "value": "EXPRESS"
+            "id": "EXPRESS",
+            "label": "Express"
           }
         ],
         "colSpan": 1,
@@ -1832,24 +1832,24 @@
         "required": false,
         "options": [
           {
-            "label": "Direct Purchase",
-            "value": "DIRECT"
+            "id": "DIRECT",
+            "label": "Direct Purchase"
           },
           {
-            "label": "Tender",
-            "value": "TENDER"
+            "id": "TENDER",
+            "label": "Tender"
           },
           {
-            "label": "Auction",
-            "value": "AUCTION"
+            "id": "AUCTION",
+            "label": "Auction"
           },
           {
-            "label": "Framework Agreement",
-            "value": "FRAMEWORK"
+            "id": "FRAMEWORK",
+            "label": "Framework Agreement"
           },
           {
-            "label": "Negotiation",
-            "value": "NEGOTIATION"
+            "id": "NEGOTIATION",
+            "label": "Negotiation"
           }
         ],
         "colSpan": 1,
@@ -1866,28 +1866,28 @@
         "required": false,
         "options": [
           {
-            "label": "Cash",
-            "value": "CASH"
+            "id": "CASH",
+            "label": "Cash"
           },
           {
-            "label": "Bank Transfer",
-            "value": "BANK_TRANSFER"
+            "id": "BANK_TRANSFER",
+            "label": "Bank Transfer"
           },
           {
-            "label": "Letter of Credit",
-            "value": "LETTER_OF_CREDIT"
+            "id": "LETTER_OF_CREDIT",
+            "label": "Letter of Credit"
           },
           {
-            "label": "Documentary Collection",
-            "value": "DOCUMENTARY_COLLECTION"
+            "id": "DOCUMENTARY_COLLECTION",
+            "label": "Documentary Collection"
           },
           {
-            "label": "Open Account",
-            "value": "OPEN_ACCOUNT"
+            "id": "OPEN_ACCOUNT",
+            "label": "Open Account"
           },
           {
-            "label": "Credit Card",
-            "value": "CREDIT_CARD"
+            "id": "CREDIT_CARD",
+            "label": "Credit Card"
           }
         ],
         "colSpan": 1,
@@ -2541,26 +2541,26 @@
         "required": false,
         "options": [
           {
+            "id": "male",
             "label": "Male",
-            "value": "male",
             "icon": "User",
             "color": "info"
           },
           {
+            "id": "female",
             "label": "Female",
-            "value": "female",
             "icon": "User",
             "color": "warning"
           },
           {
+            "id": "other",
             "label": "Other",
-            "value": "other",
             "icon": "UserCircle",
             "color": "default"
           },
           {
+            "id": "prefer_not_to_say",
             "label": "Prefer not to say",
-            "value": "prefer_not_to_say",
             "icon": "Lock",
             "color": "muted"
           }
@@ -2613,28 +2613,28 @@
         "defaultValue": "en",
         "options": [
           {
-            "label": "English",
-            "value": "en"
+            "id": "en",
+            "label": "English"
           },
           {
-            "label": "Spanish",
-            "value": "es"
+            "id": "es",
+            "label": "Spanish"
           },
           {
-            "label": "French",
-            "value": "fr"
+            "id": "fr",
+            "label": "French"
           },
           {
-            "label": "German",
-            "value": "de"
+            "id": "de",
+            "label": "German"
           },
           {
-            "label": "Arabic",
-            "value": "ar"
+            "id": "ar",
+            "label": "Arabic"
           },
           {
-            "label": "Persian",
-            "value": "fa"
+            "id": "fa",
+            "label": "Persian"
           }
         ],
         "colSpan": 1,
@@ -2652,44 +2652,44 @@
         "defaultValue": "Asia/Tehran",
         "options": [
           {
-            "label": "Eastern Time (ET)",
-            "value": "America/New_York"
+            "id": "America/New_York",
+            "label": "Eastern Time (ET)"
           },
           {
-            "label": "Central Time (CT)",
-            "value": "America/Chicago"
+            "id": "America/Chicago",
+            "label": "Central Time (CT)"
           },
           {
-            "label": "Mountain Time (MT)",
-            "value": "America/Denver"
+            "id": "America/Denver",
+            "label": "Mountain Time (MT)"
           },
           {
-            "label": "Pacific Time (PT)",
-            "value": "America/Los_Angeles"
+            "id": "America/Los_Angeles",
+            "label": "Pacific Time (PT)"
           },
           {
-            "label": "UTC",
-            "value": "UTC"
+            "id": "UTC",
+            "label": "UTC"
           },
           {
-            "label": "Europe/London",
-            "value": "Europe/London"
+            "id": "Europe/London",
+            "label": "Europe/London"
           },
           {
-            "label": "Europe/Berlin",
-            "value": "Europe/Berlin"
+            "id": "Europe/Berlin",
+            "label": "Europe/Berlin"
           },
           {
-            "label": "Asia/Dubai",
-            "value": "Asia/Dubai"
+            "id": "Asia/Dubai",
+            "label": "Asia/Dubai"
           },
           {
-            "label": "Asia/Tehran",
-            "value": "Asia/Tehran"
+            "id": "Asia/Tehran",
+            "label": "Asia/Tehran"
           },
           {
-            "label": "Asia/Tokyo",
-            "value": "Asia/Tokyo"
+            "id": "Asia/Tokyo",
+            "label": "Asia/Tokyo"
           }
         ],
         "colSpan": 1,

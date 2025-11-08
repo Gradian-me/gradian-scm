@@ -5,9 +5,10 @@ import { FormElementProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { extractIds, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 
 export interface CheckboxListProps extends FormElementProps {
-  options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
+  options?: Array<{ id?: string; label: string; value?: string; disabled?: boolean; icon?: string; color?: string }>;
 }
 
 export const CheckboxList = forwardRef<FormElementRef, CheckboxListProps>(
@@ -29,10 +30,15 @@ export const CheckboxList = forwardRef<FormElementRef, CheckboxListProps>(
     ref
   ) => {
     // Ensure value is an array
-    const currentValue = Array.isArray(value) ? value : [];
+    const currentValue = extractIds(value);
 
     // Get options from config if not provided directly
-    const checkboxOptions = options.length > 0 ? options : (config.options || []);
+    const checkboxOptions: CheckboxListProps['options'] =
+      options.length > 0
+        ? options
+        : ((config.options as CheckboxListProps['options']) ?? []);
+
+    const normalizedOptions: NormalizedOption[] = normalizeOptionArray(checkboxOptions);
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -53,10 +59,13 @@ export const CheckboxList = forwardRef<FormElementRef, CheckboxListProps>(
       setValue: (newValue) => onChange?.(newValue),
     }));
 
-    const handleCheckedChange = (optionValue: string, checked: boolean) => {
+    const handleCheckedChange = (
+      option: NormalizedOption,
+      checked: boolean
+    ) => {
       const newValue = checked
-        ? [...currentValue, optionValue]
-        : currentValue.filter((v: string) => v !== optionValue);
+        ? Array.from(new Set([...currentValue, option.id]))
+        : currentValue.filter((v: string) => v !== option.id);
       onChange?.(newValue);
     };
 
@@ -80,17 +89,17 @@ export const CheckboxList = forwardRef<FormElementRef, CheckboxListProps>(
           "grid gap-2",
           "grid-cols-1 md:grid-cols-2"
         )}>
-          {checkboxOptions.map((option: { label: string; value: string; disabled?: boolean; icon?: string; color?: string }) => {
-            const isChecked = currentValue.includes(option.value);
-            const optionId = `${fieldName}-${option.value}`;
+          {normalizedOptions.map((option) => {
+            const isChecked = currentValue.includes(option.id);
+            const optionId = `${fieldName}-${option.id}`;
 
             return (
-              <div key={option.value} className="flex items-center space-x-2">
+              <div key={option.id} className="flex items-center space-x-2">
                 <Checkbox
                   id={optionId}
                   name={fieldName}
                   checked={isChecked}
-                  onCheckedChange={(checked) => handleCheckedChange(option.value, checked as boolean)}
+                  onCheckedChange={(checked) => handleCheckedChange(option, checked as boolean)}
                   onBlur={onBlur}
                   onFocus={onFocus}
                   disabled={disabled || option.disabled}

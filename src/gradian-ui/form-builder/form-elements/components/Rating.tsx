@@ -3,12 +3,47 @@ import { Star } from 'lucide-react';
 import { cn } from '../../../shared/utils';
 
 export interface RatingProps {
-  value: number;
+  value: number | string | any;
   maxValue?: number;
   size?: 'sm' | 'md' | 'lg';
   showValue?: boolean;
   className?: string;
 }
+
+const normalizeRatingValue = (rawValue: any): number => {
+  if (rawValue === null || rawValue === undefined) {
+    return 0;
+  }
+
+  if (typeof rawValue === 'number') {
+    return Number.isFinite(rawValue) ? rawValue : 0;
+  }
+
+  if (Array.isArray(rawValue)) {
+    return normalizeRatingValue(rawValue[0]);
+  }
+
+  if (typeof rawValue === 'object') {
+    if ('value' in rawValue) {
+      return normalizeRatingValue((rawValue as any).value);
+    }
+    if ('rating' in rawValue) {
+      return normalizeRatingValue((rawValue as any).rating);
+    }
+    if ('score' in rawValue) {
+      return normalizeRatingValue((rawValue as any).score);
+    }
+    if ('label' in rawValue) {
+      return normalizeRatingValue((rawValue as any).label);
+    }
+    if ('id' in rawValue) {
+      return normalizeRatingValue((rawValue as any).id);
+    }
+  }
+
+  const parsed = Number.parseFloat(String(rawValue));
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
 
 export const Rating: React.FC<RatingProps> = ({
   value = 0,
@@ -17,6 +52,8 @@ export const Rating: React.FC<RatingProps> = ({
   showValue = false,
   className
 }) => {
+  const safeValue = normalizeRatingValue(value);
+
   const sizeClasses = {
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
@@ -29,8 +66,8 @@ export const Rating: React.FC<RatingProps> = ({
     lg: 'text-base'
   };
 
-  const fullStars = Math.floor(value);
-  const hasHalfStar = value % 1 >= 0.5;
+  const fullStars = Math.floor(safeValue);
+  const hasHalfStar = safeValue % 1 >= 0.5;
 
   return (
     <div className={cn("flex items-center gap-0.2", className)}>
@@ -69,7 +106,7 @@ export const Rating: React.FC<RatingProps> = ({
       })}
       {showValue && (
         <span className={cn("ml-1 text-gray-500", textSizeClasses[size])}>
-          {value.toFixed(1)}
+          {safeValue.toFixed(1)}
         </span>
       )}
     </div>

@@ -4,6 +4,7 @@ import React from 'react';
 import { TableColumn } from '../types';
 import { getCellValue } from '../utils';
 import { cn } from '../../../shared/utils';
+import { extractLabels } from '../../../form-builder/form-elements/utils/option-normalizer';
 
 export interface TableBodyProps<T = any> {
   data: T[];
@@ -43,7 +44,7 @@ export function TableBody<T = any>({
     cn(
       'px-4 py-3 text-xs text-gray-900',
       // Use better word breaking for columns with maxWidth - break on words, not characters
-      column.maxWidth && 'break-words',
+      column.maxWidth && 'wrap-break-word',
       column.align === 'center' && 'text-center',
       column.align === 'right' && 'text-right',
       // For sticky columns, match the row background for zebra striping and selection
@@ -150,7 +151,30 @@ export function TableBody<T = any>({
                   {column.render ? (
                     column.render(value, row, rowIndex)
                   ) : (
-                    <span className="block">{value != null ? String(value) : '—'}</span>
+                    <span className="block">
+                      {(() => {
+                        if (value === null || value === undefined) {
+                          return '—';
+                        }
+                        const isStructured = Array.isArray(value) || (typeof value === 'object' && value !== null);
+                        if (isStructured) {
+                          const labels = extractLabels(value);
+                          if (labels.length > 0) {
+                            return labels.join(', ');
+                          }
+                          if (Array.isArray(value)) {
+                            return value.map(entry => {
+                              if (entry && typeof entry === 'object') {
+                                return entry.label || entry.name || entry.id || JSON.stringify(entry);
+                              }
+                              return String(entry);
+                            }).join(', ');
+                          }
+                          return JSON.stringify(value);
+                        }
+                        return String(value);
+                      })()}
+                    </span>
                   )}
                   </div>
                 </td>

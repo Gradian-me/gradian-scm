@@ -10,6 +10,7 @@ import { cn } from '../../../../lib/utils';
 import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { findBadgeOption, getBadgeMetadata, BadgeOption } from './badge-utils';
 import { IconRenderer } from '../../../../shared/utils/icon-renderer';
+import { normalizeOptionArray, NormalizedOption } from './option-normalizer';
 
 export type BadgeItem = {
   id: string;
@@ -17,6 +18,8 @@ export type BadgeItem = {
   icon?: React.ReactNode;
   color?: string;
   role?: string;
+  original?: any;
+  normalized?: NormalizedOption;
 };
 
 export interface BadgeRendererProps {
@@ -41,7 +44,7 @@ export interface BadgeRendererProps {
    * Badge variant
    * @default "outline"
    */
-  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
+  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info" | "muted";
   
   /**
    * Whether to animate the badges
@@ -53,6 +56,16 @@ export interface BadgeRendererProps {
    * Custom renderer for badge content
    */
   renderBadge?: (item: string | BadgeItem, index: number) => React.ReactNode;
+
+  /**
+   * When true, ignore item-level color/icon styling and always use badgeVariant
+   */
+  enforceVariant?: boolean;
+
+  /**
+   * Callback when a badge is clicked
+   */
+  onBadgeClick?: (item: BadgeItem, event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 /**
@@ -65,7 +78,9 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
   className = '',
   badgeVariant = 'outline',
   animate = true,
-  renderBadge
+  renderBadge,
+  enforceVariant = false,
+  onBadgeClick,
 }) => {
   // Early return if no items
   if (!items || items.length === 0) {
@@ -80,6 +95,74 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
   const filteredItems = isObjectArray
     ? (items as BadgeItem[]).filter(item => !item.role || item.role === 'badge')
     : items;
+
+const VALID_BADGE_VARIANTS = new Set([
+  'default',
+  'secondary',
+  'destructive',
+  'success',
+  'warning',
+  'info',
+  'outline',
+  'gradient',
+  'muted',
+]);
+
+const isValidBadgeVariant = (color?: string): boolean => {
+  if (!color) return false;
+  return VALID_BADGE_VARIANTS.has(color);
+};
+
+const isHexColor = (color: string): boolean => color.startsWith('#');
+
+const isTailwindColorClass = (color: string): boolean =>
+  /(?:^|\s)(?:bg-|text-|border-)[\w:-]+/.test(color);
+
+const getBadgePresentation = (color?: string) => {
+  if (!color) {
+    return {
+      variant: undefined as string | undefined,
+      className: 'border border-gray-200 bg-gray-50 text-gray-700',
+      style: undefined as React.CSSProperties | undefined,
+    };
+  }
+
+  if (isValidBadgeVariant(color)) {
+    return {
+      variant: color,
+      className: '',
+      style: undefined as React.CSSProperties | undefined,
+    };
+  }
+
+  if (isTailwindColorClass(color)) {
+    const hasTextColor = /(?:^|\s)text-/.test(color);
+    const textClass = hasTextColor ? '' : 'text-white';
+    return {
+      variant: undefined as string | undefined,
+      className: cn('border', textClass, color),
+      style: undefined as React.CSSProperties | undefined,
+    };
+  }
+
+  if (isHexColor(color)) {
+    return {
+      variant: undefined as string | undefined,
+      className: '',
+      style: {
+        backgroundColor: color,
+        color: '#fff',
+        border: 'none',
+      } as React.CSSProperties,
+    };
+  }
+
+  return {
+    variant: undefined as string | undefined,
+    className: color,
+    style: undefined as React.CSSProperties | undefined,
+  };
+};
 
   // Determine how many badges to show
   // If maxBadges is 0, show all badges
@@ -101,27 +184,41 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
     const itemId = isItemObject ? (item as BadgeItem).id : `${item}-${idx}`;
     const itemLabel = isItemObject ? (item as BadgeItem).label : item as string;
     const itemIcon = isItemObject ? (item as BadgeItem).icon : null;
-    const itemColor = isItemObject ? (item as BadgeItem).color : null;
+    const itemColor = !enforceVariant && isItemObject ? (item as BadgeItem).color : null;
     
     // Use custom renderer if provided
+    const badgePresentation = enforceVariant
+      ? { variant: undefined, className: '', style: undefined }
+      : getBadgePresentation(itemColor ?? undefined);
+    const badgeObject: BadgeItem = isItemObject
+      ? (item as BadgeItem)
+      : {
+          id: itemId,
+          label: itemLabel,
+        };
     const badgeContent = renderBadge ? renderBadge(item, idx) : (
-      <>
-        {itemIcon && <span className="mr-1">{itemIcon}</span>}
-        {itemLabel}
-      </>
+      <span className="inline-flex items-center gap-1.5">
+        {itemIcon && <span className="flex items-center">{itemIcon}</span>}
+        <span>{itemLabel}</span>
+      </span>
     );
     
-    // Apply custom color if provided, otherwise use the variant
-    const badgeStyle = itemColor ? { backgroundColor: itemColor, borderColor: itemColor } : {};
     const badgeClasses = cn(
-      "text-[0.625rem] px-2 py-0 transition-transform duration-100 whitespace-nowrap",
-      itemColor && "border text-white"
+      "inline-flex items-center gap-1.5 px-2 py-0.5 text-[0.625rem] transition-transform duration-100 whitespace-nowrap",
+      badgePresentation.className
     );
     
+    const handleItemClick = (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+      if (onBadgeClick) {
+        onBadgeClick(badgeObject, event);
+      }
+    };
+
       return (
         <motion.div
           key={itemId}
-          className="flex-shrink-0"
+          className="shrink-0"
           initial={{ opacity: 0, scale: 0.8, y: 5 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ 
@@ -133,11 +230,12 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
             scale: 1.05,
             transition: { duration: 0.1, ease: "easeOut" }
           }}
+          onClick={handleItemClick}
         >
           <Badge 
-            variant={itemColor ? undefined : badgeVariant} 
+            variant={enforceVariant ? badgeVariant : (badgePresentation.variant as any) ?? (itemColor ? undefined : badgeVariant)} 
             className={badgeClasses}
-            style={badgeStyle}
+            style={enforceVariant ? undefined : badgePresentation.style}
           >
             {badgeContent}
           </Badge>
@@ -157,7 +255,7 @@ export const BadgeRenderer: React.FC<BadgeRendererProps> = ({
     
       return (
         <motion.div
-          className="flex-shrink-0"
+          className="shrink-0"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ 
@@ -216,6 +314,16 @@ export interface BadgeViewerProps {
    * CSS class name
    */
   className?: string;
+
+  /**
+   * When true, ignore option color/icon styling and use badgeVariant instead
+   */
+  enforceVariant?: boolean;
+
+  /**
+   * Callback when a badge is clicked
+   */
+  onBadgeClick?: (item: BadgeItem) => void;
 }
 
 /**
@@ -224,33 +332,73 @@ export interface BadgeViewerProps {
 const convertValueToBadgeItems = (
   field: FormField,
   value: any
-): Array<{ id: string; label: string; icon?: React.ReactNode; color?: string }> => {
-  if (!Array.isArray(value)) {
-    // If not an array, wrap in array
-    return value ? [{ id: String(value), label: String(value) }] : [];
+): Array<BadgeItem> => {
+  const valueArray = Array.isArray(value) ? value : (value === undefined || value === null ? [] : [value]);
+
+  if (valueArray.length === 0) {
+    return [];
   }
 
-  // If no options, return as simple strings
-  if (!field.options || !Array.isArray(field.options)) {
-    return value.map((v, idx) => ({ id: `${v}-${idx}`, label: String(v) }));
-  }
+  const fieldOptions = Array.isArray(field.options) ? field.options : undefined;
 
-  // Map option values to badge items with metadata
-  return value.map((optionValue: string) => {
-    const option = findBadgeOption(optionValue, field.options as BadgeOption[]);
-    if (option) {
-      const metadata = getBadgeMetadata(optionValue, field.options as BadgeOption[]);
+  if (!fieldOptions) {
+    return valueArray.map((entry, idx) => {
+      const normalized = normalizeOptionArray(entry);
+      const firstEntry = normalized[0];
+      const id = firstEntry?.id ?? String((entry as any)?.id ?? entry ?? idx);
+      const label = firstEntry?.label ?? String((entry as any)?.label ?? entry);
+      const icon = firstEntry?.icon;
+      const color = firstEntry?.color;
       return {
-        id: option.value,
-        label: option.label,
-        icon: metadata.icon ? <IconRenderer iconName={metadata.icon} className="h-3 w-3" /> : undefined,
-        color: metadata.color,
+        id,
+        label,
+        icon: icon ? <IconRenderer iconName={icon} className="h-3 w-3" /> : undefined,
+        color,
+        original: entry,
+        normalized: firstEntry,
+      };
+    });
+  }
+
+  return valueArray.map((optionValue: any, idx: number) => {
+    const normalizedValue: NormalizedOption | undefined = normalizeOptionArray(optionValue)[0];
+    const option = findBadgeOption(optionValue, field.options as BadgeOption[]);
+    const metadata = getBadgeMetadata(optionValue, field.options as BadgeOption[]);
+
+    if (option || normalizedValue) {
+      const id = option?.id ?? option?.value ?? normalizedValue?.id ?? normalizedValue?.value ?? `${idx}`;
+      const label = option?.label ?? normalizedValue?.label ?? String(optionValue);
+      const iconName = normalizedValue?.icon ?? metadata.icon;
+      const color = normalizedValue?.color ?? metadata.color;
+      return {
+        id,
+        label,
+        icon: iconName ? <IconRenderer iconName={iconName} className="h-3 w-3" /> : undefined,
+        color,
+        original: optionValue,
+        normalized: normalizedValue,
       };
     }
-    // Fallback to raw value if option not found
+
+    const fallbackLabel = typeof optionValue === 'string' || typeof optionValue === 'number'
+      ? String(optionValue)
+      : (() => {
+          if (optionValue && typeof optionValue === 'object') {
+            if ('label' in optionValue && optionValue.label) {
+              return String(optionValue.label);
+            }
+            if ('id' in optionValue && optionValue.id) {
+              return String(optionValue.id);
+            }
+          }
+          return `${idx}`;
+        })();
+
     return {
-      id: optionValue,
-      label: String(optionValue),
+      id: fallbackLabel,
+      label: fallbackLabel,
+      original: optionValue,
+      normalized: normalizedValue,
     };
   });
 };
@@ -266,6 +414,8 @@ export const BadgeViewer: React.FC<BadgeViewerProps> = ({
   badgeVariant = 'outline',
   animate = true,
   className,
+  enforceVariant = false,
+  onBadgeClick,
 }) => {
   // Handle null/undefined/empty values
   if (!value || (Array.isArray(value) && value.length === 0)) {
@@ -289,6 +439,10 @@ export const BadgeViewer: React.FC<BadgeViewerProps> = ({
       badgeVariant={badgeVariant}
       animate={animate}
       className={className}
+      onBadgeClick={(item, event) => {
+        onBadgeClick?.(item);
+      }}
+      enforceVariant={enforceVariant}
     />
   );
 };

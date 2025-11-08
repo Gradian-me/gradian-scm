@@ -68,6 +68,23 @@ const formatDateValue = (value: any): string => {
 };
 
 /**
+ * Extract labels from an array of values, prioritizing 'label' property.
+ */
+const extractLabels = (values: any[]): string[] => {
+  const labels: string[] = [];
+  for (const item of values) {
+    if (typeof item === 'string') {
+      labels.push(item);
+    } else if (typeof item === 'object' && item !== null && 'label' in item) {
+      labels.push(item.label);
+    } else if (typeof item === 'object' && item !== null && 'name' in item) {
+      labels.push(item.name);
+    }
+  }
+  return labels;
+};
+
+/**
  * Render a field value based on its type
  */
 export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldValueProps): React.ReactNode => {
@@ -127,41 +144,58 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
     }
   }
   
-  // Handle other object types
-  if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-    const metrics = Object.entries(value).map(([key, val]) => {
-      // Convert to Pascal Case with spaces
-      const pascalCaseLabel = key
-        .replace(/([A-Z])/g, ' $1')
-        .trim()
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-        
-      return {
-        id: key,
-        label: pascalCaseLabel,
-        value: typeof val === 'number' || typeof val === 'string' ? val : String(val), // Ensure value is string or number
-        unit: typeof val === 'number' && field?.units?.[key] ? field.units[key] : 
-              typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
-              typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%'
-      };
-    });
-    
-    return withTooltip(
-      <DynamicMetricRenderer 
-        metrics={metrics}
-        maxMetrics={maxMetrics}
-        badgeVariant="outline"
-        className="mt-1"
-      />,
-      field
-    );
+  // Handle checkbox/list-like fields first
+  if (Array.isArray(value)) {
+    const labels = extractLabels(value);
+    if (labels.length > 0) {
+      return withTooltip(
+        <div className="flex flex-wrap gap-1">
+          {labels.slice(0, 2).map((label: string, idx: number) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{
+                duration: 0.3,
+                delay: idx * 0.05,
+                ease: [0.25, 0.46, 0.45, 0.94]
+              }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <Badge variant="secondary" className="text-xs">
+                {label}
+              </Badge>
+            </motion.div>
+          ))}
+          {labels.length > 2 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{
+                duration: 0.3,
+                delay: 0.1,
+                ease: [0.25, 0.46, 0.45, 0.94]
+              }}
+            >
+              <Badge variant="secondary" className="text-xs">
+                +{labels.length - 2}
+              </Badge>
+            </motion.div>
+          )}
+        </div>,
+        field
+      );
+    }
   }
-  
+
+  // Handle picker/select values passed as array of option objects
+  const normalizedValueArray = Array.isArray(value) ? value : [value];
+  const normalizedLabels = extractLabels(normalizedValueArray);
+  const normalizedSingle = normalizedLabels.length > 0 ? normalizedLabels[0] : undefined;
+
   // Check if field has a custom icon defined
   const customIcon = field?.icon ? <IconRenderer iconName={field.icon} className="h-4 w-4 shrink-0" /> : null;
-  
+
   // Handle date and datetime fields
   if (field.type === 'date' || field.type === 'datetime-local') {
     const dateValue = formatDateValue(value);
@@ -179,7 +213,7 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       return withTooltip(
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {customIcon || <IconRenderer iconName="Mail" className="h-4 w-4 shrink-0" />}
-          <span className="truncate">{value}</span>
+          <span className="truncate">{normalizedSingle ?? value}</span>
         </div>,
         field
       );
@@ -187,14 +221,14 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       return withTooltip(
         <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
           {customIcon || <IconRenderer iconName="Phone" className="h-4 w-4 shrink-0" />}
-          <span>{value}</span>
+          <span>{normalizedSingle ?? value}</span>
         </div>,
         field
       );
     case 'textarea':
       return withTooltip(
         <div className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          <span className="line-clamp-2">{value}</span>
+          <span className="line-clamp-2">{normalizedSingle ?? value}</span>
         </div>,
         field
       );
@@ -284,11 +318,12 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
           field
         );
       }
-      return withTooltip(
-        <span className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {displayValue}
-        </span>,
-        field
+      const stringValue = String(value);
+      const isUrl = stringValue.startsWith('http://') || stringValue.startsWith('https://') || stringValue.startsWith('//');
+      return (
+        <span className={isUrl || stringValue.length > 50 ? "overflow-wrap-anywhere" : undefined}>
+          {normalizedSingle ?? stringValue}
+        </span>
       );
   }
 };

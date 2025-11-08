@@ -32,7 +32,8 @@ export interface ApiResponse<T = any> {
 }
 
 export interface SelectOption {
-  value: string;
+  id: string;
+  value?: string;
   label: string;
   disabled?: boolean;
 }

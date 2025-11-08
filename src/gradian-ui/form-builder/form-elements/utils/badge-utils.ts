@@ -1,9 +1,12 @@
 /**
  * Badge option interface
  */
+import { normalizeOptionArray, normalizeOptionId, OptionValueInput } from './option-normalizer';
+
 export interface BadgeOption {
+  id?: string;
   label: string;
-  value: string;
+  value?: string;
   icon?: string;
   color?: string;
   disabled?: boolean;
@@ -26,15 +29,17 @@ export type BadgeColor = "default" | "secondary" | "outline" | "destructive" | "
 /**
  * Find badge option from options array by value
  */
-export const findBadgeOption = (value: string, options?: BadgeOption[]): BadgeOption | undefined => {
+export const findBadgeOption = (value: OptionValueInput, options?: BadgeOption[]): BadgeOption | undefined => {
   if (!options || !Array.isArray(options)) return undefined;
-  return options.find(option => option.value === value);
+  const targetId = normalizeOptionId(value);
+  if (!targetId) return undefined;
+  return options.find(option => normalizeOptionId(option as OptionValueInput) === targetId);
 };
 
 /**
  * Get badge color variant from options
  */
-export const getBadgeColor = (value: string, options?: BadgeOption[]): BadgeColor => {
+export const getBadgeColor = (value: OptionValueInput, options?: BadgeOption[]): BadgeColor => {
   const option = findBadgeOption(value, options);
   
   if (option?.color) {
@@ -48,7 +53,7 @@ export const getBadgeColor = (value: string, options?: BadgeOption[]): BadgeColo
 /**
  * Get badge icon name from options
  */
-export const getBadgeIcon = (value: string, options?: BadgeOption[]): string => {
+export const getBadgeIcon = (value: OptionValueInput, options?: BadgeOption[]): string => {
   const option = findBadgeOption(value, options);
   
   if (option?.icon) {
@@ -62,21 +67,30 @@ export const getBadgeIcon = (value: string, options?: BadgeOption[]): string => 
 /**
  * Get badge label from options
  */
-export const getBadgeLabel = (value: string, options?: BadgeOption[]): string => {
+export const getBadgeLabel = (value: OptionValueInput, options?: BadgeOption[]): string => {
   const option = findBadgeOption(value, options);
   
   if (option?.label) {
     return option.label;
   }
   
-  // Return the value itself if no label found
-  return value;
+  const normalizedOptions = normalizeOptionArray(value);
+  if (normalizedOptions.length > 0) {
+    return normalizedOptions[0].label ?? normalizedOptions[0].id ?? '';
+  }
+  
+  const normalizedId = normalizeOptionId(value);
+  if (normalizedId) {
+    return normalizedId;
+  }
+  
+  return String(value ?? '');
 };
 
 /**
  * Get complete badge metadata from options
  */
-export const getBadgeMetadata = (value: string, options?: BadgeOption[]): BadgeMetadata => {
+export const getBadgeMetadata = (value: OptionValueInput, options?: BadgeOption[]): BadgeMetadata => {
   const option = findBadgeOption(value, options);
   
   if (option) {
@@ -103,13 +117,14 @@ export interface BadgeConfig {
 /**
  * Get complete badge configuration with all properties
  */
-export const getBadgeConfig = (value: string, options?: BadgeOption[]): BadgeConfig => {
+export const getBadgeConfig = (value: OptionValueInput, options?: BadgeOption[]): BadgeConfig => {
+  const normalizedValue = normalizeOptionId(value) ?? '';
   const label = getBadgeLabel(value, options);
   const icon = getBadgeIcon(value, options);
   const color = getBadgeColor(value, options);
   
   return {
-    value,
+    value: normalizedValue,
     label,
     icon,
     color,
@@ -120,15 +135,15 @@ export const getBadgeConfig = (value: string, options?: BadgeOption[]): BadgeCon
  * Legacy function names for backward compatibility with status-specific use cases
  * These will be deprecated but kept for now
  */
-export const getStatusColor = (status: string, options?: BadgeOption[]): BadgeColor => {
+export const getStatusColor = (status: OptionValueInput, options?: BadgeOption[]): BadgeColor => {
   return getBadgeColor(status, options);
 };
 
-export const getStatusIcon = (status: string, options?: BadgeOption[]): string => {
+export const getStatusIcon = (status: OptionValueInput, options?: BadgeOption[]): string => {
   return getBadgeIcon(status, options);
 };
 
-export const getStatusMetadata = (status: string, options?: BadgeOption[]): BadgeMetadata => {
+export const getStatusMetadata = (status: OptionValueInput, options?: BadgeOption[]): BadgeMetadata => {
   return getBadgeMetadata(status, options);
 };
 
@@ -140,7 +155,10 @@ export const findStatusFieldOptions = (formSchema: any): BadgeOption[] | undefin
   
   for (const field of formSchema.fields) {
     if (field.role === 'status' && field.options) {
-      return field.options as BadgeOption[];
+      const normalizedOptions = normalizeOptionArray(field.options).map(option => ({
+        ...option,
+      }));
+      return normalizedOptions as BadgeOption[];
     }
   }
   return undefined;

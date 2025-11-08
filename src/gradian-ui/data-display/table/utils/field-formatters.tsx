@@ -4,6 +4,7 @@ import { BadgeViewer } from '@/gradian-ui/form-builder/form-elements/utils/badge
 import { Badge } from '@/gradian-ui/form-builder/form-elements/components/Badge';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../../utils';
+import { normalizeOptionArray } from '@/gradian-ui/form-builder/form-elements/utils/option-normalizer';
 
 export const getFieldValue = (field: any, row: any): any => {
   if (!field || !row) return null;
@@ -40,9 +41,16 @@ export const formatFieldValue = (
     return <span className="text-gray-400">—</span>;
   }
 
+  const normalizedOptions = normalizeOptionArray(value);
+  const hasStructuredOptions = normalizedOptions.length > 0 && (
+    Array.isArray(value) ||
+    (typeof value === 'object' && value !== null)
+  );
+
   if (field?.type === 'picker' && field.targetSchema && row) {
-    if (typeof value === 'object' && value !== null && value.id && value.label) {
-      return <span>{String(value.label)}</span>;
+    if (normalizedOptions.length > 0) {
+      const primaryOption = normalizedOptions[0];
+      return <span>{String(primaryOption.label ?? primaryOption.id)}</span>;
     }
 
     const resolvedKey = `_${field.name}_resolved`;
@@ -59,15 +67,22 @@ export const formatFieldValue = (
 
   if (field?.role === 'status') {
     const statusOptions = field.options || [];
-    const badgeConfig = getBadgeConfig(String(value), statusOptions);
+    const primaryOption = normalizedOptions[0];
+    const statusValue = primaryOption?.id ?? String(
+      Array.isArray(value) ? value[0] : value
+    );
+    const badgeConfig = getBadgeConfig(statusValue, statusOptions);
+    const badgeColor = primaryOption?.color ?? badgeConfig.color;
+    const badgeIcon = primaryOption?.icon ?? badgeConfig.icon;
+    const badgeLabel = primaryOption?.label ?? badgeConfig.label;
     return (
       <div className="inline-flex items-center whitespace-nowrap">
         <Badge
-          variant={mapBadgeColorToVariant(badgeConfig.color)}
+          variant={mapBadgeColorToVariant(badgeColor)}
           className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] leading-tight w-auto whitespace-nowrap"
         >
-          {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-2.5 w-2.5" />}
-          <span>{badgeConfig.label}</span>
+          {badgeIcon && <IconRenderer iconName={badgeIcon} className="h-2.5 w-2.5" />}
+          <span>{badgeLabel}</span>
         </Badge>
       </div>
     );
@@ -138,11 +153,25 @@ export const formatFieldValue = (
       }
     case 'array':
     case 'checkbox':
+      if (normalizedOptions.length > 0) {
+        const labels = normalizedOptions.map(opt => opt.label ?? opt.id).filter(Boolean);
+        return <span>{labels.join(', ')}</span>;
+      }
       if (Array.isArray(value)) {
         return <span>{value.join(', ')}</span>;
       }
       return <span>{String(value)}</span>;
     default:
+      if (hasStructuredOptions) {
+        const labels = normalizedOptions.map(opt => opt.label ?? opt.id).filter(Boolean);
+        if (labels.length > 0) {
+          return <span>{labels.join(', ')}</span>;
+        }
+      }
+      if (normalizedOptions.length > 0 && !(Array.isArray(value) || typeof value === 'object')) {
+        const label = normalizedOptions[0].label ?? normalizedOptions[0].id;
+        return <span>{String(label)}</span>;
+      }
       return <span>{String(value)}</span>;
   }
 };

@@ -7,6 +7,7 @@ import { PopupPicker } from './PopupPicker';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '@/shared/utils/api';
 import { getValueByRole, getSingleValueByRole } from '../utils/field-resolver';
+import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
 import { Search, X } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
 
@@ -65,61 +66,76 @@ export const PickerInput: React.FC<PickerInputProps> = ({
 
   // Fetch selected item when value changes
   useEffect(() => {
-    if (value && targetSchemaId && targetSchema) {
-      const fetchSelectedItem = async () => {
-        try {
-          // If value is already an object with id and label, use it
-          if (typeof value === 'object' && value.id && value.label) {
-            // Fetch the full item to display properly
-            const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${value.id}`);
-            if (response.success && response.data) {
-              setSelectedItem(response.data);
-            } else {
-              // If fetch fails, use the label from the stored object
-              setSelectedItem({ id: value.id, name: value.label, title: value.label });
-            }
-            return;
-          }
-          
-          // If value is just an object with id (old format), fetch it
-          if (typeof value === 'object' && value.id) {
-            setSelectedItem(value);
-            return;
-          }
-          
-          // If value is a string ID, fetch the item
-          if (typeof value === 'string') {
-            const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${value}`);
-            if (response.success && response.data) {
-              setSelectedItem(response.data);
-            }
-          }
-        } catch (err) {
-          console.error('Error fetching selected item:', err);
+    const fetchSelectedItem = async (primaryValue: any) => {
+      try {
+        if (!primaryValue || !targetSchemaId || !targetSchema) {
+          setSelectedItem(null);
+          return;
         }
-      };
-      fetchSelectedItem();
-    } else if (!value || value === null || value === '') {
+
+        // If primaryValue already contains label information
+        if (typeof primaryValue === 'object' && primaryValue.id) {
+          const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${primaryValue.id}`);
+          if (response.success && response.data) {
+            setSelectedItem(response.data);
+          } else if (primaryValue.label) {
+            setSelectedItem({ id: primaryValue.id, name: primaryValue.label, title: primaryValue.label });
+          } else {
+            setSelectedItem(primaryValue);
+          }
+          return;
+        }
+
+        if (typeof primaryValue === 'string') {
+          const response = await apiRequest<any>(`/api/data/${targetSchemaId}/${primaryValue}`);
+          if (response.success && response.data) {
+            setSelectedItem(response.data);
+          } else {
+            setSelectedItem({ id: primaryValue });
+          }
+          return;
+        }
+
+        setSelectedItem(null);
+      } catch (err) {
+        console.error('Error fetching selected item:', err);
+      }
+    };
+
+    if (value === null || value === undefined || value === '') {
       setSelectedItem(null);
+      return;
     }
+
+    const normalizedValues = Array.isArray(value) ? value : [value];
+    const primaryValue = normalizedValues.length > 0 ? normalizedValues[0] : null;
+    fetchSelectedItem(primaryValue);
   }, [value, targetSchemaId, targetSchema]);
 
-  const handleSelect = (item: any) => {
-    // Always save as {id, label} format
-    // Get the label using the target schema's title role
-    const label = targetSchema 
-      ? (getValueByRole(targetSchema, item, 'title') || item.name || item.title || item.id)
-      : (item.name || item.title || item.id);
-    
-    // Save as {id, label} object
-    onChange?.({ id: item.id, label: label });
-    
-    setSelectedItem(item);
+  const handleSelect = (selectedOptions: NormalizedOption[], rawItems: any[]) => {
+    if (!selectedOptions || selectedOptions.length === 0) {
+      return;
+    }
+
+    onChange?.(selectedOptions);
+
+    const primaryRawItem = rawItems?.[0];
+    if (primaryRawItem) {
+      setSelectedItem(primaryRawItem);
+    } else {
+      const primaryOption = selectedOptions[0];
+      setSelectedItem({
+        id: primaryOption.id,
+        name: primaryOption.label,
+        title: primaryOption.label,
+      });
+    }
+
     setIsPickerOpen(false);
   };
 
   const handleClear = () => {
-    onChange?.(null);
+    onChange?.([]);
     setSelectedItem(null);
   };
 

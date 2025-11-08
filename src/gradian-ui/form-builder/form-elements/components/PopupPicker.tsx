@@ -1,37 +1,98 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar } from './Avatar';
-import { Badge } from '@/components/ui/badge';
-import { CodeBadge } from './CodeBadge';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { getBadgeConfig, getInitials } from '@/gradian-ui/data-display/utils';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { apiRequest } from '@/shared/utils/api';
-import { getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../utils/field-resolver';
-import { getInitials, getBadgeConfig } from '@/gradian-ui/data-display/utils';
-import { BadgeViewer } from '../utils/badge-viewer';
-import { Loader2, List, Check, RefreshCw } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
-import { SearchInput } from './SearchInput';
-import { motion } from 'framer-motion';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { apiRequest } from '@/shared/utils/api';
+import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { motion } from 'framer-motion';
+import { Check, List, Loader2, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
+import { getArrayValuesByRole, getFieldsByRole, getSingleValueByRole, getValueByRole } from '../utils/field-resolver';
+import { Avatar } from './Avatar';
+import { CodeBadge } from './CodeBadge';
+import { SearchInput } from './SearchInput';
+import { extractFirstId, normalizeOptionArray, normalizeOptionEntry, NormalizedOption } from '../utils/option-normalizer';
+import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
+
+const BADGE_VARIANTS = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
+
+const isValidBadgeVariant = (color?: string | null): boolean => {
+  if (!color) return false;
+  return BADGE_VARIANTS.includes(color);
+};
+
+const isHexColor = (color: string): boolean => color.startsWith('#');
+
+const isTailwindClasses = (color: string): boolean => {
+  return color.includes('bg-') ||
+    color.includes('text-') ||
+    color.includes('border-') ||
+    color.includes('rounded-') ||
+    /^[a-z]+-[a-z0-9-]+/.test(color);
+};
+
+const buildSelectionEntry = (item: any, schema?: FormSchema | null): NormalizedOption => {
+  if (!item) {
+    return {
+      id: '',
+      label: '',
+    };
+  }
+
+  const baseId = item.id ? String(item.id) : '';
+
+  if (!schema) {
+    const fallbackLabel = item.name || item.title || baseId;
+    return {
+      id: baseId,
+      label: fallbackLabel || baseId,
+      icon: item.icon,
+      color: item.color,
+    };
+  }
+
+  const title = getValueByRole(schema, item, 'title') || item.name || item.title || baseId;
+  const icon = getSingleValueByRole(schema, item, 'icon') || item.icon;
+
+  let color: string | undefined;
+  const statusValue = getSingleValueByRole(schema, item, 'status') ?? item.status;
+  if (statusValue) {
+    const statusField = schema.fields?.find(field => field.role === 'status');
+    const statusOptions = statusField?.options;
+    if (statusOptions) {
+      const statusMeta = getBadgeMetadata(statusValue, statusOptions as BadgeOption[]);
+      color = statusMeta.color;
+    }
+  }
+
+  const normalized = normalizeOptionEntry({
+    id: baseId,
+    label: title || baseId,
+    icon,
+    color,
+  });
+
+  return normalized || { id: baseId, label: title || baseId, icon, color };
+};
 
 export interface PopupPickerProps {
   isOpen: boolean;
   onClose: () => void;
   schemaId: string;
   schema?: FormSchema;
-  onSelect: (item: any) => void;
+  onSelect: (selections: NormalizedOption[], rawItems: any[]) => Promise<void> | void;
   title?: string;
   description?: string;
   excludeIds?: string[]; // IDs to exclude from selection (already selected items)
@@ -220,7 +281,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       if (item.id) {
         setSessionSelectedIds(prev => new Set([...prev, String(item.id)]));
       }
-      await onSelect(item);
+      const selectionEntry = buildSelectionEntry(item, schema);
+      await onSelect([selectionEntry], [item]);
       onClose();
     } catch (error) {
       console.error('Error in handleSelect:', error);
@@ -292,19 +354,16 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
     // Get badge fields
     const badgeFields = getFieldsByRole(schema, 'badge');
-    const allBadgeValues: any[] = [];
-    const allOptions = new Map<string, any>();
+    const allOptions = new Map<string, NormalizedOption>();
     let combinedBadgeField: any = null;
 
     badgeFields.forEach(field => {
       const value = item[field.name];
-      if (value && Array.isArray(value)) {
-        allBadgeValues.push(...value);
-      }
+      const normalizedValue = normalizeOptionArray(value);
       if (field.options && Array.isArray(field.options)) {
-        field.options.forEach((opt: any) => {
-          if (!allOptions.has(opt.value)) {
-            allOptions.set(opt.value, opt);
+        normalizeOptionArray(field.options).forEach((opt) => {
+          if (!allOptions.has(opt.id)) {
+            allOptions.set(opt.id, opt);
           }
         });
       }
@@ -317,17 +376,26 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       combinedBadgeField.options = Array.from(allOptions.values());
     }
 
-    const badgeValues = allBadgeValues.length > 0
-      ? allBadgeValues
-      : (getArrayValuesByRole(schema, item, 'badge') || []);
-
     // Find status field options
     const statusFieldDef = schema.fields?.find(f => f.role === 'status');
-    const statusOptions = statusFieldDef?.options;
+    const statusOptions: BadgeOption[] | undefined = statusFieldDef?.options
+      ? normalizeOptionArray(statusFieldDef.options).map((opt) => ({
+          id: opt.id,
+          value: opt.value,
+          label: opt.label ?? opt.id,
+          icon: opt.icon,
+          color: opt.color,
+          disabled: opt.disabled,
+        }))
+      : undefined;
     const hasRatingField = schema.fields?.some(f => f.role === 'rating') || false;
     const hasStatusField = schema.fields?.some(f => f.role === 'status') || false;
     const hasCodeField = schema.fields?.some(f => f.role === 'code') || false;
     const codeField = getSingleValueByRole(schema, item, 'code');
+    const rawStatusValue = getSingleValueByRole(schema, item, 'status') ?? item.status;
+    const normalizedStatusValue = normalizeOptionArray(rawStatusValue);
+    const primaryStatusEntry = normalizedStatusValue[0];
+    const fallbackStatusId = extractFirstId(rawStatusValue);
 
     return (
       <motion.div
@@ -397,12 +465,39 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                       ⭐ {Number(ratingField) || 0}
                     </div>
                   )}
-                  {hasStatusField && statusField && (() => {
-                    const badgeConfig = getBadgeConfig(statusField, statusOptions);
+                  {hasStatusField && (primaryStatusEntry || fallbackStatusId) && (() => {
+                    const statusSource = primaryStatusEntry ?? fallbackStatusId ?? '';
+                    if (!statusSource) {
+                      return null;
+                    }
+                    const badgeConfig = getBadgeConfig(
+                      statusSource,
+                      statusOptions as any
+                    );
+
+                    const badgeIcon = primaryStatusEntry?.icon ?? badgeConfig.icon;
+                    const badgeLabel = primaryStatusEntry?.label ?? badgeConfig.label;
+                    const badgeColor = primaryStatusEntry?.color ?? badgeConfig.color;
+
+                    const badgeVariant = isValidBadgeVariant(typeof badgeColor === 'string' ? badgeColor : undefined)
+                      ? (badgeColor as any)
+                      : 'outline';
+                    const badgeClassNames = cn(
+                      'flex items-center gap-1 px-1.5 py-0.5 text-xs',
+                      badgeColor && typeof badgeColor === 'string' && isTailwindClasses(badgeColor) ? badgeColor : undefined
+                    );
+                    const badgeInlineStyle = badgeColor && typeof badgeColor === 'string' && isHexColor(badgeColor)
+                      ? { backgroundColor: badgeColor, color: '#fff', border: 'none' }
+                      : undefined;
+
                     return (
-                      <Badge variant={badgeConfig.color} className="flex items-center gap-1 px-1.5 py-0.5 text-xs">
-                        {badgeConfig.icon && <IconRenderer iconName={badgeConfig.icon} className="h-3 w-3" />}
-                        <span>{badgeConfig.label}</span>
+                      <Badge
+                        variant={badgeVariant}
+                        className={badgeClassNames}
+                        style={badgeInlineStyle}
+                      >
+                        {badgeIcon && <IconRenderer iconName={badgeIcon} className="h-3 w-3" />}
+                        <span>{badgeLabel}</span>
                       </Badge>
                     );
                   })()}

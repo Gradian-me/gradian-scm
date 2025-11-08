@@ -34,6 +34,23 @@ function processField(field: any): FormField {
     processedField.validation.pattern = stringToRegExp(processedField.validation.pattern);
   }
   
+  if (Array.isArray(processedField.options)) {
+    processedField.options = processedField.options.map((option: any) => {
+      if (!option || typeof option !== 'object') {
+        return option;
+      }
+
+      if (option.id === undefined || option.id === null) {
+        return option;
+      }
+
+      return {
+        ...option,
+        id: String(option.id),
+      };
+    });
+  }
+  
   return processedField;
 }
 

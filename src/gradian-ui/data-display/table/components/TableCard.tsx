@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { TableColumn } from '../types';
 import { getCellValue } from '../utils';
 import { cn } from '../../../shared/utils';
+import { extractLabels } from '../../../form-builder/form-elements/utils/option-normalizer';
 
 export interface TableCardProps<T = any> {
   row: T;
@@ -45,14 +46,33 @@ export function TableCard<T = any>({
           const value = getCellValue(row, column);
           const cellContent = column.render
             ? column.render(value, row, rowIndex)
-            : value != null
-            ? String(value)
-            : '—';
+            : (() => {
+                if (value === null || value === undefined) {
+                  return '—';
+                }
+                const isStructured = Array.isArray(value) || (typeof value === 'object' && value !== null);
+                if (isStructured) {
+                  const labels = extractLabels(value);
+                  if (labels.length > 0) {
+                    return labels.join(', ');
+                  }
+                  if (Array.isArray(value)) {
+                    return value.map(entry => {
+                      if (entry && typeof entry === 'object') {
+                        return entry.label || entry.name || entry.id || JSON.stringify(entry);
+                      }
+                      return String(entry);
+                    }).join(', ');
+                  }
+                  return JSON.stringify(value);
+                }
+                return String(value);
+              })();
 
           return (
             <div key={column.id} className="flex flex-col gap-1 min-w-0">
               <span className="text-sm font-medium text-gray-400">{column.label}:</span>
-              <div className="text-sm text-gray-900 wrap-break-words min-w-0">{cellContent}</div>
+              <div className="text-sm text-gray-900 wrap-break-word min-w-0">{cellContent}</div>
             </div>
           );
         })}

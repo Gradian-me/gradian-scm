@@ -27,7 +27,7 @@ export interface FormField {
     max?: number;
     custom?: (value: any) => { isValid: boolean; error?: string };
   };
-  options?: Array<{ label: string; value: string; disabled?: boolean; icon?: string; color?: string }>;
+  options?: Array<{ id?: string; label: string; value?: string; disabled?: boolean; icon?: string; color?: string }>;
   defaultValue?: any;
   colSpan?: number; // Number of columns this field should span
   order?: number; // Order for field display

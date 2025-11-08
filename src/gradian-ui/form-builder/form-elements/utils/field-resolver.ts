@@ -1,5 +1,6 @@
 import { FormSchema as BuilderFormSchema, FormField as BuilderFormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormSchema, FormField } from '@/gradian-ui/schema-manager/types/form-schema';
+import { extractLabels } from './option-normalizer';
 
 /**
  * Apply default properties to a field if they are not specified
@@ -57,52 +58,31 @@ export const getValueByRole = (schema: FormSchema, data: any, role: string): str
   const values = fields
     .map(field => {
       const rawValue = data[field.name];
+      const valueArray = Array.isArray(rawValue)
+        ? rawValue
+        : rawValue !== undefined && rawValue !== null
+          ? [rawValue]
+          : [];
       
-      // Handle picker fields - try to resolve ID to label
-      if (field.type === 'picker' && field.targetSchema && rawValue) {
-        // If the value is {id, label} format, use the label
-        if (typeof rawValue === 'object' && rawValue !== null && rawValue.id && rawValue.label) {
-          return rawValue.label;
-        }
-        
-        // If the value is already an object with resolved data, use it
-        if (typeof rawValue === 'object' && rawValue !== null) {
-          // Check if it has a resolved label (e.g., from API response)
-          if (rawValue._resolvedLabel) {
-            return rawValue._resolvedLabel;
-          }
-          // Try to get name or title from the object
-          if (rawValue.name) return rawValue.name;
-          if (rawValue.title) return rawValue.title;
-          // If it has an id, it might be a partial object
-          if (rawValue.id) return rawValue.id;
-        }
-        
-        // If the value is a string ID, check for resolved data
-        if (typeof rawValue === 'string') {
-          // Check if there's a resolved field (e.g., vendorId -> _vendorId_resolved)
-          const resolvedKey = `_${field.name}_resolved`;
-          const resolvedData = data[resolvedKey];
-          if (resolvedData) {
-            // Try to get title role from resolved data
-            if (resolvedData.name) return resolvedData.name;
-            if (resolvedData.title) return resolvedData.title;
-            // Fallback to the raw value if we can't resolve
-            return rawValue;
-          }
-          
-          // If no resolved data available, return the ID (will need to be resolved elsewhere)
-          // This is a fallback - ideally resolved data should be provided
-          return rawValue;
-        }
-        
-        return rawValue;
+      if (field.type === 'picker' && field.targetSchema) {
+        const pickerStrings = valueArray
+          .map((entry) => resolvePickerEntry(field, entry, data))
+          .filter(Boolean);
+        return pickerStrings.join(' | ');
       }
       
-      // For non-picker fields, return value as-is
-      return rawValue;
+      const labels = extractLabels(valueArray);
+      if (labels.length > 0) {
+        return labels.join(' | ');
+      }
+
+      const fallbackStrings = valueArray
+        .map((entry) => (entry === null || entry === undefined ? '' : String(entry)))
+        .filter(Boolean);
+
+      return fallbackStrings.join(' | ');
     })
-    .filter(val => val !== undefined && val !== null && val !== '');
+    .filter(val => typeof val === 'string' && val.trim() !== '');
   
   return values.join(' | ');
 };
@@ -122,50 +102,32 @@ export const getSingleValueByRole = (schema: FormSchema, data: any, role: string
     return defaultValue;
   }
   
-  // Handle picker fields - try to resolve ID to label
-  if (field.type === 'picker' && field.targetSchema && rawValue) {
-    // If the value is {id, label} format, use the label
-    if (typeof rawValue === 'object' && rawValue !== null && rawValue.id && rawValue.label) {
-      return rawValue.label;
+  const valueArray = Array.isArray(rawValue)
+    ? rawValue
+    : [rawValue];
+  
+  if (field.type === 'picker' && field.targetSchema) {
+    const pickerStrings = valueArray
+      .map((entry) => resolvePickerEntry(field, entry, data))
+      .filter(Boolean);
+
+    if (pickerStrings.length > 0) {
+      return pickerStrings[0];
     }
-    
-    // If the value is already an object with resolved data, use it
-    if (typeof rawValue === 'object' && rawValue !== null) {
-      // Check if it has a resolved label (e.g., from API response)
-      if (rawValue._resolvedLabel) {
-        return rawValue._resolvedLabel;
-      }
-      // Try to get name or title from the object
-      if (rawValue.name) return rawValue.name;
-      if (rawValue.title) return rawValue.title;
-      // If it has an id, it might be a partial object
-      if (rawValue.id) return rawValue.id;
-    }
-    
-    // If the value is a string ID, check for resolved data
-    if (typeof rawValue === 'string') {
-      // Check if there's a resolved field (e.g., vendorId -> _vendorId_resolved)
-      const resolvedKey = `_${field.name}_resolved`;
-      const resolvedData = data[resolvedKey];
-      if (resolvedData) {
-        // Try to get title role from resolved data's schema
-        // First try to get name or title directly
-        if (resolvedData.name) return resolvedData.name;
-        if (resolvedData.title) return resolvedData.title;
-        // Fallback to the raw value if we can't resolve
-        return rawValue;
-      }
-      
-      // If no resolved data available, return the ID (will need to be resolved elsewhere)
-      // This is a fallback - ideally resolved data should be provided
-      return rawValue;
-    }
-    
-    return rawValue;
+
+    return defaultValue;
   }
   
-  // For non-picker fields, return value as-is
-  return rawValue !== undefined && rawValue !== null ? rawValue : defaultValue;
+  const labels = extractLabels(valueArray);
+  if (labels.length > 0) {
+    return labels[0];
+  }
+  
+  const fallbackStrings = valueArray
+    .map((entry) => (entry === null || entry === undefined ? '' : String(entry)))
+    .filter(Boolean);
+  
+  return fallbackStrings.length > 0 ? fallbackStrings[0] : defaultValue;
 };
 
 /**
@@ -193,7 +155,11 @@ export const getFieldValue = (fieldPath: string, data: any) => {
 /**
  * Get array values by role - specifically for badge/category fields
  */
-export const getArrayValuesByRole = (schema: FormSchema, data: any, role: string): any[] => {
+export const getArrayValuesByRole = (schema: FormSchema | null | undefined, data: any, role: string): any[] => {
+  if (!schema || !Array.isArray(schema.fields) || data === null || data === undefined) {
+    return [];
+  }
+
   const fields = getFieldsByRole(schema, role);
   if (fields.length === 0) return [];
   
@@ -226,5 +192,47 @@ export const getMetricsByRole = (schema: FormSchema, data: any, role: string): a
   }
   
   return null;
+};
+
+const resolvePickerEntry = (field: any, entry: any, data: any): string => {
+  if (entry === null || entry === undefined) {
+    return '';
+  }
+
+  if (typeof entry === 'object') {
+    const labels = extractLabels(entry);
+    if (labels.length > 0) {
+      return labels[0];
+    }
+    if (entry._resolvedLabel) return entry._resolvedLabel;
+    if (entry.name) return entry.name;
+    if (entry.title) return entry.title;
+    if (entry.id) return String(entry.id);
+    return JSON.stringify(entry);
+  }
+
+  if (typeof entry === 'string') {
+    const resolvedKey = `_${field.name}_resolved`;
+    const resolvedData = data[resolvedKey];
+    if (Array.isArray(resolvedData)) {
+      const matched = resolvedData.find((resolvedItem: any) => resolvedItem?.id === entry);
+      if (matched) {
+        const labels = extractLabels(matched);
+        if (labels.length > 0) return labels[0];
+        if (matched._resolvedLabel) return matched._resolvedLabel;
+        if (matched.name) return matched.name;
+        if (matched.title) return matched.title;
+      }
+    } else if (resolvedData && resolvedData.id === entry) {
+      const labels = extractLabels(resolvedData);
+      if (labels.length > 0) return labels[0];
+      if (resolvedData._resolvedLabel) return resolvedData._resolvedLabel;
+      if (resolvedData.name) return resolvedData.name;
+      if (resolvedData.title) return resolvedData.title;
+    }
+    return entry;
+  }
+
+  return String(entry);
 };
 

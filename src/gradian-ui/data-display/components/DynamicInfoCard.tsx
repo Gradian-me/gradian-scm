@@ -11,6 +11,7 @@ import { cn } from '../../shared/utils';
 import { formatNumber, formatCurrency, formatDate } from '../../shared/utils';
 import { isBadgeSection, getBadgeFields } from '../../schema-manager/utils/badge-utils';
 import { BadgeViewer } from '../../form-builder/form-elements/utils/badge-viewer';
+import { extractLabels } from '../utils';
 
 export interface DynamicInfoCardProps {
   section: DetailPageSection;
@@ -29,8 +30,13 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
     return <span className="text-gray-400">N/A</span>;
   }
 
+  const optionLabels = extractLabels(value);
+
   // Handle picker fields - check for object values or resolved data
   if (field?.type === 'picker' && field.targetSchema) {
+    if (optionLabels.length > 0) {
+      return <span>{optionLabels[0]}</span>;
+    }
     // If the value is {id, label} format, use the label
     if (typeof value === 'object' && value !== null && value.id && value.label) {
       return <span>{String(value.label)}</span>;
@@ -105,16 +111,22 @@ const formatFieldValue = (field: any, value: any, data?: any): React.ReactNode =
       }
     case 'array':
     case 'checkbox':
+      if (optionLabels.length > 0) {
+        return <span>{optionLabels.join(', ')}</span>;
+      }
       if (Array.isArray(value)) {
         return <span>{value.join(', ')}</span>;
       }
       return <span>{String(value)}</span>;
     default:
       // For URLs and long text, add word-break styling
+      if (optionLabels.length > 0) {
+        return <span>{optionLabels.join(', ')}</span>;
+      }
       const stringValue = String(value);
       const isUrl = stringValue.startsWith('http://') || stringValue.startsWith('https://') || stringValue.startsWith('//');
       return (
-        <span className={isUrl || stringValue.length > 50 ? "break-words break-all" : ""}>
+        <span className={isUrl || stringValue.length > 50 ? "overflow-wrap-anywhere wrap-break-word" : "wrap-break-word"}>
           {stringValue}
         </span>
       );
@@ -322,17 +334,22 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
         <CardContent>
           <div className={gridClasses}>
             {fields.map((field: any) => (
-              <div key={field.id} className="space-y-1">
+              <motion.div
+                key={field.id}
+                className="space-y-1"
+                whileHover={{ x: 2 }}
+                transition={{ duration: 0.15 }}
+              >
                 <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
                   {field.icon && (
                     <IconRenderer iconName={field.icon} className="h-4 w-4" />
                   )}
                   {field.label}
                 </label>
-                <div className="text-sm text-gray-900 break-words overflow-wrap-anywhere">
+                <div className="text-sm text-gray-900 overflow-wrap-anywhere wrap-break-word">
                   {formatFieldValue(field, field.value, data)}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </CardContent>
