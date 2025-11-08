@@ -74,7 +74,7 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
 
       {/* Field Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="w-[95vw] sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-full h-full lg:max-w-4xl lg:max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Field</DialogTitle>
             <DialogDescription>

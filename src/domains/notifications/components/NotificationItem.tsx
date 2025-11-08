@@ -95,15 +95,47 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
         }}
       >
         <CardContent className="p-4">
-          <div className="flex items-start space-x-3">
-            <div className="shrink-0 mt-1">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:space-x-3">
+            <div className="hidden shrink-0 mt-1 sm:block">
               {getTypeIcon(notification.type)}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-2">
+                <div className="flex-1 gap-2 flex flex-col md:flex-row flex-wrap">
+                  <div className="flex flex-wrap items-center gap-2 sm:hidden">
+                    <span className="inline-flex items-center justify-center">
+                      {getTypeIcon(notification.type)}
+                    </span>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Badge variant={getTypeBadgeVariant(notification.type)} className="text-xs">
+                        {notification.type}
+                      </Badge>
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Badge variant={getPriorityBadgeVariant(notification.priority)} className="text-xs">
+                        {notification.priority}
+                      </Badge>
+                    </motion.div>
+                  </div>
+                  <h3
+                    className={`text-md font-medium ${
+                      !notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'
+                    } sm:hidden`}
+                  >
+                    {notification.title}
+                  </h3>
+                  <div className="hidden sm:flex items-center gap-2 mb-1">
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8, y: 5 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -138,7 +170,7 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
               
               {/* Creator, Assigned To, and Date Info */}
               <div className="mt-2 space-y-1">
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
                   {notification.createdBy && (
                     <div className="flex items-center gap-1.5">
                       <User className="h-3 w-3" />
@@ -152,7 +184,7 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3 w-3" />
                     <span>Created <span className="text-gray-700 font-medium" title={formatFullDate(notification.createdAt)}>• {formatRelativeTime(notification.createdAt)}</span></span>
@@ -175,8 +207,8 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
             </div>
             
             {/* Buttons on the right side */}
-            <div className="flex flex-col items-end gap-2 shrink-0 ml-4">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col items-stretch gap-2 shrink-0 sm:items-end sm:ml-4">
+              <div className="flex items-center justify-end gap-2 sm:justify-center">
                 {!notification.isRead && (
                   <div className="w-2 h-2 bg-violet-500 rounded-full"></div>
                 )}

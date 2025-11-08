@@ -133,7 +133,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="w-full h-full lg:max-w-4xl lg:max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="p-6 pb-4 border-b border-gray-200 shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">

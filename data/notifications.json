@@ -146,7 +146,7 @@
     "type": "info",
     "category": "vendor",
     "priority": "medium",
-    "isRead": false,
+    "isRead": true,
     "createdAt": "2024-12-10T06:00:00.000Z",
     "actionUrl": "/vendors/applications/pharmacorp",
     "metadata": {
@@ -161,7 +161,8 @@
       "status": "Pending Review"
     },
     "updatedAt": "2025-11-05T10:43:07.869Z",
-    "interactionType": "canRead"
+    "interactionType": "canRead",
+    "readAt": "2025-11-08T14:51:34.814Z"
   },
   {
     "id": "9",

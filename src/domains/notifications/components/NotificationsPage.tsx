@@ -126,10 +126,10 @@ export function NotificationsPage() {
 
   // Define options for Group By select
   const groupByOptions: SelectOption[] = [
-    { id: 'category', label: 'By Category' },
-    { id: 'type', label: 'By Type' },
-    { id: 'priority', label: 'By Priority' },
-    { id: 'status', label: 'By Status' }
+    { id: 'category', label: 'By Category', icon: 'FolderTree' },
+    { id: 'type', label: 'By Type', icon: 'Shapes' },
+    { id: 'priority', label: 'By Priority', icon: 'Flag' },
+    { id: 'status', label: 'By Status', icon: 'ListChecks' }
   ];
 
   return (
@@ -189,9 +189,9 @@ export function NotificationsPage() {
         {/* Search and Filters */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <CardTitle className="text-lg">Search & Filter</CardTitle>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full md:w-auto">
                 <Select
                   options={groupByOptions}
                   value={groupBy}
@@ -199,12 +199,13 @@ export function NotificationsPage() {
                   placeholder="Group by..."
                   config={{ name: 'groupBy', label: '' }}
                   size="sm"
-                  className="w-[140px]"
+                  className="w-full sm:w-[180px] md:w-[140px]"
                 />
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
+                  className="w-full sm:w-auto"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Filters
@@ -214,7 +215,7 @@ export function NotificationsPage() {
                     variant="default"
                     size="sm"
                     onClick={markAllAsRead}
-                    className="bg-violet-600 hover:bg-violet-700"
+                    className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />
                     Mark All Read
@@ -239,7 +240,7 @@ export function NotificationsPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200"
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-4 border-t border-gray-200"
                 >
                   <Select
                     options={typeOptions}
@@ -281,7 +282,7 @@ export function NotificationsPage() {
 
               {/* Active Filters */}
               {(filters.type || filters.category || filters.isRead !== undefined) && (
-                <div className="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
                   <span className="text-sm text-gray-600">Active filters:</span>
                   {filters.type && (
                     <Badge variant="info" className="text-xs">
