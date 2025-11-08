@@ -6,6 +6,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '../../../../components/ui/badge';
+import type { BadgeProps } from '../../../../components/ui/badge';
 import { cn } from '../../../../lib/utils';
 import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { findBadgeOption, getBadgeMetadata, BadgeOption } from './badge-utils';
@@ -44,7 +45,7 @@ export interface BadgeRendererProps {
    * Badge variant
    * @default "outline"
    */
-  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info" | "muted";
+  badgeVariant?: BadgeProps['variant'];
   
   /**
    * Whether to animate the badges
@@ -393,7 +394,7 @@ export interface BadgeViewerProps {
    * Badge variant
    * @default "outline"
    */
-  badgeVariant?: "default" | "secondary" | "outline" | "destructive" | "gradient" | "success" | "warning" | "info";
+  badgeVariant?: BadgeProps['variant'];
   
   /**
    * Whether to animate the badges

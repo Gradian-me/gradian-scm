@@ -1,6 +1,6 @@
 // Notification Item Component
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NotificationItemProps } from '../types';
 import { cn } from '../../../shared/utils';
 
@@ -18,6 +18,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   const [isVisible, setIsVisible] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
 
+  const handleDismiss = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => {
+      onDismiss?.(notification.id || '');
+    }, 300);
+  }, [notification.id, onDismiss]);
+
   useEffect(() => {
     if (autoDismiss && !isPaused) {
       const timer = setTimeout(() => {
@@ -26,14 +33,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [autoDismiss, autoDismissDelay, isPaused]);
-
-  const handleDismiss = () => {
-    setIsVisible(false);
-    setTimeout(() => {
-      onDismiss?.(notification.id || '');
-    }, 300);
-  };
+  }, [autoDismiss, autoDismissDelay, handleDismiss, isPaused]);
 
   const handleAction = (action: string) => {
     onAction?.(notification.id || '', action);

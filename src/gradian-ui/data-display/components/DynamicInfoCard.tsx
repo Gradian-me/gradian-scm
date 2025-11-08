@@ -208,7 +208,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
   const cardClasses = cn(className);
 
   // Resolve fields by IDs
-  let fields = (section.fieldIds || []).map(fieldId => {
+  const fields = (section.fieldIds || []).map(fieldId => {
     const field = resolveFieldById(schema, fieldId);
     if (!field) return null;
     

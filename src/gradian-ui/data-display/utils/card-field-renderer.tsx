@@ -128,7 +128,7 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
           value: typeof val === 'number' || typeof val === 'string' ? val : String(val), // Ensure value is string or number
           unit: typeof val === 'number' && key.toLowerCase().includes('score') ? '' : 
                 typeof val === 'number' && key.toLowerCase().includes('orders') ? '' : '%',
-          trend: 'none' as 'none'
+          trend: 'none' as const
         };
       });
       

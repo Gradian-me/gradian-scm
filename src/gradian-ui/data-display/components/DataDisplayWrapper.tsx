@@ -61,13 +61,14 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
   });
 
   // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((searchTerm: string) => {
-      setState(prev => ({
-        ...prev,
-        filters: { ...prev.filters, search: searchTerm },
-      }));
-    }, search.debounceMs || 600),
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((searchTerm: string) => {
+        setState(prev => ({
+          ...prev,
+          filters: { ...prev.filters, search: searchTerm },
+        }));
+      }, search.debounceMs || 600),
     [search.debounceMs]
   );
 
@@ -121,24 +122,8 @@ export const DataDisplayWrapper: React.FC<DataDisplayWrapperProps> = ({
       });
     }
 
-    // Apply grouping
-    if (state.grouping.field) {
-      const groups: Record<string, any[]> = {};
-      result.forEach(item => {
-        const groupValue = item[state.grouping.field!] || 'Unknown';
-        if (!groups[groupValue]) {
-          groups[groupValue] = [];
-        }
-        groups[groupValue].push(item);
-      });
-      setState(prev => ({
-        ...prev,
-        grouping: { ...prev.grouping, groups },
-      }));
-    }
-
     return result;
-  }, [data, state.filters, state.sorting, state.grouping.field, filters, search]);
+  }, [data, state.filters, state.sorting, filters, search]);
 
   // Paginate data
   const paginatedData = useMemo(() => {

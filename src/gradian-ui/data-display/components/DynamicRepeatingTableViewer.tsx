@@ -74,10 +74,6 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   const navigationSchemaId = isRelationBased && config.targetSchema ? config.targetSchema : schema.id;
   const schemaForColumns = isRelationBased ? targetSchemaData : schema;
 
-  if (!isRelationBased && (!section || !section.isRepeatingSection)) {
-    return null;
-  }
-
   const tableProps = config.tableProperties || {};
   const cardColumns = tableProps.cardColumns ?? 2;
   const aggregations = tableProps.aggregations || [];
@@ -194,6 +190,13 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
 
   const relationDirections = relationInfo.directions;
   const relationTypeTexts = relationInfo.relationTypeTexts;
+
+  const shouldRender =
+    isRelationBased || (section?.isRepeatingSection ?? false);
+
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <motion.div

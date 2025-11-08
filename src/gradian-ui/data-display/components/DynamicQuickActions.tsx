@@ -31,10 +31,6 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   const [targetSchemaId, setTargetSchemaId] = useState<string | null>(null);
 
-  if (!actions || actions.length === 0) {
-    return null;
-  }
-
   /**
    * Handle action click - simplified
    */
@@ -68,6 +64,10 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
       }
     }
   }, [router, data]);
+
+  if (!actions || actions.length === 0) {
+    return null;
+  }
 
   return (
     <>

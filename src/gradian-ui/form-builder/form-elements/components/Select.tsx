@@ -17,7 +17,7 @@ import { UI_PARAMS } from '@/shared/constants/application-variables';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 
 export interface SelectOption {
-  id: string;
+  id?: string;
   value?: string;
   label: string;
   disabled?: boolean;
@@ -27,7 +27,7 @@ export interface SelectOption {
 
 export interface SelectWithBadgesProps extends Omit<SelectProps, 'children'> {
   config?: any;
-  options?: SelectOption[];
+  options?: Array<SelectOption | string | number | null | undefined>;
   children?: React.ReactNode;
   placeholder?: string;
   error?: string;

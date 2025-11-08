@@ -165,7 +165,8 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   
   // Get section-level error
   const sectionError = errors?.[section.id];
-  let displaySectionError = sectionError;
+  const sectionErrorValue = typeof sectionError === 'string' ? sectionError : undefined;
+  let displaySectionError = sectionErrorValue;
 
   const relatedValueArray = Array.isArray(values?.[section.id]) ? values[section.id] : [];
 

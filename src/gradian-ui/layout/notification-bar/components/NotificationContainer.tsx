@@ -29,9 +29,9 @@ export const NotificationContainer: React.FC<NotificationContainerProps> = ({
 
   return (
     <div className={containerClasses} {...props}>
-      {displayNotifications.map((notification) => (
+      {displayNotifications.map((notification, index) => (
         <NotificationItem
-          key={notification.id || Math.random().toString()}
+          key={notification.id || `notification-${index}`}
           notification={notification}
           onDismiss={onNotificationDismiss}
           onAction={onNotificationAction}

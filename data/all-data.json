@@ -503,10 +503,10 @@
       "inquiryDeadlineDate": "2025-11-14T11:30",
       "state": [
         {
-          "id": "1",
-          "label": "Submitted",
-          "icon": "Send",
-          "color": "info"
+          "id": "2",
+          "label": "In Review",
+          "icon": "Clock",
+          "color": "warning"
         }
       ],
       "description": "Test Description",
@@ -522,7 +522,7 @@
       ],
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-08T08:34:31.562Z",
+      "updatedAt": "2025-11-08T09:53:59.944Z",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
       "inquiry-vendors": [
         {

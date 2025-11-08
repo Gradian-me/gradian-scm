@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import React, { KeyboardEvent } from 'react';
 import { Badge } from '../../../components/ui/badge';
+import type { BadgeProps } from '../../../components/ui/badge';
 import { IconRenderer } from '../../../shared/utils/icon-renderer';
 import { Avatar, Rating, Countdown, CodeBadge } from '../../form-builder/form-elements';
 import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -475,7 +476,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         transition={disableAnimation ? {} : { duration: 0.2 }}
                         whileHover={disableAnimation ? undefined : { x: 2, scale: 1.05, transition: { duration: 0.1, delay: 0 } }}
                       >
-                        <Badge variant={cardConfig.statusMetadata.color} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
+                        <Badge variant={cardConfig.statusMetadata.color as BadgeProps['variant']} className="flex items-center gap-1 px-1 py-0.5 shadow-sm">
                           {cardConfig.statusMetadata.icon && <IconRenderer iconName={cardConfig.statusMetadata.icon} className="h-3 w-3" />}
                           <span className="text-[0.625rem]">{cardConfig.statusMetadata.label}</span>
                             </Badge>
@@ -583,9 +584,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  {filteredSections.map((section) => (
+                  {filteredSections.map((section, index) => (
                     <div
-                      key={section.id || Math.random()}
+                      key={section.id || `section-${index}`}
                       className={cn(
                         "overflow-hidden",
                         section.colSpan === 2 ? "col-span-1 sm:col-span-2" : "col-span-1"
@@ -759,7 +760,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         }}
                       >
                         <Badge
-                          variant={cardConfig.statusMetadata.color ?? 'outline'}
+                          variant={(cardConfig.statusMetadata.color as BadgeProps['variant']) ?? 'outline'}
                           className="flex items-center gap-1 px-1 py-0.5 shadow-sm"
                         >
                           {cardConfig.statusMetadata.icon && (

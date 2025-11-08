@@ -666,7 +666,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     // Log section-level validation
     schema.sections.forEach(section => {
       let sectionValid = true;
-      let sectionErrors: string[] = [];
+      const sectionErrors: string[] = [];
       
       if (section.isRepeatingSection && section.repeatingConfig) {
         const items = state.values[section.id] || [];

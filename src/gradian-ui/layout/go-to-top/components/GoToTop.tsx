@@ -63,7 +63,7 @@ export const GoToTop: React.FC<GoToTopProps> = ({
       if (!scrollContainerSelector) return null;
       
       // Try direct selector first
-      let container = document.querySelector(scrollContainerSelector) as HTMLElement;
+      const container = document.querySelector(scrollContainerSelector) as HTMLElement;
       if (container) {
         return container;
       }
