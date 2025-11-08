@@ -856,6 +856,17 @@
       ],
       "paymentMethod": [
         {
+          "id": "CASH",
+          "label": "Cash",
+          "icon": "DollarSign"
+        },
+        {
+          "id": "BANK_TRANSFER",
+          "label": "Bank Transfer",
+          "icon": "Banknote",
+          "color": "info"
+        },
+        {
           "id": "DOCUMENTARY_COLLECTION",
           "label": "Documentary Collection",
           "icon": "FolderOpen",
@@ -869,7 +880,7 @@
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "id": "01K9724JFPP7A6RX7H6NTFHE1D",
       "createdAt": "2025-11-04T09:11:01.375Z",
-      "updatedAt": "2025-11-08T11:45:24.835Z",
+      "updatedAt": "2025-11-08T13:47:25.978Z",
       "vendorId": [
         {
           "id": "01K8QVCWS0ZSTMSVD5C6K7A806",
@@ -885,10 +896,10 @@
       ],
       "state": [
         {
-          "id": "UNDER_REVIEW",
-          "label": "Under Review",
-          "icon": "Clock",
-          "color": "warning"
+          "id": "SUBMITTED",
+          "label": "Submitted",
+          "icon": "Send",
+          "color": "info"
         }
       ],
       "quotation-items": [

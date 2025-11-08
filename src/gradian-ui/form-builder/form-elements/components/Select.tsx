@@ -1,6 +1,6 @@
 // Select Component
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Select as RadixSelect,
   SelectContent,
@@ -16,7 +16,7 @@ import { motion } from 'framer-motion';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 import { BadgeViewer } from '../utils/badge-viewer';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 
 export interface SelectOption {
   id?: string;
@@ -51,6 +51,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   required,
   onNormalizedChange,
   onOpenChange,
+  disabled,
   ...props
 }) => {
   const sizeClasses = {
@@ -72,19 +73,83 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
     (config as any)?.allowMultiselect
   );
 
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const shouldReopenRef = useRef(false);
-
-  useEffect(() => {
-    if (!allowMultiselect) {
-      setIsSelectOpen(false);
-    }
-  }, [allowMultiselect]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const panelRef = useRef<HTMLDivElement | null>(null);
 
   const normalizedValueArray = useMemo(
     () => normalizeOptionArray(value),
     [value]
   );
+
+  const normalizedOptions = useMemo(() => {
+    if (!options || options.length === 0) {
+      return [] as NormalizedOption[];
+    }
+    return normalizeOptionArray(options).map((opt) => ({
+      ...opt,
+      label: opt.label ?? opt.id,
+    }));
+  }, [options]);
+
+  const normalizedOptionsLookup = useMemo(() => {
+    const map = new Map<string, NormalizedOption>();
+    normalizedOptions.forEach((opt) => {
+      if (opt.id) {
+        map.set(opt.id, opt);
+      }
+    });
+    normalizedValueArray.forEach((opt) => {
+      if (opt.id && !map.has(opt.id)) {
+        map.set(opt.id, opt);
+      }
+    });
+    return map;
+  }, [normalizedOptions, normalizedValueArray]);
+  const hasNormalizedOptions = normalizedOptions.length > 0;
+
+  useEffect(() => {
+    if (!allowMultiselect || !isDropdownOpen) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+        onOpenChange?.(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsDropdownOpen(false);
+        onOpenChange?.(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [allowMultiselect, isDropdownOpen, onOpenChange]);
+
+  useEffect(() => {
+    if (!allowMultiselect) {
+      setIsDropdownOpen(false);
+      onOpenChange?.(false);
+    }
+  }, [allowMultiselect, onOpenChange]);
+
+  useEffect(() => {
+    if (disabled) {
+      setIsDropdownOpen(false);
+      onOpenChange?.(false);
+    }
+  }, [disabled, onOpenChange]);
 
   const normalizedValueIds = useMemo(
     () =>
@@ -128,10 +193,61 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
     });
   }, [allowMultiselect, normalizedValueIdsKey]);
 
-  const multiSelectionSet = useMemo(
-    () => new Set(multiSelectionIds),
-    [multiSelectionIds]
+  const arraysMatch = useCallback(
+    (a: string[], b: string[]) => {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i += 1) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    },
+    []
   );
+
+  const sortedNormalizedValueIds = useMemo(
+    () => [...normalizedValueIds].sort(),
+    [normalizedValueIds]
+  );
+
+  const multiSelectionSet = useMemo(() => new Set(multiSelectionIds), [multiSelectionIds]);
+
+  const selectionKey = useMemo(() => [...multiSelectionIds].sort().join('|'), [multiSelectionIds]);
+  const normalizedValueKey = useMemo(
+    () => sortedNormalizedValueIds.join('|'),
+    [sortedNormalizedValueIds]
+  );
+  const lastEmittedKeyRef = useRef<string>('');
+
+  useEffect(() => {
+    if (!allowMultiselect || !onNormalizedChange) {
+      return;
+    }
+
+    // If selection matches incoming value, treat as synchronized and skip emission
+    if (selectionKey === normalizedValueKey) {
+      lastEmittedKeyRef.current = selectionKey;
+      return;
+    }
+
+    // Avoid emitting the same selection repeatedly
+    if (selectionKey === lastEmittedKeyRef.current) {
+      return;
+    }
+
+    const normalizedSelection = multiSelectionIds
+      .map((id) => normalizedOptionsLookup.get(id))
+      .filter((opt): opt is NormalizedOption => Boolean(opt));
+
+    lastEmittedKeyRef.current = selectionKey;
+    onNormalizedChange(normalizedSelection);
+  }, [
+    allowMultiselect,
+    multiSelectionIds,
+    normalizedOptionsLookup,
+    normalizedValueKey,
+    onNormalizedChange,
+    selectionKey,
+  ]);
 
   // Check if color is a valid badge variant, custom color, or Tailwind classes
   const isValidBadgeVariant = (color?: string): boolean => {
@@ -218,12 +334,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   const normalizedCurrentValue = extractFirstId(value);
   const normalizedValueEntry = normalizedValueArray[0];
 
-  if (options && options.length > 0) {
-    const normalizedOptions = normalizeOptionArray(options).map((opt) => ({
-      ...opt,
-      label: opt.label ?? opt.id,
-    }));
-
+  if (hasNormalizedOptions) {
     const selectedOption = normalizedOptions.find((opt) => opt.id === normalizedCurrentValue);
     // Filter out empty string values as Radix doesn't allow them
     const validOptions = normalizedOptions.filter((opt) => opt.id && opt.id !== '');
@@ -242,12 +353,6 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
             : undefined)
         : undefined;
 
-    const multiSelectedOptions = allowMultiselect
-      ? multiSelectionIds
-          .map((id) => normalizedOptions.find((opt) => opt.id === id))
-          .filter((opt): opt is NormalizedOption => Boolean(opt))
-      : [];
-
     const handleRadixChange = (selectedId: string) => {
       if (onValueChange) {
         onValueChange(selectedId);
@@ -257,39 +362,225 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
           onNormalizedChange([]);
           return;
         }
-        const matched = normalizedOptions.find(opt => opt.id === selectedId);
+        const matched = normalizedOptions.find((opt) => opt.id === selectedId);
         onNormalizedChange(matched ? [matched] : []);
       }
     };
 
-    const handleMultiOptionToggle = (option: NormalizedOption) => {
-      const optionId = option.id;
-      if (!optionId) {
-        return;
-      }
+    if (allowMultiselect) {
+      const multiSelectedOptions = multiSelectionIds
+        .map((id) => normalizedOptionsLookup.get(id))
+        .filter((opt): opt is NormalizedOption => Boolean(opt));
 
-      setMultiSelectionIds((prev) => {
-        const alreadySelected = prev.includes(optionId);
-        const next = alreadySelected
-          ? prev.filter((id) => id !== optionId)
-          : [...prev, optionId];
+      const triggerSizeClasses = {
+        sm: 'min-h-8',
+        md: 'min-h-10',
+        lg: 'min-h-12',
+      } as const;
 
-        if (onNormalizedChange) {
-          const normalizedSelection = next
-            .map((id) => normalizedOptions.find((opt) => opt.id === id))
-            .filter((opt): opt is NormalizedOption => Boolean(opt));
-          onNormalizedChange(normalizedSelection);
+      const triggerClasses = cn(
+        'flex w-full items-center justify-between rounded-md border bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500',
+        triggerSizeClasses[size],
+        disabled && 'pointer-events-none opacity-60',
+        error
+          ? 'border-red-500 focus:ring-red-500'
+          : 'border-gray-200 hover:border-violet-400',
+        'items-start gap-2',
+        className
+      );
+
+      const [panelPlacement, setPanelPlacement] = useState<'bottom' | 'top'>('bottom');
+      const [panelMaxHeight, setPanelMaxHeight] = useState<number>(256);
+
+      useLayoutEffect(() => {
+        if (!isDropdownOpen || !allowMultiselect || disabled) {
+          return;
         }
 
-        shouldReopenRef.current = true;
-        // Re-open asynchronously to ensure Radix has time to process its close event
-        requestAnimationFrame(() => {
-          setIsSelectOpen(true);
+        const triggerEl = containerRef.current;
+        if (!triggerEl) {
+          return;
+        }
+
+        const triggerRect = triggerEl.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const spacing = 12;
+        const bottomSpace = viewportHeight - triggerRect.bottom - spacing;
+        const topSpace = triggerRect.top - spacing;
+
+        let placement: 'bottom' | 'top' = 'bottom';
+        let availableSpace = bottomSpace;
+
+        if (bottomSpace < 160 && topSpace > bottomSpace) {
+          placement = 'top';
+          availableSpace = topSpace;
+        }
+
+        setPanelPlacement(placement);
+        setPanelMaxHeight(Math.max(160, Math.floor(availableSpace)));
+      }, [allowMultiselect, disabled, isDropdownOpen]);
+
+      const panelClasses = cn(
+        'absolute left-0 right-0 z-50 rounded-lg border border-gray-200 bg-white shadow-xl overflow-hidden',
+        panelPlacement === 'bottom' ? 'top-full mt-2' : 'bottom-full mb-2'
+      );
+
+      const optionButtonClasses = (isSelected: boolean) =>
+        cn(
+          'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors text-left',
+          isSelected
+            ? 'bg-violet-50 text-violet-700 border border-violet-200 shadow-inner'
+            : 'hover:bg-gray-50'
+        );
+
+      const renderMultiTriggerContent = () => {
+        if (multiSelectionIds.length === 0) {
+          return (
+            <span className="text-sm text-gray-400">
+              {fieldPlaceholder}
+            </span>
+          );
+        }
+
+        const selectedOptions = multiSelectionIds
+          .map((id) => normalizedOptionsLookup.get(id))
+          .filter((opt): opt is NormalizedOption => Boolean(opt));
+
+        if (selectedOptions.length === 0) {
+          return (
+            <span className="text-sm text-gray-400">
+              {fieldPlaceholder}
+            </span>
+          );
+        }
+
+        return (
+          <BadgeViewer
+            field={{
+              name: fieldName,
+              label: fieldLabel ?? fieldName,
+              type: 'select',
+              component: 'select',
+              sectionId: '',
+              options: normalizedOptions,
+            } as any}
+            value={selectedOptions}
+            maxBadges={0}
+            className="flex flex-wrap gap-1"
+            enforceVariant={false}
+          />
+        );
+      };
+
+      const toggleOption = (option: NormalizedOption) => {
+        if (disabled) return;
+        const optionId = option.id;
+        if (!optionId) {
+          return;
+        }
+
+        setMultiSelectionIds((prev) => {
+          const alreadySelected = prev.includes(optionId);
+          const next = alreadySelected
+            ? prev.filter((id) => id !== optionId)
+            : [...prev, optionId];
+          return next;
         });
-        return next;
-      });
-    };
-    
+      };
+
+      return (
+        <div className="w-full" ref={containerRef}>
+          {fieldLabel && (
+            <label
+              htmlFor={fieldName}
+              className={cn(
+                'block text-sm font-medium mb-1',
+                error ? 'text-red-700' : 'text-gray-700',
+                required && 'after:content-["*"] after:ml-1 after:text-red-500'
+              )}
+            >
+              {fieldLabel}
+            </label>
+          )}
+          <div className="relative">
+            <button
+              type="button"
+              className={triggerClasses}
+              onClick={() =>
+                setIsDropdownOpen((prev) => {
+                  const next = !prev;
+                  onOpenChange?.(next);
+                  return next;
+                })
+              }
+            >
+              <div className="flex flex-1 flex-wrap gap-1">
+                {renderMultiTriggerContent()}
+              </div>
+              <ChevronDown
+                className={cn(
+                  'ml-2 h-4 w-4 text-gray-500 transition-transform',
+                  isDropdownOpen && 'rotate-180'
+                )}
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className={panelClasses} ref={panelRef} style={{ maxHeight: panelMaxHeight }}>
+              <div className="max-h-full overflow-y-auto py-1">
+                  {validOptions.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-gray-500">
+                      No options available
+                    </div>
+                  ) : (
+                  validOptions.map((option, index) => {
+                    const optionId = option.id ?? '';
+                    const isSelected = multiSelectionSet.has(optionId);
+                    return (
+                      <motion.div
+                        key={optionId}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.17, delay: Math.min(index * 0.04, 0.25) }}
+                      >
+                        <button
+                          type="button"
+                          className={optionButtonClasses(isSelected)}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            toggleOption(option);
+                          }}
+                        >
+                          <span
+                            className={cn(
+                              'flex h-4 w-4 items-center justify-center rounded border text-white transition-colors',
+                              isSelected
+                                ? 'border-violet-500 bg-violet-500 shadow-sm'
+                                : 'border-gray-300 bg-white text-transparent'
+                            )}
+                          >
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span className="flex min-w-0 flex-1 items-center gap-2">
+                            {renderBadgeContent(option)}
+                          </span>
+                        </button>
+                      </motion.div>
+                    );
+                  })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          {error && (
+            <p className="mt-1 text-sm text-red-600" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div className="w-full">
         {fieldLabel && (
@@ -306,66 +597,17 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
         )}
         <RadixSelect
           value={selectValue}
-          onValueChange={allowMultiselect ? undefined : handleRadixChange}
-          {...(allowMultiselect
-            ? {
-                open: isSelectOpen,
-                onOpenChange: (nextOpen: boolean) => {
-                  if (!nextOpen) {
-                    if (shouldReopenRef.current) {
-                      shouldReopenRef.current = false;
-                      requestAnimationFrame(() => setIsSelectOpen(true));
-                      return;
-                    }
-                  } else {
-                    shouldReopenRef.current = false;
-                  }
-                  setIsSelectOpen(nextOpen);
-                  onOpenChange?.(nextOpen);
-                },
-              }
-            : {
-                onOpenChange,
-              })}
+          onValueChange={handleRadixChange}
+          disabled={disabled}
+          onOpenChange={onOpenChange}
           {...props}
         >
-          <SelectTrigger
-            className={cn(
-              selectClasses,
-              allowMultiselect && 'min-h-10 items-start py-2'
-            )}
-            id={fieldName}
-          >
+          <SelectTrigger className={cn(selectClasses)} id={fieldName}>
             <SelectValue placeholder={fieldPlaceholder}>
-              {allowMultiselect ? (
-                multiSelectedOptions.length > 0 ? (
-                  <BadgeViewer
-                    field={{
-                      name: fieldName,
-                      label: fieldLabel ?? fieldName,
-                      type: 'select',
-                      component: 'select',
-                      sectionId: '',
-                      options: normalizedOptions,
-                    } as any}
-                    value={multiSelectedOptions}
-                    maxBadges={0}
-                    className="flex flex-wrap gap-1"
-                    enforceVariant={false}
-                  />
-                ) : null
-              ) : (
-                displayOption && renderBadgeContent(displayOption)
-              )}
+              {displayOption && renderBadgeContent(displayOption)}
             </SelectValue>
           </SelectTrigger>
-          <SelectContent
-            onCloseAutoFocus={(event) => {
-              if (allowMultiselect) {
-                event.preventDefault();
-              }
-            }}
-          >
+          <SelectContent>
             {validOptions.map((option, index) => (
               <motion.div
                 key={option.id ?? index}
@@ -380,42 +622,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
                   ease: 'easeOut',
                 }}
               >
-                <SelectItem
-                  value={option.id as string}
-                  disabled={option.disabled}
-                  className={cn(
-                    allowMultiselect && 'relative pl-8',
-                    allowMultiselect &&
-                      option.id &&
-                      multiSelectionSet.has(option.id) &&
-                      'bg-violet-50 text-violet-700'
-                  )}
-                  {...(allowMultiselect
-                    ? {
-                        onSelect: (event: Event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          handleMultiOptionToggle(option);
-                        },
-                        onPointerDown: (event: React.PointerEvent) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                        },
-                      }
-                    : {})}
-                >
-                  {allowMultiselect && (
-                    <span className="absolute left-2 top-1/2 flex h-4 w-4 -translate-y-1/2 items-center justify-center rounded border border-gray-300 bg-white">
-                      <Check
-                        className={cn(
-                          'h-3 w-3 text-violet-600 transition-opacity',
-                          option.id && multiSelectionSet.has(option.id)
-                            ? 'opacity-100'
-                            : 'opacity-0'
-                        )}
-                      />
-                    </span>
-                  )}
+                <SelectItem value={option.id as string} disabled={option.disabled}>
                   {renderBadgeContent(option)}
                 </SelectItem>
               </motion.div>
