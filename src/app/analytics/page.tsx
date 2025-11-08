@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,16 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { SpendAnalysisChart } from '@/components/dashboard/charts/spend-analysis-chart';
 import { MonthlyTrendChart } from '@/components/dashboard/charts/monthly-trend-chart';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Shield, 
+import {
+  DollarSign,
+  TrendingUp,
+  Shield,
   Users,
   Download,
   BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DashboardMetrics, SpendAnalysis, MonthlyTrend } from '@/types';
+import ReactECharts from 'echarts-for-react';
+import { CHART_ANIMATION_CONFIG, CHART_COLOR_PALETTE, CHART_THEME } from '@/shared/constants/chart-theme';
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -25,6 +27,294 @@ export default function AnalyticsPage() {
   const [monthlyTrends, setMonthlyTrends] = useState<MonthlyTrend[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('last12');
+  const [activeTab, setActiveTab] = useState<'spend' | 'vendor' | 'funnel' | 'analysis' | 'risk'>('spend');
+
+  const tabs = [
+    { id: 'spend' as const, label: 'Spend Analysis' },
+    { id: 'vendor' as const, label: 'Vendor Performance' },
+    { id: 'funnel' as const, label: 'Tender Funnel' },
+    { id: 'analysis' as const, label: 'Tender Analysis' },
+    { id: 'risk' as const, label: 'Risk Assessment' },
+  ];
+
+  const vendorPerformanceData = useMemo(
+    () => [
+      { name: 'Transfarma', onTime: 98, quality: 95, responsiveness: 92, value: 2.5 },
+      { name: 'Ottana Pharmed', onTime: 94, quality: 92, responsiveness: 88, value: 1.8 },
+      { name: 'Exapilog', onTime: 90, quality: 89, responsiveness: 84, value: 1.4 },
+      { name: 'Mana Pharma', onTime: 87, quality: 90, responsiveness: 82, value: 1.2 },
+      { name: 'BioSynx', onTime: 91, quality: 93, responsiveness: 90, value: 1.6 },
+    ],
+    []
+  );
+
+  const vendorPerformanceOption = useMemo(() => {
+    const categories = vendorPerformanceData.map(item => item.name);
+    return {
+      ...CHART_THEME,
+      grid: {
+        ...CHART_THEME.grid,
+        top: '15%',
+        bottom: '15%',
+      },
+      legend: {
+        ...CHART_THEME.legend,
+        data: ['On-Time Delivery', 'Quality Score', 'Responsiveness'],
+        top: '5%',
+      },
+      tooltip: {
+        ...CHART_THEME.tooltip,
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+      xAxis: {
+        ...CHART_THEME.xAxis,
+        type: 'category',
+        data: categories,
+        axisLabel: {
+          ...CHART_THEME.xAxis.axisLabel,
+          interval: 0,
+          rotate: 0,
+        },
+      },
+      yAxis: {
+        ...CHART_THEME.yAxis,
+        type: 'value',
+        max: 100,
+        axisLabel: {
+          ...CHART_THEME.yAxis.axisLabel,
+          formatter: (value: number) => `${value}%`,
+        },
+      },
+      series: [
+        {
+          name: 'On-Time Delivery',
+          type: 'bar',
+          data: vendorPerformanceData.map(item => item.onTime),
+          itemStyle: {
+            color: CHART_COLOR_PALETTE[0],
+            borderRadius: [4, 4, 0, 0],
+          },
+          animationDelay: (idx: number) => idx * 80,
+        },
+        {
+          name: 'Quality Score',
+          type: 'bar',
+          data: vendorPerformanceData.map(item => item.quality),
+          itemStyle: {
+            color: CHART_COLOR_PALETTE[2],
+            borderRadius: [4, 4, 0, 0],
+          },
+          animationDelay: (idx: number) => idx * 80 + 100,
+        },
+        {
+          name: 'Responsiveness',
+          type: 'bar',
+          data: vendorPerformanceData.map(item => item.responsiveness),
+          itemStyle: {
+            color: CHART_COLOR_PALETTE[4],
+            borderRadius: [4, 4, 0, 0],
+          },
+          animationDelay: (idx: number) => idx * 80 + 200,
+        },
+      ],
+      animationDuration: CHART_ANIMATION_CONFIG.duration,
+      animationEasing: CHART_ANIMATION_CONFIG.easing,
+    };
+  }, [vendorPerformanceData]);
+
+  const tenderFunnelData = useMemo(
+    () => [
+      { stage: 'Draft', value: 64 },
+      { stage: 'Published', value: 48 },
+      { stage: 'Responses', value: 36 },
+      { stage: 'Shortlisted', value: 22 },
+      { stage: 'Awarded', value: 14 },
+    ],
+    []
+  );
+
+  const tenderFunnelOption = useMemo(
+    () => ({
+      ...CHART_THEME,
+      tooltip: {
+        ...CHART_THEME.tooltip,
+        trigger: 'item',
+        formatter: (params: any) => `
+          <div style="padding: 8px;">
+            <div style="font-weight:600; margin-bottom: 4px;">${params.name}</div>
+            <div>${params.value} tenders</div>
+          </div>
+        `,
+      },
+      series: [
+        {
+          type: 'funnel',
+          left: '10%',
+          top: '10%',
+          bottom: '10%',
+          width: '80%',
+          min: 0,
+          max: tenderFunnelData[0]?.value ?? 100,
+          sort: 'descending',
+          gap: 4,
+          itemStyle: {
+            borderColor: '#fff',
+            borderWidth: 1,
+          },
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: '{b}\n{c}',
+            fontSize: 12,
+            color: '#fff',
+          },
+          data: tenderFunnelData.map((item, index) => ({
+            name: item.stage,
+            value: item.value,
+            itemStyle: {
+              color: CHART_COLOR_PALETTE[index % CHART_COLOR_PALETTE.length],
+            },
+          })),
+        },
+      ],
+    }),
+    [tenderFunnelData]
+  );
+
+  const tenderCycleData = useMemo(
+    () => [
+      { month: 'Apr', cycle: 36, awards: 8 },
+      { month: 'May', cycle: 34, awards: 10 },
+      { month: 'Jun', cycle: 32, awards: 9 },
+      { month: 'Jul', cycle: 30, awards: 11 },
+      { month: 'Aug', cycle: 28, awards: 14 },
+      { month: 'Sep', cycle: 27, awards: 12 },
+      { month: 'Oct', cycle: 26, awards: 13 },
+      { month: 'Nov', cycle: 25, awards: 15 },
+    ],
+    []
+  );
+
+  const tenderAnalysisOption = useMemo(() => {
+    const months = tenderCycleData.map(item => item.month);
+    return {
+      ...CHART_THEME,
+      grid: {
+        ...CHART_THEME.grid,
+        top: '12%',
+        bottom: '18%',
+      },
+      tooltip: {
+        ...CHART_THEME.tooltip,
+        trigger: 'axis',
+      },
+      legend: {
+        ...CHART_THEME.legend,
+        data: ['Avg Cycle Time', 'Tenders Awarded'],
+        top: '5%',
+      },
+      xAxis: {
+        ...CHART_THEME.xAxis,
+        type: 'category',
+        data: months,
+      },
+      yAxis: [
+        {
+          ...CHART_THEME.yAxis,
+          type: 'value',
+          name: 'Cycle Time (days)',
+          axisLabel: {
+            ...CHART_THEME.yAxis.axisLabel,
+            formatter: '{value}d',
+          },
+        },
+        {
+          ...CHART_THEME.yAxis,
+          type: 'value',
+          name: 'Awards',
+          axisLabel: {
+            ...CHART_THEME.yAxis.axisLabel,
+            formatter: '{value}',
+          },
+        },
+      ],
+      series: [
+        {
+          name: 'Avg Cycle Time',
+          type: 'line',
+          yAxisIndex: 0,
+          smooth: true,
+          data: tenderCycleData.map(item => item.cycle),
+          itemStyle: {
+            color: CHART_COLOR_PALETTE[1],
+          },
+          areaStyle: {
+            color: CHART_COLOR_PALETTE[1] + '33',
+          },
+        },
+        {
+          name: 'Tenders Awarded',
+          type: 'bar',
+          yAxisIndex: 1,
+          data: tenderCycleData.map(item => item.awards),
+          itemStyle: {
+            color: CHART_COLOR_PALETTE[5] ?? '#7c3aed',
+            borderRadius: [4, 4, 0, 0],
+          },
+        },
+      ],
+    };
+  }, [tenderCycleData]);
+
+  const riskDimensions = useMemo(
+    () => [
+      { name: 'Compliance', value: 92 },
+      { name: 'Financial', value: 85 },
+      { name: 'Operational', value: 78 },
+      { name: 'Supply Chain', value: 81 },
+      { name: 'Cybersecurity', value: 74 },
+      { name: 'Reputation', value: 88 },
+    ],
+    []
+  );
+
+  const riskRadarOption = useMemo(
+    () => ({
+      ...CHART_THEME,
+      radar: {
+        indicator: riskDimensions.map(dim => ({ name: dim.name, max: 100 })),
+        splitArea: {
+          show: true,
+        },
+      },
+      tooltip: {
+        ...CHART_THEME.tooltip,
+        trigger: 'item',
+      },
+      series: [
+        {
+          type: 'radar',
+          areaStyle: {
+            color: CHART_COLOR_PALETTE[3] + '33',
+          },
+          lineStyle: {
+            color: CHART_COLOR_PALETTE[3],
+            width: 2,
+          },
+          data: [
+            {
+              value: riskDimensions.map(dim => dim.value),
+              name: 'Risk Coverage',
+            },
+          ],
+        },
+      ],
+    }),
+    [riskDimensions]
+  );
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -159,103 +449,335 @@ export default function AnalyticsPage() {
           transition={{ duration: 0.3, delay: 0.5 }}
           className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit"
         >
-          <Button variant="default" size="sm">Spend Analysis</Button>
-          <Button variant="ghost" size="sm">Vendor Performance</Button>
-          <Button variant="ghost" size="sm">Tender Funnel</Button>
-          <Button variant="ghost" size="sm">Tender Analysis</Button>
-          <Button variant="ghost" size="sm">Risk Assessment</Button>
+          {tabs.map(tab => (
+            <Button
+              key={tab.id}
+              variant={activeTab === tab.id ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </Button>
+          ))}
         </motion.div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SpendAnalysisChart data={spendAnalysis} />
-          <MonthlyTrendChart data={monthlyTrends} />
-        </div>
+        {activeTab === 'spend' && (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SpendAnalysisChart data={spendAnalysis} />
+              <MonthlyTrendChart data={monthlyTrends} />
+            </div>
 
-        {/* Additional Analytics Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.6 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="h-5 w-5" />
-                  <span>Top Performing Vendors</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Transfarma</span>
-                  <Badge variant="success">4.8</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Ottana Pharmed</span>
-                  <Badge variant="success">4.5</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Exapilog</span>
-                  <Badge variant="warning">4.2</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.6 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <BarChart3 className="h-5 w-5" />
+                      <span>Top Performing Vendors</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Transfarma</span>
+                      <Badge variant="success">4.8</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Ottana Pharmed</span>
+                      <Badge variant="success">4.5</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Exapilog</span>
+                      <Badge variant="warning">4.2</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.7 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5" />
-                  <span>Recent Trends</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Spend Growth</span>
-                  <span className="text-sm font-medium text-green-600">+12.5%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Order Volume</span>
-                  <span className="text-sm font-medium text-blue-600">+8.3%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Cost Savings</span>
-                  <span className="text-sm font-medium text-green-600">+5.8%</span>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.7 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <TrendingUp className="h-5 w-5" />
+                      <span>Recent Trends</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Spend Growth</span>
+                      <span className="text-sm font-medium text-green-600">+12.5%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Order Volume</span>
+                      <span className="text-sm font-medium text-blue-600">+8.3%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Cost Savings</span>
+                      <span className="text-sm font-medium text-green-600">+5.8%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.8 }}
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span>Compliance Score</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">94.2%</div>
-                  <p className="text-sm text-gray-600">Above industry average</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '94.2%' }}></div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.8 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Shield className="h-5 w-5" />
+                      <span>Compliance Score</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-600 mb-2">94.2%</div>
+                      <p className="text-sm text-gray-600">Above industry average</p>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '94.2%' }}></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'vendor' && (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <motion.div
+              className="xl:col-span-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Vendor Performance Overview</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ReactECharts option={vendorPerformanceOption} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vendor Highlights</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {vendorPerformanceData.map(vendor => (
+                    <div key={vendor.name} className="border-b border-gray-100 pb-4 last:border-none last:pb-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-semibold text-gray-900">{vendor.name}</span>
+                        <Badge variant="outline">{vendor.value.toFixed(1)}M</Badge>
+                      </div>
+                      <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-500">
+                        <span>On-Time: <span className="text-gray-700 font-medium">{vendor.onTime}%</span></span>
+                        <span>Quality: <span className="text-gray-700 font-medium">{vendor.quality}%</span></span>
+                        <span>Responsiveness: <span className="text-gray-700 font-medium">{vendor.responsiveness}%</span></span>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
+
+        {activeTab === 'funnel' && (
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <BarChart3 className="h-5 w-5" />
+                    <span>Tender Funnel Conversion</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ReactECharts option={tenderFunnelOption} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Stage Performance</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {tenderFunnelData.map((stage, index) => {
+                    const conversion =
+                      index === 0 ? 100 : Math.round((stage.value / tenderFunnelData[index - 1].value) * 100);
+                    return (
+                      <div key={stage.stage} className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium text-gray-900">{stage.stage}</span>
+                          <span className="text-gray-500">{stage.value} tenders</span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
+                              width: `${conversion}%`,
+                              backgroundColor: CHART_COLOR_PALETTE[index % CHART_COLOR_PALETTE.length],
+                            }}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-500 flex items-center justify-between">
+                          <span>Conversion</span>
+                          <span className="font-medium text-gray-700">{conversion}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
+
+        {activeTab === 'analysis' && (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <motion.div
+              className="xl:col-span-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Tender Cycle Efficiency</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ReactECharts option={tenderAnalysisOption} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Insights Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm text-gray-600">
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">Cycle Time Improvement</p>
+                    <p>Average tender cycle time improved by 11 days over the past six months.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">Award Conversion</p>
+                    <p>62% of published tenders progressed to award stage, driven by improved supplier engagement.</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-1">High-Value Awards</p>
+                    <p>Top three awards accounted for 45% of total tender value in the last quarter.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
+
+        {activeTab === 'risk' && (
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <motion.div
+              className="xl:col-span-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Shield className="h-5 w-5" />
+                    <span>Risk Coverage Radar</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ReactECharts option={riskRadarOption} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle>Key Risk Indicators</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Overall Risk Score</span>
+                    <Badge variant="success">Low (18%)</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">High-Risk Vendors</span>
+                    <span className="font-semibold text-gray-900">3</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Compliance Alerts</span>
+                    <span className="font-semibold text-yellow-600">5 open</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 mb-2">Top Risk Drivers</p>
+                    <ul className="space-y-2 text-gray-600">
+                      <li>• Supply chain disruptions in APAC region</li>
+                      <li>• Pending compliance certifications for two vendors</li>
+                      <li>• Increased cybersecurity monitoring following new integrations</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        )}
       </div>
     </MainLayout>
   );
