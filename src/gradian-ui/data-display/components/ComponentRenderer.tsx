@@ -115,6 +115,35 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
     ...(config.componentType === 'kpi' && config.config ? { config: config.config } : {})
   };
 
+  const {
+    value: extractedValue,
+    currentValue,
+    previousValue,
+    target,
+    ...restComponentProps
+  } = componentProps;
+
+  const resolveNumber = (val: unknown, fallback?: number) => {
+    if (typeof val === 'number') {
+      return Number.isFinite(val) ? val : fallback;
+    }
+
+    if (val === null || val === undefined || val === '') {
+      return fallback;
+    }
+
+    const numeric = Number(val);
+    return Number.isFinite(numeric) ? numeric : fallback;
+  };
+
+  const resolvedValue = resolveNumber(
+    extractedValue ?? currentValue,
+    0
+  ) ?? 0;
+
+  const resolvedPreviousValue = resolveNumber(previousValue, undefined);
+  const resolvedTargetValue = resolveNumber(target, undefined);
+
   const wrapperClasses = cn(
     "h-full",
     colSpan === 2 && "lg:col-span-2",
@@ -129,10 +158,10 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
         return (
           <KPIIndicator
             config={config.config}
-            value={(componentProps.value as number) || (componentProps.currentValue as number) || 0}
-            previousValue={componentProps.previousValue as number | undefined}
-            target={componentProps.target as number | undefined}
-            {...componentProps}
+            value={resolvedValue}
+            previousValue={resolvedPreviousValue}
+            target={resolvedTargetValue}
+            {...restComponentProps}
           />
         );
 
@@ -141,9 +170,9 @@ export const ComponentRenderer: React.FC<ComponentRendererProps> = ({
         return (
           <KPIIndicator
             config={config.config || { title: config.id, format: 'number' }}
-            value={componentProps.value || 0}
-            previousValue={componentProps.previousValue}
-            {...componentProps}
+            value={resolvedValue}
+            previousValue={resolvedPreviousValue}
+            {...restComponentProps}
           />
         );
 
