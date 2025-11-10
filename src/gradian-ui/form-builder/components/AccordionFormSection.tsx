@@ -626,6 +626,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
     if (isRelationBased) {
       const itemsToDisplay = relatedEntities;
       const itemsCount = itemsToDisplay.length;
+      const headerSectionMessage = displaySectionError;
       
       return (
         <>
@@ -644,9 +645,9 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                   <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
                     {itemsCount}
                   </span>
-                  {displaySectionError && (
+                  {headerSectionMessage && (
                     <span className="text-sm text-red-600 mt-0.5" role="alert">
-                      • {displaySectionError}
+                      • {headerSectionMessage}
                     </span>
                   )}
                   <Button
@@ -743,7 +744,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                       ))}
                     </div>
                   ) : itemsCount === 0 ? (
-                    <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
                       <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
                     </div>
                   ) : (
@@ -799,7 +800,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                   {/* Add button - only show if addType is 'addOnly' or 'canSelectFromData' */}
                   {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
                     <div className="space-y-2">
-                      <div className="flex justify-center">
+                      <div className="flex justify-center mb-4">
                         <AddButtonFull
                           label={section.repeatingConfig?.addButtonText || `Add ${title}`}
                           onClick={onAddRepeatingItem}
@@ -944,7 +945,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           <CardContent className="px-6 pb-6">
             <div className="space-y-4">
               {(repeatingItems || []).length === 0 ? (
-                <div className="text-center py-8 text-gray-500 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
                   <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
                 </div>
               ) : (
@@ -986,7 +987,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
 
               {onAddRepeatingItem && (
                 <div className="space-y-2">
-                  <div className="flex justify-center">
+                  <div className="flex justify-center mb-4">
                     <AddButtonFull
                       label={section.repeatingConfig?.addButtonText || `Add ${title}`}
                       onClick={onAddRepeatingItem}

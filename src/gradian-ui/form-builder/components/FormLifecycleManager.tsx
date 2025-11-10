@@ -420,13 +420,13 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         // For relation-based sections, use relation count; for regular sections, use form values
         let itemCount: number;
         if (isRelationBased) {
-          // For relation-based sections, items are stored as relations, not in form values
-          // Use the fetched relation count if available, otherwise skip validation
+          const relationValueArray = Array.isArray(state.values[section.id]) ? state.values[section.id] : [];
           if (hasEntityId && relationCounts[section.id] !== undefined) {
             itemCount = relationCounts[section.id];
+          } else if (relationCounts[section.id] !== undefined) {
+            itemCount = relationCounts[section.id];
           } else {
-            // Entity not saved yet or count not available - skip minItems validation
-            itemCount = hasEntityId ? 0 : -1; // -1 means skip validation
+            itemCount = relationValueArray.length;
           }
         } else {
           // For regular repeating sections, items are in form values
@@ -436,19 +436,17 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         
         // For relation-based sections, only enforce minItems after the entity has been saved (has an ID)
         // This allows users to save the form first, then add related items
-        if (minItems !== undefined && itemCount >= 0 && itemCount < minItems) {
-          // Skip minItems validation for relation-based sections if entity hasn't been saved yet
-          if (isRelationBased && !hasEntityId) {
-            // Allow saving without items for relation-based sections on initial save
-          } else {
-            const errorMessage = `At least ${minItems} item(s) are required`;
-            newErrors[section.id] = errorMessage;
-            isValid = false;
-          }
+        if (minItems !== undefined && itemCount < minItems) {
+          const sectionLabel = section.title || section.id;
+          const itemLabel = minItems === 1 ? 'item is' : 'items are';
+          const errorMessage = `At least ${minItems} ${itemLabel} required for ${sectionLabel}`;
+          newErrors[section.id] = errorMessage;
+          isValid = false;
         }
         
-        if (maxItems !== undefined && itemCount >= 0 && itemCount > maxItems) {
-          const errorMessage = `Maximum ${maxItems} item(s) allowed`;
+        if (maxItems !== undefined && itemCount > maxItems) {
+          const sectionLabel = section.title || section.id;
+          const errorMessage = `Maximum ${maxItems} item(s) allowed for ${sectionLabel}`;
           newErrors[section.id] = errorMessage;
           isValid = false;
         }
@@ -676,19 +674,15 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         const isRelationBased = section.repeatingConfig.targetSchema && section.repeatingConfig.relationTypeId;
         const hasEntityId = !!(state.values?.id);
         
+        const sectionLabel = section.title || section.id;
         if (minItems !== undefined && items.length < minItems) {
-          // Skip minItems validation for relation-based sections if entity hasn't been saved yet
-          if (isRelationBased && !hasEntityId) {
-            // Allow saving without items for relation-based sections on initial save
-          } else {
-            sectionValid = false;
-            sectionErrors.push(`At least ${minItems} item(s) required, found ${items.length}`);
-          }
+          sectionValid = false;
+          sectionErrors.push(`At least ${minItems} item(s) required for ${sectionLabel}, found ${items.length}`);
         }
         
         if (maxItems !== undefined && items.length > maxItems) {
           sectionValid = false;
-          sectionErrors.push(`Maximum ${maxItems} item(s) allowed, found ${items.length}`);
+          sectionErrors.push(`Maximum ${maxItems} item(s) allowed for ${sectionLabel}, found ${items.length}`);
         }
         
         // Check for errors within repeating items

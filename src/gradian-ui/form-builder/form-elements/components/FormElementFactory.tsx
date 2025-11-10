@@ -59,11 +59,22 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       disabled,
       ...otherProps,
     };
+    const derivedRequired = field?.required ?? field?.validation?.required ?? false;
+    if (typeof restProps.required === 'undefined') {
+      restProps.required = derivedRequired;
+    }
   } else {
     // Use config directly
     const { config: configProp, ...otherProps } = props;
     config = configProp;
     restProps = otherProps;
+    const derivedRequired =
+      configProp?.required ??
+      configProp?.validation?.required ??
+      false;
+    if (typeof restProps.required === 'undefined') {
+      restProps.required = derivedRequired;
+    }
   }
 
   if (!config) {

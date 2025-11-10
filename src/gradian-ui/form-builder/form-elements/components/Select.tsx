@@ -63,6 +63,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
 
   const selectClasses = cn(
     sizeClasses[size],
+    error && 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 data-[state=open]:border-red-500 data-[state=open]:ring-red-400',
     className
   );
 

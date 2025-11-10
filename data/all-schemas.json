@@ -2009,7 +2009,7 @@
         "initialState": "expanded",
         "columns": 2,
         "repeatingConfig": {
-          "minItems": 0,
+          "minItems": 1,
           "maxItems": 100,
           "addButtonText": "Add Item",
           "removeButtonText": "Remove Item",

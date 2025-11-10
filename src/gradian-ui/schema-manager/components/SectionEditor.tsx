@@ -378,7 +378,6 @@ export function SectionEditor({
                   <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
                     <p className="text-xs text-blue-700">
                       <span className="font-medium">Relation-based section:</span> Fields are managed in the target schema "{tempSection.repeatingConfig?.targetSchema}". 
-                      Relations will be stored in all-data-relations.json.
                     </p>
                   </div>
                 </>

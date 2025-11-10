@@ -36,6 +36,7 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
   
   // Get section-level error
   const sectionError = errors?.[section.id];
+  const headerSectionMessage = sectionError;
 
   return (
     <div className="space-y-3">
@@ -45,9 +46,9 @@ export const RepeatingSection: React.FC<RepeatingSectionProps> = ({
           <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
             {items.length}
           </span>
-          {sectionError && (
+          {headerSectionMessage && (
             <span className="text-sm text-red-600 mt-0.5" role="alert">
-              • {sectionError}
+              • {headerSectionMessage}
             </span>
           )}
         </div>
