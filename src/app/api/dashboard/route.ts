@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isMockData } from '@/lib/config';
-import { readSchemaData } from '@/shared/domain/utils/data-storage.util';
+import { readSchemaData } from '@/gradian-ui/shared/domain/utils/data-storage.util';
 import { prisma } from '@/lib/prisma';
 import { calculateDashboardMetrics, calculateSpendAnalysis, calculateMonthlyTrends } from '@/lib/measures';
 

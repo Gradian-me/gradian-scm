@@ -23,7 +23,7 @@ async function clearSchemaLoaderCache() {
 async function clearCompaniesLoaderCache() {
   try {
     // Import and call clearCompaniesCache from companies-loader
-    const { clearCompaniesCache } = await import('@/shared/utils/companies-loader');
+    const { clearCompaniesCache } = await import('@/gradian-ui/shared/utils/companies-loader');
     clearCompaniesCache();
   } catch (error) {
     console.warn('Could not clear companies-loader cache:', error);
@@ -36,7 +36,7 @@ async function clearCompaniesLoaderCache() {
 async function clearAllDataLoaderCaches() {
   try {
     // Import and call clearAllCaches from data-loader
-    const { clearAllCaches } = await import('@/shared/utils/data-loader');
+    const { clearAllCaches } = await import('@/gradian-ui/shared/utils/data-loader');
     clearAllCaches();
   } catch (error) {
     console.warn('Could not clear data-loader caches:', error);

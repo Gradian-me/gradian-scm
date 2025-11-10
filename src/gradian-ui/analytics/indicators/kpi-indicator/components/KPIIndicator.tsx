@@ -4,7 +4,7 @@ import React from 'react';
 import { KPIIndicatorProps } from '../types';
 import { KPITrend } from './KPITrend';
 import { KPIProgress } from './KPIProgress';
-import { cn, formatNumber, formatCurrency } from '../../../../shared/utils';
+import { cn, formatNumber, formatCurrency } from '@/gradian-ui/shared/utils';
 
 export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
   config,

@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,24 +8,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { getBadgeConfig, getInitials } from '@/gradian-ui/data-display/utils';
+import { getInitials } from '@/gradian-ui/data-display/utils';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { cn } from '@/gradian-ui/shared/utils';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
-import { apiRequest } from '@/shared/utils/api';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, List, Loader2, RefreshCw } from 'lucide-react';
+import { List, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getArrayValuesByRole, getFieldsByRole, getSingleValueByRole, getValueByRole } from '../utils/field-resolver';
 import { Avatar } from './Avatar';
 import { CodeBadge } from './CodeBadge';
 import { SearchInput } from './SearchInput';
-import { extractFirstId, normalizeOptionArray, normalizeOptionEntry, NormalizedOption } from '../utils/option-normalizer';
+import { normalizeOptionArray, normalizeOptionEntry, NormalizedOption } from '../utils/option-normalizer';
 import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
-
-const BADGE_VARIANTS = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
+import { renderHighlightedText } from '@/gradian-ui/shared/utils/highlighter';
+import { formatFieldValue, getFieldValue } from '@/gradian-ui/data-display/table/utils/field-formatters';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 12, scale: 0.96 },
@@ -54,21 +52,6 @@ interface PendingSelection {
   normalized?: NormalizedOption | null;
   raw?: any | null;
 }
-
-const isValidBadgeVariant = (color?: string | null): boolean => {
-  if (!color) return false;
-  return BADGE_VARIANTS.includes(color);
-};
-
-const isHexColor = (color: string): boolean => color.startsWith('#');
-
-const isTailwindClasses = (color: string): boolean => {
-  return color.includes('bg-') ||
-    color.includes('text-') ||
-    color.includes('border-') ||
-    color.includes('rounded-') ||
-    /^[a-z]+-[a-z0-9-]+/.test(color);
-};
 
 const buildSelectionEntry = (item: any, schema?: FormSchema | null): NormalizedOption => {
   if (!item) {
@@ -497,6 +480,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       custom: index,
     } as const;
 
+    const highlightQuery = searchQuery.trim();
+
     if (!schema) {
       // Fallback rendering
       const displayName = item.name || item.title || item.id || `Item ${index + 1}`;
@@ -513,10 +498,14 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               isSelected ? selectedCardClasses : defaultCardClasses
             )}
           >
-            <div className={cn(
-              "font-medium text-sm",
-              isSelected ? "text-violet-900" : "text-gray-900"
-            )}>{displayName}</div>
+            <div
+              className={cn(
+                "font-medium text-sm",
+                isSelected ? "text-violet-900" : "text-gray-900"
+              )}
+            >
+              {renderHighlightedText(displayName, highlightQuery)}
+            </div>
           </div>
         </motion.div>
       );
@@ -526,9 +515,6 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     const title = getValueByRole(schema, item, 'title') || item.name || `Item ${index + 1}`;
     const subtitle = getSingleValueByRole(schema, item, 'subtitle', item.email) || item.email || '';
     const avatarField = getSingleValueByRole(schema, item, 'avatar', item.name) || item.name || '?';
-    const statusField = getSingleValueByRole(schema, item, 'status') || item.status || '';
-    const ratingField = getSingleValueByRole(schema, item, 'rating') || item.rating || 0;
-
     // Get badge fields
     const badgeFields = getFieldsByRole(schema, 'badge');
     const allOptions = new Map<string, NormalizedOption>();
@@ -555,24 +541,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
     // Find status field options
     const statusFieldDef = schema.fields?.find(f => f.role === 'status');
-    const statusOptions: BadgeOption[] | undefined = statusFieldDef?.options
-      ? normalizeOptionArray(statusFieldDef.options).map((opt) => ({
-          id: opt.id,
-          value: opt.value,
-          label: opt.label ?? opt.id,
-          icon: opt.icon,
-          color: opt.color,
-          disabled: opt.disabled,
-        }))
-      : undefined;
-    const hasRatingField = schema.fields?.some(f => f.role === 'rating') || false;
-    const hasStatusField = schema.fields?.some(f => f.role === 'status') || false;
+    const ratingFieldDef = schema.fields?.find(f => f.role === 'rating');
     const hasCodeField = schema.fields?.some(f => f.role === 'code') || false;
     const codeField = getSingleValueByRole(schema, item, 'code');
-    const rawStatusValue = getSingleValueByRole(schema, item, 'status') ?? item.status;
-    const normalizedStatusValue = normalizeOptionArray(rawStatusValue);
-    const primaryStatusEntry = normalizedStatusValue[0];
-    const fallbackStatusId = extractFirstId(rawStatusValue);
+    const statusFieldValue = statusFieldDef ? getFieldValue(statusFieldDef, item) : null;
+    const ratingFieldValue = ratingFieldDef ? getFieldValue(ratingFieldDef, item) : null;
+    const statusFieldNode = statusFieldDef ? formatFieldValue(statusFieldDef, statusFieldValue, item) : null;
+    const ratingFieldNode = ratingFieldDef ? formatFieldValue(ratingFieldDef, ratingFieldValue, item) : null;
 
     return (
       <motion.div key={item.id || index} {...motionProps}>
@@ -604,13 +579,15 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <h4 className={cn(
-                      "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
-                      isSelected
-                        ? "text-violet-900"
-                        : "text-gray-900 group-hover:text-violet-700"
-                    )}>
-                      {title}
+                    <h4
+                      className={cn(
+                        "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
+                        isSelected
+                          ? "text-violet-900"
+                          : "text-gray-900 group-hover:text-violet-700"
+                      )}
+                    >
+                      {renderHighlightedText(title, highlightQuery)}
                     </h4>
                     {/* Code Badge */}
                     {hasCodeField && codeField && (
@@ -619,7 +596,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                   </div>
                   {subtitle && (
                     <p className="text-xs text-gray-500 truncate mt-0.5">
-                      {subtitle}
+                      {renderHighlightedText(subtitle, highlightQuery)}
                     </p>
                   )}
 
@@ -627,47 +604,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
                 {/* Rating and Status */}
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
-                  {hasRatingField && (
-                    <div className="text-xs text-gray-600 font-medium">
-                      ⭐ {Number(ratingField) || 0}
-                    </div>
-                  )}
-                  {hasStatusField && (primaryStatusEntry || fallbackStatusId) && (() => {
-                    const statusSource = primaryStatusEntry ?? fallbackStatusId ?? '';
-                    if (!statusSource) {
-                      return null;
-                    }
-                    const badgeConfig = getBadgeConfig(
-                      statusSource,
-                      statusOptions as any
-                    );
-
-                    const badgeIcon = primaryStatusEntry?.icon ?? badgeConfig.icon;
-                    const badgeLabel = primaryStatusEntry?.label ?? badgeConfig.label;
-                    const badgeColor = primaryStatusEntry?.color ?? badgeConfig.color;
-
-                    const badgeVariant = isValidBadgeVariant(typeof badgeColor === 'string' ? badgeColor : undefined)
-                      ? (badgeColor as any)
-                      : 'outline';
-                    const badgeClassNames = cn(
-                      'flex items-center gap-1 px-1.5 py-0.5 text-xs',
-                      badgeColor && typeof badgeColor === 'string' && isTailwindClasses(badgeColor) ? badgeColor : undefined
-                    );
-                    const badgeInlineStyle = badgeColor && typeof badgeColor === 'string' && isHexColor(badgeColor)
-                      ? { backgroundColor: badgeColor, color: '#fff', border: 'none' }
-                      : undefined;
-
-                    return (
-                      <Badge
-                        variant={badgeVariant}
-                        className={badgeClassNames}
-                        style={badgeInlineStyle}
-                      >
-                        {badgeIcon && <IconRenderer iconName={badgeIcon} className="h-3 w-3" />}
-                        <span>{badgeLabel}</span>
-                      </Badge>
-                    );
-                  })()}
+                  {ratingFieldNode && <div className="flex items-center gap-1">{ratingFieldNode}</div>}
+                  {statusFieldNode && <div className="flex items-center gap-1">{statusFieldNode}</div>}
                 </div>
               </div>
             </div>

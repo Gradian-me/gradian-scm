@@ -3,7 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateUser } from '@/domains/auth';
-import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+import { AUTH_CONFIG } from '@/gradian-ui/shared/constants/application-variables';
 
 export async function POST(request: NextRequest) {
   try {

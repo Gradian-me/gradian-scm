@@ -15,16 +15,16 @@ import { FormSection } from './FormSection';
 import { AccordionFormSection } from './AccordionFormSection';
 import { RepeatingSection } from './RepeatingSection';
 import { FormElementFactory } from '../form-elements';
-import { Button } from '../../../components/ui/button';
-import { FormAlert } from '../../../components/ui/form-alert';
-import { cn, validateField as validateFieldUtil } from '../../shared/utils';
-import { loggingCustom } from '../../../shared/utils';
-import { LogType } from '../../../shared/constants/application-variables';
+import { Button } from '@/components/ui/button';
+import { FormAlert } from '@/components/ui/form-alert';
+import { cn, validateField as validateFieldUtil } from '@/gradian-ui/shared/utils';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
 import { ChevronsDown, ChevronsUp } from 'lucide-react';
 import { GoToTopForm } from '../form-elements/go-to-top-form';
 import { FormModal } from './FormModal';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { CompanySelector } from '@/components/layout/CompanySelector';
 
 // Form Context

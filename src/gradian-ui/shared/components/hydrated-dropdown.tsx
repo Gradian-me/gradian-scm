@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useHydration } from '@/shared/hooks/use-hydration';
+import { useHydration } from '@/gradian-ui/shared/hooks/use-hydration';
 
 interface HydratedDropdownProps {
   children: ReactNode;

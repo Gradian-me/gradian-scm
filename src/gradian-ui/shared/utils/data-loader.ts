@@ -4,8 +4,8 @@
 
 import 'server-only';
 
-import { loggingCustom } from '@/shared/utils/logging-custom';
-import { LogType } from '@/shared/constants/application-variables';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 
 // Cache storage structure
 interface CacheEntry<T> {

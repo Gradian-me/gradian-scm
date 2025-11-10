@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { IconRenderer, isValidLucideIcon } from "@/shared/utils/icon-renderer"
+import { IconRenderer, isValidLucideIcon } from "@/gradian-ui/shared/utils/icon-renderer"
 
 export interface IconInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {

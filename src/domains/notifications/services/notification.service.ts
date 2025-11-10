@@ -1,5 +1,5 @@
 import { Notification, NotificationFilters, NotificationGroup } from '../types';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 
 // Transform raw notification data to Notification type
 function transformNotificationData(notification: any): Notification {

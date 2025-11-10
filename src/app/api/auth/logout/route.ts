@@ -2,7 +2,7 @@
 // Logs out user by clearing tokens
 
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+import { AUTH_CONFIG } from '@/gradian-ui/shared/constants/application-variables';
 
 export async function POST(request: NextRequest) {
   try {

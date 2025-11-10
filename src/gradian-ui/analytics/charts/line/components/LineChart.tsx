@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { LineChartProps } from '../types';
-import { cn } from '../../../../shared/utils';
+import { cn } from '@/gradian-ui/shared/utils';
 
 export const LineChart: React.FC<LineChartProps> = ({
   config,

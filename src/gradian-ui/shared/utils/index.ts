@@ -1,6 +1,4 @@
-// Shared Utilities for Gradian UI Components
-
-import { ComponentConfig, ValidationRule, ChartDataPoint } from '../types';
+import type { ComponentConfig, ValidationRule, ChartDataPoint } from '../types';
 
 /**
  * Generates a unique ID for components
@@ -13,13 +11,18 @@ export const generateId = (prefix: string = 'gradian'): string => {
  * Merges class names with proper spacing
  */
 export const cn = (...classes: (string | undefined | null | false | 0)[]): string => {
-  return classes.filter(c => c !== undefined && c !== null && c !== false && c !== 0).join(' ');
+  return classes
+    .filter(c => c !== undefined && c !== null && c !== false && c !== 0)
+    .join(' ');
 };
 
 /**
  * Validates form field value based on validation rules
  */
-export const validateField = (value: any, rules: ValidationRule): { isValid: boolean; error?: string } => {
+export const validateField = (
+  value: any,
+  rules: ValidationRule
+): { isValid: boolean; error?: string } => {
   if (rules.required && (!value || value.toString().trim() === '')) {
     return { isValid: false, error: 'This field is required' };
   }
@@ -47,11 +50,11 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
   }
 
   if (value && rules.pattern) {
-    // Handle pattern as either string or RegExp
-    const pattern = typeof rules.pattern === 'string' 
-      ? new RegExp(rules.pattern) 
-      : rules.pattern;
-    
+    const pattern =
+      typeof rules.pattern === 'string'
+        ? new RegExp(rules.pattern)
+        : rules.pattern;
+
     if (!pattern.test(value.toString())) {
       return { isValid: false, error: 'Invalid format' };
     }
@@ -60,7 +63,6 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
   if (value && rules.custom) {
     const result = rules.custom(value);
     if (typeof result === 'object' && result !== null) {
-      // Handle object result with isValid and error
       return result as { isValid: boolean; error?: string };
     }
     if (typeof result === 'string') {
@@ -78,7 +80,6 @@ export const validateField = (value: any, rules: ValidationRule): { isValid: boo
  * Formats number with proper locale formatting
  */
 export const formatNumber = (value: number, options?: Intl.NumberFormatOptions): string => {
-  // Always use grouping (thousand separators) unless explicitly disabled
   const defaultOptions: Intl.NumberFormatOptions = {
     useGrouping: true,
     ...options,
@@ -141,12 +142,12 @@ export const throttle = <T extends (...args: any[]) => any>(
 export const deepClone = <T>(obj: T): T => {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime()) as any;
-  if (obj instanceof Array) return obj.map(item => deepClone(item)) as any;
+  if (Array.isArray(obj)) return obj.map(item => deepClone(item)) as any;
   if (typeof obj === 'object') {
     const clonedObj = {} as any;
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        clonedObj[key] = deepClone(obj[key]);
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        clonedObj[key] = deepClone((obj as any)[key]);
       }
     }
     return clonedObj;
@@ -163,7 +164,7 @@ export const calculateChartStats = (data: ChartDataPoint[]) => {
   const avg = sum / values.length;
   const max = Math.max(...values);
   const min = Math.min(...values);
-  
+
   return {
     sum,
     avg: Number(avg.toFixed(2)),
@@ -188,24 +189,25 @@ export const generateColorPalette = (count: number, baseColor?: string): string[
     '#84CC16', // lime
   ];
 
-  if (count <= defaultColors.length) {
+  if (count <= defaultColors.length && !baseColor) {
     return defaultColors.slice(0, count);
   }
 
-  // Generate additional colors if needed
-  const colors = [...defaultColors];
-  for (let i = defaultColors.length; i < count; i++) {
+  const colors = baseColor ? [baseColor] : [...defaultColors];
+  for (let i = colors.length; i < count; i++) {
     const hue = (i * 137.5) % 360; // Golden angle approximation
     colors.push(`hsl(${hue}, 70%, 50%)`);
   }
 
-  return colors;
+  return colors.slice(0, count);
 };
 
 /**
- * Checks if component config is valid
+ * Validates component configuration
  */
-export const validateComponentConfig = (config: ComponentConfig): { isValid: boolean; errors: string[] } => {
+export const validateComponentConfig = (
+  config: ComponentConfig
+): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
   if (!config.id) {
@@ -229,7 +231,10 @@ export const validateComponentConfig = (config: ComponentConfig): { isValid: boo
 /**
  * Recursively finds component by id in config tree
  */
-export const findComponentById = (config: ComponentConfig, id: string): ComponentConfig | null => {
+export const findComponentById = (
+  config: ComponentConfig,
+  id: string
+): ComponentConfig | null => {
   if (config.id === id) {
     return config;
   }
@@ -256,3 +261,12 @@ export const configToProps = (config: ComponentConfig): Record<string, any> => {
     'data-component-type': type,
   };
 };
+
+// Re-export structured utility modules for consumers expecting barrel exports
+export * from './api';
+export * from './validation';
+export * from './logging-custom';
+export * from './date-utils';
+export * from './icon-renderer';
+export * from './number-formatter';
+export * from './highlighter';

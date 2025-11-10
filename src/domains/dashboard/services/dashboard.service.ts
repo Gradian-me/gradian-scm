@@ -11,7 +11,7 @@ import {
   DeadlineDataError
 } from '../errors';
 import { dashboardFiltersSchema } from '../schemas';
-import { validateFormData } from '../../../shared/utils/validation';
+import { validateFormData } from '@/gradian-ui/shared/utils/validation';
 
 export interface IDashboardService {
   getDashboardStats(filters?: any): Promise<DashboardStats>;

@@ -36,10 +36,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { config } from '@/lib/config';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 
 interface SchemaCardProps {
   schema: FormSchema;

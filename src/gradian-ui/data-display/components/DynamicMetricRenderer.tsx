@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Badge } from '../../../components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { ArrowDown, ArrowUp, ArrowRight, Minus } from 'lucide-react';
-import { formatNumber } from '../../shared/utils/number-formatter';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { formatNumber } from '@/gradian-ui/shared/utils/number-formatter';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 
 export interface MetricItem {
   id?: string;

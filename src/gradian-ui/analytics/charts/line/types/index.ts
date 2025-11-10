@@ -1,6 +1,6 @@
 // Line Chart Types
 
-import { BaseComponentProps, ChartDataPoint, ChartConfig } from '../../../../shared/types';
+import { BaseComponentProps, ChartDataPoint, ChartConfig } from '@/gradian-ui/shared/types';
 
 export interface LineChartProps extends BaseComponentProps {
   config: LineChartConfig;

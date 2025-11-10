@@ -6,9 +6,9 @@ import 'server-only';
 
 import { FormSchema, FormField } from '../types/form-schema';
 import { config } from '@/lib/config';
-import { loggingCustom } from '@/shared/utils/logging-custom';
-import { LogType } from '@/shared/constants/application-variables';
-import { loadData, loadDataById, clearCache as clearDataCache } from '@/shared/utils/data-loader';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
+import { loadData, loadDataById, clearCache as clearDataCache } from '@/gradian-ui/shared/utils/data-loader';
 import fs from 'fs';
 import path from 'path';
 

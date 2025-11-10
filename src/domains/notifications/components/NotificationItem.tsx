@@ -19,7 +19,7 @@ import {
   CheckCircle2,
   Circle
 } from 'lucide-react';
-import { formatRelativeTime, formatFullDate, formatDateTime } from '@/shared/utils/date-utils';
+import { formatRelativeTime, formatFullDate, formatDateTime } from '@/gradian-ui/shared/utils/date-utils';
 
 interface NotificationItemProps {
   notification: Notification;

@@ -2,7 +2,8 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { DataDisplayContainerProps, DataDisplayActionConfig } from '../types';
-import { Card, GridBuilder } from '../../index';
+import { Card } from '../card/components/Card';
+import { GridBuilder } from '@/gradian-ui/layout/grid-builder/components/GridBuilder';
 import { cn } from '../../shared/utils';
 import { DataDisplayEmptyState } from './DataDisplayEmptyState';
 import { DataDisplayErrorState } from './DataDisplayErrorState';

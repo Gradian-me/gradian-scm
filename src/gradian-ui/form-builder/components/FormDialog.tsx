@@ -1,15 +1,15 @@
 // Form Dialog Component
 
 import React, { useState, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '../../../components/ui/dialog';
-import { ScrollArea } from '../../../components/ui/scroll-area';
-import { Button } from '../../../components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { GoToTopForm } from '../form-elements/go-to-top-form';
-import { cn } from '../../shared/utils';
-import { loggingCustom } from '../../../shared/utils';
-import { LogType } from '../../../shared/constants/application-variables';
+import { cn } from '@/gradian-ui/shared/utils';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 import type { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
 

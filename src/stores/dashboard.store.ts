@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { DashboardStats, SpendAnalysisData, KpiCard, ActivityItem, DeadlineItem } from '../domains/dashboard/types';
 import { dashboardService } from '../domains/dashboard/services/dashboard.service';
-import { LoadingState } from '../shared/types/common';
+import { LoadingState } from '@/gradian-ui/shared/types/common';
 
 interface DashboardState extends LoadingState {
   stats: DashboardStats | null;

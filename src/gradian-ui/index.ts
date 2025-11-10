@@ -29,6 +29,10 @@ export * from './shared/types';
 export * from './shared/utils';
 export * from './shared/hooks';
 export * from './shared/configs';
+export * from './shared/constants';
+export * from './shared/components';
+export * from './shared/domain';
+export * from './shared/errors';
 
 // Export specific types that may conflict
 export type { HeaderConfig } from './layout/header/types';

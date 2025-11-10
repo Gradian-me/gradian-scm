@@ -9,7 +9,7 @@ import { SidebarNavigationProps } from '../types';
 import { isActiveNavigationItem } from '../utils';
 import { cn } from '../../../shared/utils';
 import { SidebarNavigationDynamic } from './SidebarNavigationDynamic';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 
 export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   items,

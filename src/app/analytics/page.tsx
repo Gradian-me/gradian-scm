@@ -28,7 +28,7 @@ import {
 import { motion } from 'framer-motion';
 import { DashboardMetrics, SpendAnalysis, MonthlyTrend } from '@/types';
 import ReactECharts from 'echarts-for-react';
-import { CHART_ANIMATION_CONFIG, CHART_COLOR_PALETTE, CHART_THEME } from '@/shared/constants/chart-theme';
+import { CHART_ANIMATION_CONFIG, CHART_COLOR_PALETTE, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);

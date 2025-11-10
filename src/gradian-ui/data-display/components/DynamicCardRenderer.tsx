@@ -2,25 +2,26 @@
 
 import { motion } from 'framer-motion';
 import React, { KeyboardEvent } from 'react';
-import { Badge } from '../../../components/ui/badge';
-import type { BadgeProps } from '../../../components/ui/badge';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { Avatar, Rating, Countdown, CodeBadge } from '../../form-builder/form-elements';
+import { Badge } from '@/components/ui/badge';
+import type { BadgeProps } from '@/components/ui/badge';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { Avatar, Rating, Countdown, CodeBadge } from '@/gradian-ui/form-builder/form-elements';
 import { CardSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { cn } from '../../shared/utils';
-import { CardContent } from '../card/components/CardContent';
-import { CardWrapper } from '../card/components/CardWrapper';
+import { cn } from '@/gradian-ui/shared/utils';
+import { CardContent } from '@/gradian-ui/data-display/card/components/CardContent';
+import { CardWrapper } from '@/gradian-ui/data-display/card/components/CardWrapper';
 import { getArrayValuesByRole, getBadgeConfig, getInitials, getSingleValueByRole, getValueByRole, renderCardSection } from '../utils';
 import { BadgeViewer, BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
 import { getFieldsByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { DynamicCardActionButtons } from './DynamicCardActionButtons';
 import { DynamicMetricRenderer } from './DynamicMetricRenderer';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 import { CopyContent } from '../../form-builder/form-elements/components/CopyContent';
 import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
 import type { BadgeItem } from '../../form-builder/form-elements/utils/badge-viewer';
 import { useRouter } from 'next/navigation';
 import { getDisplayStrings, getPrimaryDisplayString, hasDisplayValue } from '../utils/value-display';
+import { renderHighlightedText } from '../../shared/utils/highlighter';
 
 export interface DynamicCardRendererProps {
   schema: FormSchema;
@@ -35,6 +36,7 @@ export interface DynamicCardRendererProps {
   maxBadges?: number;
   maxMetrics?: number;
   disableAnimation?: boolean;
+  highlightQuery?: string;
 }
 
 export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
@@ -49,9 +51,11 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   className,
   maxBadges = 2,
   maxMetrics = 3,
-  disableAnimation = false
+  disableAnimation = false,
+  highlightQuery = ''
 }) => {
   const router = useRouter();
+  const normalizedHighlightQuery = highlightQuery.trim();
   // Get card metadata from schema
   const cardMetadata = schema?.cardMetadata || [] as CardSection[];
 
@@ -415,7 +419,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate flex-1 min-w-0"
                           whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
-                        {cardConfig.title}
+                        {renderHighlightedText(cardConfig.title, normalizedHighlightQuery)}
                       </motion.h3>
                         {cardConfig.title && (
                           <div
@@ -446,7 +450,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       className="text-xs text-gray-500 truncate"
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
-                        <p className="text-xs text-gray-500 truncate">{cardConfig.subtitle}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {renderHighlightedText(cardConfig.subtitle, normalizedHighlightQuery)}
+                        </p>
                     </motion.div>
                     )}
                   </div>
@@ -495,7 +501,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   className="w-full mb-2"
                   whileHover={{ x: 2, transition: { duration: 0.15} }}
                 >
-                  <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+                  <p className="text-xs text-gray-600 line-clamp-2">
+                    {renderHighlightedText(description, normalizedHighlightQuery)}
+                  </p>
                 </motion.div>
               )}
 
@@ -634,7 +642,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         transition: { type: "spring", stiffness: 400, damping: 25 }
                       }}
                     >
-                      {cardConfig.title}
+                      {renderHighlightedText(cardConfig.title, normalizedHighlightQuery)}
                     </motion.h3>
                     {cardConfig.title && (
                       <div
@@ -670,7 +678,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       transition: { type: "spring", stiffness: 400, damping: 25 }
                     }}
                   >
-                    {cardConfig.subtitle}
+                    {renderHighlightedText(cardConfig.subtitle, normalizedHighlightQuery)}
                   </motion.p>
                   )}
                   <div

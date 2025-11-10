@@ -4,7 +4,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { TextInputProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
-import { IconRenderer, isValidLucideIcon } from '@/shared/utils/icon-renderer';
+import { IconRenderer, isValidLucideIcon } from '@/gradian-ui/shared/utils/icon-renderer';
 import { CopyContent } from './CopyContent';
 
 export interface IconInputProps extends TextInputProps {}

@@ -5,7 +5,7 @@ import { FormElementRef, ToggleGroupProps } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { ToggleGroup as ToggleGroupRoot, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 
 const isBadgeVariant = (color?: string): color is keyof typeof BADGE_SELECTED_VARIANT_CLASSES => {
   if (!color) return false;

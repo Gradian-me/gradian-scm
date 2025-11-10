@@ -3,9 +3,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { validateToken, extractTokenFromHeader, extractTokenFromCookies } from '@/domains/auth';
-import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+import { AUTH_CONFIG } from '@/gradian-ui/shared/constants/application-variables';
 import { verifyPassword, hashPassword, detectHashType } from '@/domains/auth/utils/password.util';
-import { readSchemaData, writeSchemaData } from '@/shared/domain/utils/data-storage.util';
+import { readSchemaData, writeSchemaData } from '@/gradian-ui/shared/domain/utils/data-storage.util';
 
 /**
  * Extract userId from JWT token in request

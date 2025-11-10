@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '../../../components/ui/button';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
-import { cn } from '../../shared/utils';
+import { Button } from '@/components/ui/button';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { cn } from '@/gradian-ui/shared/utils';
 
 export interface DynamicCardActionButtonsProps {
   /**

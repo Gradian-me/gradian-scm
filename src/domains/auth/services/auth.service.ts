@@ -1,8 +1,8 @@
 // Authentication Service
 // Handles user authentication logic
 
-import { readSchemaData } from '@/shared/domain/utils/data-storage.util';
-import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+import { readSchemaData } from '@/gradian-ui/shared/domain/utils/data-storage.util';
+import { AUTH_CONFIG } from '@/gradian-ui/shared/constants/application-variables';
 import { createTokenPair, verifyToken } from '../utils/jwt.util';
 import { verifyPassword, detectHashType } from '../utils/password.util';
 import { User, LoginCredentials, LoginResponse, TokenValidationResponse, JWTPayload } from '../types';

@@ -1,6 +1,6 @@
 import { DashboardStats, SpendAnalysisData, KpiCard, ActivityItem, DeadlineItem } from '../types';
-import { apiClient } from '../../../shared/utils/api';
-import { API_ENDPOINTS } from '../../../shared/constants';
+import { apiClient } from '@/gradian-ui/shared/utils/api';
+import { API_ENDPOINTS } from '@/gradian-ui/shared/constants';
 
 export interface IDashboardRepository {
   getDashboardStats(): Promise<DashboardStats>;

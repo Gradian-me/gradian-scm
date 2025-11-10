@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal, SchemaFormWrapper } from '@/gradian-ui';
+import { Modal } from '@/gradian-ui/data-display/components/Modal';
+import { SchemaFormWrapper } from './FormLifecycleManager';
 import { useFormModal, UseFormModalOptions, FormModalMode } from '../hooks/use-form-modal';
 import { Spinner } from '@/components/ui/spinner';
 

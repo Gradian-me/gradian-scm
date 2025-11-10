@@ -4,7 +4,7 @@
  */
 
 import { UserSettings, SettingsUpdate, SettingsFilters } from '../types';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { mergeWithDefaults, getDefaultUserSettings } from '../utils/defaults';
 
 /**

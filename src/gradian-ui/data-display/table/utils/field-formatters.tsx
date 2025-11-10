@@ -3,7 +3,7 @@ import { formatCurrency, formatDate, formatNumber } from '@/gradian-ui/shared/ut
 import { BadgeViewer } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
 import type { BadgeItem } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
 import { Badge } from '@/gradian-ui/form-builder/form-elements/components/Badge';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { getBadgeConfig, mapBadgeColorToVariant } from '../../utils';
 import { normalizeOptionArray } from '@/gradian-ui/form-builder/form-elements/utils/option-normalizer';
 import {

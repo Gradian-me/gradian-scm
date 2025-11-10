@@ -14,24 +14,29 @@ import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Spinner } from '@/components/ui/spinner';
 import { Button as UIButton } from '@/components/ui/button';
-import { Button, DynamicCardRenderer, DynamicCardDialog, EmptyState, LoadingState, GoToTop } from '../../index';
+import { Button } from '@/gradian-ui/form-builder/form-elements';
+import { DynamicCardRenderer } from './DynamicCardRenderer';
+import { DynamicCardDialog } from './DynamicCardDialog';
+import { EmptyState } from './EmptyState';
+import { LoadingState } from './LoadingState';
+import { GoToTop } from '@/gradian-ui/layout/go-to-top/components/GoToTop';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { DynamicFilterPane } from '@/shared/components/DynamicFilterPane';
+import { DynamicFilterPane } from '@/gradian-ui/shared/components';
 import { asFormSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
-import { useDynamicEntity } from '@/shared/hooks';
+import { useDynamicEntity } from '@/gradian-ui/shared/hooks';
 import { FormModal } from '../../form-builder';
 import { ConfirmationMessage } from '../../form-builder';
 import { getValueByRole, getSingleValueByRole } from '../../form-builder/form-elements/utils/field-resolver';
 import { Skeleton } from '@/components/ui/skeleton';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { useCompanyStore } from '@/stores/company.store';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ImageText } from '../../form-builder/form-elements';
-import { apiRequest } from '@/shared/utils/api';
-import { useCompanies } from '@/shared/hooks/use-companies';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { useCompanies } from '@/gradian-ui/shared/hooks/use-companies';
 import { debounce } from '@/gradian-ui/shared/utils';
 import { toast } from 'sonner';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 
 interface DynamicPageRendererProps {
   schema: FormSchema;
@@ -549,6 +554,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                             }}
                             onDelete={handleDeleteWithConfirmation}
                             className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                            highlightQuery={debouncedSearchTerm}
                           />
                         </div>
                       ))}
@@ -598,6 +604,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                           }}
                           onDelete={handleDeleteWithConfirmation}
                           className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                          highlightQuery={debouncedSearchTerm}
                         />
                       </div>
                     ))}
@@ -684,6 +691,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                     }}
                     onDelete={handleDeleteWithConfirmation}
                     className={isEditLoading[entity.id] ? "opacity-70" : ""}
+                  highlightQuery={debouncedSearchTerm}
                   />
                 </div>
               ))

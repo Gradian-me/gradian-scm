@@ -1,4 +1,9 @@
-// Shared Types for Gradian UI Components
+import type React from 'react';
+
+// Shared type definitions used across the Gradian UI layer.
+// Additional domain-level types are available via the modules re-exported below.
+
+export * from './common';
 
 export interface BaseComponentProps {
   id?: string;
@@ -19,7 +24,6 @@ export interface ComponentConfig {
     author?: string;
     lastModified?: string;
   };
-  // Allow arbitrary properties for view-specific configurations
   [key: string]: any;
 }
 
@@ -36,14 +40,24 @@ export interface ValidationRule {
   maxLength?: number;
   min?: number;
   max?: number;
-  pattern?: RegExp | string; // Can be RegExp or string (converted from JSON)
+  pattern?: RegExp | string;
   custom?: (value: any) => boolean | string | { isValid: boolean; error?: string };
 }
 
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'radio' | 'date' | 'file';
+  type:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'select'
+    | 'textarea'
+    | 'checkbox'
+    | 'radio'
+    | 'date'
+    | 'file';
   placeholder?: string;
   validation?: ValidationRule;
   options?: Array<{ label: string; value: any }>;
@@ -114,7 +128,7 @@ export interface MenuItem {
 export interface UserProfile {
   id: string;
   name: string;
-  lastname?: string; // Last name field
+  lastname?: string;
   email: string;
   avatar?: string;
   role: string;

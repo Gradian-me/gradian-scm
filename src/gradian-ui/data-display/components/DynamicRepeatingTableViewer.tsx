@@ -17,7 +17,7 @@ import { CardWrapper, CardHeader, CardTitle, CardContent } from '../card/compone
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '../../shared/utils';
 import { Button } from '../../../components/ui/button';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Badge } from '../../form-builder/form-elements/components/Badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RefreshCw } from 'lucide-react';

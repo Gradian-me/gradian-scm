@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientContext, useQuery } from '@tanstack/react-query';
 import { useContext, useState } from 'react';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 
 interface Company {
   id: string | number;

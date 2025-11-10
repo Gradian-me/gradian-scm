@@ -2,12 +2,12 @@
 // Handles all CRUD operations for any schema dynamically
 
 import { NextRequest, NextResponse } from 'next/server';
-import { BaseRepository } from '@/shared/domain/repositories/base.repository';
-import { BaseService } from '@/shared/domain/services/base.service';
-import { BaseController } from '@/shared/domain/controllers/base.controller';
-import { BaseEntity } from '@/shared/domain/types/base.types';
+import { BaseRepository } from '@/gradian-ui/shared/domain/repositories/base.repository';
+import { BaseService } from '@/gradian-ui/shared/domain/services/base.service';
+import { BaseController } from '@/gradian-ui/shared/domain/controllers/base.controller';
+import { BaseEntity } from '@/gradian-ui/shared/domain/types/base.types';
 import { isValidSchemaId, getSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
-import { loadAllCompanies, clearCompaniesCache } from '@/shared/utils/companies-loader';
+import { loadAllCompanies, clearCompaniesCache } from '@/gradian-ui/shared/utils/companies-loader';
 
 /**
  * Create controller instance for the given schema

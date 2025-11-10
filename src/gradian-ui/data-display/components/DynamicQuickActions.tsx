@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { QuickAction, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { FormModal } from '@/gradian-ui/form-builder';
 
 export interface DynamicQuickActionsProps {

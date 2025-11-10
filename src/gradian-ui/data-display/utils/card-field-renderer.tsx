@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Badge } from '../../../components/ui/badge';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { Badge } from '@/components/ui/badge';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
 import { formatNumber } from '../../shared/utils/number-formatter';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../../components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RenderFieldValueProps {
   field: any;

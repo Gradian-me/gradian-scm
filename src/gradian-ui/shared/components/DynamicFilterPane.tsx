@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { Filter, Plus, RefreshCw } from 'lucide-react';
-import { Button } from '../../components/ui/button';
-import { SearchBar, ViewSwitcher } from '../../gradian-ui';
+import { Button } from '@/components/ui/button';
+import { SearchBar } from '@/gradian-ui/data-display/components/SearchBar';
+import { ViewSwitcher } from '@/gradian-ui/data-display/components/ViewSwitcher';
 
 interface DynamicFilterPaneProps {
   searchTerm: string;

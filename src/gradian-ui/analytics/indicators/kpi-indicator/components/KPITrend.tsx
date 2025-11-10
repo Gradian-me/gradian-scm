@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { KPITrendProps } from '../types';
-import { cn } from '../../../../shared/utils';
+import { cn } from '@/gradian-ui/shared/utils';
 
 export const KPITrend: React.FC<KPITrendProps> = ({
   current,

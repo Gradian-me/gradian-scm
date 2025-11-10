@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import React from 'react';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { CardContent, CardHeader, CardTitle, CardWrapper } from '../card/components/CardWrapper';
 import { DetailPageSection, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';

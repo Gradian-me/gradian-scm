@@ -10,10 +10,10 @@ import {
 } from '../../../../components/ui/select';
 import { SelectProps } from '../types';
 import { cn } from '../../../shared/utils';
-import { IconRenderer } from '../../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Badge } from '../../../../components/ui/badge';
 import { motion } from 'framer-motion';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 import { BadgeViewer } from '../utils/badge-viewer';
 import { Check, ChevronDown } from 'lucide-react';

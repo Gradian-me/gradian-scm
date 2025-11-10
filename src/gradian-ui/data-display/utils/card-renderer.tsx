@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById, getFieldValue } from '../../form-builder/form-elements/utils/field-resolver';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { BadgeRenderer } from '../../form-builder/form-elements/utils/badge-viewer';
 
 interface RenderFieldValueProps {

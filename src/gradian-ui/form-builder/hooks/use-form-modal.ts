@@ -3,7 +3,7 @@
 
 import { useState, useCallback } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { apiRequest } from '../../../shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { config } from '@/lib/config';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';

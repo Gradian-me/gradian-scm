@@ -4,7 +4,7 @@ import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { ToggleProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { Toggle as UIToggle } from '@/components/ui/toggle';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 
 export const Toggle = forwardRef<FormElementRef, ToggleProps>(
   (

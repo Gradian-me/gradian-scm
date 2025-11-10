@@ -1,13 +1,11 @@
 'use client';
 
-// Shared Hooks for Gradian UI Components
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ulid } from 'ulid';
-import { ComponentHookData, ComponentConfig } from '../types';
+import type { ComponentHookData, ComponentConfig } from '../types';
 
 /**
- * Hook for managing component data with loading and error states
+ * Hook for managing async component data with loading and error states
  */
 export const useComponentData = <T>(
   dataFetcher: () => Promise<T>,
@@ -43,7 +41,7 @@ export const useComponentData = <T>(
 };
 
 /**
- * Hook for managing form state with validation
+ * Hook for managing complex form state with validation and repeating sections
  */
 export const useFormState = <T extends Record<string, any>>(
   initialValues: T,
@@ -54,46 +52,39 @@ export const useFormState = <T extends Record<string, any>>(
   const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({});
 
   const setValue = useCallback((field: keyof T, value: any) => {
-    // Handle nested paths for repeating sections (e.g., "contacts[0].name")
     const fieldStr = String(field);
     const match = fieldStr.match(/^(.+)\[(\d+)\]\.(.+)$/);
-    
+
     if (match) {
-      // This is a repeating section field (e.g., "contacts[0].name")
       const [, sectionId, itemIndex, nestedField] = match;
       const index = parseInt(itemIndex);
-      
+
       setValues(prev => {
         const currentArray = (prev[sectionId as keyof T] as any) || [];
         const newArray = [...currentArray];
-        
-        // Ensure the array is long enough
+
         while (newArray.length <= index) {
           newArray.push({ id: ulid() });
         }
-        
-        // Update the specific field in the item
+
         newArray[index] = {
           ...newArray[index],
           [nestedField]: value,
         };
-        
+
         return {
           ...prev,
           [sectionId]: newArray,
         } as T;
       });
-      
-      // Clear error for nested field
+
       const errorKey = field;
       if (errors[errorKey]) {
         setErrors(prev => ({ ...prev, [errorKey]: undefined }));
       }
     } else {
-      // Regular field update
       setValues(prev => ({ ...prev, [field]: value }));
-      
-      // Clear error when user starts typing
+
       if (errors[field]) {
         setErrors(prev => ({ ...prev, [field]: undefined }));
       }
@@ -110,7 +101,6 @@ export const useFormState = <T extends Record<string, any>>(
     const rule = validationRules[field];
     const value = values[field];
 
-    // Basic validation logic
     if (rule.required && (!value || value.toString().trim() === '')) {
       setErrors(prev => ({ ...prev, [field]: 'This field is required' }));
       return false;
@@ -143,11 +133,10 @@ export const useFormState = <T extends Record<string, any>>(
     }
 
     if (value && rule.pattern) {
-      // Handle pattern as either string or RegExp
-      const pattern = typeof rule.pattern === 'string' 
-        ? new RegExp(rule.pattern) 
+      const pattern = typeof rule.pattern === 'string'
+        ? new RegExp(rule.pattern)
         : rule.pattern;
-      
+
       if (!pattern.test(value.toString())) {
         setErrors(prev => ({ ...prev, [field]: 'Invalid format' }));
         return false;
@@ -156,11 +145,16 @@ export const useFormState = <T extends Record<string, any>>(
 
     if (value && rule.custom) {
       const result = rule.custom(value);
-      if (typeof result === 'string') {
+      if (typeof result === 'object' && result !== null) {
+        const { isValid, error } = result as { isValid: boolean; error?: string };
+        if (!isValid) {
+          setErrors(prev => ({ ...prev, [field]: error || 'Invalid value' }));
+          return false;
+        }
+      } else if (typeof result === 'string') {
         setErrors(prev => ({ ...prev, [field]: result }));
         return false;
-      }
-      if (!result) {
+      } else if (!result) {
         setErrors(prev => ({ ...prev, [field]: 'Invalid value' }));
         return false;
       }
@@ -174,8 +168,6 @@ export const useFormState = <T extends Record<string, any>>(
     if (!validationRules) return true;
 
     let isValid = true;
-    const newErrors: Partial<Record<keyof T, string>> = {};
-
     Object.keys(validationRules).forEach(field => {
       const fieldKey = field as keyof T;
       if (!validateField(fieldKey)) {
@@ -215,7 +207,7 @@ export const useFormState = <T extends Record<string, any>>(
 };
 
 /**
- * Hook for managing component visibility and animations
+ * Hook for managing visibility with animation helpers
  */
 export const useVisibility = (initialVisible: boolean = false) => {
   const [isVisible, setIsVisible] = useState(initialVisible);
@@ -228,7 +220,6 @@ export const useVisibility = (initialVisible: boolean = false) => {
 
   const hide = useCallback(() => {
     setIsAnimating(true);
-    // Delay hiding to allow animation to complete
     setTimeout(() => {
       setIsVisible(false);
       setIsAnimating(false);
@@ -253,7 +244,7 @@ export const useVisibility = (initialVisible: boolean = false) => {
 };
 
 /**
- * Hook for managing component focus
+ * Hook for tracking focus state of a DOM element
  */
 export const useFocus = () => {
   const [isFocused, setIsFocused] = useState(false);
@@ -269,13 +260,8 @@ export const useFocus = () => {
     setIsFocused(false);
   }, []);
 
-  const handleFocus = useCallback(() => {
-    setIsFocused(true);
-  }, []);
-
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-  }, []);
+  const handleFocus = useCallback(() => setIsFocused(true), []);
+  const handleBlur = useCallback(() => setIsFocused(false), []);
 
   return {
     isFocused,
@@ -288,7 +274,7 @@ export const useFocus = () => {
 };
 
 /**
- * Hook for managing component resize
+ * Hook for observing element resize
  */
 export const useResize = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -337,7 +323,7 @@ export const useComponentConfig = (config: ComponentConfig) => {
 };
 
 /**
- * Hook for managing local storage
+ * Hook for syncing state with localStorage
  */
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -362,3 +348,15 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
 
   return [storedValue, setValue] as const;
 };
+
+// Re-export legacy shared hooks for backward compatibility
+export { useHydration } from './use-hydration';
+export { useDynamicEntity } from './use-dynamic-entity';
+export { useCreateModal } from './use-create-modal';
+export type { UseCreateModalOptions, UseCreateModalReturn } from './use-create-modal';
+export { useEditModal } from './use-edit-modal';
+export type { UseEditModalOptions, UseEditModalReturn } from './use-edit-modal';
+
+// Re-export form modal helpers from the form-builder package
+export { useFormModal } from '../../form-builder';
+export type { UseFormModalOptions, UseFormModalReturn, FormModalMode } from '../../form-builder';

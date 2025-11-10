@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getRelationById,
   deleteRelation,
-} from '@/shared/domain/utils/relations-storage.util';
-import { handleDomainError } from '@/shared/domain/errors/domain.errors';
+} from '@/gradian-ui/shared/domain/utils/relations-storage.util';
+import { handleDomainError } from '@/gradian-ui/shared/domain/errors/domain.errors';
 
 /**
  * GET - Get single relation by ID

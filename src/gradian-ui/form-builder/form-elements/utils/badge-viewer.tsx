@@ -10,7 +10,7 @@ import type { BadgeProps } from '../../../../components/ui/badge';
 import { cn } from '../../../../lib/utils';
 import { FormField } from '@/gradian-ui/schema-manager/types/form-schema';
 import { findBadgeOption, getBadgeMetadata, BadgeOption } from './badge-utils';
-import { IconRenderer } from '../../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { normalizeOptionArray, NormalizedOption } from './option-normalizer';
 
 export type BadgeItem = {

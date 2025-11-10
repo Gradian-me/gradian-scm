@@ -4,10 +4,10 @@
 
 import 'server-only';
 
-import { BaseRepository } from '@/shared/domain/repositories/base.repository';
-import { BaseEntity } from '@/shared/domain/types/base.types';
-import { loggingCustom } from '@/shared/utils/logging-custom';
-import { LogType } from '@/shared/constants/application-variables';
+import { BaseRepository } from '@/gradian-ui/shared/domain/repositories/base.repository';
+import { BaseEntity } from '@/gradian-ui/shared/domain/types/base.types';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 
 const COMPANIES_ROUTE_KEY = 'companies';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours

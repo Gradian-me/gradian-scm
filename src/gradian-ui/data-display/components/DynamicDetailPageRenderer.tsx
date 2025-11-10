@@ -14,7 +14,7 @@ import { ComponentRenderer } from './ComponentRenderer';
 import { DynamicRepeatingTableViewer } from './DynamicRepeatingTableViewer';
 import { resolveFieldById } from '../../form-builder/form-elements/utils/field-resolver';
 import { getValueByRole, getSingleValueByRole, extractLabels, getArrayValuesByRole } from '../utils';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { getBadgeConfig } from '../utils';
 import { cn } from '../../shared/utils';
 import { getDefaultSections } from '../../schema-manager/utils/badge-utils';
@@ -26,7 +26,7 @@ import { CopyContent } from '../../form-builder/form-elements/components/CopyCon
 import { FormModal } from '../../form-builder';
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
 import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
 

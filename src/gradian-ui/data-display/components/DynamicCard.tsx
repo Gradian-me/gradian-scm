@@ -16,7 +16,7 @@ import {
   renderSection as renderSectionContent,
   getStatusColor
 } from '../utils';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import type { BadgeOption } from '../../form-builder/form-elements/utils/badge-utils';
 
 interface DynamicCardProps {

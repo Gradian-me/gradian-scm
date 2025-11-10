@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createValidationSchema } from '../../../shared/utils/validation';
+import { createValidationSchema } from '@/gradian-ui/shared/utils/validation';
 
 export const dashboardFiltersSchema = createValidationSchema(
   z.object({

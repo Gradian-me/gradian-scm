@@ -10,17 +10,17 @@ import { ChevronDown, ChevronRight, Edit, Trash2, RefreshCw, X } from 'lucide-re
 import { cn } from '../../shared/utils';
 import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByRole, getArrayValuesByRole } from '../form-elements/utils/field-resolver';
 import { FormAlert } from '../../../components/ui/form-alert';
-import { apiRequest } from '@/shared/utils/api';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormModal } from './FormModal';
 import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull, CodeBadge } from '../form-elements';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { IconRenderer } from '@/shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
 import { NormalizedOption } from '../form-elements/utils/option-normalizer';
 import { BadgeViewer } from '../form-elements/utils/badge-viewer';
-import { UI_PARAMS } from '@/shared/constants/application-variables';
+import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 const fieldVariants = {
   hidden: { opacity: 0, y: 12 },
   visible: (index: number) => ({

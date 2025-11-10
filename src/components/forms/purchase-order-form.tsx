@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RepeatingSection } from '@/shared/components/repeating-section';
+import { RepeatingSection } from '@/gradian-ui/shared/components';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface PurchaseOrderFormProps {

@@ -3,10 +3,10 @@
 // Query parameters: schema, id, direction (optional), otherSchema (optional)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readAllRelations } from '@/shared/domain/utils/relations-storage.util';
-import { readAllData } from '@/shared/domain/utils/data-storage.util';
+import { readAllRelations } from '@/gradian-ui/shared/domain/utils/relations-storage.util';
+import { readAllData } from '@/gradian-ui/shared/domain/utils/data-storage.util';
 import { DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
-import { handleDomainError } from '@/shared/domain/errors/domain.errors';
+import { handleDomainError } from '@/gradian-ui/shared/domain/errors/domain.errors';
 
 // Route segment config to optimize performance
 export const dynamic = 'force-dynamic';

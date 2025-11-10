@@ -2,8 +2,8 @@
 // Validates data against schema definitions
 
 import { FormSchema, FormField } from '../types/form-schema';
-import { ValidationError as DomainValidationError } from '@/shared/domain/errors/domain.errors';
-import { ValidationErrorDetail } from '@/shared/domain/types/base.types';
+import { ValidationError as DomainValidationError } from '@/gradian-ui/shared/domain/errors/domain.errors';
+import { ValidationErrorDetail } from '@/gradian-ui/shared/domain/types/base.types';
 
 /**
  * Validate data against a schema

@@ -1,4 +1,4 @@
-import { AppError, NotFoundError, ValidationError } from '../../../shared/errors';
+import { AppError, NotFoundError, ValidationError } from '@/gradian-ui/shared/errors';
 
 export class DashboardDataNotFoundError extends NotFoundError {
   constructor() {

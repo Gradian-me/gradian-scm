@@ -9,7 +9,7 @@ import { Avatar } from '@/gradian-ui/form-builder/form-elements';
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useCompanyStore } from '@/stores/company.store';
-import { useCompanies } from '@/shared/hooks/use-companies';
+import { useCompanies } from '@/gradian-ui/shared/hooks/use-companies';
 
 interface Company {
   id: string | number;

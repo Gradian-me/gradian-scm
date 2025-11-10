@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { KPIProgressProps } from '../types';
-import { cn } from '../../../../shared/utils';
+import { cn } from '@/gradian-ui/shared/utils';
 
 export const KPIProgress: React.FC<KPIProgressProps> = ({
   current,

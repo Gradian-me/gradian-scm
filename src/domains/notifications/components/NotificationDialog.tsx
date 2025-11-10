@@ -23,7 +23,7 @@ import {
   CheckCircle2,
   Circle
 } from 'lucide-react';
-import { formatRelativeTime, formatFullDate, formatDateTime } from '@/shared/utils/date-utils';
+import { formatRelativeTime, formatFullDate, formatDateTime } from '@/gradian-ui/shared/utils/date-utils';
 import { BadgeRenderer } from '@/gradian-ui/form-builder/form-elements/utils/badge-viewer';
 
 interface NotificationDialogProps {

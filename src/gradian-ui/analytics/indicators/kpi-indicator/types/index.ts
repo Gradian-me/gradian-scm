@@ -1,6 +1,6 @@
 // KPI Indicator Types
 
-import { BaseComponentProps } from '../../../../shared/types';
+import { BaseComponentProps } from '@/gradian-ui/shared/types';
 
 export interface KPIIndicatorProps extends BaseComponentProps {
   config: KPIConfig;

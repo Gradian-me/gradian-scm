@@ -4,7 +4,7 @@ import React from 'react';
 import { Avatar } from '../../form-builder/form-elements';
 import { ProfileSection } from '../types';
 import { formatProfileFieldValue } from '../utils';
-import { IconRenderer } from '../../../shared/utils/icon-renderer';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { cn } from '../../shared/utils';
 

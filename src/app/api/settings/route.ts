@@ -7,7 +7,7 @@ import path from 'path';
 import { UserSettings, SettingsUpdate } from '@/domains/settings/types';
 import { mergeWithDefaults, getDefaultUserSettings } from '@/domains/settings/utils/defaults';
 import { validateToken, extractTokenFromHeader, extractTokenFromCookies } from '@/domains/auth';
-import { AUTH_CONFIG } from '@/shared/constants/application-variables';
+import { AUTH_CONFIG } from '@/gradian-ui/shared/constants/application-variables';
 
 /**
  * Extract userId from JWT token in request
