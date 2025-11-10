@@ -2455,24 +2455,19 @@
     "singular_name": "User",
     "plural_name": "Users",
     "isSystemSchema": true,
-    "customButtons": [
-      {
-        "id": "go-to-schemas",
-        "label": "Back to Schemas",
-        "icon": "ArrowLeft",
-        "variant": "outline",
-        "action": "goToUrl",
-        "targetUrl": "/builder/schemas"
-      }
-    ],
     "cardMetadata": [
       {
         "id": "user-info",
         "title": "User Information",
         "colSpan": 2,
         "fieldIds": [
+          "username",
+          "first-name",
+          "last-name",
           "email",
-          "gender"
+          "post-title",
+          "company",
+          "user-status"
         ]
       }
     ],
@@ -2483,7 +2478,8 @@
         "label": "Username",
         "sectionId": "basic-information",
         "type": "text",
-        "component": "text",
+        "component": "name",
+        "icon": "User",
         "placeholder": "Enter username",
         "required": true,
         "role": "subtitle",
@@ -2495,15 +2491,15 @@
         "order": 1
       },
       {
-        "id": "name",
-        "name": "name",
-        "label": "Name",
+        "id": "first-name",
+        "name": "firstName",
+        "label": "First Name",
         "sectionId": "basic-information",
         "type": "text",
         "component": "text",
         "placeholder": "Enter first name",
-        "required": true,
         "role": "title",
+        "required": true,
         "validation": {
           "required": true,
           "minLength": 1
@@ -2512,15 +2508,15 @@
         "order": 2
       },
       {
-        "id": "lastname",
-        "name": "lastname",
+        "id": "last-name",
+        "name": "lastName",
         "label": "Last Name",
         "sectionId": "basic-information",
         "type": "text",
         "component": "text",
         "placeholder": "Enter last name",
-        "role": "title",
         "required": true,
+        "role": "title",
         "validation": {
           "required": true,
           "minLength": 1
@@ -2545,183 +2541,54 @@
         "order": 4
       },
       {
-        "id": "gender",
-        "name": "gender",
-        "label": "Gender",
+        "id": "post-title",
+        "name": "postTitle",
+        "label": "Post Title",
         "sectionId": "basic-information",
-        "type": "select",
-        "component": "select",
-        "placeholder": "Select gender",
+        "type": "text",
+        "component": "text",
+        "placeholder": "Enter post title",
         "required": false,
-        "options": [
-          {
-            "id": "male",
-            "label": "Male",
-            "icon": "User",
-            "color": "info"
-          },
-          {
-            "id": "female",
-            "label": "Female",
-            "icon": "User",
-            "color": "warning"
-          },
-          {
-            "id": "other",
-            "label": "Other",
-            "icon": "UserCircle",
-            "color": "default"
-          },
-          {
-            "id": "prefer_not_to_say",
-            "label": "Prefer not to say",
-            "icon": "Lock",
-            "color": "muted"
-          }
-        ],
         "colSpan": 1,
         "order": 5
       },
       {
-        "id": "avatar-url",
-        "name": "avatarUrl",
-        "label": "Avatar URL",
+        "id": "company",
+        "name": "company",
+        "label": "Company",
         "sectionId": "basic-information",
-        "type": "url",
+        "type": "text",
         "component": "text",
-        "role": "avatar",
-        "placeholder": "Enter avatar image URL",
+        "placeholder": "Enter company",
         "required": false,
-        "validation": {
-          "pattern": "^https?:\\/\\/.+"
-        },
         "colSpan": 1,
         "order": 6
       },
       {
-        "id": "password",
-        "name": "password",
-        "label": "Password",
+        "id": "user-status",
+        "name": "status",
+        "label": "Status",
         "sectionId": "basic-information",
-        "type": "password",
-        "component": "password",
-        "placeholder": "Enter password",
+        "type": "select",
+        "component": "select",
+        "placeholder": "Select status",
         "required": true,
-        "role": "password",
-        "validation": {
-          "required": true,
-          "minLength": 8
-        },
+        "role": "status",
+        "options": [
+          { "id": "active", "label": "Active", "icon": "CheckCircle", "color": "success" },
+          { "id": "pending", "label": "Pending", "icon": "Clock", "color": "warning" },
+          { "id": "inactive", "label": "Inactive", "icon": "Slash", "color": "muted" }
+        ],
+        "validation": { "required": true },
         "colSpan": 1,
         "order": 7
-      },
-      {
-        "id": "language",
-        "name": "language",
-        "label": "Language",
-        "sectionId": "preferences",
-        "type": "select",
-        "component": "select",
-        "placeholder": "Select language",
-        "required": false,
-        "defaultValue": "en",
-        "options": [
-          {
-            "id": "en",
-            "label": "English"
-          },
-          {
-            "id": "es",
-            "label": "Spanish"
-          },
-          {
-            "id": "fr",
-            "label": "French"
-          },
-          {
-            "id": "de",
-            "label": "German"
-          },
-          {
-            "id": "ar",
-            "label": "Arabic"
-          },
-          {
-            "id": "fa",
-            "label": "Persian"
-          }
-        ],
-        "colSpan": 1,
-        "order": 1
-      },
-      {
-        "id": "timezone",
-        "name": "timezone",
-        "label": "Timezone",
-        "sectionId": "preferences",
-        "type": "select",
-        "component": "select",
-        "placeholder": "Select timezone",
-        "required": false,
-        "defaultValue": "Asia/Tehran",
-        "options": [
-          {
-            "id": "America/New_York",
-            "label": "Eastern Time (ET)"
-          },
-          {
-            "id": "America/Chicago",
-            "label": "Central Time (CT)"
-          },
-          {
-            "id": "America/Denver",
-            "label": "Mountain Time (MT)"
-          },
-          {
-            "id": "America/Los_Angeles",
-            "label": "Pacific Time (PT)"
-          },
-          {
-            "id": "UTC",
-            "label": "UTC"
-          },
-          {
-            "id": "Europe/London",
-            "label": "Europe/London"
-          },
-          {
-            "id": "Europe/Berlin",
-            "label": "Europe/Berlin"
-          },
-          {
-            "id": "Asia/Dubai",
-            "label": "Asia/Dubai"
-          },
-          {
-            "id": "Asia/Tehran",
-            "label": "Asia/Tehran"
-          },
-          {
-            "id": "Asia/Tokyo",
-            "label": "Asia/Tokyo"
-          }
-        ],
-        "colSpan": 1,
-        "order": 2
       }
     ],
     "sections": [
       {
         "id": "basic-information",
-        "title": "User Information",
-        "description": "Basic user details and profile information",
-        "initialState": "expanded",
-        "columns": 2
-      },
-      {
-        "id": "preferences",
-        "title": "Preferences",
-        "description": "User language and timezone preferences",
+        "title": "Basic Information",
+        "description": "Primary user details",
         "initialState": "expanded",
         "columns": 2
       }
@@ -2731,27 +2598,16 @@
         {
           "id": "user-overview",
           "title": "User Overview",
-          "description": "Basic user information",
+          "description": "Core user information",
           "colSpan": 2,
-          "columnArea": "main",
           "fieldIds": [
             "username",
-            "name",
-            "lastname",
+            "first-name",
+            "last-name",
             "email",
-            "gender",
-            "avatar-url"
-          ]
-        },
-        {
-          "id": "user-preferences",
-          "title": "Preferences",
-          "description": "User language and timezone preferences",
-          "colSpan": 1,
-          "columnArea": "sidebar",
-          "fieldIds": [
-            "language",
-            "timezone"
+            "post-title",
+            "company",
+            "user-status"
           ]
         }
       ]

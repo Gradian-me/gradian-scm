@@ -16,8 +16,8 @@ type ChangePasswordRequestBody = {
 
 export async function POST(request: NextRequest) {
   try {
-    const envClientId = process.env.CLIENT_ID;
-    const envSecretKey = process.env.SECRET_KEY;
+    const envClientId = process.env.CLIENT_ID ?? process.env.NEXT_PUBLIC_CLIENT_ID;
+    const envSecretKey = process.env.SECRET_KEY ?? process.env.NEXT_PUBLIC_SECRET_KEY;
 
     if (!envClientId || !envSecretKey) {
       console.error('[Password Change] CLIENT_ID or SECRET_KEY are missing from environment');
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 401 },
       );
-    }
+}
 
     if (!username || typeof username !== 'string') {
       return NextResponse.json(
@@ -105,9 +105,9 @@ export async function POST(request: NextRequest) {
     const user = users[userIndex];
     const storedPassword = user.password || '';
     const hashType = user.hashType || detectHashType(storedPassword);
-
+    
     const isValidPassword = await verifyPassword(currentPassword, storedPassword, hashType);
-
+    
     if (!isValidPassword) {
       return NextResponse.json(
         {

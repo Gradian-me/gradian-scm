@@ -10,7 +10,7 @@ import {
 } from '../utils';
 
 const DEFAULT_TTL_SECONDS = 5 * 60;
-const MIN_REGEN_INTERVAL_MS = 30 * 1000;
+const MIN_REGEN_INTERVAL_MS = 10 * 1000;
 
 function unauthorizedResponse() {
   return NextResponse.json(

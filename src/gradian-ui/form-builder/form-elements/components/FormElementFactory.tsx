@@ -30,6 +30,8 @@ import { IconInput } from './IconInput';
 import { Toggle } from './Toggle';
 import { ToggleGroup } from './ToggleGroup';
 import { UnknownControl } from './UnknownControl';
+import { OTPInput } from './OTPInput';
+import { NameInput } from './NameInput';
 
 // Support both config-based and field-based interfaces
 export interface FormElementFactoryProps extends Omit<FormElementProps, 'config' | 'touched'> {
@@ -101,6 +103,29 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     
     case 'password':
       return <PasswordInput config={config} {...restProps} />;
+
+    case 'name':
+      return <NameInput config={config} {...restProps} />;
+
+    case 'otp':
+    case 'otp-input':
+      return (
+        <OTPInput
+          config={config}
+          value={restProps.value}
+          onChange={restProps.onChange}
+          disabled={restProps.disabled}
+          error={restProps.error}
+          required={restProps.required}
+          className={restProps.className}
+          resendDuration={config.resendDuration}
+          resendButtonLabel={config.resendButtonLabel}
+          autoStartTimer={config.autoStartTimer}
+          onResend={config.onResend}
+          maxLength={config.maxLength || config.length}
+          separatorIndex={config.separatorIndex}
+        />
+      );
     
     case 'number':
       return <NumberInput config={config} {...restProps} canCopy={canCopy} />;

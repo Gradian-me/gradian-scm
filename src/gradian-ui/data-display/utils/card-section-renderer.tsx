@@ -25,7 +25,7 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3, onBad
 
   return (
     <div className="space-y-2 mb-1">
-      <div className="text-gray-500 font-medium border-b border-gray-200 pb-1 mb-2">
+      <div className="text-gray-500 font-medium border-b border-gray-20 pb-1 mb-2">
         {section?.title || section?.id}
       </div>
       <div className="space-y-2">
@@ -68,6 +68,7 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3, onBad
                 key={fieldId}
                 whileHover={{ x: 2 }}
                 transition={{ duration: 0.2 }}
+                className="text-gray-600"
               >
                 <TooltipProvider disableHoverableContent>
                   <Tooltip>
@@ -108,6 +109,7 @@ export const renderCardSection = ({ section, schema, data, maxMetrics = 3, onBad
               key={fieldId}
               whileHover={{ x: 2 }}
               transition={{ duration: 0.2 }}
+              className="text-gray-600"
             >
               {renderFieldValue({ field, value, maxMetrics })}
             </motion.div>

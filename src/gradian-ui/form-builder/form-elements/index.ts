@@ -35,6 +35,8 @@ export * from './components/Switch';
 export * from './components/Toggle';
 export * from './components/ToggleGroup';
 export * from './components/Slider';
+export * from './components/OTPInput';
+export * from './components/NameInput';
 export { Label } from './components/Label';
 export * from './components/CTAButton';
 export * from './components/ButtonMinimal';

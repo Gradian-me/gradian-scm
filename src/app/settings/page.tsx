@@ -1,16 +1,13 @@
 'use client';
 
 import { MainLayout } from '@/components/layout/main-layout';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { 
   Bell, 
-  Loader2,
   Palette,
   Save,
-  Shield,
   User
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -18,8 +15,6 @@ import { useState, useEffect } from 'react';
 import { Switch } from '@/gradian-ui/form-builder/form-elements/components/Switch';
 import { Label } from '@/gradian-ui/form-builder/form-elements/components/Label';
 import { EmailInput } from '@/gradian-ui/form-builder/form-elements/components/EmailInput';
-import { NumberInput } from '@/gradian-ui/form-builder/form-elements/components/NumberInput';
-import { PasswordInput } from '@/gradian-ui/form-builder/form-elements/components/PasswordInput';
 import { PhoneInput } from '@/gradian-ui/form-builder/form-elements/components/PhoneInput';
 import { Select } from '@/gradian-ui/form-builder/form-elements/components/Select';
 import { TextInput } from '@/gradian-ui/form-builder/form-elements/components/TextInput';
@@ -37,20 +32,6 @@ export default function SettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [userLanguage, setUserLanguage] = useState<string>('');
   const [userTimezone, setUserTimezone] = useState<string>('');
-  const [passwordChange, setPasswordChange] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [twoFactorSetup, setTwoFactorSetup] = useState({
-    step: 'idle' as 'idle' | 'qr' | 'verify' | 'backup',
-    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/Gradian%20SCM:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Gradian%20SCM',
-    secretKey: 'JBSWY3DPEHPK3PXP',
-    backupCodes: [] as string[],
-    verificationCode: '',
-  });
 
   // Fetch user data on mount
   useEffect(() => {
@@ -97,7 +78,6 @@ export default function SettingsPage() {
       setLocalSettings({
         profile: { ...settings.profile },
         notifications: { ...settings.notifications },
-        security: { ...settings.security, currentPassword: '' },
         appearance: { ...settings.appearance },
       });
     }
@@ -106,7 +86,6 @@ export default function SettingsPage() {
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security', icon: Shield },
     { id: 'appearance', label: 'Appearance', icon: Palette },
   ];
 
@@ -182,11 +161,6 @@ export default function SettingsPage() {
       if (localSettings.notifications) {
         updates.notifications = localSettings.notifications;
       }
-      if (localSettings.security) {
-        // Don't save currentPassword in settings
-        const { currentPassword, ...securityWithoutPassword } = localSettings.security;
-        updates.security = securityWithoutPassword;
-      }
       if (localSettings.appearance) {
         updates.appearance = localSettings.appearance;
       }
@@ -198,7 +172,6 @@ export default function SettingsPage() {
         setLocalSettings({
           profile: { ...updatedSettings.profile },
           notifications: { ...updatedSettings.notifications },
-          security: { ...updatedSettings.security, currentPassword: '' },
           appearance: { ...updatedSettings.appearance },
         });
       }
@@ -206,131 +179,6 @@ export default function SettingsPage() {
       console.error('Error saving settings:', err);
     }
   };
-
-  const handlePasswordChange = async () => {
-    setPasswordError(null);
-    setPasswordLoading(true);
-
-    try {
-      // Validate passwords
-      if (!passwordChange.currentPassword || !passwordChange.newPassword || !passwordChange.confirmPassword) {
-        setPasswordError('All password fields are required');
-        setPasswordLoading(false);
-        return;
-      }
-
-      if (passwordChange.newPassword.length < 8) {
-        setPasswordError('New password must be at least 8 characters long');
-        setPasswordLoading(false);
-        return;
-      }
-
-      if (passwordChange.newPassword !== passwordChange.confirmPassword) {
-        setPasswordError('New passwords do not match');
-        setPasswordLoading(false);
-        return;
-      }
-
-      // Call password change API
-      const response = await fetch('/api/auth/password/change', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          currentPassword: passwordChange.currentPassword,
-          newPassword: passwordChange.newPassword,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        setPasswordError(result.error || 'Failed to change password');
-        setPasswordLoading(false);
-        return;
-      }
-
-      // Success - clear password fields
-      setPasswordChange({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-      setPasswordError(null);
-      alert('Password changed successfully!');
-    } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Failed to change password');
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
-
-  const generateBackupCodes = () => {
-    const codes = Array.from({ length: 10 }, () => {
-      return Math.random().toString(36).substring(2, 10).toUpperCase();
-    });
-    return codes;
-  };
-
-  const handleEnable2FA = () => {
-    if (!localSettings || !settings) return;
-    
-    if (!localSettings.security?.twoFactorAuth) {
-      // Generate backup codes
-      const codes = generateBackupCodes();
-      setTwoFactorSetup({
-        ...twoFactorSetup,
-        step: 'qr',
-        backupCodes: codes,
-      });
-    } else {
-      // Disable 2FA
-      setLocalSettings(prev => ({
-        ...prev,
-        security: { ...prev?.security || settings.security, twoFactorAuth: false }
-      }));
-      setTwoFactorSetup({
-        step: 'idle',
-        qrCode: '',
-        secretKey: '',
-        backupCodes: [],
-        verificationCode: '',
-      });
-    }
-  };
-
-  const handleVerify2FA = () => {
-    if (!localSettings || !settings) return;
-    
-    // In a real app, this would verify the code with the backend
-    if (twoFactorSetup.verificationCode.length === 6) {
-      setLocalSettings(prev => ({
-        ...prev,
-        security: { ...prev?.security || settings.security, twoFactorAuth: true }
-      }));
-      setTwoFactorSetup({
-        ...twoFactorSetup,
-        step: 'backup',
-      });
-    }
-  };
-
-  const handleContinueFromBackup = () => {
-    setTwoFactorSetup({
-      ...twoFactorSetup,
-      step: 'idle',
-    });
-  };
-
-  const handleRegenerateBackupCodes = () => {
-    const codes = generateBackupCodes();
-    setTwoFactorSetup({
-      ...twoFactorSetup,
-      backupCodes: codes,
-    });
-  };
-
 
   if (loading) {
     return (
@@ -599,272 +447,6 @@ export default function SettingsPage() {
                            notifications: { ...prev?.notifications || settings.notifications, systemAlerts: checked }
                         }))}
                       />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Security Tab */}
-            {activeTab === 'security' && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                </CardHeader>
-                                  <CardContent className="space-y-6">
-                    {/* Two-Factor Authentication Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <Label className="text-base font-semibold">Two-Factor Authentication</Label>
-                          <p className="text-sm text-gray-600">
-                            Add an extra layer of security to your account by requiring a verification code in addition to your password.
-                          </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'success' : 'secondary'}>
-                          {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'Enabled' : 'Disabled'}
-                        </Badge>
-                          {twoFactorSetup.step === 'idle' && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={handleEnable2FA}
-                            >
-                          {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) ? 'Disable' : 'Enable'}
-                        </Button>
-                          )}
-                      </div>
-                    </div>
-
-                      {/* Setup Flow: QR Code Step */}
-                      {twoFactorSetup.step === 'qr' && (
-                        <div className="border rounded-lg p-6 bg-blue-50 border-blue-200 space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-900">Step 1: Scan QR Code</h4>
-                            <p className="text-sm text-gray-600">
-                              Use an authenticator app (like Google Authenticator, Authy, or Microsoft Authenticator) to scan this QR code.
-                            </p>
-                          </div>
-                          <div className="flex items-start space-x-6">
-                            <div className="border-2 border-white rounded-lg p-2 bg-white">
-                              <img 
-                                src={twoFactorSetup.qrCode} 
-                                alt="QR Code for 2FA setup" 
-                                className="w-48 h-48"
-                      />
-                    </div>
-                              <div className="flex-1 space-y-4">
-                                <TextInput
-                                  config={{
-                                    name: 'secretKey',
-                                    label: 'Can\'t scan? Enter this code manually:',
-                                    type: 'text',
-                                    placeholder: 'Enter secret key'
-                                  }}
-                                  value={twoFactorSetup.secretKey}
-                                  onChange={() => {}}
-                                  disabled={true}
-                                  canCopy={true}
-                                />
-                              <div className="flex space-x-2">
-                                <Button
-                                  onClick={() => setTwoFactorSetup({ ...twoFactorSetup, step: 'verify' })}
-                                  className="flex-1"
-                                >
-                                  I've scanned the code
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setTwoFactorSetup({ ...twoFactorSetup, step: 'idle' })}
-                                >
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Setup Flow: Verification Step */}
-                      {twoFactorSetup.step === 'verify' && (
-                        <div className="border rounded-lg p-6 bg-blue-50 border-blue-200 space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-900">Step 2: Verify Setup</h4>
-                            <p className="text-sm text-gray-600">
-                              Enter the 6-digit code from your authenticator app to verify the setup.
-                            </p>
-                          </div>
-                          <div className="space-y-4">
-                            <div className="max-w-xs">
-                              <TextInput
-                                config={{
-                                  name: 'verificationCode',
-                                  label: 'Verification Code',
-                                  type: 'text',
-                                  placeholder: '000000'
-                                }}
-                                value={twoFactorSetup.verificationCode}
-                                onChange={(value: string) => {
-                                  // Only allow 6 digits
-                                  const digits = value.replace(/\D/g, '').slice(0, 6);
-                                  setTwoFactorSetup({ ...twoFactorSetup, verificationCode: digits });
-                                }}
-                                maxLength={6}
-                      />
-                    </div>
-                      <div className="flex space-x-2">
-                              <Button
-                                onClick={handleVerify2FA}
-                                disabled={twoFactorSetup.verificationCode.length !== 6}
-                          className="flex-1"
-                              >
-                                Verify & Enable
-                              </Button>
-                        <Button
-                          variant="outline"
-                                onClick={() => setTwoFactorSetup({ ...twoFactorSetup, step: 'qr', verificationCode: '' })}
-                        >
-                                Back
-                        </Button>
-                      </div>
-                    </div>
-                        </div>
-                      )}
-
-                      {/* Setup Flow: Backup Codes Step */}
-                      {twoFactorSetup.step === 'backup' && (
-                        <div className="border rounded-lg p-6 bg-amber-50 border-amber-200 space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-gray-900">Step 3: Save Backup Codes</h4>
-                            <p className="text-sm text-gray-600">
-                              Save these backup codes in a safe place. You can use them to access your account if you lose access to your authenticator device.
-                            </p>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2 p-4 bg-white rounded border border-amber-300">
-                            {twoFactorSetup.backupCodes.map((code, index) => (
-                              <code key={index} className="text-sm font-mono py-1">
-                                {code}
-                              </code>
-                            ))}
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                const codesText = twoFactorSetup.backupCodes.join('\n');
-                                navigator.clipboard.writeText(codesText);
-                              }}
-                            >
-                              Copy All Codes
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={handleRegenerateBackupCodes}
-                            >
-                              Regenerate Codes
-                            </Button>
-                            <Button
-                              onClick={handleContinueFromBackup}
-                              className="ml-auto"
-                            >
-                              I've saved my codes
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Enabled State: Show Backup Codes Option */}
-                      {(localSettings?.security?.twoFactorAuth ?? settings.security.twoFactorAuth) && twoFactorSetup.step === 'idle' && (
-                        <div className="border rounded-lg p-4 bg-gray-50 border-gray-200 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label className="font-medium">Backup Codes</Label>
-                              <p className="text-sm text-gray-600 mt-1">
-                                View or regenerate your backup codes for account recovery.
-                              </p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                if (twoFactorSetup.backupCodes.length === 0) {
-                                  const codes = generateBackupCodes();
-                                  setTwoFactorSetup({ ...twoFactorSetup, backupCodes: codes });
-                                }
-                                setTwoFactorSetup({ ...twoFactorSetup, step: 'backup' });
-                              }}
-                            >
-                              {twoFactorSetup.backupCodes.length > 0 ? 'View Codes' : 'Generate Codes'}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-4 border-t pt-4">
-                      <div>
-                        <Label className="text-base font-semibold mb-4 block">Change Password</Label>
-                        <div className="space-y-4">
-                    <PasswordInput
-                      config={{
-                        name: 'currentPassword',
-                              label: 'Current Password',
-                        type: 'password',
-                              placeholder: 'Enter your current password'
-                      }}
-                            value={passwordChange.currentPassword}
-                            onChange={(value: string) => {
-                              setPasswordChange(prev => ({ ...prev, currentPassword: value }));
-                              setPasswordError(null);
-                            }}
-                          />
-                          <PasswordInput
-                            config={{
-                              name: 'newPassword',
-                              label: 'New Password',
-                              type: 'password',
-                              placeholder: 'Enter your new password (min 8 characters)'
-                            }}
-                            value={passwordChange.newPassword}
-                            onChange={(value: string) => {
-                              setPasswordChange(prev => ({ ...prev, newPassword: value }));
-                              setPasswordError(null);
-                            }}
-                          />
-                          <PasswordInput
-                            config={{
-                              name: 'confirmPassword',
-                              label: 'Confirm New Password',
-                              type: 'password',
-                              placeholder: 'Confirm your new password'
-                            }}
-                            value={passwordChange.confirmPassword}
-                            onChange={(value: string) => {
-                              setPasswordChange(prev => ({ ...prev, confirmPassword: value }));
-                              setPasswordError(null);
-                            }}
-                          />
-                          {passwordError && (
-                            <div className="text-sm text-red-600 bg-red-50 p-2 rounded">
-                              {passwordError}
-                            </div>
-                          )}
-                          <Button
-                            onClick={handlePasswordChange}
-                            disabled={passwordLoading || !passwordChange.currentPassword || !passwordChange.newPassword || !passwordChange.confirmPassword}
-                            className="w-full sm:w-auto"
-                          >
-                            {passwordLoading ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Changing Password...
-                              </>
-                            ) : (
-                              'Change Password'
-                            )}
-                          </Button>
-                        </div>
                       </div>
                     </div>
                 </CardContent>

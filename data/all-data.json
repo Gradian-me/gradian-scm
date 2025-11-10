@@ -543,12 +543,43 @@
       "number": "AGN-2025-12",
       "inquiryDate": "2025-11-04T12:34",
       "inquiryDeadlineDate": "2025-11-07T12:34",
-      "state": "3",
+      "state": [
+        {
+          "id": "1",
+          "label": "Submitted",
+          "icon": "Send",
+          "color": "info"
+        }
+      ],
       "description": "Buffers and Raw materials",
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "id": "01K971SXSZZ6SBNF152M93FY64",
       "createdAt": "2025-11-04T09:05:12.518Z",
-      "updatedAt": "2025-11-04T10:18:06.044Z"
+      "updatedAt": "2025-11-10T11:43:58.305Z",
+      "inquiry-vendors": [
+        {
+          "id": "01K971W83WWA4QCVFNAZSF5N11",
+          "label": "Mana Pharma"
+        },
+        {
+          "id": "01K971WG76Y655JPYJDAJTTVV3",
+          "label": "Pharmagona"
+        },
+        {
+          "id": "01K971WTDXH1GAJ33MG2FYSVYG",
+          "label": "Ottana Pharmed"
+        }
+      ],
+      "inquiry-items": [
+        {
+          "id": "01K971TX4B7S8YBED0NEDH79TN",
+          "label": "Buffer Solution"
+        },
+        {
+          "id": "01K971VS40NX1XM4PYVPBD59GR",
+          "label": "Sodium Bi Carbonate"
+        }
+      ]
     }
   ],
   "contacts": [
@@ -939,20 +970,31 @@
   "user-roles": [],
   "users": [
     {
-      "username": "abidi.mahyar@gmail.com",
+      "username": "abidim",
       "name": "Mahyar",
       "lastname": "Abidi",
       "email": "abidi.mahyar@gmail.com",
       "gender": "male",
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
-      "status": "ACTIVE",
+      "status": [
+        {
+          "id": "pending",
+          "label": "Pending",
+          "icon": "Clock",
+          "color": "warning"
+        }
+      ],
       "rating": 5,
       "id": "01K9ABA6MQ9K64MY7M4AEBCAP2",
       "createdAt": "2025-11-05T15:49:06.366Z",
-      "updatedAt": "2025-11-10T08:58:11.381Z",
+      "updatedAt": "2025-11-10T11:57:03.413Z",
       "avatarUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFqEf1NfTjObg/profile-displayphoto-crop_800_800/B4DZlbvgWeJMAM-/0/1758180806291?e=1764201600&v=beta&t=9qdjZhqjahZqjMh_oT9QKsjgz6bbTb5Bw0BvmXu9Rag",
-      "password": "$argon2id$v=19$m=32768,t=3,p=4$ra1XIBwtFpDcaqjexifcVA$LHTPqcUFMxwaeeVH8ItOStX7WnPPclpyguUoTFFYg2Y",
-      "hashType": "argon2"
+      "password": "$argon2id$v=19$m=32768,t=3,p=4$lJUuCAnQyRK7q2GbUEpgQg$yoNrrPCRDTJNwVj9aDDDZ0c4reiBNGcfSHEZ6Hennqg",
+      "hashType": "argon2",
+      "firstName": "Mahyar",
+      "lastName": "Abidi",
+      "postTitle": "CAO",
+      "company": "CinnaGen"
     }
   ],
   "purchaseOrders": [],

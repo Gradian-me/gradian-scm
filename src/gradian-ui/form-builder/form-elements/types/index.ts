@@ -1,5 +1,6 @@
 // Form Elements Types
 
+import React from 'react';
 import { BaseComponentProps, FormFieldConfig, ValidationRule } from '../../../shared/types';
 import { NormalizedOption } from '../utils/option-normalizer';
 
@@ -22,6 +23,10 @@ export interface TextInputProps extends FormElementProps {
   minLength?: number;
   pattern?: string;
   canCopy?: boolean;
+}
+
+export interface NameInputProps extends TextInputProps {
+  forbiddenSymbolsMessage?: string;
 }
 
 export interface SearchInputProps extends FormElementProps {
@@ -162,6 +167,19 @@ export interface FormElementRef {
   reset: () => void;
   getValue: () => any;
   setValue: (value: any) => void;
+}
+
+export interface OTPInputProps extends FormElementProps {
+  config?: any;
+  resendDuration?: number;
+  resendButtonLabel?: string;
+  autoStartTimer?: boolean;
+  onResend?: () => Promise<void> | void;
+  maxLength?: number;
+  separatorIndex?: number | null;
+  label?: string;
+  description?: string;
+  children?: React.ReactNode;
 }
 
 // Badge Component Types

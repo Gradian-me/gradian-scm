@@ -54,7 +54,9 @@ export const getFieldsByRole = (schema: FormSchema, role: string): any[] => {
 export const getValueByRole = (schema: FormSchema, data: any, role: string): string => {
   const fields = getFieldsByRole(schema, role);
   if (fields.length === 0) return '';
-  
+
+  const joiner = role === 'title' ? ' ' : ' | ';
+
   const values = fields
     .map(field => {
       const rawValue = data[field.name];
@@ -63,28 +65,28 @@ export const getValueByRole = (schema: FormSchema, data: any, role: string): str
         : rawValue !== undefined && rawValue !== null
           ? [rawValue]
           : [];
-      
+
       if (field.type === 'picker' && field.targetSchema) {
         const pickerStrings = valueArray
           .map((entry) => resolvePickerEntry(field, entry, data))
           .filter(Boolean);
-        return pickerStrings.join(' | ');
+        return pickerStrings.join(joiner).trim();
       }
-      
+
       const labels = extractLabels(valueArray);
       if (labels.length > 0) {
-        return labels.join(' | ');
+        return labels.join(joiner).trim();
       }
 
       const fallbackStrings = valueArray
         .map((entry) => (entry === null || entry === undefined ? '' : String(entry)))
         .filter(Boolean);
 
-      return fallbackStrings.join(' | ');
+      return fallbackStrings.join(joiner).trim();
     })
     .filter(val => typeof val === 'string' && val.trim() !== '');
-  
-  return values.join(' | ');
+
+  return values.join(joiner).trim();
 };
 
 /**
