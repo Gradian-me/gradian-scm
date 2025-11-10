@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { DynamicDetailPageRenderer, getPageTitle, getPageSubtitle } from '../../../../gradian-ui/data-display/components/DynamicDetailPageRenderer';
+import { DynamicDetailPageRenderer, getPageTitle, getPageSubtitle } from '@/gradian-ui/data-display/components/DynamicDetailPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { useDynamicEntity } from '../../../../shared/hooks/use-dynamic-entity';
-import { apiRequest } from '../../../../shared/utils/api';
-import { MainLayout } from '../../../../components/layout/main-layout';
+import { useDynamicEntity } from '@/gradian-ui/shared/hooks/use-dynamic-entity';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { MainLayout } from '@/components/layout/main-layout';
 
 interface DynamicDetailPageClientProps {
   schema: FormSchema;
