@@ -2,6 +2,7 @@
 
 export * from './builder';
 export * from './form-schema';
+export * from './schema-manager-page';
 
 import { FormSchema } from './form-schema';
 

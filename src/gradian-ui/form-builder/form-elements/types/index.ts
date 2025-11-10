@@ -27,6 +27,12 @@ export interface TextInputProps extends FormElementProps {
 
 export interface NameInputProps extends TextInputProps {
   forbiddenSymbolsMessage?: string;
+  isCustomizable?: boolean;
+  customMode?: boolean;
+  defaultCustomMode?: boolean;
+  onCustomModeChange?: (isCustom: boolean) => void;
+  customizeDisabled?: boolean;
+  helperText?: string;
 }
 
 export interface SearchInputProps extends FormElementProps {

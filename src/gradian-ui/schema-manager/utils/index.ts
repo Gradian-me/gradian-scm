@@ -11,3 +11,4 @@ export { validateAgainstSchema, validateField as validateSchemaField } from './s
 // schema-registry has server-only dependencies (dynamic imports) - import directly: '@/gradian-ui/schema-manager/utils/schema-registry'
 // schema-registry.server is server-only - import directly: '@/gradian-ui/schema-manager/utils/schema-registry.server'
 export * from './schema-utils';
+export * from './schema-form';

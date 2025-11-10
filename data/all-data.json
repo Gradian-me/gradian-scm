@@ -1001,5 +1001,6 @@
   "tenders": [],
   "shipments": [],
   "invoices": [],
-  "production-plans": []
+  "production-plans": [],
+  "applications": []
 }

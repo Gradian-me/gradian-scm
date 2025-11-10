@@ -106,7 +106,18 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
 
     case 'name':
     case 'name-input':
-      return <NameInput config={config} {...restProps} />;
+      return (
+        <NameInput
+          config={config}
+          {...restProps}
+          isCustomizable={(restProps as any)?.isCustomizable ?? (config as any)?.isCustomizable}
+          customMode={(restProps as any)?.customMode ?? (config as any)?.customMode}
+          defaultCustomMode={(restProps as any)?.defaultCustomMode ?? (config as any)?.defaultCustomMode}
+          onCustomModeChange={(restProps as any)?.onCustomModeChange ?? (config as any)?.onCustomModeChange}
+          customizeDisabled={(restProps as any)?.customizeDisabled ?? (config as any)?.customizeDisabled}
+          helperText={(restProps as any)?.helperText ?? (config as any)?.helperText}
+        />
+      );
 
     case 'otp':
     case 'otp-input':

@@ -5,7 +5,7 @@ import { Label } from '../../../components/ui/label';
 import { Textarea } from '../../../components/ui/textarea';
 import { Switch } from '../../../components/ui/switch';
 import { Button } from '../../../components/ui/button';
-import { Select, Slider, ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
+import { Select, Slider, ButtonMinimal, NameInput } from '@/gradian-ui/form-builder/form-elements';
 import { Trash2 } from 'lucide-react';
 import { SectionEditorProps } from '../types/builder';
 import { FieldEditor } from './FieldEditor';
@@ -13,6 +13,7 @@ import { SortableField } from './SortableField';
 import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
 import { useMemo, useState, useEffect } from 'react';
 import { FormSchema } from '../types/form-schema';
+import { generateSchemaId } from '../utils/schema-form';
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,7 @@ export function SectionEditor({
   const [tempSection, setTempSection] = useState(section);
   const [relationTypes, setRelationTypes] = useState<Array<{ id: string; label: string }>>([]);
   const [availableSchemas, setAvailableSchemas] = useState<Array<{ id: string; name: string }>>([]);
+  const [isSectionIdCustom, setIsSectionIdCustom] = useState(false);
   
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -63,6 +65,7 @@ export function SectionEditor({
 
   useEffect(() => {
     setTempSection(section);
+    setIsSectionIdCustom(false);
   }, [section]);
 
   const sortedFields = useMemo(() => {
@@ -172,9 +175,37 @@ export function SectionEditor({
             <Label className="text-xs font-medium text-gray-700 mb-1.5 block">Section Title</Label>
             <Input
               value={tempSection.title}
-              onChange={(e) => setTempSection({ ...tempSection, title: e.target.value })}
+              onChange={(e) => {
+                const newTitle = e.target.value;
+                setTempSection(prev => {
+                  const updated = { ...prev, title: newTitle };
+                  if (!isSectionIdCustom) {
+                    updated.id = generateSchemaId(newTitle);
+                  }
+                  return updated;
+                });
+              }}
               className="h-9"
               placeholder="Section title..."
+            />
+          </div>
+          <div>
+            <NameInput
+              config={{ name: 'section-id', label: 'Section ID', placeholder: 'Generated from the section title' }}
+              value={tempSection.id}
+              onChange={(newValue) => setTempSection(prev => ({ ...prev, id: newValue }))}
+              isCustomizable
+              customMode={isSectionIdCustom}
+              onCustomModeChange={(custom) => {
+                if (!custom) {
+                  setTempSection(prev => ({
+                    ...prev,
+                    id: generateSchemaId(prev.title || ''),
+                  }));
+                }
+                setIsSectionIdCustom(custom);
+              }}
+              helperText="Section IDs auto-generate from the title. Customize if you need a specific identifier."
             />
           </div>
           <div>

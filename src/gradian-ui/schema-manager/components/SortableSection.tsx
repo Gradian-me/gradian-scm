@@ -197,10 +197,11 @@ export function SortableSection({
           }}
           saveSchema={async (id: string, schema: FormSchema) => {
             const apiBasePath = config?.schemaApi?.basePath || '/api/schemas';
+            const { id: _schemaId, ...payload } = schema;
             const response = await fetch(`${apiBasePath}/${id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(schema),
+              body: JSON.stringify(payload),
             });
             const result = await response.json();
             if (!result.success) {

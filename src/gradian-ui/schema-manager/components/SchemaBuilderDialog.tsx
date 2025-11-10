@@ -7,12 +7,12 @@ import { Settings, Layers, Loader2 } from 'lucide-react';
 import { FormSchema, FormField, FormSection } from '../types/form-schema';
 import { GeneralInfoTab } from './GeneralInfoTab';
 import { SectionsTab } from './SectionsTab';
-import { SchemaActions } from './SchemaActions';
 import { ResetDialog } from './ResetDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
+import { SchemaNotFound } from './SchemaNotFound';
 
 interface SchemaBuilderDialogProps {
   schemaId: string;
@@ -37,6 +37,7 @@ export function SchemaBuilderDialog({
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'field' | 'section'; id: string; onConfirm: () => void } | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (open && schemaId) {
@@ -47,13 +48,16 @@ export function SchemaBuilderDialog({
   const loadSchema = async (id: string) => {
     try {
       setLoading(true);
+      setLoadError(false);
       const data = await fetchSchema(id);
       setSchema(data);
       setOriginalSchema(JSON.parse(JSON.stringify(data))); // Deep clone
       setExpandedSection(null);
     } catch (error) {
       console.error('Error loading schema:', error);
-      alert('Error loading schema');
+      setSchema(null);
+      setOriginalSchema(null);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -237,7 +241,7 @@ export function SchemaBuilderDialog({
     );
   }
 
-  if (!schema) {
+  if (loadError) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="w-[95vw] sm:w-full max-w-7xl max-h-[90vh] flex flex-col p-0">
@@ -245,12 +249,16 @@ export function SchemaBuilderDialog({
             <DialogTitle>Schema Not Found</DialogTitle>
             <DialogDescription>The requested schema could not be loaded.</DialogDescription>
           </DialogHeader>
-          <div className="text-center py-20 flex-1">
-            <h3 className="text-xl font-semibold mb-4">Schema not found</h3>
+          <div className="flex-1 overflow-y-auto px-6 pb-6">
+            <SchemaNotFound showHomeButton={false} />
           </div>
         </DialogContent>
       </Dialog>
     );
+  }
+
+  if (!schema) {
+    return null;
   }
 
   return (

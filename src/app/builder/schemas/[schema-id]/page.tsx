@@ -9,6 +9,7 @@ import { config } from '@/lib/config';
 export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema-id': string }> }) {
   const router = useRouter();
   const [schemaId, setSchemaId] = useState<string>('');
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     params.then((resolvedParams) => {
@@ -21,20 +22,22 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
     const result = await response.json();
 
     if (result.success) {
+      setLoadError(null);
       return result.data;
-    } else {
-      console.error('Failed to fetch schema:', result.error);
-      alert('Failed to load schema');
-      router.push('/builder/schemas');
-      throw new Error('Failed to fetch schema');
     }
+
+    console.error('Failed to fetch schema:', result.error);
+    setLoadError(result.error || 'Failed to load schema');
+    router.replace(`/builder/schemas/${id}/not-found`);
+    throw new Error('Failed to fetch schema');
   };
 
   const saveSchema = async (id: string, schema: FormSchema): Promise<void> => {
+    const { id: _schemaId, ...payload } = schema;
     const response = await fetch(`${config.schemaApi.basePath}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(schema),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();

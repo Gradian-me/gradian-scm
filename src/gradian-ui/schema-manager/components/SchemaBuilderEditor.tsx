@@ -14,6 +14,8 @@ import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
+import { SchemaNotFound } from './SchemaNotFound';
+import { FormAlert } from '@/components/ui/form-alert';
 
 interface SchemaBuilderEditorProps {
   schemaId?: string;
@@ -41,6 +43,8 @@ export function SchemaBuilderEditor({
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'field' | 'section'; id: string; onConfirm: () => void } | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     if (schemaId) {
@@ -51,13 +55,16 @@ export function SchemaBuilderEditor({
   const loadSchema = async (id: string) => {
     try {
       setLoading(true);
+      setLoadError(false);
       const data = await fetchSchema(id);
       setSchema(data);
       setOriginalSchema(JSON.parse(JSON.stringify(data))); // Deep clone
       setExpandedSection(null);
     } catch (error) {
       console.error('Error loading schema:', error);
-      alert('Error loading schema');
+      setSchema(null);
+      setOriginalSchema(null);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -70,10 +77,10 @@ export function SchemaBuilderEditor({
       setSaving(true);
       await saveSchema(schemaId, schema);
       setOriginalSchema(JSON.parse(JSON.stringify(schema))); // Update original schema
-      alert('Schema saved successfully!');
+      setSaveFeedback({ type: 'success', message: 'Schema saved successfully!' });
     } catch (error) {
       console.error('Error saving schema:', error);
-      alert('Error saving schema');
+      setSaveFeedback({ type: 'error', message: 'Error saving schema' });
     } finally {
       setSaving(false);
     }
@@ -281,25 +288,33 @@ export function SchemaBuilderEditor({
     );
   }
 
-  if (!schema) {
+  if (loadError) {
     return (
       <MainLayout title={title || 'Schema Not Found'} subtitle={subtitle}>
-        <div className="text-center py-20">
-          <h3 className="text-xl font-semibold mb-4">Schema not found</h3>
-          {onBack && (
-            <Button onClick={onBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-          )}
-        </div>
+        <SchemaNotFound
+          onGoBack={onBack}
+          showGoBackButton={!!onBack}
+          showHomeButton={false}
+        />
       </MainLayout>
     );
+  }
+
+  if (!schema) {
+    return null;
   }
 
   return (
     <MainLayout title={title || `Editing: ${schema.plural_name}`} subtitle={subtitle}>
       <div className="space-y-6">
+        {saveFeedback && (
+          <FormAlert
+            type={saveFeedback.type}
+            message={saveFeedback.message}
+            dismissible
+            onDismiss={() => setSaveFeedback(null)}
+          />
+        )}
         <SchemaActions
           onBack={onBack}
           onSave={handleSave}

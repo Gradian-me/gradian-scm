@@ -1,9 +1,9 @@
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { cn, validateField } from '../../../shared/utils';
 import { FormElementRef, NameInputProps } from '../types';
 
-const allowedPattern = /^[a-z0-9_]+$/;
+const allowedPattern = /^[a-z0-9_-]+$/;
 
 export const NameInput = forwardRef<FormElementRef, NameInputProps>(
   (
@@ -18,7 +18,13 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
       required = false,
       placeholder,
       className,
-      forbiddenSymbolsMessage = 'Only lowercase letters, numbers, and underscores (_) are allowed.',
+      forbiddenSymbolsMessage = 'Only lowercase letters, numbers, hyphens (-), and underscores (_) are allowed.',
+      isCustomizable = false,
+      customMode: customModeProp,
+      defaultCustomMode = false,
+      onCustomModeChange,
+      customizeDisabled = false,
+      helperText,
       ...props
     },
     ref
@@ -28,6 +34,19 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
     const fieldName = config?.name || config?.id || 'name';
     const fieldLabel = config?.label;
     const fieldPlaceholder = placeholder || config?.placeholder;
+
+    const isControlledCustomMode = typeof customModeProp === 'boolean';
+    const [internalCustomMode, setInternalCustomMode] = useState(defaultCustomMode);
+    const isCustomMode = isControlledCustomMode ? customModeProp! : internalCustomMode;
+
+    const handleCustomModeToggle = () => {
+      if (!isCustomizable || disabled || customizeDisabled) return;
+      const next = !isCustomMode;
+      if (!isControlledCustomMode) {
+        setInternalCustomMode(next);
+      }
+      onCustomModeChange?.(next);
+    };
 
     useImperativeHandle(ref, () => ({
       focus: () => inputRef.current?.focus(),
@@ -45,7 +64,7 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
     }));
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled) return;
+      if (disabled || (isCustomizable && !isCustomMode)) return;
       const sanitizedValue = sanitize(event.target.value);
       if (sanitizedValue !== event.target.value) {
         event.target.value = sanitizedValue;
@@ -76,19 +95,43 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
       return null;
     }
 
+    const computedDisabled = disabled || (isCustomizable && !isCustomMode);
+    const showHelperText = helperText ?? (isCustomizable && !isCustomMode
+      ? 'Automatically generated. Click “Customize” to override.'
+      : forbiddenSymbolsMessage);
+
     return (
       <div className="w-full">
-        {fieldLabel && (
-          <label
-            htmlFor={fieldName}
-            className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              (required || config?.validation?.required) && 'after:content-["*"] after:ml-1 after:text-red-500'
+        {(fieldLabel || isCustomizable) && (
+          <div className="flex items-center justify-between gap-2 mb-1">
+            {fieldLabel ? (
+              <label
+                htmlFor={fieldName}
+                className={cn(
+                  'block text-sm font-medium',
+                  error ? 'text-red-700' : 'text-gray-700',
+                  (required || config?.validation?.required) && 'after:content-["*"] after:ml-1 after:text-red-500'
+                )}
+              >
+                {fieldLabel}
+              </label>
+            ) : (
+              <span />
             )}
-          >
-            {fieldLabel}
-          </label>
+            {isCustomizable && (
+              <button
+                type="button"
+                onClick={handleCustomModeToggle}
+                disabled={disabled || customizeDisabled}
+                className={cn(
+                  'h-7 px-2 text-xs font-medium rounded-md border border-transparent transition-colors',
+                  'bg-transparent text-violet-600 hover:bg-violet-50 disabled:text-gray-400 disabled:hover:bg-transparent'
+                )}
+              >
+                {isCustomMode ? 'Use generated' : 'Customize'}
+              </button>
+            )}
+          </div>
         )}
 
         <div className="relative">
@@ -103,7 +146,7 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
             onFocus={handleFocus}
             placeholder={fieldPlaceholder}
             required={required || config?.validation?.required}
-            disabled={disabled}
+            disabled={computedDisabled}
             autoComplete="off"
             className={inputClasses}
             {...props}
@@ -118,9 +161,9 @@ export const NameInput = forwardRef<FormElementRef, NameInputProps>(
           <p className="mt-1 text-sm text-red-600" role="alert">
             {error}
           </p>
-        ) : (
-          <p className="mt-1 text-xs text-gray-500">{forbiddenSymbolsMessage}</p>
-        )}
+        ) : showHelperText ? (
+          <p className="mt-1 text-xs text-gray-500">{showHelperText}</p>
+        ) : null}
       </div>
     );
   }
@@ -131,6 +174,10 @@ NameInput.displayName = 'NameInput';
 function sanitize(rawValue: string): string {
   return rawValue
     .toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/[^a-z0-9_]/g, '');
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9_-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 }

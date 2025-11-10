@@ -59,12 +59,13 @@ export function useSchemaBuilder(
       if (config?.onSave) {
         await config.onSave(state.schema);
       } else {
+        const { id: _schemaId, ...payload } = state.schema;
         const response = await fetch(
           `${config?.apiBaseUrl || appConfig.schemaApi.basePath}/${state.schema.id}`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(state.schema),
+            body: JSON.stringify(payload),
           }
         );
         const result = await response.json();
