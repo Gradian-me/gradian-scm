@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+import { isDemoModeEnabled, proxySchemaRequest } from './utils';
+
 // Cache for loaded schemas
 let cachedSchemas: any[] | null = null;
 let cacheTimestamp: number | null = null;
@@ -54,6 +56,10 @@ function loadSchemas(): any[] {
  * - GET /api/schemas?id=vendors - returns only vendors schema
  */
 export async function GET(request: NextRequest) {
+  if (!isDemoModeEnabled()) {
+    return proxySchemaRequest(request, `/api/schemas${request.nextUrl.search}`);
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const schemaId = searchParams.get('id');
@@ -119,9 +125,13 @@ export async function GET(request: NextRequest) {
  * Example: POST /api/schemas - creates a new schema
  */
 export async function POST(request: NextRequest) {
-  try {
-    const newSchema = await request.json();
+  const newSchema = await request.json();
 
+  if (!isDemoModeEnabled()) {
+    return proxySchemaRequest(request, '/api/schemas', { body: newSchema });
+  }
+
+  try {
     // Load schemas (with caching)
     const schemas = loadSchemas();
     

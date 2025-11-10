@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+import { isDemoModeEnabled, proxySchemaRequest } from '../utils';
+
 // Cache for loaded schemas
 let cachedSchemas: any[] | null = null;
 let cacheTimestamp: number | null = null;
@@ -57,16 +59,23 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string }> }
 ) {
+  const { 'schema-id': schemaId } = await params;
+
+  if (!schemaId) {
+    return NextResponse.json(
+      { success: false, error: 'Schema ID is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!isDemoModeEnabled()) {
+    return proxySchemaRequest(
+      request,
+      `/api/schemas/${schemaId}${request.nextUrl.search}`
+    );
+  }
+
   try {
-    const { 'schema-id': schemaId } = await params;
-
-    if (!schemaId) {
-      return NextResponse.json(
-        { success: false, error: 'Schema ID is required' },
-        { status: 400 }
-      );
-    }
-
     // Load schemas (with caching)
     const schemas = loadSchemas();
     
@@ -118,16 +127,24 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string }> }
 ) {
+  const { 'schema-id': schemaId } = await params;
+
+  if (!schemaId) {
+    return NextResponse.json(
+      { success: false, error: 'Schema ID is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!isDemoModeEnabled()) {
+    const updatedSchema = await request.json();
+    return proxySchemaRequest(request, `/api/schemas/${schemaId}`, {
+      body: updatedSchema,
+      method: 'PUT',
+    });
+  }
+
   try {
-    const { 'schema-id': schemaId } = await params;
-
-    if (!schemaId) {
-      return NextResponse.json(
-        { success: false, error: 'Schema ID is required' },
-        { status: 400 }
-      );
-    }
-
     const updatedSchema = await request.json();
 
     // Load schemas (with caching)
@@ -185,16 +202,22 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string }> }
 ) {
+  const { 'schema-id': schemaId } = await params;
+
+  if (!schemaId) {
+    return NextResponse.json(
+      { success: false, error: 'Schema ID is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!isDemoModeEnabled()) {
+    return proxySchemaRequest(request, `/api/schemas/${schemaId}`, {
+      method: 'DELETE',
+    });
+  }
+
   try {
-    const { 'schema-id': schemaId } = await params;
-
-    if (!schemaId) {
-      return NextResponse.json(
-        { success: false, error: 'Schema ID is required' },
-        { status: 400 }
-      );
-    }
-
     // Load schemas (with caching)
     const schemas = loadSchemas();
     
