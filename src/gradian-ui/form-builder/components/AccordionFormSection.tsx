@@ -1,6 +1,7 @@
 // Accordion Form Section Component
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormElementFactory } from '../form-elements';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
@@ -19,6 +20,27 @@ import { IconRenderer } from '@/shared/utils/icon-renderer';
 import { getInitials, getBadgeConfig } from '../../data-display/utils';
 import { NormalizedOption } from '../form-elements/utils/option-normalizer';
 import { BadgeViewer } from '../form-elements/utils/badge-viewer';
+import { UI_PARAMS } from '@/shared/constants/application-variables';
+const fieldVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      delay: Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX),
+    },
+  }),
+  exit: (index: number) => ({
+    opacity: 0,
+    y: -12,
+    transition: {
+      duration: 0.2,
+      delay: Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX / 2),
+    },
+  }),
+} as const;
+
 
 export const AccordionFormSection: React.FC<FormSectionProps> = ({
   section,
@@ -237,93 +259,103 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   };
 
   const renderFields = (fieldsToRender: typeof fields, itemIndex?: number) => {
-    return fieldsToRender.map((field) => {
-      if (!field) return null;
+    return (
+      <AnimatePresence>
+        {fieldsToRender.map((field, index) => {
+          if (!field) return null;
 
-      // Build name/value/error/touched for normal vs repeating sections
-      const isItem = itemIndex !== undefined && isRepeatingSection;
+          // Build name/value/error/touched for normal vs repeating sections
+          const isItem = itemIndex !== undefined && isRepeatingSection;
 
-      const fieldName = isItem 
-        ? `${section.id}[${itemIndex}].${field.name}`
-        : field.name;
+          const fieldName = isItem 
+            ? `${section.id}[${itemIndex}].${field.name}`
+            : field.name;
 
-      // Safe access helpers for nested structures
-      const nestedValues = (values as any) || {};
-      const nestedErrors = (errors as any) || {};
-      const nestedTouched = (touched as any) || {};
+          // Safe access helpers for nested structures
+          const nestedValues = (values as any) || {};
+          const nestedErrors = (errors as any) || {};
+          const nestedTouched = (touched as any) || {};
 
-      const fieldValue = isItem 
-        ? nestedValues?.[section.id]?.[itemIndex]?.[field.name]
-        : nestedValues?.[field.name];
+          const fieldValue = isItem 
+            ? nestedValues?.[section.id]?.[itemIndex]?.[field.name]
+            : nestedValues?.[field.name];
 
-      const fieldError = isItem 
-        ? (nestedErrors?.[section.id]?.[itemIndex]?.[field.name] 
-            || nestedErrors?.[`${section.id}[${itemIndex}].${field.name}`])
-        : nestedErrors?.[field.name];
+          const fieldError = isItem 
+            ? (nestedErrors?.[section.id]?.[itemIndex]?.[field.name] 
+                || nestedErrors?.[`${section.id}[${itemIndex}].${field.name}`])
+            : nestedErrors?.[field.name];
 
-      const fieldTouched = isItem 
-        ? Boolean(
-            nestedTouched?.[section.id]?.[itemIndex]?.[field.name] 
-            || nestedTouched?.[`${section.id}[${itemIndex}].${field.name}`]
-          )
-        : Boolean(nestedTouched?.[field.name]);
+          const fieldTouched = isItem 
+            ? Boolean(
+                nestedTouched?.[section.id]?.[itemIndex]?.[field.name] 
+                || nestedTouched?.[`${section.id}[${itemIndex}].${field.name}`]
+              )
+            : Boolean(nestedTouched?.[field.name]);
 
-      // Calculate column span for this field
-      const colSpan = getColSpan(field);
-      
-      // Generate the appropriate column span class
-      // Default to single column on mobile to avoid overlap,
-      // and apply the actual span at md and up.
-      let colSpanClass = 'col-span-1';
-      if (colSpan === columns) {
-        colSpanClass = 'col-span-1 lg:col-span-full';
-      } else {
-        // For responsive layouts at md+
-        if (columns === 3) {
-          if (colSpan === 2) {
-            colSpanClass = 'col-span-1 lg:col-span-2';
+          // Calculate column span for this field
+          const colSpan = getColSpan(field);
+          
+          // Generate the appropriate column span class
+          // Default to single column on mobile to avoid overlap,
+          // and apply the actual span at md and up.
+          let colSpanClass = 'col-span-1';
+          if (colSpan === columns) {
+            colSpanClass = 'col-span-1 lg:col-span-full';
+          } else {
+            // For responsive layouts at md+
+            if (columns === 3) {
+              if (colSpan === 2) {
+                colSpanClass = 'col-span-1 lg:col-span-2';
+              }
+            } else if (columns === 2) {
+              if (colSpan === 2) {
+                colSpanClass = 'col-span-1 lg:col-span-2';
+              }
+            } else if (columns === 4) {
+              if (colSpan === 2) {
+                colSpanClass = 'col-span-1 lg:col-span-2';
+              } else if (colSpan === 3) {
+                colSpanClass = 'col-span-1 lg:col-span-3';
+              }
+            } else if (columns === 6 || columns === 12) {
+              colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
+            } else {
+              // Default for other column counts
+              colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
+            }
           }
-        } else if (columns === 2) {
-          if (colSpan === 2) {
-            colSpanClass = 'col-span-1 lg:col-span-2';
-          }
-        } else if (columns === 4) {
-          if (colSpan === 2) {
-            colSpanClass = 'col-span-1 lg:col-span-2';
-          } else if (colSpan === 3) {
-            colSpanClass = 'col-span-1 lg:col-span-3';
-          }
-        } else if (columns === 6 || columns === 12) {
-          colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
-        } else {
-          // Default for other column counts
-          colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
-        }
-      }
 
-      return (
-        <div
-          key={field.id}
-          className={cn(
-            'space-y-2',
-            colSpanClass,
-            (field as any).layout?.rowSpan && `row-span-${(field as any).layout.rowSpan}`
-          )}
-          style={{ order: field.order ?? (field as any).layout?.order }}
-        >
-          <FormElementFactory
-            field={field as any}
-            value={fieldValue}
-            error={fieldError}
-            touched={fieldTouched}
-            onChange={(value) => onChange(fieldName, value)}
-            onBlur={() => onBlur(fieldName)}
-            onFocus={() => onFocus(fieldName)}
-            disabled={disabled || field.disabled}
-          />
-        </div>
-      );
-    });
+          return (
+            <motion.div
+              key={field.id}
+              className={cn(
+                'space-y-2',
+                colSpanClass,
+                (field as any).layout?.rowSpan && `row-span-${(field as any).layout.rowSpan}`
+              )}
+              layout
+              variants={fieldVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              custom={index}
+              style={{ order: field.order ?? (field as any).layout?.order }}
+            >
+              <FormElementFactory
+                field={field as any}
+                value={fieldValue}
+                error={fieldError}
+                touched={fieldTouched}
+                onChange={(value) => onChange(fieldName, value)}
+                onBlur={() => onBlur(fieldName)}
+                onFocus={() => onFocus(fieldName)}
+                disabled={disabled || field.disabled}
+              />
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    );
   };
 
   // Handler for removing a relation-based item
@@ -703,130 +735,142 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
               )}
             </CardHeader>
             
-            {isExpanded && (
-              <CardContent className="px-6 pb-6">
-                <div className="space-y-4">
-                  {isLoadingRelations ? (
-                    <div className="space-y-3">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="rounded-xl bg-white border border-gray-100 overflow-hidden"
-                        >
-                          <div className="px-4 sm:px-6 py-4">
-                            <div className="flex items-start justify-between gap-3 w-full">
-                              {/* Left side: Avatar, Title, Subtitle */}
-                              <div className="flex items-start gap-3 flex-1 min-w-0">
-                                {/* Avatar Skeleton */}
-                                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-                                
-                                {/* Content */}
-                                <div className="flex-1 min-w-0 space-y-2">
-                                  <Skeleton className="h-4 w-2/3" />
-                                  <Skeleton className="h-3 w-1/2" />
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  layout
+                  key="relation-section-content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <CardContent className="px-6 pb-6">
+                    <div className="space-y-4">
+                      {isLoadingRelations ? (
+                        <div className="space-y-3">
+                          {[1, 2, 3].map((i) => (
+                            <div
+                              key={i}
+                              className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                            >
+                              <div className="px-4 sm:px-6 py-4">
+                                <div className="flex items-start justify-between gap-3 w-full">
+                                  {/* Left side: Avatar, Title, Subtitle */}
+                                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                                    {/* Avatar Skeleton */}
+                                    <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                                    
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0 space-y-2">
+                                      <Skeleton className="h-4 w-2/3" />
+                                      <Skeleton className="h-3 w-1/2" />
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Right side: Buttons, Rating */}
+                                  <div className="flex items-start gap-2 shrink-0">
+                                    {/* Button Skeletons */}
+                                    <div className="flex gap-1">
+                                      <Skeleton className="h-8 w-8 rounded" />
+                                      <Skeleton className="h-8 w-8 rounded" />
+                                    </div>
+                                    
+                                    {/* Rating Skeleton */}
+                                    <Skeleton className="h-4 w-12" />
+                                  </div>
                                 </div>
-                              </div>
-                              
-                              {/* Right side: Buttons, Rating */}
-                              <div className="flex items-start gap-2 shrink-0">
-                                {/* Button Skeletons */}
-                                <div className="flex gap-1">
-                                  <Skeleton className="h-8 w-8 rounded" />
-                                  <Skeleton className="h-8 w-8 rounded" />
-                                </div>
-                                
-                                {/* Rating Skeleton */}
-                                <Skeleton className="h-4 w-12" />
                               </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : itemsCount === 0 ? (
-                    <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
-                      <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
-                    </div>
-                  ) : (
-                              <div className="space-y-3">
-                                {itemsToDisplay.map((entity, index) => {
-                                  const relation = relations.find(r => r.targetId === (entity as any).id);
-                                  const actionButtons = (
-                                    <>
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          if (relation) handleEditEntity((entity as any).id, relation.id);
-                                        }}
-                                        className="h-8 w-8"
-                                        title="Edit"
-                                        disabled={disabled}
-                                      >
-                                        <Edit className="h-4 w-4" />
-                                      </Button>
-                                      {relation && (
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="icon"
-                                          onClick={(e) => handleDeleteClick(relation.id, e)}
-                                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                          title="Delete"
-                                          disabled={disabled}
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      )}
-                                    </>
-                                  );
-                                  return (
-                                    <div
-                                      key={(entity as any).id || `entity-${index}`}
-                                      className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
-                                    >
-                                      <div className="px-4 sm:px-6 py-4">
-                                        {renderEntitySummary(entity, index + 1, actionButtons)}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                      ) : itemsCount === 0 ? (
+                        <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                          <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {itemsToDisplay.map((entity, index) => {
+                            const relation = relations.find(r => r.targetId === (entity as any).id);
+                            const actionButtons = (
+                              <>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (relation) handleEditEntity((entity as any).id, relation.id);
+                                  }}
+                                  className="h-8 w-8"
+                                  title="Edit"
+                                  disabled={disabled}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                {relation && (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => handleDeleteClick(relation.id, e)}
+                                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    title="Delete"
+                                    disabled={disabled}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </>
+                            );
+                            return (
+                              <div
+                                key={(entity as any).id || `entity-${index}`}
+                                className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                              >
+                                <div className="px-4 sm:px-6 py-4">
+                                  {renderEntitySummary(entity, index + 1, actionButtons)}
+                                </div>
                               </div>
-                  )}
-
-                  {/* Add button - only show if addType is 'addOnly' or 'canSelectFromData' */}
-                  {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
-                    <div className="space-y-2">
-                      <div className="flex justify-center mb-4">
-                        <AddButtonFull
-                          label={section.repeatingConfig?.addButtonText || `Add ${title}`}
-                          onClick={onAddRepeatingItem}
-                          disabled={disabled || !currentEntityId}
-                          loading={isAddingItem}
-                        />
-                      </div>
-                      {addItemError && (
-                        <FormAlert 
-                          type="warning" 
-                          message={addItemError}
-                          dismissible={false}
-                        />
+                            );
+                          })}
+                        </div>
                       )}
-                      {!currentEntityId && (
-                        <FormAlert 
-                          type="info" 
-                          message="Please save the form first before adding related items"
-                          dismissible={false}
-                        />
+
+                      {/* Add button - only show if addType is 'addOnly' or 'canSelectFromData' */}
+                      {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
+                        <div className="space-y-2">
+                          <div className="flex justify-center mb-4">
+                            <AddButtonFull
+                              label={section.repeatingConfig?.addButtonText || `Add ${title}`}
+                              onClick={onAddRepeatingItem}
+                              disabled={disabled || !currentEntityId}
+                              loading={isAddingItem}
+                            />
+                          </div>
+                          {addItemError && (
+                            <FormAlert 
+                              type="warning" 
+                              message={addItemError}
+                              dismissible={false}
+                            />
+                          )}
+                          {!currentEntityId && (
+                            <FormAlert 
+                              type="info" 
+                              message="Please save the form first before adding related items"
+                              dismissible={false}
+                            />
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            )}
+                  </CardContent>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </Card>
           
                     {/* Edit Modal for related entities */}
@@ -941,72 +985,84 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           </div>
         </CardHeader>
         
-        {isExpanded && (
-          <CardContent className="px-6 pb-6">
-            <div className="space-y-4">
-              {(repeatingItems || []).length === 0 ? (
-                <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
-                  <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
-                </div>
-              ) : (
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              layout
+              key="inline-repeating-section-content"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <CardContent className="px-6 pb-6">
                 <div className="space-y-4">
-                  {(repeatingItems || []).map((item, index) => (
-                    <div
-                      key={item.id || `item-${index}`}
-                      className="rounded-xl bg-white border border-gray-200 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {section.repeatingConfig?.itemTitle 
-                            ? section.repeatingConfig.itemTitle(index + 1)
-                            : `${title} ${index + 1}`
-                          }
-                        </div>
-                        {onRemoveRepeatingItem && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onRemoveRepeatingItem(index)}
-                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
-                            disabled={disabled}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                      <div className="px-4 sm:px-6 pb-4">
-                        <div className={gridClasses}>
-                          {renderFields(fields, index)}
-                        </div>
-                      </div>
+                  {(repeatingItems || []).length === 0 ? (
+                    <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                      <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ) : (
+                    <div className="space-y-4">
+                      {(repeatingItems || []).map((item, index) => (
+                        <div
+                          key={item.id || `item-${index}`}
+                          className="rounded-xl bg-white border border-gray-200 shadow-sm"
+                        >
+                          <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {section.repeatingConfig?.itemTitle 
+                                ? section.repeatingConfig.itemTitle(index + 1)
+                                : `${title} ${index + 1}`
+                              }
+                            </div>
+                            {onRemoveRepeatingItem && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => onRemoveRepeatingItem(index)}
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
+                                disabled={disabled}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                          <div className="px-4 sm:px-6 pb-4">
+                            <div className={gridClasses}>
+                              {renderFields(fields, index)}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-              {onAddRepeatingItem && (
-                <div className="space-y-2">
-                  <div className="flex justify-center mb-4">
-                    <AddButtonFull
-                      label={section.repeatingConfig?.addButtonText || `Add ${title}`}
-                      onClick={onAddRepeatingItem}
-                      disabled={disabled}
-                      loading={isAddingItem}
-                    />
-                  </div>
-                  {addItemError && (
-                    <FormAlert 
-                      type="warning" 
-                      message={addItemError}
-                      dismissible={false}
-                    />
+                  {onAddRepeatingItem && (
+                    <div className="space-y-2">
+                      <div className="flex justify-center mb-4">
+                        <AddButtonFull
+                          label={section.repeatingConfig?.addButtonText || `Add ${title}`}
+                          onClick={onAddRepeatingItem}
+                          disabled={disabled}
+                          loading={isAddingItem}
+                        />
+                      </div>
+                      {addItemError && (
+                        <FormAlert 
+                          type="warning" 
+                          message={addItemError}
+                          dismissible={false}
+                        />
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        )}
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     );
   }
@@ -1051,15 +1107,27 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         </div>
       </CardHeader>
       
-      {isExpanded && (
-        <CardContent className="px-6 pb-6">
-          <div className={sectionClasses}>
-            <div className={gridClasses}>
-              {renderFields(fields)}
-            </div>
-          </div>
-        </CardContent>
-      )}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            layout
+            key="standard-section-content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <CardContent className="px-6 pb-6">
+              <div className={sectionClasses}>
+                <div className={gridClasses}>
+                  {renderFields(fields)}
+                </div>
+              </div>
+            </CardContent>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 };

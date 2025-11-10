@@ -15,7 +15,7 @@ import { cn } from '@/gradian-ui/shared/utils';
 import { UI_PARAMS } from '@/shared/constants/application-variables';
 import { apiRequest } from '@/shared/utils/api';
 import { IconRenderer } from '@/shared/utils/icon-renderer';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Check, List, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -27,6 +27,27 @@ import { extractFirstId, normalizeOptionArray, normalizeOptionEntry, NormalizedO
 import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
 
 const BADGE_VARIANTS = ['default', 'secondary', 'destructive', 'success', 'warning', 'info', 'outline', 'gradient', 'muted'];
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 12, scale: 0.96 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.28,
+      delay: Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX),
+    },
+  }),
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.96,
+    transition: {
+      duration: 0.2,
+    },
+  },
+};
 
 interface PendingSelection {
   action: 'add' | 'remove';
@@ -462,23 +483,25 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
   const renderItemCard = (item: any, index: number) => {
     const isSelected = isItemSelected(item);
-    
-    const delay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX);
 
     const baseCardClasses = "relative p-4 rounded-xl border cursor-pointer transition-all duration-200 group";
     const selectedCardClasses = "border-violet-500 bg-gradient-to-br from-violet-50 via-white to-white shadow-lg ring-1 ring-violet-200";
     const defaultCardClasses = "border-gray-200 bg-white hover:border-violet-300 hover:shadow-md";
 
+    const motionProps = {
+      layout: true,
+      variants: cardVariants,
+      initial: 'hidden',
+      animate: 'visible',
+      exit: 'exit',
+      custom: index,
+    } as const;
+
     if (!schema) {
       // Fallback rendering
       const displayName = item.name || item.title || item.id || `Item ${index + 1}`;
       return (
-        <motion.div
-          key={item.id || index}
-          initial={{ opacity: 0, y: 6, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.25, delay, ease: 'easeOut' }}
-        >
+        <motion.div key={item.id || index} {...motionProps}>
           <div
             onClick={(e) => {
               e.preventDefault();
@@ -552,12 +575,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     const fallbackStatusId = extractFirstId(rawStatusValue);
 
     return (
-      <motion.div
-        key={item.id || index}
-        initial={{ opacity: 0, y: 6, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.25, delay, ease: 'easeOut' }}
-      >
+      <motion.div key={item.id || index} {...motionProps}>
         <div
           onClick={() => toggleSelection(item)}
           className={cn(
@@ -685,7 +703,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               <DialogTitle>{title || `Select ${schemaName}`}</DialogTitle>
               {description && <DialogDescription>{description}</DialogDescription>}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 me-4">
               <Button
                 type="button"
                 variant="ghost"
@@ -742,7 +760,9 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {filteredItems.map((item, index) => renderItemCard(item, index))}
+              <AnimatePresence mode="sync">
+                {filteredItems.map((item, index) => renderItemCard(item, index))}
+              </AnimatePresence>
             </div>
           )}
         </div>

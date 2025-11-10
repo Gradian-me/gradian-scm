@@ -1556,7 +1556,7 @@
         "label": "Icon",
         "sectionId": "visual-style",
         "type": "text",
-        "component": "icon-input",
+        "component": "icon",
         "placeholder": "Enter icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
@@ -2220,7 +2220,7 @@
         "label": "Icon",
         "sectionId": "basic-information",
         "type": "text",
-        "component": "icon-input",
+        "component": "icon",
         "placeholder": "Enter icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
@@ -2396,7 +2396,7 @@
         "label": "Icon",
         "sectionId": "basic-information",
         "type": "text",
-        "component": "icon-input",
+        "component": "icon",
         "placeholder": "Enter icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
