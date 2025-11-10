@@ -27,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <motion.div
       initial={false}
       animate={{ width }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
         "relative h-full bg-gray-900 text-white flex flex-col",
         !isMobile && "border-r border-gray-800",

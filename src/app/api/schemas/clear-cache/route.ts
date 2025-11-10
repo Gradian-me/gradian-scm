@@ -4,6 +4,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
+import { isDemoModeEnabled, proxySchemaRequest } from '../utils';
+
 /**
  * Clear cache from schema-loader (server-side cache)
  */
@@ -117,23 +119,35 @@ async function revalidateSchemaPages() {
   }
 }
 
+async function clearLocalCaches() {
+  await Promise.all([
+    clearAllDataLoaderCaches(),
+    clearSchemaLoaderCache(),
+    clearCompaniesLoaderCache(),
+    clearSchemaRegistryCache(),
+    clearApiRouteCaches(),
+  ]);
+
+  await revalidateSchemaPages();
+}
+
 /**
  * POST - Clear all caches (schemas, companies, and all data-loader caches)
  * Example: POST /api/schemas/clear-cache
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Clear all caches - this will clear schemas, companies, and any other cached routes
-    await Promise.all([
-      clearAllDataLoaderCaches(), // This clears all caches from the general loader
-      clearSchemaLoaderCache(), // Legacy schema loader cache
-      clearCompaniesLoaderCache(), // Companies loader cache
-      clearSchemaRegistryCache(), // Schema registry cache
-      clearApiRouteCaches(), // API route caches
-    ]);
+  if (!isDemoModeEnabled()) {
+    try {
+      await clearLocalCaches();
+    } catch (error) {
+      console.warn('Local cache clearing failed (non-demo mode):', error);
+    }
 
-    // Revalidate Next.js page cache to ensure ISR pages are refreshed
-    await revalidateSchemaPages();
+    return proxySchemaRequest(request, '/api/schemas/clear-cache');
+  }
+
+  try {
+    await clearLocalCaches();
 
     return NextResponse.json({
       success: true,
@@ -157,18 +171,18 @@ export async function POST(request: NextRequest) {
  * Example: GET /api/schemas/clear-cache
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Clear all caches - this will clear schemas, companies, and any other cached routes
-    await Promise.all([
-      clearAllDataLoaderCaches(), // This clears all caches from the general loader
-      clearSchemaLoaderCache(), // Legacy schema loader cache
-      clearCompaniesLoaderCache(), // Companies loader cache
-      clearSchemaRegistryCache(), // Schema registry cache
-      clearApiRouteCaches(), // API route caches
-    ]);
+  if (!isDemoModeEnabled()) {
+    try {
+      await clearLocalCaches();
+    } catch (error) {
+      console.warn('Local cache clearing failed (non-demo mode):', error);
+    }
 
-    // Revalidate Next.js page cache to ensure ISR pages are refreshed
-    await revalidateSchemaPages();
+    return proxySchemaRequest(request, '/api/schemas/clear-cache');
+  }
+
+  try {
+    await clearLocalCaches();
 
     return NextResponse.json({
       success: true,

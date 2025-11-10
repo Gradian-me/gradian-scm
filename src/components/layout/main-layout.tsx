@@ -27,6 +27,17 @@ interface MainLayoutProps {
   isAdmin?: boolean;
 }
 
+const DESKTOP_BREAKPOINT = 768;
+const SIDEBAR_COLLAPSED_WIDTH = 80;
+const SIDEBAR_EXPANDED_WIDTH = 280;
+
+const getSidebarWidth = (isDesktop: boolean, isCollapsed: boolean) => {
+  if (!isDesktop) {
+    return 0;
+  }
+  return isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+};
+
 export function MainLayout({ 
   children, 
   title,
@@ -43,6 +54,7 @@ export function MainLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notificationCount] = useState(3);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(() => getSidebarWidth(false, false));
   const { selectedCompany } = useCompanyStore();
   const pageTitle = title ? `${title} | Gradian App` : 'Gradian App';
 
@@ -54,15 +66,21 @@ export function MainLayout({
   // Check if we're on desktop
   useEffect(() => {
     const checkDesktop = () => {
-      setIsDesktop(window.innerWidth >= 768);
+      const isDesktopNow = window.innerWidth >= DESKTOP_BREAKPOINT;
+      setIsDesktop((prev) => (prev === isDesktopNow ? prev : isDesktopNow));
     };
     checkDesktop();
     window.addEventListener('resize', checkDesktop);
     return () => window.removeEventListener('resize', checkDesktop);
   }, []);
 
+  useEffect(() => {
+    const nextSidebarWidth = getSidebarWidth(isDesktop, isSidebarCollapsed);
+    setSidebarWidth((currentWidth) => (currentWidth === nextSidebarWidth ? currentWidth : nextSidebarWidth));
+  }, [isDesktop, isSidebarCollapsed]);
+
   const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
+    setIsSidebarCollapsed((collapsed) => !collapsed);
   };
 
   const toggleMobileMenu = () => {
@@ -78,9 +96,6 @@ export function MainLayout({
       router.push(editSchemaPath);
     }
   };
-
-  // Calculate sidebar width for margin adjustment (only on desktop)
-  const sidebarWidth = isDesktop ? (isSidebarCollapsed ? 80 : 280) : 0;
 
   const headerConfig: HeaderConfig = {
     id: 'main-layout-header',
@@ -248,8 +263,9 @@ export function MainLayout({
       {/* Main Content - Adjust margin based on sidebar width */}
       <motion.div 
         className="flex-1 flex flex-col min-h-0"
+        initial={false}
         animate={{ 
-          marginLeft: `${sidebarWidth}px`
+          marginLeft: sidebarWidth
         }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         style={{ width: `calc(100% - ${sidebarWidth}px)` }}
