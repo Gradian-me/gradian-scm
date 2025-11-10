@@ -1,29 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SignInPage, Testimonial } from "@/components/ui/sign-in";
-import { useUserStore } from "@/stores/user.store";
-import { toast } from "sonner";
+import { SignInPage, Testimonial } from '@/components/ui/sign-in';
+import { useUserStore } from '@/stores/user.store';
+import { toast } from 'sonner';
 
 const sampleTestimonials: Testimonial[] = [
   {
-    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-    name: "Sarah Chen",
-    handle: "Supply Chain Director",
-    text: "Gradian has revolutionized our business management. Real-time tracking and inventory visibility have reduced our operational costs by 30%."
+    avatarSrc: 'https://randomuser.me/api/portraits/women/57.jpg',
+    name: 'Sarah Chen',
+    handle: 'Supply Chain Director',
+    text: 'Gradian has revolutionized our business management. Real-time tracking and inventory visibility have reduced our operational costs by 30%.',
   },
   {
-    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-    name: "Marcus Johnson",
-    handle: "Operations Manager",
-    text: "The comprehensive dashboard and analytics in Gradian give us complete visibility into our business. Compliance tracking has never been easier."
+    avatarSrc: 'https://randomuser.me/api/portraits/men/64.jpg',
+    name: 'Marcus Johnson',
+    handle: 'Operations Manager',
+    text: 'The comprehensive dashboard and analytics in Gradian give us complete visibility into our business. Compliance tracking has never been easier.',
   },
   {
-    avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "David Martinez",
-    handle: "Procurement Lead",
-    text: "Gradian's intuitive interface and powerful features make managing complex business operations effortless. It's transformed our workflow completely."
+    avatarSrc: 'https://randomuser.me/api/portraits/men/32.jpg',
+    name: 'David Martinez',
+    handle: 'Procurement Lead',
+    text: "Gradian's intuitive interface and powerful features make managing complex business operations effortless. It's transformed our workflow completely.",
   },
 ];
 
@@ -39,7 +39,7 @@ export default function LoginPage() {
   }, []);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
-    setError(null); // Clear previous errors
+    setError(null);
     event.preventDefault();
     setIsLoading(true);
 
@@ -56,7 +56,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Call login API
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -68,7 +67,6 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        // Show appropriate error message
         const errorMessage = data.error || 'Login failed. Please check your credentials.';
         setError(errorMessage);
         toast.error(errorMessage);
@@ -76,14 +74,11 @@ export default function LoginPage() {
         return;
       }
 
-      // Store tokens (if needed for client-side usage)
       if (data.tokens) {
-        // Store access token in localStorage for API calls
         localStorage.setItem('auth_token', data.tokens.accessToken);
         localStorage.setItem('refresh_token', data.tokens.refreshToken);
       }
 
-      // Store user in zustand store
       if (data.user) {
         setUser({
           id: data.user.id,
@@ -99,8 +94,6 @@ export default function LoginPage() {
       }
 
       toast.success(data.message || 'Login successful!');
-      
-      // Redirect to dashboard or home page
       router.push('/');
     } catch (error) {
       console.error('Login error:', error);
@@ -112,13 +105,11 @@ export default function LoginPage() {
   };
 
   const handleResetPassword = () => {
-    // TODO: Implement password reset logic
-    toast.info("Password reset functionality coming soon");
+    router.push('/authentication/reset-password');
   };
 
   const handleCreateAccount = () => {
-    // TODO: Implement account creation navigation
-    toast.info("Account creation functionality coming soon");
+    toast.info('Account creation functionality coming soon');
   };
 
   return (

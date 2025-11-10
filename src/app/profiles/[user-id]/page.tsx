@@ -23,7 +23,7 @@ export default function ProfilePage() {
   // Redirect to login if no user ID available
   useEffect(() => {
     if (!userId && !user) {
-      router.push('/login');
+      router.push('/authentication/login');
     }
   }, [userId, user, router]);
   

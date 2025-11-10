@@ -107,7 +107,7 @@ export function UserProfileSelector({
       localStorage.removeItem('refresh_token');
 
       // Redirect to login
-      router.push('/login');
+      router.push('/authentication/login');
     } catch (error) {
       console.error('Logout error:', error);
       // Even if API call fails, clear local state
@@ -115,7 +115,7 @@ export function UserProfileSelector({
       clearUser();
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refresh_token');
-      router.push('/login');
+      router.push('/authentication/login');
     }
   };
 

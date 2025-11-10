@@ -42,7 +42,7 @@ export function UserProfileDropdown({
     console.log('Logging out...');
     // Example: Call API to logout
     // Then redirect to login page
-    // router.push('/auth/login');
+    // router.push('/authentication/login');
   };
 
   if (!isMounted) {
