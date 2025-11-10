@@ -2,6 +2,8 @@
 
 export const FIELD_TYPES = [
   { value: 'text', label: 'Text' },
+  { value: 'name', label: 'Name (lowercase)' },
+  { value: 'name-input', label: 'Name (alias)' },
   { value: 'email', label: 'Email' },
   { value: 'number', label: 'Number' },
   { value: 'password', label: 'Password' },
@@ -10,6 +12,8 @@ export const FIELD_TYPES = [
   { value: 'checkbox', label: 'Checkbox' },
   { value: 'checkbox-list', label: 'Checkbox List' },
   { value: 'radio', label: 'Radio' },
+  { value: 'toggle', label: 'Toggle' },
+  { value: 'toggle-group', label: 'Toggle Group' },
   { value: 'date', label: 'Date' },
   { value: 'datetime-local', label: 'Date Time Local' },
   { value: 'datetime', label: 'Date Time' },
@@ -23,6 +27,8 @@ export const FIELD_TYPES = [
   { value: 'image-text', label: 'Image Text' },
   { value: 'button', label: 'Button' },
   { value: 'input', label: 'Input' },
+  { value: 'otp', label: 'OTP Input' },
+  { value: 'otp-input', label: 'OTP Input (alias)' },
   { value: 'avatar', label: 'Avatar' },
   { value: 'color-picker', label: 'Color Picker' },
   { value: 'rating', label: 'Rating' },

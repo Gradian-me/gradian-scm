@@ -2466,8 +2466,7 @@
           "last-name",
           "email",
           "post-title",
-          "company",
-          "user-status"
+          "company"
         ]
       }
     ],

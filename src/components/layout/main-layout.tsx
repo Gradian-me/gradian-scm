@@ -137,7 +137,7 @@ export function MainLayout({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="text-sm text-gray-500 mt-0.5"
+            className="text-sm text-gray-500 mt-0.5 hidden lg:block"
           >
             {subtitle}
           </motion.p>

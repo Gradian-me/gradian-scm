@@ -387,7 +387,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           {viewMode === 'grid' ? (
             <>
               {/* Avatar and Status Header */}
-              <div className="flex justify-between space-x-3 mb-4 flex-nowrap w-full">
+              <div className="flex justify-between space-x-3 mb-2 flex-nowrap w-full">
                 <div className="flex items-center gap-2 truncate">
                   {hasAvatarField && (
                     <motion.div
