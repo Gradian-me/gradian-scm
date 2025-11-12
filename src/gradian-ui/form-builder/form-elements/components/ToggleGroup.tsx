@@ -6,6 +6,7 @@ import { cn, validateField } from '../../../shared/utils';
 import { ToggleGroup as ToggleGroupRoot, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { NormalizedOption, normalizeOptionArray } from '../utils/option-normalizer';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
 
 const isBadgeVariant = (color?: string): color is keyof typeof BADGE_SELECTED_VARIANT_CLASSES => {
   if (!color) return false;
@@ -53,6 +54,9 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
       selectionBehavior,
       onNormalizedChange,
       className,
+      sourceUrl,
+      queryParams,
+      transform,
       ...props
     },
     ref
@@ -65,6 +69,18 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
       allowMultiselectSetting === undefined
         ? undefined
         : Boolean(allowMultiselectSetting);
+
+    // Fetch options from URL if sourceUrl is provided
+    const {
+      options: urlOptions,
+      isLoading: isLoadingOptions,
+      error: optionsError,
+    } = useOptionsFromUrl({
+      sourceUrl,
+      enabled: Boolean(sourceUrl),
+      transform,
+      queryParams,
+    });
 
     const resolvedType: 'single' | 'multiple' = useMemo(() => {
       const explicitType =
@@ -101,7 +117,12 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
     const resolvedOrientation: 'horizontal' | 'vertical' =
       orientation || config?.orientation || 'horizontal';
 
-    const rawOptions = options && options.length > 0 ? options : config?.options || [];
+    // Use URL options if sourceUrl is provided, otherwise use provided options or config options
+    const rawOptions = sourceUrl
+      ? urlOptions
+      : options && options.length > 0
+        ? options
+        : config?.options || [];
     const normalizedOptions: NormalizedOption[] = useMemo(
       () =>
         normalizeOptionArray(rawOptions).map((opt) => ({
@@ -263,26 +284,32 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
             )}
           </div>
         )}
-        <ToggleGroupRoot
-          ref={groupRef}
-          orientation={resolvedOrientation}
-          rovingFocus={true}
-          disabled={disabled}
-          {...(selectionBehavior
-            ? { selectionBehavior }
-            : config?.selectionBehavior
-              ? { selectionBehavior: config.selectionBehavior }
-              : {})}
-          className={rootClasses}
-          {...props}
-          {...toggleGroupTypeProps}
-        >
-          {normalizedOptions.length > 0 ? (
-            normalizedOptions.map(renderOption)
-          ) : (
-            <div className="text-sm text-gray-500">No options available</div>
-          )}
-        </ToggleGroupRoot>
+        {isLoadingOptions ? (
+          <div className="text-sm text-gray-500 py-2">Loading options...</div>
+        ) : optionsError ? (
+          <div className="text-sm text-red-600 py-2">{optionsError}</div>
+        ) : (
+          <ToggleGroupRoot
+            ref={groupRef}
+            orientation={resolvedOrientation}
+            rovingFocus={true}
+            disabled={disabled}
+            {...(selectionBehavior
+              ? { selectionBehavior }
+              : config?.selectionBehavior
+                ? { selectionBehavior: config.selectionBehavior }
+                : {})}
+            className={rootClasses}
+            {...props}
+            {...toggleGroupTypeProps}
+          >
+            {normalizedOptions.length > 0 ? (
+              normalizedOptions.map(renderOption)
+            ) : (
+              <div className="text-sm text-gray-500">No options available</div>
+            )}
+          </ToggleGroupRoot>
+        )}
         {config?.description && (
           <p className="text-xs text-gray-500">{config.description}</p>
         )}

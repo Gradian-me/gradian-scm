@@ -102,16 +102,40 @@ export interface ToggleGroupProps extends FormElementProps {
   value?: string | string[] | null;
   defaultValue?: string | string[];
   type?: 'single' | 'multiple' | 'multi';
-  options: ToggleGroupOption[];
+  options?: ToggleGroupOption[];
   orientation?: 'horizontal' | 'vertical';
   size?: 'sm' | 'md' | 'lg';
   selectionBehavior?: 'force' | 'default';
   onNormalizedChange?: (selection: NormalizedOption[]) => void;
+  /**
+   * URL to fetch options from (overrides options prop if provided)
+   */
+  sourceUrl?: string;
+  /**
+   * Query parameters to append to sourceUrl
+   */
+  queryParams?: Record<string, string | number | boolean | string[]>;
+  /**
+   * Transform function to convert API response to option format
+   */
+  transform?: (data: any) => Array<{ id?: string; label?: string; name?: string; title?: string; icon?: string; color?: string; disabled?: boolean; value?: string }>;
 }
 
 export interface RadioProps extends FormElementProps {
-  options: Array<{ id: string; label: string; disabled?: boolean }>;
+  options?: Array<{ id: string; label: string; disabled?: boolean }>;
   direction?: 'horizontal' | 'vertical';
+  /**
+   * URL to fetch options from (overrides options prop if provided)
+   */
+  sourceUrl?: string;
+  /**
+   * Query parameters to append to sourceUrl
+   */
+  queryParams?: Record<string, string | number | boolean | string[]>;
+  /**
+   * Transform function to convert API response to option format
+   */
+  transform?: (data: any) => Array<{ id?: string; label?: string; name?: string; title?: string; icon?: string; color?: string; disabled?: boolean; value?: string }>;
 }
 
 export interface DateInputProps extends FormElementProps {

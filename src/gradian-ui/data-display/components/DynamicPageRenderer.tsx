@@ -195,13 +195,14 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     try {
       await handleDeleteEntity(deleteConfirmDialog.entity);
       setDeleteConfirmDialog({ open: false, entity: null });
-      // Refresh entities after deletion
-      fetchEntities();
+      // Refresh entities after deletion with current filters
+      const filters = buildFilters();
+      fetchEntities(filters);
     } catch (error) {
       console.error('Error deleting entity:', error);
       setDeleteConfirmDialog({ open: false, entity: null });
     }
-  }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities]);
+  }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities, buildFilters]);
 
   // Use shared companies hook for client-side caching
   const { companies: companiesData, isLoading: isLoadingCompaniesData } = useCompanies();
@@ -527,7 +528,10 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onAddNew={handleOpenCreateModal}
-          onRefresh={fetchEntities}
+          onRefresh={() => {
+            const filters = buildFilters();
+            fetchEntities(filters);
+          }}
           isRefreshing={isLoading}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
@@ -844,8 +848,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             };
           }}
           onSuccess={async () => {
-            // Refresh entities list after successful creation
-            await fetchEntities();
+            // Refresh entities list after successful creation with current filters
+            const filters = buildFilters();
+            await fetchEntities(filters);
             setCreateModalOpen(false);
           }}
           onClose={() => {
@@ -959,8 +964,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             };
           }}
           onSuccess={async () => {
-            // Refresh entities list after successful update
-            await fetchEntities();
+            // Refresh entities list after successful update with current filters
+            const filters = buildFilters();
+            await fetchEntities(filters);
             setEditEntityId(null);
           }}
           onClose={() => {

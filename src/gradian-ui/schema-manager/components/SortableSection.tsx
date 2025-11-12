@@ -105,9 +105,9 @@ export function SortableSection({
             ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white' 
             : isInactive
               ? 'border-gray-300 bg-gray-50 opacity-60'
-              : isIncomplete 
-                ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
-                : 'border-gray-200 bg-white'
+            : isIncomplete 
+              ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
+              : 'border-gray-200 bg-white'
         }`}>
           <div className="p-6">
             <div className="flex items-center justify-between gap-3">

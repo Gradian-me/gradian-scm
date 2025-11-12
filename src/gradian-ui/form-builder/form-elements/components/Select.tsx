@@ -17,6 +17,7 @@ import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
 import { BadgeViewer } from '../utils/badge-viewer';
 import { Check, ChevronDown } from 'lucide-react';
+import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
 
 export interface SelectOption {
   id?: string;
@@ -36,6 +37,18 @@ export interface SelectWithBadgesProps extends Omit<SelectProps, 'children'> {
   required?: boolean;
   onNormalizedChange?: (selection: NormalizedOption[]) => void;
   onOpenChange?: (open: boolean) => void;
+  /**
+   * URL to fetch options from (overrides options prop if provided)
+   */
+  sourceUrl?: string;
+  /**
+   * Query parameters to append to sourceUrl
+   */
+  queryParams?: Record<string, string | number | boolean | string[]>;
+  /**
+   * Transform function to convert API response to option format
+   */
+  transform?: (data: any) => Array<{ id?: string; label?: string; name?: string; title?: string; icon?: string; color?: string; disabled?: boolean; value?: string }>;
 }
 
 export const Select: React.FC<SelectWithBadgesProps> = ({
@@ -53,8 +66,25 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   onNormalizedChange,
   onOpenChange,
   disabled,
+  sourceUrl,
+  queryParams,
+  transform,
   ...props
 }) => {
+  // Fetch options from URL if sourceUrl is provided
+  const {
+    options: urlOptions,
+    isLoading: isLoadingOptions,
+    error: optionsError,
+  } = useOptionsFromUrl({
+    sourceUrl,
+    enabled: Boolean(sourceUrl),
+    transform,
+    queryParams,
+  });
+
+  // Use URL options if sourceUrl is provided, otherwise use provided options
+  const resolvedOptions = sourceUrl ? urlOptions : options;
   const sizeClasses = {
     sm: 'h-8',
     md: 'h-10',
@@ -85,14 +115,28 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   );
 
   const normalizedOptions = useMemo(() => {
-    if (!options || options.length === 0) {
+    // If fetching from URL and still loading, return empty array
+    if (sourceUrl && isLoadingOptions) {
       return [] as NormalizedOption[];
     }
-    return normalizeOptionArray(options).map((opt) => ({
+    // If fetching from URL and has error, return empty array
+    if (sourceUrl && optionsError) {
+      return [] as NormalizedOption[];
+    }
+    // If fetching from URL and has options, use them directly
+    if (sourceUrl && urlOptions.length > 0) {
+      return urlOptions;
+    }
+    // If no resolved options, return empty array
+    if (!resolvedOptions || resolvedOptions.length === 0) {
+      return [] as NormalizedOption[];
+    }
+    // Otherwise, normalize the provided options
+    return normalizeOptionArray(resolvedOptions).map((opt) => ({
       ...opt,
       label: opt.label ?? opt.id,
     }));
-  }, [options]);
+  }, [resolvedOptions, sourceUrl, urlOptions, isLoadingOptions, optionsError]);
 
   const normalizedOptionsLookup = useMemo(() => {
     const map = new Map<string, NormalizedOption>();
@@ -395,6 +439,67 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
       </div>
     );
   };
+
+  // Show loading state if fetching from URL
+  if (sourceUrl && isLoadingOptions) {
+    return (
+      <div className="w-full">
+        {fieldLabel && (
+          <label
+            htmlFor={fieldName}
+            className={cn(
+              'block text-sm font-medium mb-1',
+              error ? 'text-red-700' : 'text-gray-700',
+              required && 'after:content-["*"] after:ml-1 after:text-red-500'
+            )}
+          >
+            {fieldLabel}
+          </label>
+        )}
+        <div className={cn(selectClasses, 'flex items-center justify-center text-gray-500 border-gray-200')}>
+          Loading options...
+        </div>
+        {optionsError && (
+          <p className="mt-1 text-sm text-red-600" role="alert">
+            {optionsError}
+          </p>
+        )}
+        {error && (
+          <p className="mt-1 text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Show error state if fetching from URL failed
+  if (sourceUrl && optionsError) {
+    return (
+      <div className="w-full">
+        {fieldLabel && (
+          <label
+            htmlFor={fieldName}
+            className={cn(
+              'block text-sm font-medium mb-1',
+              error ? 'text-red-700' : 'text-gray-700',
+              required && 'after:content-["*"] after:ml-1 after:text-red-500'
+            )}
+          >
+            {fieldLabel}
+          </label>
+        )}
+        <div className={cn(selectClasses, 'flex items-center justify-center text-red-500 border-red-300')}>
+          {optionsError}
+        </div>
+        {error && (
+          <p className="mt-1 text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   // If options are provided, render them with badges
   const normalizedCurrentValue = extractFirstId(value);

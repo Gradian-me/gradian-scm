@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X } from 'lucide-react';
@@ -26,6 +26,8 @@ import {
 } from '@dnd-kit/sortable';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 
 export interface SortableSelectorItem {
   id: string;
@@ -55,6 +57,11 @@ export interface SortableSelectorProps {
    * @default true
    */
   isSortable?: boolean;
+  
+  /**
+   * Main field label/name displayed above the component
+   */
+  fieldLabel?: string;
   
   /**
    * Label for the selected items section
@@ -88,6 +95,22 @@ export interface SortableSelectorProps {
    * Empty state message when no items are available
    */
   emptyAvailableMessage?: string;
+  
+  /**
+   * URL to fetch available items from (overrides availableItems prop if provided)
+   */
+  sourceUrl?: string;
+  
+  /**
+   * Query parameters to append to sourceUrl
+   */
+  queryParams?: Record<string, string | number | boolean | string[]>;
+  
+  /**
+   * Transform function to convert API response to option format
+   * Note: The icon should be a string (icon name), not a React node. It will be converted to a React node internally.
+   */
+  transform?: (data: any) => Array<{ id?: string; label?: string; name?: string; title?: string; icon?: string; color?: string; disabled?: boolean; value?: string }>;
 }
 
 /**
@@ -111,7 +134,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ item, onRemove, isSortable 
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: isDragging ? undefined : transition,
     opacity: isDragging ? 0.5 : 1,
   };
 
@@ -178,12 +201,16 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
   selectedItems = [],
   onChange,
   isSortable = true,
+  fieldLabel,
   selectedLabel = 'Selected Items',
   availableLabel = 'Available Items',
   maxHeight = 'max-h-60',
   className,
   emptySelectedMessage = 'No items selected. Select items below to add them.',
   emptyAvailableMessage = 'No items available.',
+  sourceUrl,
+  queryParams,
+  transform,
 }) => {
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -192,62 +219,156 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
     })
   );
 
-  const handleToggleItem = (itemId: string) => {
-    const isSelected = selectedItems.some(item => item.id === itemId);
-    const item = availableItems.find(i => i.id === itemId);
+  // Fetch options from URL if sourceUrl is provided
+  const {
+    options: urlOptions,
+    isLoading: isLoadingOptions,
+    error: optionsError,
+  } = useOptionsFromUrl({
+    sourceUrl,
+    enabled: Boolean(sourceUrl),
+    transform: transform, // Use transform if provided, otherwise use default from useOptionsFromUrl
+    queryParams,
+  });
+
+  // Convert URL options to SortableSelectorItem format
+  const urlAvailableItems = useMemo(() => {
+    if (!sourceUrl || !urlOptions.length) return [];
+    return urlOptions.map(opt => ({
+      id: opt.id,
+      label: opt.label ?? opt.id,
+      icon: opt.icon ? <IconRenderer iconName={opt.icon} className="h-3 w-3" /> : undefined,
+      color: opt.color,
+    }));
+  }, [sourceUrl, urlOptions]);
+
+  // Use URL items if sourceUrl is provided, otherwise use provided availableItems
+  const resolvedAvailableItems = sourceUrl ? urlAvailableItems : availableItems;
+
+  // Use ref to track the latest selectedItems to avoid stale closure issues
+  const selectedItemsRef = useRef(selectedItems);
+  useEffect(() => {
+    selectedItemsRef.current = selectedItems;
+  }, [selectedItems]);
+
+  const handleToggleItem = useCallback((itemId: string) => {
+    const currentItems = selectedItemsRef.current;
+    const isSelected = currentItems.some(item => item.id === itemId);
+    const item = resolvedAvailableItems.find(i => i.id === itemId);
     
     if (!item) return;
 
     if (isSelected) {
       // Remove from selected
-      onChange(selectedItems.filter(item => item.id !== itemId));
+      onChange(currentItems.filter(item => item.id !== itemId));
     } else {
       // Add to selected
-      onChange([...selectedItems, item]);
+      onChange([...currentItems, item]);
     }
-  };
+  }, [resolvedAvailableItems, onChange]);
 
-  const handleRemoveItem = (itemId: string) => {
-    onChange(selectedItems.filter(item => item.id !== itemId));
-  };
+  const handleRemoveItem = useCallback((itemId: string) => {
+    const currentItems = selectedItemsRef.current;
+    onChange(currentItems.filter(item => item.id !== itemId));
+  }, [onChange]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     if (!isSortable) return;
 
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = selectedItems.findIndex(item => item.id === active.id);
-    const newIndex = selectedItems.findIndex(item => item.id === over.id);
+    // Use ref to get the latest selectedItems
+    const currentItems = selectedItemsRef.current;
+    const oldIndex = currentItems.findIndex(item => item.id === active.id);
+    const newIndex = currentItems.findIndex(item => item.id === over.id);
 
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const reordered = arrayMove(selectedItems, oldIndex, newIndex);
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      const reordered = arrayMove(currentItems, oldIndex, newIndex);
       onChange(reordered);
     }
-  };
+  }, [isSortable, onChange]);
 
   const getAvailableItems = () => {
     const selectedIds = new Set(selectedItems.map(item => item.id));
-    return availableItems.filter(item => !selectedIds.has(item.id));
+    return resolvedAvailableItems.filter(item => !selectedIds.has(item.id));
   };
 
   const unselectedItems = getAvailableItems();
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("w-full", className)}>
+      {fieldLabel && (
+        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+          {fieldLabel}
+        </Label>
+      )}
+      <div className={cn("space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 border border-gray-200 rounded-lg p-4")}>
+        {/* Available Items Section */}
+        <div className="flex flex-col">
+        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+          {availableLabel}
+        </Label>
+        <div className="flex-1">
+          {isLoadingOptions ? (
+            <div className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500">
+              Loading options...
+            </div>
+          ) : optionsError ? (
+            <div className="border border-red-200 rounded-lg p-4 text-center text-sm text-red-600">
+              {optionsError}
+            </div>
+          ) : unselectedItems.length === 0 ? (
+            <div className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500">
+              {emptyAvailableMessage}
+            </div>
+          ) : (
+            <div className={cn("space-y-2 overflow-y-auto border border-gray-200 rounded-lg p-3", maxHeight)}>
+              {unselectedItems.map((item) => {
+                const hasIconOrColor = Boolean(item.icon || item.color);
+                return (
+                  <div key={item.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`sortable-selector-${item.id}`}
+                      checked={false}
+                      onCheckedChange={() => handleToggleItem(item.id)}
+                    />
+                    <Label
+                      htmlFor={`sortable-selector-${item.id}`}
+                      className="text-sm font-normal cursor-pointer flex-1"
+                    >
+                      {hasIconOrColor ? (
+                        <BadgeRenderer
+                          items={[{
+                            id: item.id,
+                            label: item.label,
+                            icon: item.icon,
+                            color: item.color,
+                          } as BadgeItem]}
+                          maxBadges={0}
+                          animate={false}
+                          className="justify-start"
+                        />
+                      ) : (
+                        <span>{item.label}</span>
+                      )}
+                    </Label>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Selected Items Section */}
-      <div>
+      <div className="flex flex-col">
         <Label className="text-sm font-medium text-gray-700 mb-2 block">
           {selectedLabel} ({selectedItems.length})
         </Label>
-        <AnimatePresence mode="popLayout">
+        <div className="flex-1">
           {selectedItems.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
+            <div>
               {isSortable ? (
                 <DndContext
                   sensors={sensors}
@@ -259,35 +380,21 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
                     strategy={verticalListSortingStrategy}
                   >
                     <div className={cn("space-y-2 overflow-y-auto border border-gray-200 rounded-lg p-3", maxHeight)}>
-                      <AnimatePresence mode="popLayout">
-                        {selectedItems.map((item, idx) => (
-                          <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 10, height: 0 }}
-                            transition={{
-                              duration: 0.2,
-                              delay: idx * 0.03,
-                              ease: [0.4, 0, 0.2, 1]
-                            }}
-                            layout
-                          >
-                            <SortableItem
-                              item={item}
-                              onRemove={() => handleRemoveItem(item.id)}
-                              isSortable={isSortable}
-                            />
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
+                      {selectedItems.map((item) => (
+                        <SortableItem
+                          key={item.id}
+                          item={item}
+                          onRemove={() => handleRemoveItem(item.id)}
+                          isSortable={isSortable}
+                        />
+                      ))}
                     </div>
                   </SortableContext>
                 </DndContext>
               ) : (
                 <div className={cn("space-y-2 overflow-y-auto border border-gray-200 rounded-lg p-3", maxHeight)}>
                   <AnimatePresence mode="popLayout">
-                    {selectedItems.map((item, idx) => (
+                    {selectedItems.map((item) => (
                       <motion.div
                         key={item.id}
                         initial={{ opacity: 0, x: -10 }}
@@ -295,10 +402,8 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
                         exit={{ opacity: 0, x: 10, height: 0 }}
                         transition={{
                           duration: 0.2,
-                          delay: idx * 0.03,
                           ease: [0.4, 0, 0.2, 1]
                         }}
-                        layout
                       >
                         <SortableItem
                           item={item}
@@ -310,66 +415,14 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
                   </AnimatePresence>
                 </div>
               )}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500"
-            >
+            <div className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500">
               {emptySelectedMessage}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
       </div>
-
-      {/* Available Items Section */}
-      <div>
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">
-          {availableLabel}
-        </Label>
-        {unselectedItems.length === 0 ? (
-          <div className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500">
-            {emptyAvailableMessage}
-          </div>
-        ) : (
-          <div className={cn("space-y-2 overflow-y-auto border border-gray-200 rounded-lg p-3", maxHeight)}>
-            {unselectedItems.map((item) => {
-              const hasIconOrColor = Boolean(item.icon || item.color);
-              return (
-                <div key={item.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`sortable-selector-${item.id}`}
-                    checked={false}
-                    onCheckedChange={() => handleToggleItem(item.id)}
-                  />
-                  <Label
-                    htmlFor={`sortable-selector-${item.id}`}
-                    className="text-sm font-normal cursor-pointer flex-1"
-                  >
-                    {hasIconOrColor ? (
-                      <BadgeRenderer
-                        items={[{
-                          id: item.id,
-                          label: item.label,
-                          icon: item.icon,
-                          color: item.color,
-                        }]}
-                        maxBadges={0}
-                        animate={false}
-                        className="justify-start"
-                      />
-                    ) : (
-                      <span>{item.label}</span>
-                    )}
-                  </Label>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
     </div>
   );

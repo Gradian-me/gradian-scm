@@ -4,6 +4,7 @@ import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { RadioProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils/option-normalizer';
+import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
 
 export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
   (
@@ -19,11 +20,29 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
       options = [],
       direction = 'vertical',
       className,
+      sourceUrl,
+      queryParams,
+      transform,
       ...props
     },
     ref
   ) => {
     const groupRef = useRef<HTMLDivElement>(null);
+
+    // Fetch options from URL if sourceUrl is provided
+    const {
+      options: urlOptions,
+      isLoading: isLoadingOptions,
+      error: optionsError,
+    } = useOptionsFromUrl({
+      sourceUrl,
+      enabled: Boolean(sourceUrl),
+      transform,
+      queryParams,
+    });
+
+    // Use URL options if sourceUrl is provided, otherwise use provided options
+    const resolvedOptions = sourceUrl ? urlOptions : options;
 
     useImperativeHandle(ref, () => ({
       focus: () => {
@@ -65,7 +84,7 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
       className
     );
 
-    const normalizedOptions: NormalizedOption[] = normalizeOptionArray(options);
+    const normalizedOptions: NormalizedOption[] = normalizeOptionArray(resolvedOptions);
 
     const resolvedValue = extractFirstId(value);
 
@@ -82,8 +101,13 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
             >
               {config.label}
             </legend>
-            <div ref={groupRef} className={groupClasses} {...props}>
-              {normalizedOptions.map((option, index) => (
+            {isLoadingOptions ? (
+              <div className="text-sm text-gray-500 py-2">Loading options...</div>
+            ) : optionsError ? (
+              <div className="text-sm text-red-600 py-2">{optionsError}</div>
+            ) : (
+              <div ref={groupRef} className={groupClasses} {...props}>
+                {normalizedOptions.map((option, index) => (
                 <div key={option.id ?? index} className="flex items-center">
                   <input
                     id={`${config.name}-${option.id ?? index}`}
@@ -127,7 +151,8 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
                   </label>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </fieldset>
         )}
         {error && (

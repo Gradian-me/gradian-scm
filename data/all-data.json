@@ -542,7 +542,7 @@
     {
       "number": "AGN-2025-12",
       "inquiryDate": "2025-11-04T12:34",
-      "inquiryDeadlineDate": "2025-11-07T12:34",
+      "inquiryDeadlineDate": "2025-11-27T12:34",
       "state": [
         {
           "id": "1",
@@ -555,7 +555,7 @@
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "id": "01K971SXSZZ6SBNF152M93FY64",
       "createdAt": "2025-11-04T09:05:12.518Z",
-      "updatedAt": "2025-11-10T11:43:58.305Z",
+      "updatedAt": "2025-11-12T16:19:07.522Z",
       "inquiry-vendors": [
         {
           "id": "01K971W83WWA4QCVFNAZSF5N11",
