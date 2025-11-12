@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Layers, Loader2, ArrowLeft } from 'lucide-react';
+import { Settings, Layers, Loader2, ArrowLeft, Layout, FileText } from 'lucide-react';
 import { FormSchema, FormField, FormSection } from '../types/form-schema';
 import { GeneralInfoTab } from './GeneralInfoTab';
 import { SectionsTab } from './SectionsTab';
+import { CardMetadataTab } from './CardMetadataTab';
+import { DetailPageMetadataTab } from './DetailPageMetadataTab';
 import { SchemaActions } from './SchemaActions';
 import { ResetDialog } from './ResetDialog';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
@@ -353,7 +355,7 @@ export function SchemaBuilderEditor({
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
             <TabsTrigger value="general" className="text-xs sm:text-sm">
               <Settings className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate">General</span>
@@ -362,6 +364,16 @@ export function SchemaBuilderEditor({
               <Layers className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate hidden sm:inline">Sections & Fields</span>
               <span className="truncate sm:hidden">Fields</span>
+            </TabsTrigger>
+            <TabsTrigger value="card" className="text-xs sm:text-sm">
+              <Layout className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="truncate hidden sm:inline">Card Metadata</span>
+              <span className="truncate sm:hidden">Card</span>
+            </TabsTrigger>
+            <TabsTrigger value="detail" className="text-xs sm:text-sm">
+              <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="truncate hidden sm:inline">Detail Page</span>
+              <span className="truncate sm:hidden">Detail</span>
             </TabsTrigger>
           </TabsList>
 
@@ -388,6 +400,20 @@ export function SchemaBuilderEditor({
               onFieldDragEnd={handleFieldDragEnd}
               onCollapseAll={collapseAllSections}
               currentSchemaId={schema.id}
+            />
+          </TabsContent>
+
+          <TabsContent value="card" className="space-y-4">
+            <CardMetadataTab
+              schema={schema}
+              onUpdate={updateSchema}
+            />
+          </TabsContent>
+
+          <TabsContent value="detail" className="space-y-4">
+            <DetailPageMetadataTab
+              schema={schema}
+              onUpdate={updateSchema}
             />
           </TabsContent>
         </Tabs>

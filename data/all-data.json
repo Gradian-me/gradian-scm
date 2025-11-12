@@ -1003,5 +1003,6 @@
   "invoices": [],
   "production-plans": [],
   "applications": [],
-  "production-actuals": []
+  "production-actuals": [],
+  "business-areas": []
 }

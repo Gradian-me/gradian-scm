@@ -8,9 +8,10 @@ interface SortableFieldProps {
   id: string;
   children: React.ReactNode;
   isIncomplete?: boolean;
+  isInactive?: boolean;
 }
 
-export function SortableField({ id, children, isIncomplete = false }: SortableFieldProps) {
+export function SortableField({ id, children, isIncomplete = false, isInactive = false }: SortableFieldProps) {
   const {
     attributes,
     listeners,
@@ -31,16 +32,20 @@ export function SortableField({ id, children, isIncomplete = false }: SortableFi
       <div className={`w-full rounded-lg border hover:shadow-sm transition-all duration-200 ${
         isDragging 
           ? 'border-violet-400 shadow-md ring-2 ring-violet-200 bg-white' 
-          : isIncomplete 
-            ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
-            : 'border-gray-200 bg-white'
+          : isInactive
+            ? 'border-gray-300 bg-gray-50 opacity-60'
+            : isIncomplete 
+              ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
+              : 'border-gray-200 bg-white'
       }`}>
         <div className="p-3">
           <div className="flex items-center gap-2">
             <button
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-0.5 flex-shrink-0"
+              className={`cursor-grab active:cursor-grabbing transition-colors p-0.5 flex-shrink-0 ${
+                isInactive ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600'
+              }`}
             >
               <GripVertical className="h-4 w-4" />
             </button>

@@ -63,7 +63,7 @@ export const IconInput = forwardRef<FormElementRef, IconInputProps>(
       'w-full direction-auto px-3 py-2 border rounded-lg border-gray-300 bg-white text-sm ring-offset-background transition-colors',
       'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400',
       'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500',
-      isEmpty ? 'border-gray-300 text-gray-900' : isValid ? 'border-green-300 text-gray-900' : 'border-red-300 text-red-600',
+      isEmpty ? 'border-gray-300 text-gray-900' : !isValid ? 'border-red-300 text-red-600' : 'border-gray-300 text-gray-900',
       error ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500' : '',
       canCopy && 'pr-10',
       !isEmpty && 'pl-10', // Add left padding when icon is shown
@@ -72,7 +72,7 @@ export const IconInput = forwardRef<FormElementRef, IconInputProps>(
 
     const fieldName = config?.name || 'unknown';
     const fieldLabel = config?.label;
-    const fieldPlaceholder = placeholder || config?.placeholder || 'Type icon name (e.g., User, Home, Search)';
+    const fieldPlaceholder = placeholder || config?.placeholder || 'Enter Lucide Icon name (e.g., User, Home, Search)';
 
     if (!config) {
       console.error('IconInput: config is required');
@@ -100,7 +100,7 @@ export const IconInput = forwardRef<FormElementRef, IconInputProps>(
               {isValid ? (
                 <IconRenderer iconName={iconValue} className="h-4 w-4 text-gray-600" />
               ) : (
-                <span className="text-red-500 text-xs">Invalid</span>
+                <span className="text-red-500 text-xs">?</span>
               )}
             </div>
           )}
@@ -123,8 +123,8 @@ export const IconInput = forwardRef<FormElementRef, IconInputProps>(
           {!isEmpty && !canCopy && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <span className={cn(
-                'text-xs',
-                isValid ? 'text-green-600' : 'text-red-600'
+                'text-sm',
+                isValid ? 'text-green-600 bg-green-100 rounded-full px-2 py-1' : 'text-red-600 bg-red-100 rounded-full px-2 py-1'
               )}>
                 {isValid ? '✓' : '✗'}
               </span>

@@ -6,6 +6,7 @@ import { ChevronsUp } from 'lucide-react';
 import { FormSection, FormField } from '../types/form-schema';
 import { AddButtonFull, Switch } from '@/gradian-ui/form-builder/form-elements';
 import { SortableSection } from './SortableSection';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
   closestCenter,
@@ -138,49 +139,64 @@ export function SectionsTab({
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-3">
-            {sectionsToDisplay.map((section) => {
-              const fields = getFieldsForSection(section.id).filter(f => !f.inactive);
-              const sectionIsIncomplete = isSectionIncomplete(section);
-              return (
-                <SortableSection
-                  key={section.id}
-                  section={section}
-                  isExpanded={expandedSection === section.id}
-                  onToggle={() => onToggleSection(section.id)}
-                  onDelete={() => onDeleteSection(section.id)}
-                  onUpdate={(updates) => onUpdateSection(section.id, updates)}
-                  fields={fields}
-                  sections={sections}
-                  onAddField={(sectionId) => onAddField(sectionId || section.id)}
-                  onFieldUpdate={onFieldUpdate}
-                  onFieldDelete={onFieldDelete}
-                  onFieldMove={(fieldId, direction) => {
-                    const sectionFields = fields.sort((a, b) => (a.order || 0) - (b.order || 0));
-                    const currentIndex = sectionFields.findIndex(f => f.id === fieldId);
-                    if (direction === 'up' && currentIndex > 0) {
-                      const newIndex = currentIndex - 1;
-                      const reordered = [...sectionFields];
-                      [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
-                      reordered.forEach((field, idx) => {
-                        onFieldUpdate(field.id, { order: idx + 1 });
-                      });
-                    } else if (direction === 'down' && currentIndex < sectionFields.length - 1) {
-                      const newIndex = currentIndex + 1;
-                      const reordered = [...sectionFields];
-                      [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
-                      reordered.forEach((field, idx) => {
-                        onFieldUpdate(field.id, { order: idx + 1 });
-                      });
-                    }
-                  }}
-                  config={config}
-                  currentSchemaId={currentSchemaId}
-                  isIncomplete={sectionIsIncomplete}
-                >
-                  <div />
-                </SortableSection>
-              );
-            })}
+            <AnimatePresence mode="popLayout">
+              {sectionsToDisplay.map((section, index) => {
+                const fields = getFieldsForSection(section.id).filter(f => !f.inactive);
+                const sectionIsIncomplete = isSectionIncomplete(section);
+                return (
+                  <motion.div
+                    key={section.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10, height: 0 }}
+                    transition={{ 
+                      duration: 0.3, 
+                      delay: index * 0.05,
+                      ease: [0.4, 0, 0.2, 1]
+                    }}
+                    layout
+                  >
+                    <SortableSection
+                      section={section}
+                      isExpanded={expandedSection === section.id}
+                      onToggle={() => onToggleSection(section.id)}
+                      onDelete={() => onDeleteSection(section.id)}
+                      onUpdate={(updates) => onUpdateSection(section.id, updates)}
+                      fields={fields}
+                      sections={sections}
+                      onAddField={(sectionId) => onAddField(sectionId || section.id)}
+                      onFieldUpdate={onFieldUpdate}
+                      onFieldDelete={onFieldDelete}
+                      onFieldMove={(fieldId, direction) => {
+                        const sectionFields = fields.sort((a, b) => (a.order || 0) - (b.order || 0));
+                        const currentIndex = sectionFields.findIndex(f => f.id === fieldId);
+                        if (direction === 'up' && currentIndex > 0) {
+                          const newIndex = currentIndex - 1;
+                          const reordered = [...sectionFields];
+                          [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
+                          reordered.forEach((field, idx) => {
+                            onFieldUpdate(field.id, { order: idx + 1 });
+                          });
+                        } else if (direction === 'down' && currentIndex < sectionFields.length - 1) {
+                          const newIndex = currentIndex + 1;
+                          const reordered = [...sectionFields];
+                          [reordered[currentIndex], reordered[newIndex]] = [reordered[newIndex], reordered[currentIndex]];
+                          reordered.forEach((field, idx) => {
+                            onFieldUpdate(field.id, { order: idx + 1 });
+                          });
+                        }
+                      }}
+                      onFieldDragEnd={(e) => onFieldDragEnd(e, section.id)}
+                      config={config}
+                      currentSchemaId={currentSchemaId}
+                      isIncomplete={sectionIsIncomplete}
+                    >
+                      <div />
+                    </SortableSection>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
             <AddButtonFull
               label="Add Section"
               onClick={onAddSection}

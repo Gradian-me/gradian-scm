@@ -95,15 +95,19 @@ export function SortableSection({
     }
   }, [section.isRepeatingSection, section.repeatingConfig?.targetSchema]);
 
+  const isInactive = section.inactive;
+
   return (
     <>
       <div ref={setNodeRef} style={style} className="relative">
         <Card className={`w-full border hover:shadow-sm transition-all duration-200 ${
           isDragging 
             ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white' 
-            : isIncomplete 
-              ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
-              : 'border-gray-200 bg-white'
+            : isInactive
+              ? 'border-gray-300 bg-gray-50 opacity-60'
+              : isIncomplete 
+                ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
+                : 'border-gray-200 bg-white'
         }`}>
           <div className="p-6">
             <div className="flex items-center justify-between gap-3">
@@ -111,16 +115,29 @@ export function SortableSection({
                 <button
                   {...attributes}
                   {...listeners}
-                  className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-colors p-0.5"
+                  className={`cursor-grab active:cursor-grabbing transition-colors p-0.5 ${
+                    isInactive ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                  }`}
                 >
                   <GripVertical className="h-4 w-4" />
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className={`text-md font-semibold truncate ${isIncomplete ? 'text-amber-700' : 'text-gray-900'}`}>
+                    <h4 className={`text-md font-semibold truncate ${
+                      isInactive 
+                        ? 'text-gray-500' 
+                        : isIncomplete 
+                          ? 'text-amber-700' 
+                          : 'text-gray-900'
+                    }`}>
                       {section.title || 'Untitled Section'}
                     </h4>
-                    {isIncomplete && (
+                    {isInactive && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600">
+                        Inactive
+                      </Badge>
+                    )}
+                    {isIncomplete && !isInactive && (
                       <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
                         Incomplete
                       </Badge>
@@ -157,7 +174,13 @@ export function SortableSection({
                     )}
                   </div>
                   {section.description && (
-                    <p className={`text-xs truncate mt-0.5 ${isIncomplete ? 'text-amber-600' : 'text-gray-500'}`}>
+                    <p className={`text-xs truncate mt-0.5 ${
+                      isInactive 
+                        ? 'text-gray-400' 
+                        : isIncomplete 
+                          ? 'text-amber-600' 
+                          : 'text-gray-500'
+                    }`}>
                       {section.description}
                     </p>
                   )}

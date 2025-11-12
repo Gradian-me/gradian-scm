@@ -152,7 +152,7 @@ export function SchemaBuilder({ schemaId, config }: SchemaBuilderProps) {
                         animate={{ height: 'auto' }}
                         exit={{ height: 0 }}
                       >
-                        <CardContent className="space-y-4 pt-0">
+                        <CardContent className="space-y-4 pt-2">
                           <div className="border-t pt-4">
                             <div className="flex justify-between items-center mb-4">
                               <h4 className="text-sm font-semibold">Fields ({fields.length})</h4>

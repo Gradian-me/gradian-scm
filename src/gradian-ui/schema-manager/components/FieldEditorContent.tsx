@@ -43,15 +43,32 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
 
   return (
     <>
-      <Card className="w-full border border-gray-200 hover:shadow-sm transition-all duration-200">
+      <Card className={`w-full border hover:shadow-sm transition-all duration-200 ${
+        field.inactive 
+          ? 'border-gray-300 bg-gray-50 opacity-60' 
+          : 'border-gray-200'
+      }`}>
         <div className="w-full flex items-center justify-between p-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium truncate text-gray-800">{field.label || 'Unnamed Field'}</span>
+              <span className={`text-sm font-medium truncate ${
+                field.inactive ? 'text-gray-500' : 'text-gray-800'
+              }`}>
+                {field.label || 'Unnamed Field'}
+              </span>
+              {field.inactive && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600">
+                  Inactive
+                </Badge>
+              )}
               <Badge variant="outline" className="text-[10px] px-1.5 py-0">{field.type}</Badge>
               {field.required && <Badge variant="destructive" className="text-[10px] px-1.5 py-0">Required</Badge>}
             </div>
-            <span className="text-[10px] text-gray-400 truncate block mt-0.5">{field.name}</span>
+            <span className={`text-[10px] truncate block mt-0.5 ${
+              field.inactive ? 'text-gray-400' : 'text-gray-400'
+            }`}>
+              {field.name}
+            </span>
           </div>
           <div className="flex gap-0.5 ml-2 shrink-0">
             <ButtonMinimal

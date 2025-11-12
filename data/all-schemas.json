@@ -1558,7 +1558,7 @@
         "sectionId": "visual-style",
         "type": "text",
         "component": "icon",
-        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "placeholder": "Enter Lucide Icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
           "required": true
@@ -2021,7 +2021,8 @@
           "deleteType": "itemAndRelation",
           "addType": "addOnly",
           "isUnique": false
-        }
+        },
+        "inactive": false
       }
     ],
     "detailPageMetadata": {
@@ -2223,7 +2224,7 @@
         "sectionId": "basic-information",
         "type": "text",
         "component": "icon",
-        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "placeholder": "Enter Lucide Icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
           "required": true
@@ -2400,7 +2401,7 @@
         "sectionId": "basic-information",
         "type": "text",
         "component": "icon",
-        "placeholder": "Enter icon name (e.g., ShoppingBasket)",
+        "placeholder": "Enter Lucide Icon name (e.g., ShoppingBasket)",
         "required": true,
         "validation": {
           "required": true

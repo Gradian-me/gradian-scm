@@ -78,7 +78,7 @@ export function RelationTypeForm({ relationType, onChange }: RelationTypeFormPro
               <ColorPicker
                 id="color"
                 value={relationType.color}
-                onChange={(e) => handleChange('color', e.target.value)}
+                onChange={(value) => handleChange('color', value)}
               />
             </div>
 

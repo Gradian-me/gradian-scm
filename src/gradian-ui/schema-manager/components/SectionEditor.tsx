@@ -488,7 +488,12 @@ export function SectionEditor({
                     {sortedFields.map((field) => {
                       const isIncomplete = isFieldIncomplete(field);
                       return (
-                        <SortableField key={field.id} id={field.id} isIncomplete={isIncomplete}>
+                        <SortableField 
+                          key={field.id} 
+                          id={field.id} 
+                          isIncomplete={isIncomplete}
+                          isInactive={field.inactive}
+                        >
                           <FieldEditor
                             field={field}
                             onUpdate={(updates) => onFieldUpdate(field.id, updates)}

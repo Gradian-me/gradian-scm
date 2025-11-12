@@ -324,9 +324,14 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     case 'color-picker':
       return (
         <ColorPicker
-          value={restProps.value || (config as any).defaultValue || '#4E79A7'}
-          onChange={(e) => restProps.onChange?.(e.target.value)}
+          config={config}
+          value={restProps.value || (config as any).defaultValue}
+          onChange={(value: string) => restProps.onChange?.(value)}
+          onBlur={restProps.onBlur}
+          onFocus={restProps.onFocus}
+          error={restProps.error}
           disabled={restProps.disabled}
+          required={restProps.required}
           id={(config as any).name || (config as any).id}
           className={restProps.className}
         />
