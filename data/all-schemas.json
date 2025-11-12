@@ -1447,7 +1447,8 @@
       ]
     },
     "showInNavigation": false,
-    "icon": "Building2"
+    "icon": "Building2",
+    "isNotCompanyBased": true
   },
   {
     "id": "relation-types",
@@ -1596,7 +1597,8 @@
       ]
     },
     "showInNavigation": false,
-    "icon": "Link2"
+    "icon": "Link2",
+    "isNotCompanyBased": true
   },
   {
     "id": "quotations",
@@ -2254,7 +2256,8 @@
       ]
     },
     "showInNavigation": false,
-    "icon": "AppWindow"
+    "icon": "AppWindow",
+    "isNotCompanyBased": true
   },
   {
     "id": "user-roles",
@@ -2447,7 +2450,8 @@
       ]
     },
     "showInNavigation": false,
-    "icon": "Folder"
+    "icon": "Folder",
+    "isNotCompanyBased": true
   },
   {
     "id": "users",
@@ -2575,11 +2579,28 @@
         "required": true,
         "role": "status",
         "options": [
-          { "id": "active", "label": "Active", "icon": "CheckCircle", "color": "success" },
-          { "id": "pending", "label": "Pending", "icon": "Clock", "color": "warning" },
-          { "id": "inactive", "label": "Inactive", "icon": "Slash", "color": "muted" }
+          {
+            "id": "active",
+            "label": "Active",
+            "icon": "CheckCircle",
+            "color": "success"
+          },
+          {
+            "id": "pending",
+            "label": "Pending",
+            "icon": "Clock",
+            "color": "warning"
+          },
+          {
+            "id": "inactive",
+            "label": "Inactive",
+            "icon": "Slash",
+            "color": "muted"
+          }
         ],
-        "validation": { "required": true },
+        "validation": {
+          "required": true
+        },
         "defaultValue": "pending",
         "colSpan": 1,
         "order": 7
@@ -2614,6 +2635,7 @@
       ]
     },
     "showInNavigation": false,
-    "icon": "Users"
+    "icon": "Users",
+    "isNotCompanyBased": false
   }
 ]

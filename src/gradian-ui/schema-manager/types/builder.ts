@@ -37,7 +37,7 @@ export interface SectionEditorProps {
   fields: FormField[];
   onUpdate: (updates: Partial<FormSection>) => void;
   onDelete: () => void;
-  onAddField: () => void;
+  onAddField: (sectionId?: string) => void; // Optional sectionId - if not provided, will use current section
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
   onFieldMove?: (fieldId: string, direction: 'up' | 'down') => void;

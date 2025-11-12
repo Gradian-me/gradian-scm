@@ -152,8 +152,34 @@ export function SectionEditor({
   // Check if there are any incomplete fields
   const hasIncompleteFields = fields.some(isFieldIncomplete);
 
+  // Check if the section exists in the schema
+  const sectionExistsInSchema = sections.some(s => s.id === section.id);
+  
+  // Check if this is a new section that hasn't been saved yet (still has default title)
+  const isNewUnsavedSection = section.title === 'New Section' && sectionExistsInSchema;
+  
+  // Check if there are unsaved changes (tempSection differs from original section)
+  const hasUnsavedChanges = JSON.stringify(tempSection) !== JSON.stringify(section);
+  
+  // Check if the title is invalid (empty, whitespace only, or "New Section")
+  const isTitleInvalid = !tempSection.title || 
+                         tempSection.title.trim() === '' || 
+                         tempSection.title.trim() === 'New Section';
+  
+  // Disable "Add Field" if:
+  // 1. Section doesn't exist in schema, OR
+  // 2. It's a new section that hasn't been saved (still has default "New Section" title), OR
+  // 3. There are unsaved changes (must save before adding fields), OR
+  // 4. There are incomplete fields
+  const canAddField = sectionExistsInSchema && !isNewUnsavedSection && !hasUnsavedChanges && !hasIncompleteFields;
+  
+  // Disable "Save" if:
+  // 1. Title is invalid (empty, whitespace, or "New Section"), OR
+  // 2. There are incomplete fields
+  const canSave = !isTitleInvalid && !hasIncompleteFields;
+
   const handleSave = () => {
-    if (hasIncompleteFields) {
+    if (hasIncompleteFields || isTitleInvalid) {
       // Show error or prevent save
       return;
     }
@@ -189,6 +215,11 @@ export function SectionEditor({
               className="h-9"
               placeholder="Section title..."
             />
+            {isTitleInvalid && (
+              <p className="text-xs text-amber-600 mt-1.5">
+                Please enter a valid section title (cannot be empty or "New Section").
+              </p>
+            )}
           </div>
           <div>
             <NameInput
@@ -475,12 +506,24 @@ export function SectionEditor({
             
             <AddButtonFull
               label="Add Field"
-              onClick={onAddField}
+              onClick={() => onAddField(section.id)}
               iconSize="w-4 h-4"
               textSize="text-sm"
               fullWidth={true}
-              disabled={hasIncompleteFields}
+              disabled={!canAddField}
             />
+            {(!sectionExistsInSchema || isNewUnsavedSection) && (
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
+                <span className="text-amber-600">⚠</span>
+                <span>Please save the section before adding fields.</span>
+              </div>
+            )}
+            {sectionExistsInSchema && !isNewUnsavedSection && hasUnsavedChanges && (
+              <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
+                <span className="text-amber-600">⚠</span>
+                <span>Please save your changes before adding fields.</span>
+              </div>
+            )}
             {hasIncompleteFields && (
               <div className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2.5 flex items-start gap-2">
                 <span className="text-amber-600">⚠</span>
@@ -497,7 +540,7 @@ export function SectionEditor({
           </Button>
             <Button 
               onClick={handleSave} 
-              disabled={hasIncompleteFields}
+              disabled={!canSave}
               className="w-full sm:w-auto text-sm md:text-base"
             >
                 <span className="hidden md:inline">Save Changes</span>

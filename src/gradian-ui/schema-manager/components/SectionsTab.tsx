@@ -30,7 +30,7 @@ interface SectionsTabProps {
   onAddSection: () => void;
   onUpdateSection: (sectionId: string, updates: Partial<FormSection>) => void;
   onDeleteSection: (sectionId: string) => void;
-  onAddField: (sectionId: string) => void;
+  onAddField: (sectionId: string) => void; // Parent expects sectionId, but we'll make it work with optional
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
   onSectionDragEnd: (event: DragEndEvent) => void;
@@ -151,7 +151,7 @@ export function SectionsTab({
                   onUpdate={(updates) => onUpdateSection(section.id, updates)}
                   fields={fields}
                   sections={sections}
-                  onAddField={() => onAddField(section.id)}
+                  onAddField={(sectionId) => onAddField(sectionId || section.id)}
                   onFieldUpdate={onFieldUpdate}
                   onFieldDelete={onFieldDelete}
                   onFieldMove={(fieldId, direction) => {

@@ -20,7 +20,7 @@ export interface SortableSectionProps {
   onUpdate: (updates: Partial<FormSection>) => void;
   fields: any[];
   sections: FormSection[];
-  onAddField: () => void;
+  onAddField: (sectionId?: string) => void; // Optional sectionId - will use current section if not provided
   onFieldUpdate: (fieldId: string, updates: any) => void;
   onFieldDelete: (fieldId: string) => void;
   onFieldMove?: (fieldId: string, direction: 'up' | 'down') => void;
@@ -193,7 +193,7 @@ export function SortableSection({
             setShowDialog(false);
             onDelete();
           }}
-          onAddField={onAddField}
+          onAddField={(sectionId) => onAddField(sectionId || section.id)}
           onFieldUpdate={onFieldUpdate}
           onFieldDelete={onFieldDelete}
           onFieldMove={onFieldMove}

@@ -55,7 +55,19 @@ export function FieldEditor({
     setIsNameCustom(false);
   }, [field]);
 
+  // Check if the label is invalid (empty, whitespace only, or "New Field")
+  const isLabelInvalid = !tempField.label || 
+                         tempField.label.trim() === '' || 
+                         tempField.label.trim() === 'New Field';
+  
+  // Disable "Save" if label is invalid
+  const canSave = !isLabelInvalid;
+
   const handleSave = () => {
+    if (isLabelInvalid) {
+      // Prevent save if label is invalid
+      return;
+    }
     onUpdate(tempField);
     setShowDialog(false);
   };
@@ -132,17 +144,24 @@ export function FieldEditor({
             <div className="flex-1 overflow-y-auto px-6">
               <div className="space-y-5 py-4">
               <div className="grid grid-cols-2 gap-4">
-                <TextInput
-                  config={{
-                    name: 'label',
-                    label: 'Field Label',
-                    type: 'text',
-                    placeholder: 'Enter field label...'
-                  }}
-                  value={tempField.label || ''}
-                  onChange={handleLabelChange}
-                  className="h-9"
-                />
+                <div>
+                  <TextInput
+                    config={{
+                      name: 'label',
+                      label: 'Field Label',
+                      type: 'text',
+                      placeholder: 'Enter field label...'
+                    }}
+                    value={tempField.label || ''}
+                    onChange={handleLabelChange}
+                    className="h-9"
+                  />
+                  {isLabelInvalid && (
+                    <p className="text-xs text-amber-600 mt-1.5">
+                      Please enter a valid field label (cannot be empty or "New Field").
+                    </p>
+                  )}
+                </div>
                 <NameInput
                   config={{ 
                     name: 'field-name', 
@@ -268,7 +287,7 @@ export function FieldEditor({
               <Button variant="outline" onClick={() => setShowDialog(false)} className="w-full sm:w-auto text-sm md:text-base">
                 Cancel
               </Button>
-              <Button onClick={handleSave} className="w-full sm:w-auto text-sm md:text-base">
+              <Button onClick={handleSave} disabled={!canSave} className="w-full sm:w-auto text-sm md:text-base">
                 <span className="hidden md:inline">Save Changes</span>
                 <span className="md:hidden">Save</span>
               </Button>

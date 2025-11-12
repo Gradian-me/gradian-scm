@@ -136,8 +136,26 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
 
   // Handle opening create modal
   const handleOpenCreateModal = useCallback(() => {
-    // Skip company check if schema is not company-based
-    if (!schema?.isNotCompanyBased) {
+    // Skip company check if schema is not company-based (isNotCompanyBased === true)
+    // Also skip for "companies" schema specifically (it's always not company-based)
+    // Only check for company selection if schema is company-based (isNotCompanyBased === false or undefined)
+    // Explicitly check for true value to handle cases where property might be undefined
+    const isNotCompanyBased = schema?.isNotCompanyBased === true || schema?.id === 'companies';
+    const isCompanyBased = !isNotCompanyBased;
+    
+    // Debug: Log schema info to help diagnose issues
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DynamicPageRenderer] Schema check:', {
+        schemaId: schema?.id,
+        isNotCompanyBased: schema?.isNotCompanyBased,
+        isNotCompanyBasedType: typeof schema?.isNotCompanyBased,
+        isNotCompanyBasedValue: schema?.isNotCompanyBased,
+        isCompanyBased,
+        selectedCompany: selectedCompany?.id,
+      });
+    }
+    
+    if (isCompanyBased) {
       // Check if a company is selected (not "All Companies" with id === -1)
       if (!selectedCompany || selectedCompany.id === -1) {
         toast.warning('Please select a company to create a new record', {
