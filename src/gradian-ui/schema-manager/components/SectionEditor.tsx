@@ -163,7 +163,7 @@ export function SectionEditor({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose?.()}>
-      <DialogContent className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] flex flex-col p-0 rounded-2xl">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
           <DialogTitle>Edit Section</DialogTitle>
           <DialogDescription>
@@ -250,6 +250,18 @@ export function SectionEditor({
           <div className="space-y-2 pb-2 border-b border-gray-100">
             <div className="flex items-center gap-2">
               <Switch
+                id={`inactive-${section.id}`}
+                checked={tempSection.inactive || false}
+                onCheckedChange={(checked) => {
+                  setTempSection({ ...tempSection, inactive: checked });
+                }}
+              />
+              <Label htmlFor={`inactive-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
+                Inactive
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
                 id={`repeating-${section.id}`}
                 checked={tempSection.isRepeatingSection || false}
                 onCheckedChange={(checked) => {
@@ -264,18 +276,6 @@ export function SectionEditor({
               />
               <Label htmlFor={`repeating-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
                 Repeating Section
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                id={`inactive-${section.id}`}
-                checked={tempSection.inactive || false}
-                onCheckedChange={(checked) => {
-                  setTempSection({ ...tempSection, inactive: checked });
-                }}
-              />
-              <Label htmlFor={`inactive-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
-                Inactive
               </Label>
             </div>
           </div>
