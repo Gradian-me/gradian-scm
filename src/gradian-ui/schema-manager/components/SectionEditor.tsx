@@ -247,23 +247,37 @@ export function SectionEditor({
             </div>
           </div>
           
-          <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-            <Switch
-              id={`repeating-${section.id}`}
-              checked={tempSection.isRepeatingSection || false}
-              onCheckedChange={(checked) => {
-                setTempSection({ 
-                  ...tempSection,
-                  isRepeatingSection: checked,
-                  repeatingConfig: checked && !tempSection.repeatingConfig 
-                    ? { minItems: 0, maxItems: undefined }
-                    : tempSection.repeatingConfig,
-                });
-              }}
-            />
-            <Label htmlFor={`repeating-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
-              Repeating Section
-            </Label>
+          <div className="space-y-2 pb-2 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Switch
+                id={`repeating-${section.id}`}
+                checked={tempSection.isRepeatingSection || false}
+                onCheckedChange={(checked) => {
+                  setTempSection({ 
+                    ...tempSection,
+                    isRepeatingSection: checked,
+                    repeatingConfig: checked && !tempSection.repeatingConfig 
+                      ? { minItems: 0, maxItems: undefined }
+                      : tempSection.repeatingConfig,
+                  });
+                }}
+              />
+              <Label htmlFor={`repeating-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
+                Repeating Section
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                id={`inactive-${section.id}`}
+                checked={tempSection.inactive || false}
+                onCheckedChange={(checked) => {
+                  setTempSection({ ...tempSection, inactive: checked });
+                }}
+              />
+              <Label htmlFor={`inactive-${section.id}`} className="text-sm font-medium text-gray-700 cursor-pointer">
+                Inactive
+              </Label>
+            </div>
           </div>
 
           {/* Repeating Section Configuration */}

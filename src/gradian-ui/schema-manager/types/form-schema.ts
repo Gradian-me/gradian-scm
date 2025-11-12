@@ -6,8 +6,8 @@ export interface FormField {
   name: string;
   label: string;
   sectionId: string; // Reference to the section this field belongs to
-  type: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'icon-input' | 'image-text' | 'button' | 'input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
-  component: 'text' | 'email' | 'phone' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'icon-input' | 'image-text' | 'button' | 'input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
+  type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name-input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
+  component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name-input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
   placeholder?: string;
   icon?: string;
   displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';
@@ -18,6 +18,7 @@ export interface FormField {
   hidden?: boolean;
   readonly?: boolean;
   canCopy?: boolean;
+  inactive?: boolean;
   role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel' | 'duedate' | 'code';
   validation?: {
     required?: boolean;
@@ -77,6 +78,7 @@ export interface FormSection {
   icon?: string;
   columns?: number; // Default: 2 if not specified
   gap?: number;
+  inactive?: boolean;
   // Keep layout for backward compatibility (form-builder)
   layout?: {
     columns?: number;
@@ -315,6 +317,7 @@ export interface FormSchema {
   showInNavigation?: boolean;
   isSystemSchema?: boolean;
   isNotCompanyBased?: boolean;
+  inactive?: boolean;
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];

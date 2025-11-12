@@ -1,9 +1,10 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronsUp } from 'lucide-react';
 import { FormSection, FormField } from '../types/form-schema';
-import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements';
+import { AddButtonFull, Switch } from '@/gradian-ui/form-builder/form-elements';
 import { SortableSection } from './SortableSection';
 import {
   DndContext,
@@ -83,15 +84,47 @@ export function SectionsTab({
 
   // Check if there are any incomplete sections
   const hasIncompleteSections = sections.some(isSectionIncomplete);
+  
+  // Check if there are any inactive sections
+  const hasInactiveSections = useMemo(() => sections.some(s => s.inactive), [sections]);
+  const [showInactiveSections, setShowInactiveSections] = useState(false);
+  
+  // Calculate section count based on showInactiveSections
+  const sectionsCount = useMemo(() => {
+    return showInactiveSections 
+      ? sections.length 
+      : sections.filter(s => !s.inactive).length;
+  }, [sections, showInactiveSections]);
+  
+  // Get sections to display
+  const sectionsToDisplay = useMemo(() => {
+    return showInactiveSections 
+      ? sections 
+      : sections.filter(s => !s.inactive);
+  }, [sections, showInactiveSections]);
 
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center gap-2 flex-wrap">
-        <div className="flex items-start gap-2">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900">Sections</h3>
-          <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
-            {sections.length}
-          </span>
+        <div className="flex items-center gap-2">
+          {hasInactiveSections && (
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 h-8">
+              <Switch
+                config={{ 
+                  name: 'show-inactive-sections', 
+                  label: 'Show Inactive Sections'
+                }}
+                checked={showInactiveSections}
+                onChange={setShowInactiveSections}
+              />
+            </div>
+          )}
+          <div className="flex items-start gap-2">
+            <h3 className="text-sm sm:text-base font-semibold text-gray-900">Sections</h3>
+            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+              {sectionsCount}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -101,12 +134,12 @@ export function SectionsTab({
         onDragEnd={onSectionDragEnd}
       >
         <SortableContext
-          items={sections.map(s => s.id)}
+          items={sectionsToDisplay.map(s => s.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-3">
-            {sections.map((section) => {
-              const fields = getFieldsForSection(section.id);
+            {sectionsToDisplay.map((section) => {
+              const fields = getFieldsForSection(section.id).filter(f => !f.inactive);
               const sectionIsIncomplete = isSectionIncomplete(section);
               return (
                 <SortableSection

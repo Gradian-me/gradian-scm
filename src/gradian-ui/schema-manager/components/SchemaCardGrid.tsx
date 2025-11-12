@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { PencilRuler, LayoutList, Trash2, Layers, Type } from 'lucide-react';
 import { FormSchema } from '../types';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
@@ -36,6 +37,7 @@ interface SchemaCardSkeletonGridProps {
 
 const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: SchemaCardProps) => {
   const animationDelay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX);
+  const isInactive = schema.inactive;
 
   return (
     <motion.div
@@ -43,18 +45,32 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: animationDelay, ease: 'easeOut' }}
     >
-      <Card className="hover:shadow-sm transition-all duration-200 h-full flex flex-col border border-gray-200">
+      <Card className={`hover:shadow-sm transition-all duration-200 h-full flex flex-col border ${
+        isInactive 
+          ? 'border-gray-300 bg-gray-50 opacity-60' 
+          : 'border-gray-200'
+      }`}>
         <CardHeader className="pb-3 pt-4 px-4">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5">
                 {schema.icon && (
-                  <IconRenderer iconName={schema.icon} className="h-5 w-5 text-violet-600 shrink-0" />
+                  <IconRenderer 
+                    iconName={schema.icon} 
+                    className={`h-5 w-5 shrink-0 ${isInactive ? 'text-gray-400' : 'text-violet-600'}`} 
+                  />
                 )}
-                <CardTitle className="text-base font-semibold truncate">{schema.plural_name}</CardTitle>
+                <CardTitle className={`text-base font-semibold truncate ${isInactive ? 'text-gray-500' : ''}`}>
+                  {schema.plural_name}
+                </CardTitle>
+                {isInactive && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600">
+                    Inactive
+                  </Badge>
+                )}
               </div>
               {schema.description && (
-                <p className="text-xs text-gray-500 line-clamp-1 mt-1">
+                <p className={`text-xs line-clamp-1 mt-1 ${isInactive ? 'text-gray-400' : 'text-gray-500'}`}>
                   {schema.description}
                 </p>
               )}
@@ -91,7 +107,7 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
           </div>
         </CardHeader>
         <CardContent className="pt-2 px-4 pb-4">
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className={`flex items-center gap-4 text-xs ${isInactive ? 'text-gray-400' : 'text-gray-500'}`}>
             <div className="flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" />
               <span>{schema.sections?.length || 0} Sections</span>

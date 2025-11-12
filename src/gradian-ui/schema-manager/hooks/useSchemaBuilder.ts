@@ -88,22 +88,30 @@ export function useSchemaBuilder(
     if (!state.schema) return;
     
     try {
+      const updatedSchema = { ...state.schema, inactive: true };
+      setState(prev => ({ ...prev, schema: updatedSchema }));
+      
       if (config?.onDelete) {
         await config.onDelete(state.schema.id);
       } else {
+        const { id: _schemaId, ...payload } = updatedSchema;
         const response = await fetch(
           `${config?.apiBaseUrl || appConfig.schemaApi.basePath}/${state.schema.id}`,
-          { method: 'DELETE' }
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }
         );
         const result = await response.json();
         if (!result.success) {
-          throw new Error(result.error || 'Failed to delete schema');
+          throw new Error(result.error || 'Failed to set schema inactive');
         }
       }
     } catch (error) {
       setState(prev => ({
         ...prev,
-        error: error instanceof Error ? error.message : 'Failed to delete schema',
+        error: error instanceof Error ? error.message : 'Failed to set schema inactive',
       }));
       throw error;
     }
@@ -161,8 +169,12 @@ export function useSchemaBuilder(
         ...prev,
         schema: {
           ...prev.schema,
-          sections: prev.schema.sections.filter(s => s.id !== sectionId),
-          fields: prev.schema.fields.filter(f => f.sectionId !== sectionId),
+          sections: prev.schema.sections.map(s => 
+            s.id === sectionId ? { ...s, inactive: true } : s
+          ),
+          fields: prev.schema.fields.map(f => 
+            f.sectionId === sectionId ? { ...f, inactive: true } : f
+          ),
         },
       };
     });
@@ -243,7 +255,9 @@ export function useSchemaBuilder(
         ...prev,
         schema: {
           ...prev.schema,
-          fields: prev.schema.fields.filter(f => f.id !== fieldId),
+          fields: prev.schema.fields.map(f => 
+            f.id === fieldId ? { ...f, inactive: true } : f
+          ),
         },
       };
     });

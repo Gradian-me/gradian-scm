@@ -14,11 +14,11 @@ export function DeleteConfirmDialog({ open, onOpenChange, type, onConfirm }: Del
     <ConfirmationMessage
       isOpen={open}
       onOpenChange={onOpenChange}
-      title={`Delete ${type === 'field' ? 'Field' : 'Section'}`}
+      title={`Set ${type === 'field' ? 'Field' : 'Section'} Inactive`}
       message={
         type === 'field'
-          ? 'Are you sure you want to delete this field?'
-          : 'Are you sure you want to delete this section? All fields in this section will be removed.'
+          ? 'Are you sure you want to set this field as inactive? It will be hidden from the form but can be reactivated later.'
+          : 'Are you sure you want to set this section as inactive? All fields in this section will also be set as inactive, but can be reactivated later.'
       }
       variant="destructive"
       buttons={[

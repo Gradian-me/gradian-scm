@@ -7,11 +7,11 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FormAlert } from '@/components/ui/form-alert';
 import { SchemaCardGrid, SchemaCardSkeletonGrid } from './SchemaCardGrid';
 import { CreateSchemaDialog } from './CreateSchemaDialog';
 import { ConfirmationMessage } from '@/gradian-ui/form-builder';
-import { SearchInput } from '@/gradian-ui/form-builder/form-elements';
+import { SearchInput, Switch } from '@/gradian-ui/form-builder/form-elements';
+import { MessageBox } from '@/gradian-ui/layout/message-box';
 import { useSchemaManagerPage } from '../hooks/useSchemaManagerPage';
 import { FormSchema } from '../types';
 
@@ -24,9 +24,14 @@ export function SchemaManagerWrapper() {
     setSearchQuery,
     activeTab,
     setActiveTab,
+    showInactive,
+    setShowInactive,
     filteredSchemas,
+    schemas,
     systemSchemas,
     businessSchemas,
+    systemSchemasCount,
+    businessSchemasCount,
     handleRefresh,
     deleteDialog,
     openDeleteDialog,
@@ -36,8 +41,8 @@ export function SchemaManagerWrapper() {
     openCreateDialog,
     closeCreateDialog,
     handleCreate,
-    error,
-    clearError,
+    messages,
+    clearMessages,
   } = useSchemaManagerPage();
 
   const handleViewSchema = (schema: FormSchema) => router.push(`/page/${schema.id}`);
@@ -80,13 +85,13 @@ export function SchemaManagerWrapper() {
   return (
     <MainLayout title="Schema Builder" subtitle="Create and manage dynamic form schemas">
       <div className="space-y-6">
-        {error && (
-          <FormAlert
-            type="error"
-            message={error.message}
-            statusCode={error.statusCode}
+        {messages && ((messages.messages && messages.messages.length > 0) || messages.message) && !createDialogOpen && (
+          <MessageBox
+            messages={messages.messages}
+            message={messages.message}
+            variant={(messages as any).success ? 'success' : 'error'}
             dismissible
-            onDismiss={clearError}
+            onDismiss={clearMessages}
           />
         )}
 
@@ -107,14 +112,14 @@ export function SchemaManagerWrapper() {
               <Settings className="h-4 w-4" />
               <span>System Schemas</span>
               <Badge variant="secondary" className="ms-1 bg-violet-200">
-                {systemSchemas.length}
+                {systemSchemasCount}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="business" className="flex items-center gap-2 flex-1">
               <Building2 className="h-4 w-4" />
               <span>Business Schemas</span>
               <Badge variant="secondary" className="ms-1 bg-violet-200">
-                {businessSchemas.length}
+                {businessSchemasCount}
               </Badge>
             </TabsTrigger>
           </TabsList>
@@ -130,6 +135,18 @@ export function SchemaManagerWrapper() {
               className="[&_input]:h-10"
             />
           </div>
+          {schemas.some(s => s.inactive) && (
+            <div className="flex items-center border border-gray-300 rounded-lg px-3 h-10">
+              <Switch
+                config={{ 
+                  name: 'show-inactive', 
+                  label: 'Show Inactive Schemas'
+                }}
+                checked={showInactive}
+                onChange={setShowInactive}
+              />
+            </div>
+          )}
           <Button
             variant="outline"
             size="icon"
@@ -169,10 +186,10 @@ export function SchemaManagerWrapper() {
             closeDeleteDialog();
           }
         }}
-        title="Delete Schema"
+        title="Set Schema Inactive"
         message={
           <>
-            Are you sure you want to delete "{deleteDialog.schema?.plural_name}"? This action cannot be undone.
+            Are you sure you want to set "{deleteDialog.schema?.plural_name}" as inactive? It will be hidden from the schema list but can be reactivated later.
           </>
         }
         variant="destructive"

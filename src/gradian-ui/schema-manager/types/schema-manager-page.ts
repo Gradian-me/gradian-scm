@@ -1,4 +1,5 @@
 import { FormSchema } from './form-schema';
+import { Message } from '@/gradian-ui/layout/message-box';
 
 export type SchemaTab = 'system' | 'business';
 
@@ -20,4 +21,6 @@ export interface CreateSchemaPayload {
 export interface SchemaCreateResult {
   success: boolean;
   error?: string;
+  messages?: Message[];
+  message?: string | Record<string, string>;
 }

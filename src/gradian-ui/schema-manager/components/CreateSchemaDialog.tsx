@@ -3,9 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { TextInput, Textarea } from '@/gradian-ui/form-builder/form-elements';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { MessageBox } from '@/gradian-ui/layout/message-box';
 import { CreateSchemaPayload, SchemaCreateResult } from '../types/schema-manager-page';
 import { generatePluralName, generateSchemaId } from '../utils/schema-form';
 import { Switch as FormSwitch } from '@/gradian-ui/form-builder/form-elements/components/Switch';
@@ -40,12 +39,14 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
   const [isPluralCustom, setIsPluralCustom] = useState(false);
   const [isSchemaIdCustom, setIsSchemaIdCustom] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorResult, setErrorResult] = useState<SchemaCreateResult | null>(null);
 
   const resetForm = useCallback(() => {
     setFormState(INITIAL_FORM_STATE);
     setIsPluralCustom(false);
     setIsSchemaIdCustom(false);
     setIsSubmitting(false);
+    setErrorResult(null);
   }, []);
 
   useEffect(() => {
@@ -121,11 +122,13 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
     }
 
     setIsSubmitting(true);
+    setErrorResult(null);
     const result = await onSubmit(formState);
 
     if (result.success) {
       onOpenChange(false);
     } else {
+      setErrorResult(result);
       setIsSubmitting(false);
     }
   };
@@ -140,19 +143,32 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
+          {errorResult && ((errorResult.messages && errorResult.messages.length > 0) || errorResult.message) && (
+            <MessageBox
+              messages={errorResult.messages}
+              message={errorResult.message}
+              variant="error"
+              dismissible
+              onDismiss={() => setErrorResult(null)}
+            />
+          )}
           <div>
-            <Label htmlFor="schema-name">Singular Name</Label>
-            <Input
-              id="schema-name"
-              placeholder="e.g., Purchase Order"
+            <TextInput
+              config={{ 
+                name: 'schema-name', 
+                label: 'Singular Name',
+                placeholder: 'e.g., Purchase Order'
+              }}
               value={formState.singularName}
-              onChange={(e) => handleSingularNameChange(e.target.value)}
-              required
+              onChange={handleSingularNameChange}
+              required={true}
             />
           </div>
           <div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="schema-plural-name">Plural Name</Label>
+            <div className="flex items-center justify-between mb-1">
+              <label htmlFor="schema-plural-name" className="text-sm font-medium text-gray-700 after:content-['*'] after:ml-1 after:text-red-500">
+                Plural Name
+              </label>
               <Button
                 type="button"
                 variant="ghost"
@@ -164,12 +180,15 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
                 Use generated
               </Button>
             </div>
-            <Input
-              id="schema-plural-name"
-              placeholder="e.g., Purchase Orders"
+            <TextInput
+              config={{ 
+                name: 'schema-plural-name', 
+                label: undefined,
+                placeholder: 'e.g., Purchase Orders'
+              }}
               value={formState.pluralName}
-              onChange={(e) => handlePluralNameChange(e.target.value)}
-              required
+              onChange={handlePluralNameChange}
+              required={true}
             />
           </div>
           <div>
@@ -188,18 +207,20 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
               }}
               customizeDisabled={!formState.pluralName}
               helperText="Schema ID is permanent and cannot be changed later."
+              required={true}
             />
           </div>
           <div>
-            <Label htmlFor="schema-description">Description</Label>
             <Textarea
-              id="schema-description"
-              placeholder="Describe the purpose of this schema"
+              config={{ 
+                name: 'schema-description', 
+                label: 'Description',
+                placeholder: 'Describe the purpose of this schema'
+              }}
               value={formState.description}
-              onChange={(e) =>
-                setFormState(prev => ({ ...prev, description: e.target.value }))
+              onChange={(value) =>
+                setFormState(prev => ({ ...prev, description: value }))
               }
-              required
               rows={3}
             />
           </div>

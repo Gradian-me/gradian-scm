@@ -231,7 +231,7 @@ export function FieldEditor({
                   className="h-9"
                 />
               </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <Switch
                   config={{ name: `required-${field.id}`, label: 'Required' }}
                   checked={tempField.required || false}
@@ -251,6 +251,11 @@ export function FieldEditor({
                   config={{ name: `canCopy-${field.id}`, label: 'Can Copy' }}
                   checked={tempField.canCopy || false}
                   onChange={(checked) => setTempField({ ...tempField, canCopy: checked })}
+                />
+                <Switch
+                  config={{ name: `inactive-${field.id}`, label: 'Inactive' }}
+                  checked={tempField.inactive || false}
+                  onChange={(checked) => setTempField({ ...tempField, inactive: checked })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">

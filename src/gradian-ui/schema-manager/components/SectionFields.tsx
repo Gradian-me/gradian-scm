@@ -61,11 +61,11 @@ export function SectionFields({
           onDragEnd={(e) => onFieldDragEnd(e, section.id)}
         >
           <SortableContext
-            items={fields.map(f => f.id)}
+            items={fields.filter(f => !f.inactive).map(f => f.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-2">
-              {fields.map((field) => (
+              {fields.filter(f => !f.inactive).map((field) => (
                 <SortableField key={field.id} id={field.id}>
                   <FieldEditorContent
                     field={field}

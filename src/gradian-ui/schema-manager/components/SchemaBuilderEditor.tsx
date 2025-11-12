@@ -156,7 +156,9 @@ export function SchemaBuilderEditor({
       type: 'field',
       id: fieldId,
       onConfirm: () => {
-        const updatedFields = schema.fields.filter(f => f.id !== fieldId);
+        const updatedFields = schema.fields.map(f => 
+          f.id === fieldId ? { ...f, inactive: true } : f
+        );
         setSchema({ ...schema, fields: updatedFields });
         setDeleteConfirm(null);
       }
@@ -217,8 +219,12 @@ export function SchemaBuilderEditor({
       type: 'section',
       id: sectionId,
       onConfirm: () => {
-        const updatedSections = schema.sections.filter(s => s.id !== sectionId);
-        const updatedFields = schema.fields.filter(f => f.sectionId !== sectionId);
+        const updatedSections = schema.sections.map(s => 
+          s.id === sectionId ? { ...s, inactive: true } : s
+        );
+        const updatedFields = schema.fields.map(f => 
+          f.sectionId === sectionId ? { ...f, inactive: true } : f
+        );
         setSchema({ ...schema, sections: updatedSections, fields: updatedFields });
         setDeleteConfirm(null);
       }

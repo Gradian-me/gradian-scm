@@ -113,8 +113,12 @@ export function SchemaBuilderDialog({
     if (!schema) return;
     setSchema({
       ...schema,
-      sections: schema.sections.filter(s => s.id !== sectionId),
-      fields: schema.fields.filter(f => f.sectionId !== sectionId)
+      sections: schema.sections.map(s => 
+        s.id === sectionId ? { ...s, inactive: true } : s
+      ),
+      fields: schema.fields.map(f => 
+        f.sectionId === sectionId ? { ...f, inactive: true } : f
+      )
     });
   };
 
@@ -172,7 +176,9 @@ export function SchemaBuilderDialog({
     if (!schema) return;
     setSchema({
       ...schema,
-      fields: schema.fields.filter(f => f.id !== fieldId)
+      fields: schema.fields.map(f => 
+        f.id === fieldId ? { ...f, inactive: true } : f
+      )
     });
   };
 

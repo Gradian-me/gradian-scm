@@ -99,6 +99,17 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
               Is Not Company Based
             </Label>
           </div>
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="inactive"
+              checked={schema.inactive || false}
+              onCheckedChange={(checked) => onUpdate({ inactive: checked })}
+              disabled={readonly}
+            />
+            <Label htmlFor="inactive" className="cursor-pointer text-gray-700">
+              Inactive
+            </Label>
+          </div>
         </div>
       </CardContent>
     </Card>
