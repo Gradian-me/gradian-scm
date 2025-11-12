@@ -50,8 +50,12 @@ export async function GET(
       );
     }
 
+    // Get schema to check if it's company-based
+    const schema = await getSchemaById(schemaId);
+    
     // Special handling for companies - use cached loader
     // Note: Companies don't have password fields, so no filtering needed
+    // Companies schema is always not company-based (it doesn't filter by itself)
     if (schemaId === 'companies') {
       try {
         const companies = await loadAllCompanies();
@@ -62,6 +66,49 @@ export async function GET(
       } catch (error) {
         // If cache fails, fall through to normal controller
         console.warn('Companies cache load failed, using controller:', error);
+      }
+    }
+
+    // Validate companyIds parameter for company-based schemas
+    // If schema is company-based (isNotCompanyBased is not true), companyIds is required
+    if (!schema.isNotCompanyBased && schemaId !== 'companies') {
+      const searchParams = request.nextUrl.searchParams;
+      
+      // Check for companyIds array parameter (companyIds[]=id1&companyIds[]=id2)
+      const companyIdsArray = searchParams.getAll('companyIds[]');
+      // Check for companyIds comma-separated string (companyIds=id1,id2)
+      const companyIdsString = searchParams.get('companyIds');
+      // Check for backward compatibility: single companyId parameter
+      const companyId = searchParams.get('companyId');
+      
+      // Parse companyIds from comma-separated string if provided
+      const companyIdsFromString = companyIdsString 
+        ? companyIdsString.split(',').map(id => id.trim()).filter(id => id.length > 0)
+        : [];
+      
+      // Combine all companyIds sources
+      const allCompanyIds = [...companyIdsArray, ...companyIdsFromString];
+      
+      // Validate that at least one company ID is provided
+      if (!companyId && allCompanyIds.length === 0) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Missing required parameter: companyIds (or companyId for backward compatibility). This schema requires company filtering. Please provide at least one company ID.` 
+          },
+          { status: 400 }
+        );
+      }
+      
+      // Validate that companyIds is not empty if provided as array
+      if (companyIdsArray.length > 0 && allCompanyIds.length === 0) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Invalid parameter: companyIds cannot be empty. Please provide at least one company ID.` 
+          },
+          { status: 400 }
+        );
       }
     }
 

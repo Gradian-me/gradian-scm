@@ -10,7 +10,8 @@ interface EntityFilters {
   search?: string;
   status?: string;
   category?: string;
-  companyId?: string;
+  companyId?: string; // Backward compatibility - single company ID
+  companyIds?: string[]; // Array of company IDs for filtering by multiple companies
 }
 
 interface EntityState<T = any> {
@@ -56,7 +57,17 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
       if (filters?.search) queryParams.append('search', filters.search);
       if (filters?.status) queryParams.append('status', filters.status);
       if (filters?.category) queryParams.append('category', filters.category);
-      if (filters?.companyId) queryParams.append('companyId', filters.companyId);
+      
+      // Handle companyIds array - send as multiple query params (companyIds[]=id1&companyIds[]=id2)
+      // This allows filtering by multiple companies
+      if (filters?.companyIds && Array.isArray(filters.companyIds) && filters.companyIds.length > 0) {
+        filters.companyIds.forEach(id => {
+          queryParams.append('companyIds[]', String(id));
+        });
+      } else if (filters?.companyId) {
+        // Backward compatibility: Handle single companyId
+        queryParams.append('companyId', filters.companyId);
+      }
       
       const url = queryParams.toString() 
         ? `${apiEndpoint}?${queryParams.toString()}`

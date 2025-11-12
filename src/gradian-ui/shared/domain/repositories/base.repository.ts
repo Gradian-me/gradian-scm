@@ -78,9 +78,31 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
       });
     }
 
-    // Apply any other custom filters
+    // Handle companyIds filter - filter by multiple company IDs
+    if (filters.companyIds) {
+      const companyIds = Array.isArray(filters.companyIds)
+        ? filters.companyIds
+        : typeof filters.companyIds === 'string'
+          ? filters.companyIds.split(',').map(id => id.trim())
+          : [];
+      if (companyIds.length > 0) {
+        filtered = filtered.filter((entity: any) => {
+          const entityCompanyId = entity.companyId ? String(entity.companyId) : null;
+          return entityCompanyId && companyIds.includes(entityCompanyId);
+        });
+      }
+    } else if (filters.companyId) {
+      // Backward compatibility: Handle single companyId (convert to array filter)
+      const companyId = String(filters.companyId);
+      filtered = filtered.filter((entity: any) => {
+        const entityCompanyId = entity.companyId ? String(entity.companyId) : null;
+        return entityCompanyId === companyId;
+      });
+    }
+
+    // Apply any other custom filters (excluding companyId/companyIds which we've already handled)
     Object.keys(filters).forEach(key => {
-      if (!['search', 'status', 'category', 'page', 'limit', 'sortBy', 'sortOrder', 'includeIds', 'excludeIds'].includes(key)) {
+      if (!['search', 'status', 'category', 'page', 'limit', 'sortBy', 'sortOrder', 'includeIds', 'excludeIds', 'companyId', 'companyIds'].includes(key)) {
         filtered = filtered.filter((entity: any) => entity[key] === filters[key]);
       }
     });

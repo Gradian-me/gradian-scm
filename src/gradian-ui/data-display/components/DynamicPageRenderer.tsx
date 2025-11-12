@@ -188,6 +188,70 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     setDeleteConfirmDialog({ open: true, entity });
   }, []);
 
+  // Use shared companies hook for client-side caching
+  const { companies: companiesData, isLoading: isLoadingCompaniesData } = useCompanies();
+  
+  // Fetch companies schema for grouping (companies data comes from useCompanies hook with caching)
+  useEffect(() => {
+    // Skip fetching companies schema if schema is not company-based
+    if (schema?.isNotCompanyBased) {
+      return;
+    }
+    
+    const fetchCompaniesSchema = async () => {
+      // Check if entities have companyId field
+      if (entities && entities.length > 0 && entities.some((e: any) => e.companyId)) {
+        // Use companies from shared hook (excluding "All Companies" option for grouping)
+        const companiesWithoutAll = companiesData.filter((c: any) => c.id !== -1);
+        setCompanies(companiesWithoutAll);
+        
+        // Only fetch schema if we don't have it yet
+        if (!companySchema) {
+          try {
+            setIsLoadingCompanies(true);
+            // Fetch companies schema for getting image and title fields
+            const schemaResponse = await apiRequest<any>('/api/schemas/companies');
+            if (schemaResponse.success && schemaResponse.data) {
+              setCompanySchema(schemaResponse.data);
+            }
+          } catch (error) {
+            console.error('Error fetching companies schema:', error);
+          } finally {
+            setIsLoadingCompanies(false);
+          }
+        }
+      }
+    };
+
+    // Only run if we have entities and companies data, and we need the schema
+    if (entities && entities.length > 0 && companiesData.length > 0) {
+      fetchCompaniesSchema();
+    }
+  }, [entities, companiesData, schema?.isNotCompanyBased, companySchema]);
+
+  // Build filters object with company filter
+  const buildFilters = useCallback(() => {
+    const filters: any = {
+      search: currentFilters.search,
+      status: currentFilters.status,
+      category: currentFilters.category,
+    };
+    
+    // Skip company filtering if schema is not company-based
+    if (!schema?.isNotCompanyBased) {
+      // Support companyIds array for filtering by multiple companies
+      // For now, we still use single companyId for backward compatibility
+      // But the API supports companyIds[] array parameter
+      if (selectedCompany && selectedCompany.id !== -1) {
+        // Use companyIds array (even with single value) for consistency
+        filters.companyIds = [String(selectedCompany.id)];
+      }
+      // If "All Companies" (-1) is selected, don't add companyIds filter (show all)
+    }
+    
+    return filters;
+  }, [currentFilters, selectedCompany, schema?.isNotCompanyBased]);
+
   // Confirm and execute delete
   const confirmDelete = useCallback(async () => {
     if (!deleteConfirmDialog.entity) return;
@@ -203,63 +267,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       setDeleteConfirmDialog({ open: false, entity: null });
     }
   }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities, buildFilters]);
-
-  // Use shared companies hook for client-side caching
-  const { companies: companiesData, isLoading: isLoadingCompaniesData } = useCompanies();
-  
-  // Fetch companies data and schema for grouping
-  useEffect(() => {
-    // Skip fetching companies data if schema is not company-based
-    if (schema?.isNotCompanyBased) {
-      return;
-    }
-    
-    const fetchCompaniesData = async () => {
-      // Check if entities have companyId field
-      if (entities && entities.length > 0 && entities.some((e: any) => e.companyId)) {
-        setIsLoadingCompanies(true);
-        try {
-          // Use companies from shared hook (excluding "All Companies" option for grouping)
-          const companiesWithoutAll = companiesData.filter((c: any) => c.id !== -1);
-          setCompanies(companiesWithoutAll);
-          
-          // Fetch companies schema for getting image and title fields
-          const schemaResponse = await apiRequest<any>('/api/schemas/companies');
-          if (schemaResponse.success && schemaResponse.data) {
-            setCompanySchema(schemaResponse.data);
-          }
-        } catch (error) {
-          console.error('Error fetching companies data:', error);
-        } finally {
-          setIsLoadingCompanies(false);
-        }
-      }
-    };
-
-    if (entities && companiesData.length > 0) {
-      fetchCompaniesData();
-    }
-  }, [entities, companiesData, schema?.isNotCompanyBased]);
-
-  // Build filters object with company filter
-  const buildFilters = useCallback(() => {
-    const filters: any = {
-      search: currentFilters.search,
-      status: currentFilters.status,
-      category: currentFilters.category,
-    };
-    
-    // Skip company filtering if schema is not company-based
-    if (!schema?.isNotCompanyBased) {
-      // Add companyId filter only if a specific company is selected (not "All Companies" with id === -1)
-      if (selectedCompany && selectedCompany.id !== -1) {
-        filters.companyId = String(selectedCompany.id);
-      }
-      // If "All Companies" (-1) is selected, don't add companyId filter (show all)
-    }
-    
-    return filters;
-  }, [currentFilters, selectedCompany, schema?.isNotCompanyBased]);
 
   // Initial fetch on mount
   useEffect(() => {
@@ -285,7 +292,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     setFilters(filters);
     
     // Fetch if we have any active filters
-    if (filters.search || filters.status || filters.category || filters.companyId) {
+    if (filters.search || filters.status || filters.category || filters.companyId || (filters.companyIds && filters.companyIds.length > 0)) {
       fetchEntities(filters);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

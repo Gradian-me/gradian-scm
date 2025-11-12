@@ -1,7 +1,6 @@
 'use client';
 
-import { QueryClient, QueryClientContext, useQuery } from '@tanstack/react-query';
-import { useContext, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 
 interface Company {
@@ -14,12 +13,9 @@ interface Company {
 /**
  * Hook to fetch companies with client-side caching using React Query
  * This deduplicates requests and shares cache across all components
+ * Uses the QueryClient from QueryClientProvider context automatically
  */
 export function useCompanies() {
-  const queryClientFromContext = useContext(QueryClientContext);
-  const [localQueryClient] = useState(() => new QueryClient());
-  const activeQueryClient = queryClientFromContext ?? localQueryClient;
-
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['companies'],
     queryFn: async () => {
@@ -38,7 +34,10 @@ export function useCompanies() {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes - cache persists for 10 minutes (formerly cacheTime)
-  }, activeQueryClient);
+    refetchOnMount: false, // Don't refetch on mount if data exists in cache
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnReconnect: false, // Don't refetch on reconnect
+  });
 
   return {
     companies: data || [],

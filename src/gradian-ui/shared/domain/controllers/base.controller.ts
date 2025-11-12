@@ -51,9 +51,20 @@ export class BaseController<T extends BaseEntity> {
       filters.excludeIds = searchParams.getAll('excludeIds[]');
     }
 
-    // Add any other query params as filters
+    // Handle companyIds - can be comma-separated string or multiple params (supports filtering by multiple companies)
+    if (searchParams.has('companyIds')) {
+      const companyIdsParam = searchParams.get('companyIds');
+      if (companyIdsParam) {
+        filters.companyIds = companyIdsParam.split(',').map(id => id.trim());
+      }
+    } else if (searchParams.getAll('companyIds[]').length > 0) {
+      filters.companyIds = searchParams.getAll('companyIds[]');
+    }
+
+    // Backward compatibility: Handle single companyId (will be converted to companyIds array in repository)
+    // Add any other query params as filters (excluding array params we've already handled)
     searchParams.forEach((value, key) => {
-      if (!['search', 'status', 'category', 'includeIds', 'excludeIds', 'includeIds[]', 'excludeIds[]'].includes(key)) {
+      if (!['search', 'status', 'category', 'includeIds', 'excludeIds', 'includeIds[]', 'excludeIds[]', 'companyIds', 'companyIds[]'].includes(key)) {
         filters[key] = value;
       }
     });
