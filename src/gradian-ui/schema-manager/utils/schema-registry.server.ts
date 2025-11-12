@@ -4,15 +4,18 @@
 import 'server-only';
 
 import { FormSchema } from '../types/form-schema';
-import { loadAllSchemas, loadSchemasAsRecord } from './schema-loader';
+import { loadAllSchemas, loadSchemasAsRecord, loadSchemaById } from './schema-loader';
 
-// Cache for loaded schemas
+// Cache for loaded schemas (incremental - schemas are cached one by one)
+// This cache is populated by loadSchemaById which uses loadDataById
+// Each schema is fetched individually from /api/schemas/${schemaId}
 let schemasCache: Record<string, FormSchema> | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_TTL_MS = process.env.NODE_ENV === 'production' ? 0 : 5000; // No cache in production to allow dynamic updates
 
 /**
  * Get all schemas (cached) - async version for server-side only
+ * Only loads all schemas if explicitly needed (e.g., for schema manager page)
  * @returns Record of schema ID to FormSchema
  */
 export const getAllSchemasSync = async (): Promise<Record<string, FormSchema>> => {
@@ -34,38 +37,44 @@ export const clearSchemaCache = (): void => {
 
 /**
  * Check if a schema exists (Server-side only)
+ * Uses loadSchemaById to cache schemas individually
  * @param schemaId - The ID of the schema to check
  * @returns True if schema exists, false otherwise
  */
 export const schemaExists = async (schemaId: string): Promise<boolean> => {
-  const schemas = await getAllSchemasSync();
-  return schemaId in schemas;
+  // Try to load the schema individually - this will cache it if found
+  const schema = await loadSchemaById(schemaId);
+  return schema !== null;
 };
 
 /**
  * Find a schema by its ID (Server-side only)
+ * Uses loadSchemaById to cache schemas individually
  * @param schemaId - The ID of the schema to find
  * @returns The schema if found, or null if not found
  */
 export const findSchemaById = async (schemaId: string): Promise<FormSchema | null> => {
-  const exists = await schemaExists(schemaId);
-  if (!exists) {
+  // Load schema individually - this will cache it if found
+  // This avoids loading all schemas when we only need one
+  const schema = await loadSchemaById(schemaId);
+  if (!schema) {
     console.warn(`Schema with ID "${schemaId}" not found`);
     return null;
   }
-  
-  const schemas = await getAllSchemasSync();
-  return schemas[schemaId];
+  return schema;
 };
 
 /**
  * Get a schema by ID (Server-side only), throws error if not found
+ * Uses loadSchemaById to cache schemas individually
  * @param schemaId - The ID of the schema to get
  * @returns The schema
  * @throws Error if schema not found
  */
 export const getSchemaById = async (schemaId: string): Promise<FormSchema> => {
-  const schema = await findSchemaById(schemaId);
+  // Load schema individually - this will cache it if found
+  // This avoids loading all schemas when we only need one
+  const schema = await loadSchemaById(schemaId);
   
   if (!schema) {
     throw new Error(`Schema with ID "${schemaId}" not found`);

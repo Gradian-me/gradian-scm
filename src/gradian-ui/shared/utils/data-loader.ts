@@ -301,9 +301,11 @@ export async function loadDataById<T = any>(
     const fetchTime = Date.now() - startTime;
 
     // Update cache with this item if cache is empty or doesn't contain it
+    // Always store items in an array for incremental caching
     if (cache === null) {
+      // Initialize cache as an array containing the first item
       entry.cache = {
-        data: Array.isArray(processedData) ? [processedData] : processedData,
+        data: Array.isArray(processedData) ? processedData : [processedData],
         timestamp: Date.now(),
       };
       loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Added to cache`);
@@ -317,7 +319,26 @@ export async function loadDataById<T = any>(
           timestamp: Date.now(), // Update timestamp
         };
         loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Added to existing cache`);
+      } else {
+        // Update existing item if it already exists
+        cache.data[existingIndex] = processedData;
+        entry.cache = {
+          ...cache,
+          timestamp: Date.now(), // Update timestamp
+        };
+        loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Updated in cache`);
       }
+    } else {
+      // Cache exists but is not an array - convert it to an array
+      // This handles edge cases where cache might have been initialized differently
+      const existingData = cache.data;
+      entry.cache = {
+        data: Array.isArray(existingData) 
+          ? [...existingData, processedData]
+          : [existingData, processedData],
+        timestamp: Date.now(),
+      };
+      loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Converted cache to array and added item`);
     }
 
     return processedData as T;

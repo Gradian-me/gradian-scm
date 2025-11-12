@@ -86,10 +86,14 @@ export class BaseRepository<T extends BaseEntity> implements IRepository<T> {
           ? filters.companyIds.split(',').map(id => id.trim())
           : [];
       if (companyIds.length > 0) {
-        filtered = filtered.filter((entity: any) => {
-          const entityCompanyId = entity.companyId ? String(entity.companyId) : null;
-          return entityCompanyId && companyIds.includes(entityCompanyId);
-        });
+        // Normalize companyIds: trim and filter empty strings
+        const normalizedCompanyIds = companyIds.map(id => String(id).trim()).filter(id => id.length > 0);
+        if (normalizedCompanyIds.length > 0) {
+          filtered = filtered.filter((entity: any) => {
+            const entityCompanyId = entity.companyId ? String(entity.companyId).trim() : null;
+            return entityCompanyId && normalizedCompanyIds.includes(entityCompanyId);
+          });
+        }
       }
     } else if (filters.companyId) {
       // Backward compatibility: Handle single companyId (convert to array filter)

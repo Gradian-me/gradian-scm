@@ -238,40 +238,76 @@ export async function loadSchemasAsRecord(): Promise<Record<string, FormSchema>>
 
 /**
  * Get a single schema by ID (uses cache if available)
+ * Caches schemas individually in an array, fetching from /api/schemas/${schemaId}
  * During build time, reads directly from file system
  * @param schemaId - The ID of the schema to get
  * @returns The schema or null if not found
  */
 export async function loadSchemaById(schemaId: string): Promise<FormSchema | null> {
-  // Always use loadAllSchemas first - it uses cache and will return cached data if available
-  // This ensures we use the cache instead of making unnecessary API calls
-  const schemas = await loadAllSchemas();
-  const schema = schemas.find(s => s.id === schemaId);
-
-  if (schema) {
-    return schema;
-  }
-  
-  // If schema not found in cached data, it means it doesn't exist
-  // Don't make additional API calls - the cache from loadAllSchemas is the source of truth
-  // Only fallback to filesystem if we're in a build context or DEMO_MODE is false
+  // Check if we're in a build context - during build, read directly from file
   const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
-  const isDemoMode = process.env.DEMO_MODE === undefined || 
-                     ['true', '1', 'yes', 'on'].includes(process.env.DEMO_MODE?.toLowerCase() || '');
   
-  // Only try filesystem fallback if in build time or not in demo mode
-  if (isBuildTime || !isDemoMode) {
+  if (isBuildTime) {
+    // Build time - read directly from file system (no API calls during build)
     const schemasFromFile = readSchemasFromFile();
     if (schemasFromFile) {
       const fileSchema = schemasFromFile.find(s => s.id === schemaId);
       if (fileSchema) {
-        return fileSchema;
+        return processSchema(fileSchema);
       }
     }
+    // Schema not found in file
+    return null;
   }
   
-  // Schema not found - return null instead of making API call
-  // The cache from loadAllSchemas is authoritative
-  return null;
+  // Runtime - use loadDataById to cache individual schemas in an array
+  // This will:
+  // 1. Check the cache array for the schema
+  // 2. If not found, fetch from /api/schemas/${schemaId} (not /api/schemas)
+  // 3. Add it to the cache array
+  // 4. Return the schema
+  const apiBasePath = config.schemaApi.basePath;
+  
+  try {
+    return await loadDataById<FormSchema>(
+      SCHEMAS_ROUTE_KEY, // Cache key - all schemas are cached in this array
+      apiBasePath, // Base path: /api/schemas
+      schemaId, // Schema ID to fetch
+      {
+        processor: (data: any) => {
+          // Process the schema to convert patterns
+          return processSchema(data);
+        },
+        findInCache: (cache: any, id: string) => {
+          // Find schema in cache array
+          if (Array.isArray(cache)) {
+            const cachedSchema = cache.find((schema: any) => schema.id === id);
+            if (cachedSchema) {
+              return cachedSchema;
+            }
+          }
+          return null;
+        },
+        logType: LogType.SCHEMA_LOADER,
+      }
+    );
+  } catch (error) {
+    loggingCustom(
+      LogType.SCHEMA_LOADER,
+      'warn',
+      `Failed to load schema ${schemaId} from API (${error instanceof Error ? error.message : 'Unknown error'}). Falling back to filesystem.`
+    );
+    
+    // Fallback to filesystem if API fails
+    const schemasFromFile = readSchemasFromFile();
+    if (schemasFromFile) {
+      const fileSchema = schemasFromFile.find(s => s.id === schemaId);
+      if (fileSchema) {
+        return processSchema(fileSchema);
+      }
+    }
+    
+    return null;
+  }
 }
 

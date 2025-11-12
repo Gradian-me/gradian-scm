@@ -9,14 +9,14 @@ function resolveApiUrl(endpoint: string): string {
     return endpoint;
   }
 
-  // Handle data API endpoints
-  if (endpoint.startsWith('/api/data/')) {
+  // Handle data API endpoints (with or without trailing slash)
+  if (endpoint.startsWith('/api/data')) {
     const path = endpoint.replace('/api/data', '');
     return `${config.dataApi.basePath}${path}`;
   }
 
-  // Handle schema API endpoints
-  if (endpoint.startsWith('/api/schemas/')) {
+  // Handle schema API endpoints (with or without trailing slash)
+  if (endpoint.startsWith('/api/schemas')) {
     const path = endpoint.replace('/api/schemas', '');
     return `${config.schemaApi.basePath}${path}`;
   }

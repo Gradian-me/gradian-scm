@@ -141,9 +141,12 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     return reconstructedInitialSchema;
   });
 
-  // Reload schema from API and update cache silently (no loading state)
+  // Reload schema from API using route-based endpoint /api/schemas/${schemaId}
+  // This ensures we only fetch the specific schema, not all schemas
   const reloadSchema = useCallback(async () => {
     try {
+      // Use route-based endpoint: /api/schemas/${schemaId}
+      // This is more efficient than /api/schemas?id=${schemaId} which loads all schemas first
       const freshSchema = await fetchSchemaByIdClient(schemaId);
       if (freshSchema) {
         // Update state and cache silently without showing loading state
@@ -157,10 +160,12 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
   }, [schemaId, setSchema]);
 
   // Update cache when initial schema changes (from server)
+  // Server-side page.tsx already fetches the schema using loadSchemaById (no HTTP call)
+  // So we just need to cache the initial schema from the server
   useEffect(() => {
     const cachedSchema = getSchema(schemaId);
     if (!cachedSchema) {
-      // Only cache if not already cached
+      // Cache the initial schema from server (server already loaded it from file system)
       setSchema(schemaId, reconstructedInitialSchema);
     }
   }, [schemaId, reconstructedInitialSchema, getSchema, setSchema]);

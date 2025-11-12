@@ -4,14 +4,14 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Separator } from '@/components/ui/separator';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
-import { config } from '@/lib/config';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '../../../shared/utils';
 import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
+import { useSchemas } from '@/gradian-ui/schema-manager/hooks/use-schemas';
 
 interface SidebarNavigationDynamicProps {
   isCollapsed: boolean;
@@ -25,33 +25,16 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
   className
 }) => {
   const pathname = usePathname();
-  const [schemas, setSchemas] = useState<FormSchema[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { schemas: allSchemas, isLoading } = useSchemas();
 
-  useEffect(() => {
-    fetchSchemas();
-  }, []);
+  // Filter schemas that have showInNavigation enabled
+  const schemas = useMemo(() => {
+    return allSchemas.filter((schema: FormSchema) => 
+      schema.showInNavigation === true
+    );
+  }, [allSchemas]);
 
-  const fetchSchemas = async () => {
-    try {
-      const response = await fetch(config.schemaApi.basePath);
-      const result = await response.json();
-      
-      if (result.success) {
-        // Filter schemas that have showInNavigation enabled
-        const navigationSchemas = result.data.filter((schema: FormSchema) => 
-          schema.showInNavigation === true
-        );
-        setSchemas(navigationSchemas);
-      }
-    } catch (error) {
-      console.error('Error fetching schemas:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading || schemas.length === 0) {
+  if (isLoading || schemas.length === 0) {
     return null;
   }
 

@@ -58,12 +58,10 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
       if (filters?.status) queryParams.append('status', filters.status);
       if (filters?.category) queryParams.append('category', filters.category);
       
-      // Handle companyIds array - send as multiple query params (companyIds[]=id1&companyIds[]=id2)
-      // This allows filtering by multiple companies
+      // Handle companyIds - send as comma-separated string (companyIds=id1,id2)
       if (filters?.companyIds && Array.isArray(filters.companyIds) && filters.companyIds.length > 0) {
-        filters.companyIds.forEach(id => {
-          queryParams.append('companyIds[]', String(id));
-        });
+        // Join array into comma-separated string
+        queryParams.append('companyIds', filters.companyIds.map(id => String(id)).join(','));
       } else if (filters?.companyId) {
         // Backward compatibility: Handle single companyId
         queryParams.append('companyId', filters.companyId);

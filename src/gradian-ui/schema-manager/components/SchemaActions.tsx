@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Save, ArrowLeft, RotateCcw, Loader2, LayoutList } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface SchemaActionsProps {
   onSave?: () => void;
   onReset?: () => void;
   onViewSchemaList?: () => void;
+  viewSchemaListUrl?: string; // URL for the view list link (supports middle-click to open in new tab)
   saving?: boolean;
   backLabel?: string;
   saveLabel?: string;
@@ -20,6 +22,7 @@ export function SchemaActions({
   onSave, 
   onReset,
   onViewSchemaList,
+  viewSchemaListUrl,
   saving = false,
   backLabel = 'Back to Schemas',
   saveLabel = 'Save Schema',
@@ -35,12 +38,21 @@ export function SchemaActions({
         </Button>
       )}
       <div className="flex gap-2 ml-auto flex-wrap">
-        {onViewSchemaList && (
+        {viewSchemaListUrl ? (
+          // Use Link component for middle-click support (opens in new tab)
+          <Button variant="outline" asChild>
+            <Link href={viewSchemaListUrl}>
+              <LayoutList className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{viewSchemaListLabel}</span>
+            </Link>
+          </Button>
+        ) : onViewSchemaList ? (
+          // Fallback to onClick handler if URL is not provided
           <Button variant="outline" onClick={onViewSchemaList}>
             <LayoutList className="h-4 w-4 md:mr-2" />
             <span className="hidden md:inline">{viewSchemaListLabel}</span>
           </Button>
-        )}
+        ) : null}
         {onReset && (
           <Button variant="outline" onClick={onReset}>
             <RotateCcw className="h-4 w-4 md:mr-2" />

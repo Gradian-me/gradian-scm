@@ -8,6 +8,8 @@ import {
 } from '../types/schema-manager-page';
 import { MessagesResponse, Message } from '@/gradian-ui/layout/message-box';
 import { config } from '@/lib/config';
+import { useSchemas } from './use-schemas';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * Transform API response messages to MessageBox format
@@ -43,8 +45,8 @@ const transformMessages = (apiMessages: any[]): Message[] => {
 };
 
 export const useSchemaManagerPage = () => {
-  const [schemas, setSchemas] = useState<FormSchema[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { schemas: fetchedSchemas, isLoading, error: schemasError, refetch: refetchSchemas } = useSchemas();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<SchemaTab>('system');
@@ -53,61 +55,20 @@ export const useSchemaManagerPage = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [messages, setMessages] = useState<MessagesResponse | null>(null);
 
-  const fetchSchemas = useCallback(async (isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-      setMessages(null);
+  // Use schemas from React Query cache
+  const schemas = fetchedSchemas;
+  const loading = isLoading;
 
-      const response = await fetch(config.schemaApi.basePath);
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        // Extract messages from response if available
-        if (result.messages) {
-          const transformedMessages = transformMessages(result.messages);
-          setMessages({
-            success: false,
-            messages: transformedMessages,
-            message: result.message,
-          });
-        } else if (result.message) {
-          setMessages({
-            success: false,
-            message: result.message,
-          });
-        } else {
-          // Fallback to simple error message
-          const errorMessage = result.error || result.message || `Failed to fetch schemas (${response.status})`;
-          setMessages({
-            success: false,
-            message: errorMessage,
-          });
-        }
-        console.error('Failed to fetch schemas:', result);
-      } else {
-        setSchemas(result.data as FormSchema[]);
-        setMessages(null);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error fetching schemas';
+  // Handle error messages from React Query
+  useEffect(() => {
+    if (schemasError) {
+      const errorMessage = schemasError instanceof Error ? schemasError.message : 'Error fetching schemas';
       setMessages({
         success: false,
         message: errorMessage,
       });
-      console.error('Error fetching schemas:', error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
     }
-  }, []);
-
-  useEffect(() => {
-    fetchSchemas();
-  }, [fetchSchemas]);
+  }, [schemasError]);
 
   const systemSchemas = useMemo(
     () => schemas.filter(schema => schema.isSystemSchema === true).sort((a, b) => a.plural_name.localeCompare(b.plural_name)),
@@ -152,9 +113,22 @@ export const useSchemaManagerPage = () => {
     });
   }, [activeTab, businessSchemas, searchQuery, showInactive, systemSchemas]);
 
-  const handleRefresh = useCallback(() => {
-    fetchSchemas(true);
-  }, [fetchSchemas]);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Invalidate and refetch schemas from React Query cache
+      await queryClient.invalidateQueries({ queryKey: ['schemas'] });
+      await refetchSchemas();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error refreshing schemas';
+      setMessages({
+        success: false,
+        message: errorMessage,
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient, refetchSchemas]);
 
   const openDeleteDialog = useCallback((schema: FormSchema) => {
     setDeleteDialog({ open: true, schema });
@@ -184,9 +158,8 @@ export const useSchemaManagerPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        setSchemas(current => current.map(schema => 
-          schema.id === deleteDialog.schema!.id ? updatedSchema : schema
-        ));
+        // Invalidate schemas cache to refetch updated data
+        await queryClient.invalidateQueries({ queryKey: ['schemas'] });
         // Show success message if available
         if (result.messages) {
           const transformedMessages = transformMessages(result.messages);
@@ -235,7 +208,7 @@ export const useSchemaManagerPage = () => {
       console.error('Error setting schema inactive:', error);
       return false;
     }
-  }, [closeDeleteDialog, deleteDialog.schema]);
+  }, [closeDeleteDialog, deleteDialog.schema, queryClient]);
 
   const handleCreate = useCallback(async (payload: CreateSchemaPayload): Promise<SchemaCreateResult> => {
     const { schemaId, singularName, pluralName, description, showInNavigation, isSystemSchema, isNotCompanyBased } = payload;
@@ -271,6 +244,8 @@ export const useSchemaManagerPage = () => {
       const result = await response.json();
 
       if (result.success) {
+        // Invalidate schemas cache to refetch updated data
+        await queryClient.invalidateQueries({ queryKey: ['schemas'] });
         // Don't set messages in hook when dialog is open - let dialog handle it
         // Only set messages after dialog closes if needed
         setCreateDialogOpen(false);
@@ -308,7 +283,7 @@ export const useSchemaManagerPage = () => {
       console.error('Error creating schema:', error);
       return { success: false, error: errorMessage };
     }
-  }, []);
+  }, [queryClient]);
 
   const openCreateDialog = useCallback(() => setCreateDialogOpen(true), []);
   const closeCreateDialog = useCallback(() => setCreateDialogOpen(false), []);
