@@ -34,7 +34,7 @@ export const DataDisplayEmptyState: React.FC<DataDisplayEmptyStateProps> = ({
       </div>
 
       {/* Title */}
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-300 mb-2">
         {title}
       </h3>
 

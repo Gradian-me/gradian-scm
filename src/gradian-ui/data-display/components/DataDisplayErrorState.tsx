@@ -26,7 +26,7 @@ export const DataDisplayErrorState: React.FC<DataDisplayErrorStateProps> = ({
       </div>
 
       {/* Error Message */}
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-300 mb-2">
         Something went wrong
       </h3>
       

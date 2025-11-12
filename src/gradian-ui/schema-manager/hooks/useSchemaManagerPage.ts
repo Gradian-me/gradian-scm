@@ -122,7 +122,7 @@ export const useSchemaManagerPage = () => {
   }, [closeDeleteDialog, deleteDialog.schema]);
 
   const handleCreate = useCallback(async (payload: CreateSchemaPayload): Promise<SchemaCreateResult> => {
-    const { schemaId, singularName, pluralName, description, showInNavigation, isSystemSchema } = payload;
+    const { schemaId, singularName, pluralName, description, showInNavigation, isSystemSchema, isNotCompanyBased } = payload;
 
     if (!schemaId || !singularName || !pluralName || !description) {
       return { success: false, error: 'All fields are required' };
@@ -136,6 +136,7 @@ export const useSchemaManagerPage = () => {
         plural_name: pluralName,
         showInNavigation,
         isSystemSchema,
+        isNotCompanyBased,
         fields: [],
         sections: [],
       };

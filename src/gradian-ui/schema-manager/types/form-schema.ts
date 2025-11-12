@@ -314,6 +314,7 @@ export interface FormSchema {
   icon?: string;
   showInNavigation?: boolean;
   isSystemSchema?: boolean;
+  isNotCompanyBased?: boolean;
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
   cardMetadata?: CardSection[];

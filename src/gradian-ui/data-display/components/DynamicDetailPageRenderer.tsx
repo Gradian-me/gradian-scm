@@ -702,7 +702,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-300 mb-2">Error</h3>
           <p className="text-gray-500 mb-4">{error || 'Data not found'}</p>
           {onBack && (
             <Button onClick={onBack} variant="outline">

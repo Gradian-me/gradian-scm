@@ -167,7 +167,21 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
     return [];
   }
   
-  // Normal runtime: use API endpoint
+  // Check if DEMO_MODE is enabled - if not, use filesystem directly
+  const isDemoMode = process.env.DEMO_MODE === undefined || 
+                     ['true', '1', 'yes', 'on'].includes(process.env.DEMO_MODE.toLowerCase());
+  
+  if (!isDemoMode) {
+    // When DEMO_MODE is false, read directly from filesystem
+    const schemasFromFile = readSchemasFromFile();
+    if (schemasFromFile) {
+      return schemasFromFile;
+    }
+    loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found (DEMO_MODE=false).');
+    return [];
+  }
+  
+  // Normal runtime: use API endpoint (when DEMO_MODE is true)
   const apiPath = config.schemaApi.basePath;
   
   try {

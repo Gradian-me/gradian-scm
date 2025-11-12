@@ -88,6 +88,17 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
               Is System Schema
             </Label>
           </div>
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="is-not-company-based"
+              checked={schema.isNotCompanyBased || false}
+              onCheckedChange={(checked) => onUpdate({ isNotCompanyBased: checked })}
+              disabled={readonly}
+            />
+            <Label htmlFor="is-not-company-based" className="cursor-pointer text-gray-700">
+              Is Not Company Based
+            </Label>
+          </div>
         </div>
       </CardContent>
     </Card>

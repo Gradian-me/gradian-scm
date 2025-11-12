@@ -234,8 +234,8 @@ export function useCreateModal(
       // Enrich data if provided
       let enrichedData = enrichData ? enrichData(formData) : formData;
 
-      // Automatically add companyId from store if not already present
-      if (!enrichedData.companyId) {
+      // Automatically add companyId from store if not already present and schema is company-based
+      if (!targetSchema.isNotCompanyBased && !enrichedData.companyId) {
         const companyId = getCompanyId();
         if (companyId !== null && companyId !== -1) {
           enrichedData = {

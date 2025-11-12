@@ -136,18 +136,21 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
 
   // Handle opening create modal
   const handleOpenCreateModal = useCallback(() => {
-    // Check if a company is selected (not "All Companies" with id === -1)
-    if (!selectedCompany || selectedCompany.id === -1) {
-      toast.warning('Please select a company to create a new record', {
-        description: 'Select a company from the dropdown to add a new record.',
-      });
-      return;
+    // Skip company check if schema is not company-based
+    if (!schema?.isNotCompanyBased) {
+      // Check if a company is selected (not "All Companies" with id === -1)
+      if (!selectedCompany || selectedCompany.id === -1) {
+        toast.warning('Please select a company to create a new record', {
+          description: 'Select a company from the dropdown to add a new record.',
+        });
+        return;
+      }
     }
     
     if (schema?.id) {
       setCreateModalOpen(true);
     }
-  }, [schema?.id, selectedCompany]);
+  }, [schema?.id, schema?.isNotCompanyBased, selectedCompany]);
 
   // Custom handleViewEntity that opens the detail dialog (card click)
   const handleViewEntity = useCallback((entity: any) => {
@@ -187,6 +190,11 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   
   // Fetch companies data and schema for grouping
   useEffect(() => {
+    // Skip fetching companies data if schema is not company-based
+    if (schema?.isNotCompanyBased) {
+      return;
+    }
+    
     const fetchCompaniesData = async () => {
       // Check if entities have companyId field
       if (entities && entities.length > 0 && entities.some((e: any) => e.companyId)) {
@@ -212,7 +220,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     if (entities && companiesData.length > 0) {
       fetchCompaniesData();
     }
-  }, [entities, companiesData]);
+  }, [entities, companiesData, schema?.isNotCompanyBased]);
 
   // Build filters object with company filter
   const buildFilters = useCallback(() => {
@@ -222,14 +230,17 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       category: currentFilters.category,
     };
     
-    // Add companyId filter only if a specific company is selected (not "All Companies" with id === -1)
-    if (selectedCompany && selectedCompany.id !== -1) {
-      filters.companyId = String(selectedCompany.id);
+    // Skip company filtering if schema is not company-based
+    if (!schema?.isNotCompanyBased) {
+      // Add companyId filter only if a specific company is selected (not "All Companies" with id === -1)
+      if (selectedCompany && selectedCompany.id !== -1) {
+        filters.companyId = String(selectedCompany.id);
+      }
+      // If "All Companies" (-1) is selected, don't add companyId filter (show all)
     }
-    // If "All Companies" (-1) is selected, don't add companyId filter (show all)
     
     return filters;
-  }, [currentFilters, selectedCompany]);
+  }, [currentFilters, selectedCompany, schema?.isNotCompanyBased]);
 
   // Initial fetch on mount
   useEffect(() => {
@@ -238,12 +249,15 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Refetch when company changes
+  // Refetch when company changes (only if schema is company-based)
   useEffect(() => {
+    if (schema?.isNotCompanyBased) {
+      return; // Skip refetch on company change if not company-based
+    }
     const filters = buildFilters();
     fetchEntities(filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompany?.id]);
+  }, [selectedCompany?.id, schema?.isNotCompanyBased]);
 
   // Refetch when UI filters change
   useEffect(() => {
@@ -315,8 +329,13 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     return entities;
   }, [entities, debouncedSearchTerm]);
 
-  // Group entities by companyId - only when "All Companies" (-1) is selected
+  // Group entities by companyId - only when "All Companies" (-1) is selected and schema is company-based
   const groupedEntities = useMemo(() => {
+    // Skip grouping if schema is not company-based
+    if (schema?.isNotCompanyBased) {
+      return null;
+    }
+    
     if (!filteredEntities || filteredEntities.length === 0) return null;
     
     // Only group when "All Companies" is selected (id === -1)
@@ -344,7 +363,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     });
     
     return { grouped, ungrouped };
-  }, [filteredEntities, selectedCompany]);
+  }, [filteredEntities, selectedCompany, schema?.isNotCompanyBased]);
 
   // Calculate default values for accordion (all expanded initially)
   const accordionDefaultValues = useMemo(() => {
@@ -412,7 +431,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   const isAdmin = true; // TODO: Replace with actual user profile check
   
   // Check if "All Companies" is selected (id === -1), which means we can't create new records
-  const canCreateRecords = selectedCompany && selectedCompany.id !== -1;
+  // Skip this check if schema is not company-based
+  const canCreateRecords = schema?.isNotCompanyBased || (selectedCompany && selectedCompany.id !== -1);
 
 
   return (
@@ -763,8 +783,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
               }
             }
 
-            // Add companyId from Zustand store (if not already present)
-            const companyId = selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
+            // Add companyId from Zustand store (if not already present and schema is company-based)
+            const companyId = !schema?.isNotCompanyBased && selectedCompany?.id && selectedCompany.id !== -1 ? String(selectedCompany.id) : undefined;
 
             // Transform form data to match the expected schema
             // Check if schema supports contacts (vendors, companies, etc. but not users)

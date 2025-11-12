@@ -14,15 +14,15 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   // Map gradian-ui Button variants to UI Button styles (matches button.tsx)
   const variantClasses = {
-    default: 'bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow-md',
-    primary: 'bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow-md',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 shadow-sm hover:shadow-md',
-    success: 'bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow-md',
-    warning: 'bg-yellow-600 text-white hover:bg-yellow-700 shadow-sm hover:shadow-md',
-    danger: 'bg-red-500 text-white shadow-sm hover:bg-red-600 hover:shadow-md',
-    outline: 'border border-violet-200 bg-white text-violet-700 hover:bg-violet-50 hover:border-violet-300 shadow-sm hover:shadow-md',
-    ghost: 'text-violet-600 hover:bg-violet-50 hover:text-violet-700',
-    link: 'text-violet-600 underline-offset-4 hover:underline hover:text-violet-700',
+    default: 'bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow-md dark:bg-violet-500 dark:text-white dark:hover:bg-violet-600',
+    primary: 'bg-violet-600 text-white shadow-sm hover:bg-violet-700 hover:shadow-md dark:bg-violet-500 dark:text-white dark:hover:bg-violet-600',
+    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 shadow-sm hover:shadow-md dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
+    success: 'bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow-md dark:bg-green-500 dark:text-white dark:hover:bg-green-600',
+    warning: 'bg-yellow-600 text-white hover:bg-yellow-700 shadow-sm hover:shadow-md dark:bg-yellow-500 dark:text-white dark:hover:bg-yellow-600',
+    danger: 'bg-red-500 text-white shadow-sm hover:bg-red-600 hover:shadow-md dark:bg-red-600 dark:text-white dark:hover:bg-red-700',
+    outline: 'border border-violet-200 bg-white text-violet-700 hover:bg-violet-50 hover:border-violet-300 shadow-sm hover:shadow-md dark:border-violet-800 dark:bg-gray-800 dark:text-violet-300 dark:hover:bg-gray-700 dark:hover:border-violet-700',
+    ghost: 'text-violet-600 hover:bg-violet-50 hover:text-violet-700 dark:text-violet-400 dark:hover:bg-gray-800 dark:hover:text-violet-300',
+    link: 'text-violet-600 underline-offset-4 hover:underline hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300',
   };
 
   const sizeClasses = {

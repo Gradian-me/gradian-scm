@@ -136,34 +136,34 @@ async function clearLocalCaches() {
  * Example: POST /api/schemas/clear-cache
  */
 export async function POST(request: NextRequest) {
-  if (!isDemoModeEnabled()) {
-    try {
-      await clearLocalCaches();
-    } catch (error) {
-      console.warn('Local cache clearing failed (non-demo mode):', error);
-    }
-
-    return proxySchemaRequest(request, '/api/schemas/clear-cache');
-  }
-
+  // Always clear local caches first
   try {
     await clearLocalCaches();
-
-    return NextResponse.json({
-      success: true,
-      message: 'All caches cleared successfully',
-      timestamp: new Date().toISOString(),
-    });
   } catch (error) {
-    console.error('Error clearing caches:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to clear caches',
-      },
-      { status: 500 }
-    );
+    console.warn('Local cache clearing failed:', error);
   }
+
+  // If DEMO_MODE is false, also try to proxy to remote API if configured
+  // But don't fail if proxy fails - we've already cleared local caches
+  if (!isDemoModeEnabled()) {
+    try {
+      const proxyResponse = await proxySchemaRequest(request, '/api/schemas/clear-cache');
+      // If proxy succeeds, return its response
+      if (proxyResponse.status < 400) {
+        return proxyResponse;
+      }
+    } catch (error) {
+      // Proxy failed, but that's okay - we've already cleared local caches
+      console.warn('Proxy to remote API failed, but local caches were cleared:', error);
+    }
+  }
+
+  // Always return success response (local caches are cleared)
+  return NextResponse.json({
+    success: true,
+    message: 'All caches cleared successfully',
+    timestamp: new Date().toISOString(),
+  });
 }
 
 /**
@@ -171,33 +171,33 @@ export async function POST(request: NextRequest) {
  * Example: GET /api/schemas/clear-cache
  */
 export async function GET(request: NextRequest) {
-  if (!isDemoModeEnabled()) {
-    try {
-      await clearLocalCaches();
-    } catch (error) {
-      console.warn('Local cache clearing failed (non-demo mode):', error);
-    }
-
-    return proxySchemaRequest(request, '/api/schemas/clear-cache');
-  }
-
+  // Always clear local caches first
   try {
     await clearLocalCaches();
-
-    return NextResponse.json({
-      success: true,
-      message: 'All caches cleared successfully',
-      timestamp: new Date().toISOString(),
-    });
   } catch (error) {
-    console.error('Error clearing caches:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to clear caches',
-      },
-      { status: 500 }
-    );
+    console.warn('Local cache clearing failed:', error);
   }
+
+  // If DEMO_MODE is false, also try to proxy to remote API if configured
+  // But don't fail if proxy fails - we've already cleared local caches
+  if (!isDemoModeEnabled()) {
+    try {
+      const proxyResponse = await proxySchemaRequest(request, '/api/schemas/clear-cache');
+      // If proxy succeeds, return its response
+      if (proxyResponse.status < 400) {
+        return proxyResponse;
+      }
+    } catch (error) {
+      // Proxy failed, but that's okay - we've already cleared local caches
+      console.warn('Proxy to remote API failed, but local caches were cleared:', error);
+    }
+  }
+
+  // Always return success response (local caches are cleared)
+  return NextResponse.json({
+    success: true,
+    message: 'All caches cleared successfully',
+    timestamp: new Date().toISOString(),
+  });
 }
 

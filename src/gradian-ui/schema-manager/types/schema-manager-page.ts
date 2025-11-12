@@ -14,6 +14,7 @@ export interface CreateSchemaPayload {
   description: string;
   showInNavigation: boolean;
   isSystemSchema: boolean;
+  isNotCompanyBased: boolean;
 }
 
 export interface SchemaCreateResult {

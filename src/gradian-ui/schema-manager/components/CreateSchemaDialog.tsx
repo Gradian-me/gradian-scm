@@ -32,6 +32,7 @@ const INITIAL_FORM_STATE: CreateSchemaPayload = {
   description: '',
   showInNavigation: false,
   isSystemSchema: false,
+  isNotCompanyBased: false,
 };
 
 export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchemaDialogProps) {
@@ -93,7 +94,7 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
     setFormState(prev => ({ ...prev, schemaId: value }));
   };
 
-  const handleSwitchChange = (key: 'showInNavigation' | 'isSystemSchema') => (checked: boolean) => {
+  const handleSwitchChange = (key: 'showInNavigation' | 'isSystemSchema' | 'isNotCompanyBased') => (checked: boolean) => {
     setFormState(prev => ({
       ...prev,
       [key]: checked,
@@ -212,6 +213,11 @@ export function CreateSchemaDialog({ open, onOpenChange, onSubmit }: CreateSchem
               config={{ name: 'isSystemSchema', label: 'Is System Schema' }}
               value={formState.isSystemSchema}
               onChange={handleSwitchChange('isSystemSchema')}
+            />
+            <FormSwitch
+              config={{ name: 'isNotCompanyBased', label: 'Is Not Company Based' }}
+              value={formState.isNotCompanyBased}
+              onChange={handleSwitchChange('isNotCompanyBased')}
             />
           </div>
         </div>

@@ -9,11 +9,11 @@ export type CircularTimerProps = {
   className?: string;
   onComplete?: () => void;
   onUpdate?: (remaining: number) => void;
-  colors?: string[];
+  colors?: `#${string}`[];
   colorsTime?: number[];
 };
 
-const DEFAULT_COLORS = ['#7C3AED', '#F97316', '#FACC15', '#EF4444'];
+const DEFAULT_COLORS: `#${string}`[] = ['#7C3AED', '#F97316', '#FACC15', '#EF4444'];
 
 export function CircularTimer({
   duration,

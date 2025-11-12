@@ -43,13 +43,13 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial, del
       alt="avatar"
     />
     <div className="text-sm leading-snug">
-      <p className="flex items-center gap-1 font-medium text-foreground transition-colors duration-200 group-hover:text-violet-500">
+      <p className="flex items-center gap-1 font-medium text-violet-50 transition-colors duration-200 group-hover:text-violet-400">
         {testimonial.name}
       </p>
-      <p className="text-muted-foreground transition-colors duration-200 group-hover:text-violet-400/90">
+      <p className="text-violet-100 transition-colors duration-200 group-hover:text-violet-400">
         {testimonial.handle}
       </p>
-      <p className="mt-1 text-foreground/80 transition-colors duration-200 group-hover:text-foreground">
+      <p className="mt-1 text-gray-50 transition-colors duration-200 group-hover:text-foreground">
         {testimonial.text}
       </p>
     </div>
@@ -120,7 +120,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <button 
                 type="submit" 
                 disabled={isLoading}
-                className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-500 py-4 font-medium text-violet-50 hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="animate-element animate-delay-600 w-full rounded-2xl bg-violet-500 dark:bg-violet-600 py-4 font-medium text-white hover:bg-violet-600 dark:hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </button>

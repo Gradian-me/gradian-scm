@@ -9,7 +9,8 @@ import { handleDomainError } from '../errors/domain.errors';
 export class BaseController<T extends BaseEntity> {
   constructor(
     protected service: IService<T>,
-    protected entityName: string = 'Entity'
+    protected entityName: string = 'Entity',
+    protected isNotCompanyBased: boolean = false
   ) {}
 
   /**
@@ -112,26 +113,29 @@ export class BaseController<T extends BaseEntity> {
     try {
       const body = await request.json();
       
-      // SECURITY: Require companyId in request body (from Zustand store)
-      // Validate that it's provided and not "All Companies" (-1)
-      const companyId = body.companyId;
-      
-      if (!companyId) {
-        return NextResponse.json(
-          { success: false, error: 'Company ID is required. Please select a company before creating a record.' },
-          { status: 400 }
-        );
+      // Skip company validation if schema is not company-based
+      if (!this.isNotCompanyBased) {
+        // SECURITY: Require companyId in request body (from Zustand store)
+        // Validate that it's provided and not "All Companies" (-1)
+        const companyId = body.companyId;
+        
+        if (!companyId) {
+          return NextResponse.json(
+            { success: false, error: 'Company ID is required. Please select a company before creating a record.' },
+            { status: 400 }
+          );
+        }
+        
+        // SECURITY: Validate companyId is not "All Companies" (-1) or empty
+        if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
+          return NextResponse.json(
+            { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
+            { status: 400 }
+          );
+        }
       }
       
-      // SECURITY: Validate companyId is not "All Companies" (-1) or empty
-      if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
-        return NextResponse.json(
-          { success: false, error: 'Cannot create records when "All Companies" is selected. Please select a specific company first.' },
-          { status: 400 }
-        );
-      }
-      
-      // CompanyId is provided in body - use it directly
+      // CompanyId is provided in body - use it directly (or skip if not company-based)
       const enrichedBody = { ...body };
       
       const result = await this.service.create(enrichedBody);
@@ -163,29 +167,32 @@ export class BaseController<T extends BaseEntity> {
       
       const enrichedBody = { ...body };
       
-      // If entity already has companyId, preserve it (don't allow changing it)
-      if (existingEntity && (existingEntity as any).companyId) {
-        enrichedBody.companyId = (existingEntity as any).companyId;
-      } else {
-        // If entity doesn't have companyId, require it in request body (from Zustand store)
-        const companyId = body.companyId;
-        
-        if (!companyId) {
-          return NextResponse.json(
-            { success: false, error: 'Company ID is required. Please select a company before updating this record.' },
-            { status: 400 }
-          );
+      // Skip company validation if schema is not company-based
+      if (!this.isNotCompanyBased) {
+        // If entity already has companyId, preserve it (don't allow changing it)
+        if (existingEntity && (existingEntity as any).companyId) {
+          enrichedBody.companyId = (existingEntity as any).companyId;
+        } else {
+          // If entity doesn't have companyId, require it in request body (from Zustand store)
+          const companyId = body.companyId;
+          
+          if (!companyId) {
+            return NextResponse.json(
+              { success: false, error: 'Company ID is required. Please select a company before updating this record.' },
+              { status: 400 }
+            );
+          }
+          
+          // SECURITY: Validate companyId is not "All Companies" (-1) or empty
+          if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
+            return NextResponse.json(
+              { success: false, error: 'Cannot update records when "All Companies" is selected. Please select a specific company first.' },
+              { status: 400 }
+            );
+          }
+          
+          enrichedBody.companyId = companyId;
         }
-        
-        // SECURITY: Validate companyId is not "All Companies" (-1) or empty
-        if (companyId === '-1' || companyId === '' || companyId === null || companyId === undefined) {
-          return NextResponse.json(
-            { success: false, error: 'Cannot update records when "All Companies" is selected. Please select a specific company first.' },
-            { status: 400 }
-          );
-        }
-        
-        enrichedBody.companyId = companyId;
       }
       
       const result = await this.service.update(id, enrichedBody);
