@@ -8,6 +8,7 @@ import { BaseController } from '@/gradian-ui/shared/domain/controllers/base.cont
 import { BaseEntity } from '@/gradian-ui/shared/domain/types/base.types';
 import { isValidSchemaId, getSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 import { clearCompaniesCache } from '@/gradian-ui/shared/utils/companies-loader';
+import { isDemoModeEnabled, proxyDataRequest } from '../../utils';
 
 /**
  * Create controller instance for the given schema
@@ -33,9 +34,14 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string; id: string }> }
 ) {
-  try {
-    const { 'schema-id': schemaId, id } = await params;
+  const { 'schema-id': schemaId, id } = await params;
+  const targetPath = `/api/data/${schemaId}/${id}${request.nextUrl.search}`;
 
+  if (!isDemoModeEnabled()) {
+    return proxyDataRequest(request, targetPath);
+  }
+
+  try {
     // Validate schema ID
     if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
@@ -65,9 +71,15 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string; id: string }> }
 ) {
-  try {
-    const { 'schema-id': schemaId, id } = await params;
+  const { 'schema-id': schemaId, id } = await params;
+  const targetPath = `/api/data/${schemaId}/${id}`;
 
+  if (!isDemoModeEnabled()) {
+    const body = await request.json();
+    return proxyDataRequest(request, targetPath, { body, method: 'PUT' });
+  }
+
+  try {
     // Validate schema ID
     if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
@@ -104,9 +116,14 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string; id: string }> }
 ) {
-  try {
-    const { 'schema-id': schemaId, id } = await params;
+  const { 'schema-id': schemaId, id } = await params;
+  const targetPath = `/api/data/${schemaId}/${id}`;
 
+  if (!isDemoModeEnabled()) {
+    return proxyDataRequest(request, targetPath, { method: 'DELETE' });
+  }
+
+  try {
     // Validate schema ID
     if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(

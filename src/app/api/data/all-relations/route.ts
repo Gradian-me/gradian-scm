@@ -7,6 +7,7 @@ import { readAllRelations } from '@/gradian-ui/shared/domain/utils/relations-sto
 import { readAllData } from '@/gradian-ui/shared/domain/utils/data-storage.util';
 import { DataRelation } from '@/gradian-ui/schema-manager/types/form-schema';
 import { handleDomainError } from '@/gradian-ui/shared/domain/errors/domain.errors';
+import { isDemoModeEnabled, proxyDataRequest } from '../utils';
 
 // Route segment config to optimize performance
 export const dynamic = 'force-dynamic';
@@ -28,6 +29,12 @@ interface GroupedRelationData {
  * - otherSchema: Filter by specific target/source schema (optional)
  */
 export async function GET(request: NextRequest) {
+  const targetPath = `/api/data/all-relations${request.nextUrl.search}`;
+
+  if (!isDemoModeEnabled()) {
+    return proxyDataRequest(request, targetPath);
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     

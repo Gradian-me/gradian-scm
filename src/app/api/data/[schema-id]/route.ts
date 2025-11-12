@@ -8,6 +8,7 @@ import { BaseController } from '@/gradian-ui/shared/domain/controllers/base.cont
 import { BaseEntity } from '@/gradian-ui/shared/domain/types/base.types';
 import { isValidSchemaId, getSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 import { loadAllCompanies, clearCompaniesCache } from '@/gradian-ui/shared/utils/companies-loader';
+import { isDemoModeEnabled, proxyDataRequest } from '../utils';
 
 /**
  * Create controller instance for the given schema
@@ -33,9 +34,14 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string }> }
 ) {
-  try {
-    const { 'schema-id': schemaId } = await params;
+  const { 'schema-id': schemaId } = await params;
+  const targetPath = `/api/data/${schemaId}${request.nextUrl.search}`;
 
+  if (!isDemoModeEnabled()) {
+    return proxyDataRequest(request, targetPath);
+  }
+
+  try {
     // Validate schema ID
     if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
@@ -80,9 +86,15 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ 'schema-id': string }> }
 ) {
-  try {
-    const { 'schema-id': schemaId } = await params;
+  const { 'schema-id': schemaId } = await params;
+  const targetPath = `/api/data/${schemaId}`;
 
+  if (!isDemoModeEnabled()) {
+    const body = await request.json();
+    return proxyDataRequest(request, targetPath, { body });
+  }
+
+  try {
     // Validate schema ID
     if (!(await isValidSchemaId(schemaId))) {
       return NextResponse.json(
