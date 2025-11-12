@@ -182,7 +182,9 @@ export default function SignUpPage() {
       setSubmitFeedback(null);
 
       try {
-        const response = await fetch('/api/data/users', {
+        // Use config to determine correct URL based on demo mode
+        const apiUrl = `${config.dataApi.basePath}/users`;
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

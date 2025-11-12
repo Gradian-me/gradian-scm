@@ -167,21 +167,9 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
     return [];
   }
   
-  // Check if DEMO_MODE is enabled - if not, use filesystem directly
-  const isDemoMode = process.env.DEMO_MODE === undefined || 
-                     ['true', '1', 'yes', 'on'].includes(process.env.DEMO_MODE.toLowerCase());
-  
-  if (!isDemoMode) {
-    // When DEMO_MODE is false, read directly from filesystem
-    const schemasFromFile = readSchemasFromFile();
-    if (schemasFromFile) {
-      return schemasFromFile;
-    }
-    loggingCustom(LogType.SCHEMA_LOADER, 'error', 'Schemas file not found (DEMO_MODE=false).');
-    return [];
-  }
-  
-  // Normal runtime: use API endpoint (when DEMO_MODE is true)
+  // Always use API endpoint with caching (works for both DEMO_MODE=true and DEMO_MODE=false)
+  // When DEMO_MODE=true: fetches from local /api/schemas (cached)
+  // When DEMO_MODE=false: fetches from external URL_SCHEMA_CRUD/api/schemas (cached)
   const apiPath = config.schemaApi.basePath;
   
   try {
@@ -207,6 +195,7 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
       `Failed to load schemas from API (${error instanceof Error ? error.message : 'Unknown error'}). Falling back to filesystem.`
     );
 
+    // Fallback to filesystem if API fails
     const schemasFromFile = readSchemasFromFile();
     if (schemasFromFile) {
       return schemasFromFile;
@@ -254,7 +243,8 @@ export async function loadSchemasAsRecord(): Promise<Record<string, FormSchema>>
  * @returns The schema or null if not found
  */
 export async function loadSchemaById(schemaId: string): Promise<FormSchema | null> {
-  // During build time, loadAllSchemas already reads from file, so this will work
+  // Always use loadAllSchemas first - it uses cache and will return cached data if available
+  // This ensures we use the cache instead of making unnecessary API calls
   const schemas = await loadAllSchemas();
   const schema = schemas.find(s => s.id === schemaId);
 
@@ -262,42 +252,26 @@ export async function loadSchemaById(schemaId: string): Promise<FormSchema | nul
     return schema;
   }
   
-  // Fallback: if not found, try direct API call (only during runtime, not build)
+  // If schema not found in cached data, it means it doesn't exist
+  // Don't make additional API calls - the cache from loadAllSchemas is the source of truth
+  // Only fallback to filesystem if we're in a build context or DEMO_MODE is false
   const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
-  if (isBuildTime) {
-    return null; // During build, if not found in file, return null
-  }
+  const isDemoMode = process.env.DEMO_MODE === undefined || 
+                     ['true', '1', 'yes', 'on'].includes(process.env.DEMO_MODE?.toLowerCase() || '');
   
-  const apiBasePath = config.schemaApi.basePath;
-  try {
-    return await loadDataById<FormSchema>(
-      SCHEMAS_ROUTE_KEY,
-      apiBasePath,
-      schemaId,
-      {
-        processor: (data: any) => processSchema(data),
-        findInCache: (cache: any, id: string) => {
-          if (Array.isArray(cache)) {
-            return cache.find((s: FormSchema) => s.id === id) || null;
-          }
-          return null;
-        },
-        logType: LogType.SCHEMA_LOADER,
-      }
-    );
-  } catch (error) {
-    loggingCustom(
-      LogType.SCHEMA_LOADER,
-      'warn',
-      `Failed to load schema "${schemaId}" from API (${error instanceof Error ? error.message : 'Unknown error'}). Falling back to filesystem.`
-    );
-
+  // Only try filesystem fallback if in build time or not in demo mode
+  if (isBuildTime || !isDemoMode) {
     const schemasFromFile = readSchemasFromFile();
     if (schemasFromFile) {
-      return schemasFromFile.find(s => s.id === schemaId) ?? null;
+      const fileSchema = schemasFromFile.find(s => s.id === schemaId);
+      if (fileSchema) {
+        return fileSchema;
+      }
     }
-
-    return null;
   }
+  
+  // Schema not found - return null instead of making API call
+  // The cache from loadAllSchemas is authoritative
+  return null;
 }
 

@@ -132,36 +132,72 @@ async function clearLocalCaches() {
 }
 
 /**
+ * Call remote API's clear-cache endpoint (when DEMO_MODE is false)
+ */
+async function callRemoteClearCache(method: string = 'POST') {
+  const baseUrl = process.env.URL_SCHEMA_CRUD?.replace(/\/+$/, '');
+  
+  if (!baseUrl) {
+    console.warn('URL_SCHEMA_CRUD not configured, skipping remote cache clear');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${baseUrl}/api/schemas/clear-cache`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      return result;
+    } else {
+      console.warn(`Remote cache clear failed with status ${response.status}`);
+      return null;
+    }
+  } catch (error) {
+    console.warn('Failed to call remote clear-cache endpoint:', error);
+    return null;
+  }
+}
+
+/**
  * POST - Clear all caches (schemas, companies, and all data-loader caches)
  * Example: POST /api/schemas/clear-cache
+ * 
+ * This route always runs on the current server to clear local caches.
+ * If DEMO_MODE is false, it also calls the remote API's clear-cache endpoint.
  */
 export async function POST(request: NextRequest) {
-  // Always clear local caches first
+  // Always clear local caches first (this route always runs on current server)
   try {
     await clearLocalCaches();
   } catch (error) {
     console.warn('Local cache clearing failed:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to clear local caches',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 
-  // If DEMO_MODE is false, also try to proxy to remote API if configured
-  // But don't fail if proxy fails - we've already cleared local caches
+  // If DEMO_MODE is false, also call remote API's clear-cache endpoint
+  let remoteResult = null;
   if (!isDemoModeEnabled()) {
-    try {
-      const proxyResponse = await proxySchemaRequest(request, '/api/schemas/clear-cache');
-      // If proxy succeeds, return its response
-      if (proxyResponse.status < 400) {
-        return proxyResponse;
-      }
-    } catch (error) {
-      // Proxy failed, but that's okay - we've already cleared local caches
-      console.warn('Proxy to remote API failed, but local caches were cleared:', error);
-    }
+    remoteResult = await callRemoteClearCache('POST');
   }
 
-  // Always return success response (local caches are cleared)
+  // Return success response
   return NextResponse.json({
     success: true,
     message: 'All caches cleared successfully',
+    local: true,
+    remote: remoteResult?.success || false,
     timestamp: new Date().toISOString(),
   });
 }
@@ -169,34 +205,38 @@ export async function POST(request: NextRequest) {
 /**
  * GET - Clear all caches (for convenience)
  * Example: GET /api/schemas/clear-cache
+ * 
+ * This route always runs on the current server to clear local caches.
+ * If DEMO_MODE is false, it also calls the remote API's clear-cache endpoint.
  */
 export async function GET(request: NextRequest) {
-  // Always clear local caches first
+  // Always clear local caches first (this route always runs on current server)
   try {
     await clearLocalCaches();
   } catch (error) {
     console.warn('Local cache clearing failed:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to clear local caches',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 
-  // If DEMO_MODE is false, also try to proxy to remote API if configured
-  // But don't fail if proxy fails - we've already cleared local caches
+  // If DEMO_MODE is false, also call remote API's clear-cache endpoint
+  let remoteResult = null;
   if (!isDemoModeEnabled()) {
-    try {
-      const proxyResponse = await proxySchemaRequest(request, '/api/schemas/clear-cache');
-      // If proxy succeeds, return its response
-      if (proxyResponse.status < 400) {
-        return proxyResponse;
-      }
-    } catch (error) {
-      // Proxy failed, but that's okay - we've already cleared local caches
-      console.warn('Proxy to remote API failed, but local caches were cleared:', error);
-    }
+    remoteResult = await callRemoteClearCache('GET');
   }
 
-  // Always return success response (local caches are cleared)
+  // Return success response
   return NextResponse.json({
     success: true,
     message: 'All caches cleared successfully',
+    local: true,
+    remote: remoteResult?.success || false,
     timestamp: new Date().toISOString(),
   });
 }

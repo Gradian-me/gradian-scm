@@ -87,6 +87,7 @@ export const FormModal: React.FC<FormModalProps> = ({
     isSubmitting,
     formError,
     formErrorStatusCode,
+    formMessage,
     loadError,
     isLoading,
     openFormModal,
@@ -187,6 +188,19 @@ export const FormModal: React.FC<FormModalProps> = ({
         </div>
       )}
 
+      {/* Form error (shown on top when both error and message exist) */}
+      {formError && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+          {formError}
+          <button
+            onClick={clearFormError}
+            className="ml-2 text-red-800 underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Form */}
       {targetSchema && !isLoading && (
         <SchemaFormWrapper
@@ -196,7 +210,8 @@ export const FormModal: React.FC<FormModalProps> = ({
           onReset={() => {}}
           onCancel={closeFormModal}
           initialValues={isEdit && entityData ? entityData : {}}
-          error={formError}
+          error={formError ? null : null}
+          message={formMessage}
           errorStatusCode={formErrorStatusCode}
           onErrorDismiss={clearFormError}
           disabled={isSubmitting}

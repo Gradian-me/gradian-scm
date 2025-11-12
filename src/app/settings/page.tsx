@@ -22,6 +22,7 @@ import { TextInput } from '@/gradian-ui/form-builder/form-elements/components/Te
 import { useSettings, SettingsUpdate } from '@/domains/settings';
 // Import user store
 import { useUserStore } from '@/stores/user.store';
+import { config } from '@/lib/config';
 
 export default function SettingsPage() {
   // Settings now get userId from JWT token automatically
@@ -40,7 +41,9 @@ export default function SettingsPage() {
         // Get userId from store to fetch user data
         const userId = useUserStore.getState().getUserId();
         if (userId) {
-          const response = await fetch(`/api/data/users/${userId}`, {
+          // Use config to determine correct URL based on demo mode
+          const apiUrl = `${config.dataApi.basePath}/users/${userId}`;
+          const response = await fetch(apiUrl, {
             cache: 'no-store',
             headers: {
               'Content-Type': 'application/json',
@@ -118,7 +121,9 @@ export default function SettingsPage() {
 
         if (hasUserUpdates) {
           try {
-            const userResponse = await fetch(`/api/data/users/${userId}`, {
+            // Use config to determine correct URL based on demo mode
+            const apiUrl = `${config.dataApi.basePath}/users/${userId}`;
+            const userResponse = await fetch(apiUrl, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',

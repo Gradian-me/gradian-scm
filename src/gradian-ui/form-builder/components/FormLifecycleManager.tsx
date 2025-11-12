@@ -342,6 +342,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   onMount,
   hideActions = false,
   error,
+  message,
   errorStatusCode,
   onErrorDismiss,
   ...props
@@ -958,8 +959,20 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
     <>
       {children || (
         <>
-          {/* Error Alert - always shown when there are errors */}
-          {(error || firstValidationError) && (
+          {/* Message Alert - shown when there's a message (and no error, or error is shown on top) */}
+          {message && !error && (
+            <div className="mb-4">
+              <FormAlert 
+                type="info" 
+                message={message} 
+                onDismiss={onErrorDismiss}
+                dismissible={!!onErrorDismiss}
+              />
+            </div>
+          )}
+          
+          {/* Error Alert - shown when there's an error (or validation error) and no message, or when error is shown separately on top */}
+          {(error || firstValidationError) && !message && (
             <div className="mb-4">
               <FormAlert 
                 type="error" 
@@ -981,6 +994,18 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
                     </div>
                   ) : undefined
                 }
+              />
+            </div>
+          )}
+          
+          {/* Message Alert when both error and message exist - message shown in FormAlert */}
+          {message && error && (
+            <div className="mb-4">
+              <FormAlert 
+                type="info" 
+                message={message} 
+                onDismiss={onErrorDismiss}
+                dismissible={!!onErrorDismiss}
               />
             </div>
           )}

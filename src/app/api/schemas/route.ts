@@ -22,20 +22,17 @@ export function clearSchemaCache() {
 
 /**
  * Load schemas with caching
+ * Always uses cache if available and valid, regardless of environment
  */
 function loadSchemas(): any[] {
   const now = Date.now();
   
-  // For development: disable caching entirely for immediate updates
-  // In production, use cache with TTL
-  if (process.env.NODE_ENV === 'development') {
-    // In development, always read fresh from file (no cache)
-    // This ensures schema changes are reflected immediately
-  } else if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
+  // Check if cache is valid and return it (works in all environments)
+  if (cachedSchemas !== null && cacheTimestamp !== null && (now - cacheTimestamp) < CACHE_TTL_MS) {
     return cachedSchemas;
   }
   
-  // Read and cache schemas
+  // Cache miss or expired - read from file and update cache
   const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
   
   if (!fs.existsSync(dataPath)) {

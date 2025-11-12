@@ -1,5 +1,29 @@
 import { ApiResponse, PaginationParams } from '../types/common';
 import { handleError } from '../errors';
+import { config } from '@/lib/config';
+
+// Helper function to resolve API endpoint URL based on demo mode
+function resolveApiUrl(endpoint: string): string {
+  // If endpoint is already a full URL, return as is
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+
+  // Handle data API endpoints
+  if (endpoint.startsWith('/api/data/')) {
+    const path = endpoint.replace('/api/data', '');
+    return `${config.dataApi.basePath}${path}`;
+  }
+
+  // Handle schema API endpoints
+  if (endpoint.startsWith('/api/schemas/')) {
+    const path = endpoint.replace('/api/schemas', '');
+    return `${config.schemaApi.basePath}${path}`;
+  }
+
+  // For other endpoints, use as-is (relative URLs)
+  return endpoint;
+}
 
 export class ApiClient {
   private baseURL: string;
@@ -12,9 +36,11 @@ export class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${this.baseURL}${endpoint}`;
+    // Resolve the endpoint URL based on demo mode configuration
+    const resolvedEndpoint = resolveApiUrl(endpoint);
+    const url = `${this.baseURL}${resolvedEndpoint}`;
     
-    const config: RequestInit = {
+    const requestConfig: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
@@ -23,7 +49,7 @@ export class ApiClient {
     };
 
     try {
-      const response = await fetch(url, config);
+      const response = await fetch(url, requestConfig);
       const data = await response.json();
 
       // Add status code to response

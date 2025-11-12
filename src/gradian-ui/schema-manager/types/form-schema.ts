@@ -400,6 +400,7 @@ export interface FormWrapperProps {
   onMount?: (submitFn: () => void) => void;
   hideActions?: boolean;
   error?: string | null;
+  message?: string | null;
   errorStatusCode?: number;
   onErrorDismiss?: () => void;
 }

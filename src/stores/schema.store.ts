@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { config } from '@/lib/config';
 
 interface SchemaCacheEntry {
   schema: FormSchema;
@@ -74,7 +75,9 @@ export const useSchemaStore = create<SchemaState>()(
         // Create new fetch promise
         const fetchPromise = (async () => {
           try {
-            const response = await fetch(`/api/schemas/${schemaId}`);
+            // Use the configured schema API base URL (handles demo mode vs external API)
+            const apiUrl = `${config.schemaApi.basePath}/${schemaId}`;
+            const response = await fetch(apiUrl);
             if (!response.ok) {
               return null;
             }

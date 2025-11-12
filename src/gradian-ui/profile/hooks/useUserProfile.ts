@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { getUserInitials } from '../utils';
+import { config } from '@/lib/config';
 
 export interface UseUserProfileReturn {
   profile: UserProfile | null;
@@ -66,8 +67,9 @@ export const useUserProfile = (userId: string): UseUserProfileReturn => {
     setError(null);
     
     try {
-      // Fetch user data from API
-      const response = await fetch(`/api/data/users/${userId}`, {
+      // Fetch user data from API (uses config to determine correct URL based on demo mode)
+      const apiUrl = `${config.dataApi.basePath}/users/${userId}`;
+      const response = await fetch(apiUrl, {
         cache: 'no-store',
         headers: {
           'Content-Type': 'application/json',

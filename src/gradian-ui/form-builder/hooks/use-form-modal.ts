@@ -101,6 +101,11 @@ export interface UseFormModalReturn {
   formErrorStatusCode?: number;
   
   /**
+   * Message from API response (shown in FormAlert)
+   */
+  formMessage: string | null;
+  
+  /**
    * Error message for schema/entity loading
    */
   loadError: string | null;
@@ -177,6 +182,7 @@ export function useFormModal(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formErrorStatusCode, setFormErrorStatusCode] = useState<number | undefined>(undefined);
+  const [formMessage, setFormMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -188,9 +194,10 @@ export function useFormModal(
     modalMode: FormModalMode | undefined = 'create',
     editEntityId?: string
   ) => {
-    // Clear previous errors
+    // Clear previous errors and messages
     setLoadError(null);
     setFormError(null);
+    setFormMessage(null);
     setIsLoading(true);
     
     try {
@@ -275,6 +282,7 @@ export function useFormModal(
     setEntityId(null);
     setMode(null);
     setFormError(null);
+    setFormMessage(null);
     onClose?.();
   }, [onClose]);
 
@@ -293,6 +301,7 @@ export function useFormModal(
     }
 
     setFormError(null);
+    setFormMessage(null);
     setIsSubmitting(true);
     
     try {
@@ -331,7 +340,16 @@ export function useFormModal(
       } else {
         const action = mode === 'edit' ? 'update' : 'create';
         console.error(`Failed to ${action} ${targetSchema.name}:`, result.error);
-        setFormError(result.error || `Failed to ${action} ${targetSchema.name}. Please try again.`);
+        
+        // If both error and message exist, show error on top and message in FormAlert
+        if (result.error && result.message) {
+          setFormError(result.error);
+          setFormMessage(result.message);
+        } else {
+          // Only error or only message
+          setFormError(result.error || result.message || `Failed to ${action} ${targetSchema.name}. Please try again.`);
+          setFormMessage(null);
+        }
         setFormErrorStatusCode(result.statusCode);
       }
       
@@ -340,6 +358,7 @@ export function useFormModal(
       const action = mode === 'edit' ? 'update' : 'create';
       console.error(`Error ${action}ing ${targetSchema.name}:`, error);
       setFormError(error instanceof Error ? error.message : `Failed to ${action} ${targetSchema.name}. Please try again.`);
+      setFormMessage(null);
       setFormErrorStatusCode(undefined);
       setIsSubmitting(false);
     }
@@ -347,6 +366,7 @@ export function useFormModal(
 
   const clearFormError = useCallback(() => {
     setFormError(null);
+    setFormMessage(null);
     setFormErrorStatusCode(undefined);
   }, []);
 
@@ -363,6 +383,7 @@ export function useFormModal(
     isSubmitting,
     formError,
     formErrorStatusCode,
+    formMessage,
     loadError,
     isLoading,
     openFormModal,
