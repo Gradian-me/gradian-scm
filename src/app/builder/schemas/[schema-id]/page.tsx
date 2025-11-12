@@ -4,7 +4,41 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SchemaBuilderEditor } from '@/gradian-ui/schema-manager';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { Message } from '@/gradian-ui/layout/message-box';
 import { config } from '@/lib/config';
+
+/**
+ * Transform API response messages to MessageBox format
+ * API may return: { path: "$.description", en: "description is required" }
+ * MessageBox expects: { path: "$.description", message: { en: "description is required" } }
+ */
+const transformMessages = (apiMessages: any[]): Message[] => {
+  if (!Array.isArray(apiMessages)) return [];
+  
+  return apiMessages.map((msg: any) => {
+    // If message already has the correct format, return as is
+    if (msg.message !== undefined) {
+      return msg;
+    }
+    
+    // Extract path if exists
+    const { path, ...languageKeys } = msg;
+    
+    // If there are language keys (en, fr, etc.), wrap them in message
+    if (Object.keys(languageKeys).length > 0) {
+      return {
+        path,
+        message: languageKeys,
+      };
+    }
+    
+    // Fallback: treat the whole object as a string message
+    return {
+      path,
+      message: JSON.stringify(msg),
+    };
+  });
+};
 
 export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema-id': string }> }) {
   const router = useRouter();
@@ -30,14 +64,26 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
 
     console.error('Failed to fetch schema:', result.error);
     setLoadError(result.error || 'Failed to load schema');
-    // Store the response for MessageBox to display
-    setApiResponse(result);
+    // Transform messages if they exist
+    if (result.messages) {
+      const transformedMessages = transformMessages(result.messages);
+      setApiResponse({
+        ...result,
+        messages: transformedMessages,
+      });
+    } else {
+      setApiResponse(result);
+    }
     router.replace(`/builder/schemas/${id}/not-found`);
     throw new Error('Failed to fetch schema');
   };
 
   const saveSchema = async (id: string, schema: FormSchema): Promise<void> => {
     const { id: _schemaId, ...payload } = schema;
+    
+    // Clear previous messages when starting a new save
+    setApiResponse(null);
+    
     const response = await fetch(`${config.schemaApi.basePath}/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -45,8 +91,18 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
     });
 
     const result = await response.json();
-    // Store the response for MessageBox to display
-    setApiResponse(result);
+    
+    // Transform messages if they exist
+    if (result.messages) {
+      const transformedMessages = transformMessages(result.messages);
+      setApiResponse({
+        ...result,
+        messages: transformedMessages,
+      });
+    } else if (result.message || !result.success) {
+      // Set response even if no messages array, to show error or success message
+      setApiResponse(result);
+    }
     
     if (!result.success) {
       throw new Error('Failed to save schema');
