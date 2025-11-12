@@ -26,6 +26,7 @@ import { GoToTopForm } from '../form-elements/go-to-top-form';
 import { FormModal } from './FormModal';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { CompanySelector } from '@/components/layout/CompanySelector';
+import { getFieldTabIndexMap } from '../form-elements/utils/field-resolver';
 
 // Form Context
 const FormContext = createContext<FormContextType | null>(null);
@@ -871,6 +872,9 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   const isInsideForm = typeof window !== 'undefined' && 
     document.getElementById('form-dialog-form')?.closest('form');
 
+  // Compute tab index map based on field render order
+  const fieldTabIndexMap = useMemo(() => getFieldTabIndexMap(schema), [schema]);
+
   const renderSections = () => {
     return schema.sections.map((section) => {
       return (
@@ -893,6 +897,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           addItemError={section.isRepeatingSection ? addItemErrors[section.id] : undefined}
           refreshRelationsTrigger={section.isRepeatingSection && section.repeatingConfig?.targetSchema ? refreshRelationsTrigger : undefined}
           isAddingItem={section.isRepeatingSection && relationModalState.isOpen && relationModalState.sectionId === section.id}
+          fieldTabIndexMap={fieldTabIndexMap}
         />
       );
     });

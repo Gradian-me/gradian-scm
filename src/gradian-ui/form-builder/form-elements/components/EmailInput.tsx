@@ -131,6 +131,7 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
                 className="h-7 w-7 p-0 hover:bg-violet-100 hover:text-violet-600"
                 title="Send email"
                 aria-label="Send email"
+                tabIndex={-1}
               >
                 <Mail className="h-4 w-4" />
               </Button>

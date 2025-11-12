@@ -130,6 +130,7 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
                 className="h-7 w-7 p-0 hover:bg-violet-100 hover:text-violet-600"
                 title="Call"
                 aria-label="Call phone number"
+                tabIndex={-1}
               >
                 <Phone className="h-4 w-4" />
               </Button>

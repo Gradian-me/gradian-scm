@@ -423,6 +423,7 @@ export interface FormSectionProps {
   addItemError?: string | null; // Error message to display under the Add button
   refreshRelationsTrigger?: number; // Trigger to refresh relations (increments when relations change)
   isAddingItem?: boolean; // Whether the add item modal is currently open (for loading state)
+  fieldTabIndexMap?: Record<string, number>; // Map of field names to tab indices based on render order
 }
 
 export interface RepeatingSectionProps {

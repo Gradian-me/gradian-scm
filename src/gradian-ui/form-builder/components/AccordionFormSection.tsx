@@ -50,6 +50,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   touched,
   onChange,
   onBlur,
+  fieldTabIndexMap,
   onFocus,
   disabled = false,
   repeatingItems,
@@ -366,6 +367,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 onBlur={() => onBlur(fieldName)}
                 onFocus={() => onFocus(fieldName)}
                 disabled={disabled || field.disabled}
+                tabIndex={fieldTabIndexMap?.[field.name] !== undefined ? fieldTabIndexMap[field.name] : undefined}
               />
             </motion.div>
           );

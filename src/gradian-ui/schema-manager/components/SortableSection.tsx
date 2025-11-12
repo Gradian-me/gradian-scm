@@ -105,7 +105,7 @@ export function SortableSection({
               ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
               : 'border-gray-200 bg-white'
         }`}>
-          <div className="p-3">
+          <div className="p-6">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <button
@@ -117,7 +117,7 @@ export function SortableSection({
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className={`text-sm font-semibold truncate ${isIncomplete ? 'text-amber-700' : 'text-gray-900'}`}>
+                    <h4 className={`text-md font-semibold truncate ${isIncomplete ? 'text-amber-700' : 'text-gray-900'}`}>
                       {section.title || 'Untitled Section'}
                     </h4>
                     {isIncomplete && (

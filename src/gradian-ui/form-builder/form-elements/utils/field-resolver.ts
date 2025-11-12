@@ -33,6 +33,46 @@ export const getFieldsForSection = (schema: FormSchema | BuilderFormSchema, sect
 };
 
 /**
+ * Get all fields in render order (sections sorted by order, fields within sections sorted by order)
+ * Returns a map of field names to tab indices (0-based, excluding hidden fields)
+ */
+export const getFieldTabIndexMap = (schema: FormSchema | BuilderFormSchema): Record<string, number> => {
+  const tabIndexMap: Record<string, number> = {};
+  let currentTabIndex = 0;
+
+  if (!schema?.sections || !schema?.fields) {
+    return tabIndexMap;
+  }
+
+  // Sort sections by order
+  const sortedSections = [...schema.sections].sort((a, b) => {
+    const orderA = a.order ?? 999;
+    const orderB = b.order ?? 999;
+    return orderA - orderB;
+  });
+
+  // For each section, get and sort its fields
+  sortedSections.forEach((section) => {
+    const sectionFields = schema.fields
+      .filter(field => field.sectionId === section.id)
+      .map(field => applyFieldUIDefaults(field))
+      .filter(field => !field.hidden && !(field as any).layout?.hidden) // Exclude hidden fields
+      .sort((a, b) => {
+        const orderA = a.order ?? 999;
+        const orderB = b.order ?? 999;
+        return orderA - orderB;
+      });
+
+    // Assign tab indices to fields in this section
+    sectionFields.forEach((field) => {
+      tabIndexMap[field.name] = currentTabIndex++;
+    });
+  });
+
+  return tabIndexMap;
+};
+
+/**
  * Get all fields from the schema that have a specific role
  */
 export const getFieldsByRole = (schema: FormSchema, role: string): any[] => {
