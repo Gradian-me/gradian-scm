@@ -422,7 +422,7 @@ export const InputOTPSlot = React.forwardRef<HTMLInputElement, InputOTPSlotProps
         onFocus={handleFocus}
         onPaste={handlePaste}
         className={cn(
-          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-black/85 dark:bg-gray-200/50 text-md text-white font-semibold leading-none text-center transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
+          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-white dark:bg-black text-md text-white font-semibold leading-none text-center transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
           className
         )}
         {...rest}
