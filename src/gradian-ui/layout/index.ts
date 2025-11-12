@@ -7,3 +7,4 @@ export * from './notification-bar';
 export * from './go-to-top';
 export * from './sidebar';
 export * from './message-box';
+export * from './mode-toggle';

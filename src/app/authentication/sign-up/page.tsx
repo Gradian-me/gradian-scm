@@ -11,6 +11,7 @@ import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-ut
 import type { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { config } from '@/lib/config';
 import { useCompanyStore } from '@/stores/company.store';
+import { ModeToggle } from '@/gradian-ui/layout';
 
 type Testimonial = {
   avatarSrc: string;
@@ -315,7 +316,10 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen h-screen flex flex-col md:flex-row font-sans overflow-hidden">
-      <section className="flex-1 flex items-center justify-center p-8 overflow-y-auto min-h-0">
+      <section className="flex-1 flex items-center justify-center p-8 overflow-y-auto min-h-0 relative">
+        <div className="absolute top-8 right-8 z-10">
+          <ModeToggle />
+        </div>
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">

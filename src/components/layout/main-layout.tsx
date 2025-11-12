@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Bell, PanelLeftOpen, PencilRuler, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { GoToTop, Header } from '@/gradian-ui/layout';
+import { GoToTop, Header, ModeToggle } from '@/gradian-ui/layout';
 import { Sidebar } from '@/gradian-ui/layout/sidebar';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Badge } from '../ui/badge';
@@ -164,6 +164,7 @@ export function MainLayout({
   const headerActionsContent = (
     <div className="flex items-center gap-2">
       <div className="hidden md:flex items-center space-x-4">
+        <ModeToggle />
         <CompanySelector />
         <NotificationsDropdown initialCount={3} />
         <UserProfileSelector />
@@ -179,6 +180,7 @@ export function MainLayout({
         )}
       </div>
       <div className="flex md:hidden items-center space-x-2">
+        <ModeToggle />
         <Button
           variant="ghost"
           size="icon"

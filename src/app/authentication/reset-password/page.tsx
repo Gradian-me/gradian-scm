@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, LockIcon, ShieldCheck, UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { ModeToggle } from '@/gradian-ui/layout';
 
 import {
   InputOTP,
@@ -236,7 +237,10 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen h-screen flex flex-col md:flex-row font-sans overflow-hidden">
-      <section className="flex-1 flex items-center justify-center p-8 overflow-y-auto min-h-0">
+      <section className="flex-1 flex items-center justify-center p-8 overflow-y-auto min-h-0 relative">
+        <div className="absolute top-8 right-8 z-10">
+          <ModeToggle />
+        </div>
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
             <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">

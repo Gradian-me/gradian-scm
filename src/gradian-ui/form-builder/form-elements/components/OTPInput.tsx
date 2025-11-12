@@ -189,7 +189,7 @@ const InputOTPPrimitive = React.forwardRef<HTMLDivElement, InputOTPPrimitiveProp
       <InputOTPContext.Provider value={contextValue}>
         <div ref={ref} className={cn('flex w-full flex-col gap-4', className)} {...rest}>
           {resendDuration ? (
-            <div className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white/70 px-4 py-3 shadow-sm dark:bg-white/5">
+            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white/70 px-4 py-3 shadow-sm dark:bg-white/5">
               <div className="flex items-center justify-center gap-3">
                 <div className="flex items-center gap-3">
                   {hasCustomChildren ? children : defaultSlots}
@@ -422,7 +422,7 @@ export const InputOTPSlot = React.forwardRef<HTMLInputElement, InputOTPSlotProps
         onFocus={handleFocus}
         onPaste={handlePaste}
         className={cn(
-          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-black/85 text-md text-white font-semibold leading-none text-center transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
+          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-black/85 dark:bg-gray-200/50 text-md text-white font-semibold leading-none text-center transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
           className
         )}
         {...rest}
