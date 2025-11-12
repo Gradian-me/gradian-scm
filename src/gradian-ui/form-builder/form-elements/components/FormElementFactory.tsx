@@ -114,7 +114,6 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       return <PasswordInput config={config} {...restProps} />;
 
     case 'name':
-    case 'name-input':
       return (
         <NameInput
           config={config}

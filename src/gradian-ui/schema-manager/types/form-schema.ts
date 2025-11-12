@@ -6,8 +6,8 @@ export interface FormField {
   name: string;
   label: string;
   sectionId: string; // Reference to the section this field belongs to
-  type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name-input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
-  component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name-input' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
+  type: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
+  component: 'text' | 'email' | 'tel' | 'number' | 'password' | 'url' | 'textarea' | 'select' | 'checkbox-list' | 'radio' | 'date' | 'datetime-local' | 'datetime' | 'file' | 'picker' | 'icon' | 'image-text' | 'name' | 'avatar' | 'color-picker' | 'rating' | 'badge' | 'countdown';
   placeholder?: string;
   icon?: string;
   displayType?: 'text' | 'number' | 'currency' | 'percentage' | 'array' | 'computed';

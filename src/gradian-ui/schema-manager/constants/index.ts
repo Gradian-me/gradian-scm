@@ -3,7 +3,7 @@
 export const FIELD_TYPES = [
   { value: 'text', label: 'Text' },
   { value: 'name', label: 'Name (lowercase)' },
-  { value: 'name-input', label: 'Name (alias)' },
+  { value: 'name', label: 'Name (alias)' },
   { value: 'email', label: 'Email' },
   { value: 'number', label: 'Number' },
   { value: 'password', label: 'Password' },
@@ -23,7 +23,6 @@ export const FIELD_TYPES = [
   { value: 'file', label: 'File' },
   { value: 'picker', label: 'Picker' },
   { value: 'icon', label: 'Icon' },
-  { value: 'icon-input', label: 'Icon Input' },
   { value: 'image-text', label: 'Image Text' },
   { value: 'button', label: 'Button' },
   { value: 'input', label: 'Input' },

@@ -160,7 +160,7 @@ export function FieldEditor({
                 />
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="field-name-input" className="text-xs font-medium text-gray-700">
+                    <Label htmlFor="field-name-inputs" className="text-xs font-medium text-gray-700">
                       Field Name
                     </Label>
                     <Button
