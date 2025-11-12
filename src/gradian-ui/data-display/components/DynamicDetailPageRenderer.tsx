@@ -889,7 +889,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                       transition={{ duration: 0.15 }}
                     >
                       <motion.h1
-                        className="text-2xl font-bold text-gray-900"
+                        className="text-2xl font-bold text-gray-900 dark:text-gray-100"
                         whileHover={{ x: 2 }}
                         transition={{ duration: 0.15 }}
                       >
@@ -905,7 +905,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   </motion.div>
                   {headerInfo.subtitle && (
                     <motion.p
-                      className="text-sm text-gray-500 mt-1"
+                      className="text-sm text-gray-500 dark:text-gray-400 mt-1"
                       whileHover={{ x: 2 }}
                       transition={{ duration: 0.15 }}
                     >

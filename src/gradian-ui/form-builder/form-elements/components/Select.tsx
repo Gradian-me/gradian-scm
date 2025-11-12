@@ -447,7 +447,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
       const triggerClasses = cn(
         'flex w-full items-center justify-between rounded-md border bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500',
         triggerSizeClasses[size],
-        disabled && 'pointer-events-none opacity-60',
+        disabled ? 'pointer-events-none opacity-60 cursor-not-allowed' : 'cursor-pointer',
         error
           ? 'border-red-500 focus:ring-red-500'
           : 'border-gray-200 hover:border-violet-400',

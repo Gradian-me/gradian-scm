@@ -503,7 +503,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             {Object.entries(groupedEntities.grouped).map(([companyId, companyEntities]) => {
               const companyInfo = getCompanyInfo(companyId);
               return (
-                <AccordionItem key={companyId} value={companyId} className="border border-violet-200 rounded-lg px-2 md:px-4 bg-gray-50 border-b border-b-violet-200">
+                <AccordionItem key={companyId} value={companyId} className="border border-gray-200 dark:border-gray-500 rounded-lg px-2 md:px-4 bg-gray-50 dark:bg-gray-800/30 border-b border-b-gray-200 dark:border-b-gray-500">
                   <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
                     <div className="flex items-center gap-2">
                       {isLoadingCompanies ? (
@@ -520,7 +520,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                           imageSize="lg"
                         />
                       )}
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         ({companyEntities.length} {companyEntities.length === 1 ? 'item' : 'items'})
                       </span>
                     </div>
@@ -530,7 +530,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
                       {companyEntities.map((entity: any, index: number) => (
                         <div key={entity.id} className="relative">
                           {isEditLoading[entity.id] && (
-                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                            <div className="absolute inset-0 bg-white/70 dark:bg-gray-800/30 flex items-center justify-center z-10 rounded-lg">
                               <div className="flex flex-col items-center space-y-2">
                                 <Spinner size="lg" variant="primary" />
                                 <span className="text-sm font-medium text-violet-600">Loading...</span>
@@ -566,11 +566,11 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
             
             {/* Ungrouped entities */}
             {groupedEntities.ungrouped.length > 0 && (
-              <AccordionItem value="ungrouped" className="border border-violet-200 rounded-lg px-2 md:px-4 bg-gray-50 border-b border-b-violet-200">
+              <AccordionItem value="ungrouped" className="border border-violet-200 dark:border-violet-500 rounded-lg px-2 md:px-4 bg-gray-50 dark:bg-gray-800/30 border-b border-b-gray-200 dark:border-b-gray-500">
                 <AccordionTrigger className="hover:no-underline py-3 [&>svg]:text-violet-600">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">Ungrouped</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Ungrouped</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       ({groupedEntities.ungrouped.length} {groupedEntities.ungrouped.length === 1 ? 'item' : 'items'})
                     </span>
                   </div>

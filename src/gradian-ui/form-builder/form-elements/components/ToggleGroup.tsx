@@ -184,7 +184,7 @@ const ToggleGroupComponent = forwardRef<FormElementRef, ToggleGroupProps>(
     const rootClasses = cn(
       'flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-white/60 p-2',
       resolvedOrientation === 'vertical' && 'flex-col',
-      disabled && 'opacity-60 pointer-events-none',
+      disabled && 'opacity-60 pointer-events-none cursor-not-allowed',
       error && 'border-red-500',
       className
     );

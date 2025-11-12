@@ -228,7 +228,7 @@ const InputOTPPrimitive = React.forwardRef<HTMLDivElement, InputOTPPrimitiveProp
                     resendLoading && 'animate-pulse'
                   )}
                 >
-                  {disableResend ? `${remainingTime}s` : resendButtonLabel}
+                  {disableResend ? `Wait to resend code` : resendButtonLabel}
                 </button>
               </div>
             </div>

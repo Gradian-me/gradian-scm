@@ -29,26 +29,26 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ section, className }) 
 
   return (
     <Card className={cn("h-auto bg-white border border-gray-200 shadow-sm", className)}>
-      <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
+      <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
         <div className="flex items-center gap-2">
           {icon && <IconRenderer iconName={icon} className="h-5 w-5 text-gray-600" />}
           <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
         </div>
         {description && (
-          <p className="text-sm text-gray-500 mt-1.5">{description}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{description}</p>
         )}
       </CardHeader>
       <CardContent className="pt-6">
         <div className={gridClasses}>
           {fields.map((field) => (
             <div key={field.id} className="space-y-1">
-              <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
                 {field.icon && (
                   <IconRenderer iconName={field.icon} className="h-4 w-4" />
                 )}
                 {field.label}
               </label>
-              <div className="text-sm text-gray-900">
+              <div className="text-sm text-gray-900 dark:text-gray-100">
                 {formatProfileFieldValue(field)}
               </div>
             </div>

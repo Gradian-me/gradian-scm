@@ -62,7 +62,7 @@ export const ImageText: React.FC<ImageTextProps> = ({
         />
       )}
       {configText && (
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-md font-medium text-gray-900 dark:text-gray-100">
           {configText}
         </span>
       )}

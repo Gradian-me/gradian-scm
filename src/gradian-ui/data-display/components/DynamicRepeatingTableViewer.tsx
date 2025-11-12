@@ -216,7 +216,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         }}
         className="h-auto bg-white border border-gray-200 shadow-sm"
       >
-        <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4">
+        <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
               <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
@@ -293,7 +293,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
             )}
             </div>
           </div>
-          {description && <p className="text-sm text-gray-500 mt-1.5">{description}</p>}
+          {description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{description}</p>}
         </CardHeader>
         <CardContent className="p-0">
           <TableWrapper

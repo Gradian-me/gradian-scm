@@ -92,7 +92,7 @@ export const Toggle = forwardRef<FormElementRef, ToggleProps>(
           className={cn(
             'min-w-[4.5rem] gap-2',
             error && 'border-red-500 focus-visible:ring-red-500 data-[state=on]:border-red-500',
-            disabled && 'pointer-events-none opacity-60',
+            disabled && 'pointer-events-none opacity-60 cursor-not-allowed',
             className
           )}
           {...props}

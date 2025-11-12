@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 ring-offset-background focus:outline-none focus:ring-1 focus:ring-violet-300 focus:ring-offset-1 focus:border-violet-400 data-[state=open]:outline-none data-[state=open]:ring-1 data-[state=open]:ring-violet-300 data-[state=open]:ring-offset-1 data-[state=open]:border-violet-400 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500 [&>span]:line-clamp-1 transition-colors",
+      "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 ring-offset-background focus:outline-none focus:ring-1 focus:ring-violet-300 focus:ring-offset-1 focus:border-violet-400 data-[state=open]:outline-none data-[state=open]:ring-1 data-[state=open]:ring-violet-300 data-[state=open]:ring-offset-1 data-[state=open]:border-violet-400 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500 [&>span]:line-clamp-1 transition-colors",
       className
     )}
     {...props}
@@ -116,7 +116,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm outline-none focus:bg-violet-50 focus:text-violet-900 hover:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors",
+        "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-8 pr-3 text-sm outline-none focus:bg-violet-50 focus:text-violet-900 hover:bg-gray-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed transition-colors",
         className
       )}
     {...props}

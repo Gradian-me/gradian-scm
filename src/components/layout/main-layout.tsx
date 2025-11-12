@@ -131,7 +131,7 @@ export function MainLayout({
               className="h-5 w-5 md:h-6 md:w-6 text-violet-600"
             />
           )}
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100">
             {title}
           </h1>
           {isAdmin && editSchemaPath && (
@@ -283,7 +283,7 @@ export function MainLayout({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50"
+          className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50 dark:bg-gray-800"
           data-scroll-container="main-content"
         >
           <div className="max-w-7xl mx-auto w-full">
