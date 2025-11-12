@@ -26,6 +26,7 @@ export interface SortableSectionProps {
   onFieldMove?: (fieldId: string, direction: 'up' | 'down') => void;
   config?: any;
   currentSchemaId?: string;
+  isIncomplete?: boolean;
 }
 
 export function SortableSection({ 
@@ -42,7 +43,8 @@ export function SortableSection({
   onFieldDelete,
   onFieldMove,
   config,
-  currentSchemaId
+  currentSchemaId,
+  isIncomplete = false
 }: SortableSectionProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [showSchemaDialog, setShowSchemaDialog] = useState(false);
@@ -96,7 +98,13 @@ export function SortableSection({
   return (
     <>
       <div ref={setNodeRef} style={style} className="relative">
-        <Card className={`w-full border border-gray-200 hover:shadow-sm transition-all duration-200 ${isDragging ? 'shadow-lg ring-2 ring-violet-400' : ''}`}>
+        <Card className={`w-full border hover:shadow-sm transition-all duration-200 ${
+          isDragging 
+            ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white' 
+            : isIncomplete 
+              ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
+              : 'border-gray-200 bg-white'
+        }`}>
           <div className="p-3">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -109,7 +117,14 @@ export function SortableSection({
                 </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">{section.title || 'Untitled Section'}</h4>
+                    <h4 className={`text-sm font-semibold truncate ${isIncomplete ? 'text-amber-700' : 'text-gray-900'}`}>
+                      {section.title || 'Untitled Section'}
+                    </h4>
+                    {isIncomplete && (
+                      <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
+                        Incomplete
+                      </Badge>
+                    )}
                     {targetSchemaName ? (
                       <button
                         type="button"
@@ -135,9 +150,16 @@ export function SortableSection({
                         {fields.length} {fields.length === 1 ? 'field' : 'fields'}
                       </Badge>
                     )}
+                    {isIncomplete && fields.length === 0 && !section.isRepeatingSection && (
+                      <span className="text-xs text-amber-600 ml-1">
+                        • No fields are selected
+                      </span>
+                    )}
                   </div>
                   {section.description && (
-                    <p className="text-xs text-gray-500 truncate mt-0.5">{section.description}</p>
+                    <p className={`text-xs truncate mt-0.5 ${isIncomplete ? 'text-amber-600' : 'text-gray-500'}`}>
+                      {section.description}
+                    </p>
                   )}
                 </div>
               </div>

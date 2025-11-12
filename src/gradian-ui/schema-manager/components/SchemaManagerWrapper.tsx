@@ -7,6 +7,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FormAlert } from '@/components/ui/form-alert';
 import { SchemaCardGrid, SchemaCardSkeletonGrid } from './SchemaCardGrid';
 import { CreateSchemaDialog } from './CreateSchemaDialog';
 import { ConfirmationMessage } from '@/gradian-ui/form-builder';
@@ -35,6 +36,8 @@ export function SchemaManagerWrapper() {
     openCreateDialog,
     closeCreateDialog,
     handleCreate,
+    error,
+    clearError,
   } = useSchemaManagerPage();
 
   const handleViewSchema = (schema: FormSchema) => router.push(`/page/${schema.id}`);
@@ -77,6 +80,16 @@ export function SchemaManagerWrapper() {
   return (
     <MainLayout title="Schema Builder" subtitle="Create and manage dynamic form schemas">
       <div className="space-y-6">
+        {error && (
+          <FormAlert
+            type="error"
+            message={error.message}
+            statusCode={error.statusCode}
+            dismissible
+            onDismiss={clearError}
+          />
+        )}
+
         <div className="flex items-center justify-between gap-2 mb-2">
           <Button variant="outline" onClick={() => router.push('/builder')}>
             <ArrowLeft className="h-4 w-4 mr-2" />

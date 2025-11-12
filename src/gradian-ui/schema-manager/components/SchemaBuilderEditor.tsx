@@ -16,6 +16,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { SchemaNotFound } from './SchemaNotFound';
 import { FormAlert } from '@/components/ui/form-alert';
+import { MessageBoxContainer } from '@/gradian-ui/layout/message-box';
 
 interface SchemaBuilderEditorProps {
   schemaId?: string;
@@ -24,6 +25,8 @@ interface SchemaBuilderEditorProps {
   onBack?: () => void;
   title?: string;
   subtitle?: string;
+  apiResponse?: any;
+  onClearResponse?: () => void;
 }
 
 export function SchemaBuilderEditor({
@@ -32,7 +35,9 @@ export function SchemaBuilderEditor({
   saveSchema,
   onBack,
   title,
-  subtitle = 'Schema Builder'
+  subtitle = 'Schema Builder',
+  apiResponse,
+  onClearResponse,
 }: SchemaBuilderEditorProps) {
   const router = useRouter();
   const [schema, setSchema] = useState<FormSchema | null>(null);
@@ -56,6 +61,8 @@ export function SchemaBuilderEditor({
     try {
       setLoading(true);
       setLoadError(false);
+      // Clear previous API response when starting a new load
+      onClearResponse?.();
       const data = await fetchSchema(id);
       setSchema(data);
       setOriginalSchema(JSON.parse(JSON.stringify(data))); // Deep clone
@@ -75,12 +82,19 @@ export function SchemaBuilderEditor({
 
     try {
       setSaving(true);
+      setSaveFeedback(null);
+      // Clear previous API response when starting a new save
+      onClearResponse?.();
       await saveSchema(schemaId, schema);
       setOriginalSchema(JSON.parse(JSON.stringify(schema))); // Update original schema
-      setSaveFeedback({ type: 'success', message: 'Schema saved successfully!' });
+      // FormAlert will only show if MessageBoxContainer doesn't have messages
+      // The MessageBoxContainer will handle API response messages if they exist
     } catch (error) {
       console.error('Error saving schema:', error);
-      setSaveFeedback({ type: 'error', message: 'Error saving schema' });
+      // Show error feedback if no API response messages are available
+      if (!apiResponse?.messages && !apiResponse?.message) {
+        setSaveFeedback({ type: 'error', message: 'Error saving schema' });
+      }
     } finally {
       setSaving(false);
     }
@@ -307,6 +321,15 @@ export function SchemaBuilderEditor({
   return (
     <MainLayout title={title || `Editing: ${schema.plural_name}`} subtitle={subtitle}>
       <div className="space-y-6">
+        {/* Display API response messages if available */}
+        {apiResponse && (
+          <MessageBoxContainer
+            response={apiResponse}
+            variant={apiResponse.success ? 'success' : 'error'}
+            dismissible
+            onDismiss={onClearResponse}
+          />
+        )}
         {saveFeedback && (
           <FormAlert
             type={saveFeedback.type}

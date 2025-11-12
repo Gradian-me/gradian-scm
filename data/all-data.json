@@ -978,16 +978,16 @@
       "companyId": "01K94V8K0RJS7D9K43F2VBTSVG",
       "status": [
         {
-          "id": "pending",
-          "label": "Pending",
-          "icon": "Clock",
-          "color": "warning"
+          "id": "active",
+          "label": "Active",
+          "icon": "CheckCircle",
+          "color": "success"
         }
       ],
       "rating": 5,
       "id": "01K9ABA6MQ9K64MY7M4AEBCAP2",
       "createdAt": "2025-11-05T15:49:06.366Z",
-      "updatedAt": "2025-11-10T11:57:03.413Z",
+      "updatedAt": "2025-11-10T15:16:03.480Z",
       "avatarUrl": "https://media.licdn.com/dms/image/v2/D4D03AQFqEf1NfTjObg/profile-displayphoto-crop_800_800/B4DZlbvgWeJMAM-/0/1758180806291?e=1764201600&v=beta&t=9qdjZhqjahZqjMh_oT9QKsjgz6bbTb5Bw0BvmXu9Rag",
       "password": "$argon2id$v=19$m=32768,t=3,p=4$lJUuCAnQyRK7q2GbUEpgQg$yoNrrPCRDTJNwVj9aDDDZ0c4reiBNGcfSHEZ6Hennqg",
       "hashType": "argon2",

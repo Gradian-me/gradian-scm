@@ -67,8 +67,9 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
       'w-full direction-auto px-3 py-2 border rounded-lg border-gray-300 bg-white text-sm text-gray-900 ring-offset-background placeholder:text-gray-400 transition-colors',
       'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400',
       'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500',
+      'dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-100 dark:placeholder:text-gray-400 dark:ring-offset-gray-900 dark:focus-visible:ring-violet-500 dark:focus-visible:border-violet-500 dark:disabled:bg-gray-800/30 dark:disabled:text-gray-500',
       error
-        ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500'
+        ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500 dark:border-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:border-red-500'
         : '',
       className
     );
@@ -90,8 +91,8 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
             htmlFor={fieldName}
             className={cn(
               'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              required && 'after:content-["*"] after:ml-1 after:text-red-500'
+              error ? 'text-red-700 dark:text-red-400' : 'text-gray-700 dark:text-gray-300',
+              required && 'after:content-["*"] after:ml-1 after:text-red-500 dark:after:text-red-400'
             )}
           >
             {fieldLabel}
@@ -110,7 +111,7 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
             placeholder={fieldPlaceholder}
             maxLength={maxLength || config.validation?.maxLength}
             minLength={minLength || config.validation?.minLength}
-            required={required || config.validation?.required}
+            required={required ?? config.required ?? config.validation?.required ?? false}
             disabled={disabled}
             autoComplete="email"
             className={cn(inputClasses, hasValue && !canCopy && 'pr-10', hasValue && canCopy && 'pr-20')}
@@ -137,12 +138,12 @@ export const EmailInput = forwardRef<FormElementRef, TextInputProps>(
           </div>
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400" role="alert">
             {error}
           </p>
         )}
         {config.validation?.maxLength && (
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {value.length}/{config.validation.maxLength}
           </p>
         )}

@@ -31,30 +31,43 @@ export const FormContent: React.FC<FormContentProps> = ({
 
   return (
     <div className={contentClasses} {...props}>
-      {children || fields.map((field) => (
-        <div
-          key={field.name}
-          className={cn(
-            layout?.columns && layout.columns > 1 ? 'space-y-3' : '',
-            field.layout?.hidden ? 'hidden' : ''
-          )}
-          style={{
-            order: (field as any).order ?? field.layout?.order,
-            width: field.layout?.width,
-          }}
-        >
-          <FormElementFactory
-            config={field}
-            value={values[field.name]}
-            onChange={(value) => onChange(field.name, value)}
-            onBlur={() => onBlur(field.name)}
-            onFocus={() => onFocus(field.name)}
-            error={errors[field.name]}
-            disabled={disabled || field.behavior?.disabled}
-            required={field.validation?.required}
-          />
-        </div>
-      ))}
+      {children || fields.map((field) => {
+        // Skip hidden fields
+        if ((field as any).hidden || field.layout?.hidden) {
+          return null;
+        }
+
+        // Use defaultValue if value is undefined, null, or empty string
+        let fieldValue = values[field.name];
+        if ((fieldValue === undefined || fieldValue === null || fieldValue === '') && (field as any).defaultValue !== undefined) {
+          fieldValue = (field as any).defaultValue;
+        }
+
+        return (
+          <div
+            key={field.name}
+            className={cn(
+              layout?.columns && layout.columns > 1 ? 'space-y-3' : '',
+              field.layout?.hidden ? 'hidden' : ''
+            )}
+            style={{
+              order: (field as any).order ?? field.layout?.order,
+              width: field.layout?.width,
+            }}
+          >
+            <FormElementFactory
+              config={field}
+              value={fieldValue}
+              onChange={(value) => onChange(field.name, value)}
+              onBlur={() => onBlur(field.name)}
+              onFocus={() => onFocus(field.name)}
+              error={errors[field.name]}
+              disabled={disabled || field.behavior?.disabled || (field as any).disabled}
+              required={field.required ?? field.validation?.required ?? false}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

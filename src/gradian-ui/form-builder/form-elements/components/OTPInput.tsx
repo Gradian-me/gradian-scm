@@ -422,7 +422,7 @@ export const InputOTPSlot = React.forwardRef<HTMLInputElement, InputOTPSlotProps
         onFocus={handleFocus}
         onPaste={handlePaste}
         className={cn(
-          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-transparent text-sm font-semibold leading-none text-center text-gray-900 transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
+          'flex h-10 w-10 items-center justify-center border-r border-gray-200 bg-black/85 text-md text-white font-semibold leading-none text-center transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 last:border-r-0',
           className
         )}
         {...rest}
@@ -455,6 +455,7 @@ export const InputOTP = React.forwardRef<FormElementRef, OTPInputProps>((props, 
 
   const resolvedLabel = label ?? config?.label;
   const resolvedDescription = description ?? config?.description;
+  // Prioritize required prop, then config.required, then config.validation?.required
   const resolvedRequired =
     typeof required !== 'undefined'
       ? required

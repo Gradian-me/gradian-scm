@@ -42,10 +42,21 @@ export const FormSection: React.FC<FormSectionProps> = ({
 
   const renderFields = (fieldsToRender: typeof fields, itemIndex?: number) => {
     return fieldsToRender.map((field) => {
+      // Skip hidden fields
+      if (field.hidden || (field as any).layout?.hidden) {
+        return null;
+      }
+
       const fieldName = itemIndex !== undefined ? `${field.name}[${itemIndex}]` : field.name;
-      const fieldValue = itemIndex !== undefined 
+      let fieldValue = itemIndex !== undefined 
         ? values[field.name]?.[itemIndex] 
         : values[field.name];
+      
+      // Use defaultValue if value is undefined, null, or empty string
+      if ((fieldValue === undefined || fieldValue === null || fieldValue === '') && field.defaultValue !== undefined) {
+        fieldValue = field.defaultValue;
+      }
+      
       const fieldError = itemIndex !== undefined 
         ? errors[`${field.name}[${itemIndex}]`] || errors[field.name]?.[itemIndex]
         : errors[field.name];

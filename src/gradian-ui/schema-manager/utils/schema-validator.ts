@@ -39,8 +39,9 @@ export function validateField(
 ): ValidationErrorDetail[] {
   const errors: ValidationErrorDetail[] = [];
 
-  // Required validation
-  if (field.required || field.validation?.required) {
+  // Required validation - prioritize field.required over field.validation?.required
+  const isRequired = field.required ?? field.validation?.required ?? false;
+  if (isRequired) {
     if (value === undefined || value === null || value === '') {
       errors.push({
         field: field.name,

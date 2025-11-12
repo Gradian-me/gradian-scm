@@ -94,7 +94,7 @@ export const RadioGroup = forwardRef<FormElementRef, RadioProps>(
                     onChange={handleChange}
                     onBlur={handleBlur}
                     onFocus={handleFocus}
-                    required={required || config.validation?.required}
+                    required={required ?? config.required ?? config.validation?.required ?? false}
                     disabled={disabled || option.disabled}
                     className={cn(
                       // Base styles matching checkbox.tsx (lines 14-15) - adapted for radio

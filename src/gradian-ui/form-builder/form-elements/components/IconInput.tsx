@@ -114,7 +114,7 @@ export const IconInput = forwardRef<FormElementRef, IconInputProps>(
             onBlur={handleBlur}
             onFocus={handleFocus}
             placeholder={fieldPlaceholder}
-            required={required || config.validation?.required}
+            required={required ?? config.required ?? config.validation?.required ?? false}
             disabled={disabled}
             className={inputClasses}
             {...props}

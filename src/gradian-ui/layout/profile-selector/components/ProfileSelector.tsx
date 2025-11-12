@@ -16,6 +16,7 @@ export const ProfileSelector: React.FC<ProfileSelectorProps> = ({
   onProfileCreate,
   onProfileEdit,
   onProfileDelete,
+  onChangePassword,
   className,
   ...props
 }) => {
@@ -43,6 +44,7 @@ export const ProfileSelector: React.FC<ProfileSelectorProps> = ({
             onProfileCreate={onProfileCreate}
             onProfileEdit={onProfileEdit}
             onProfileDelete={onProfileDelete}
+            onChangePassword={onChangePassword}
             config={config}
           />
         );
@@ -95,6 +97,7 @@ export const ProfileSelector: React.FC<ProfileSelectorProps> = ({
             onProfileCreate={onProfileCreate}
             onProfileEdit={onProfileEdit}
             onProfileDelete={onProfileDelete}
+            onChangePassword={onChangePassword}
             config={config}
           />
         );

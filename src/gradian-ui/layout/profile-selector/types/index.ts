@@ -10,6 +10,7 @@ export interface ProfileSelectorProps extends BaseComponentProps {
   onProfileCreate?: () => void;
   onProfileEdit?: (profile: UserProfile) => void;
   onProfileDelete?: (profile: UserProfile) => void;
+  onChangePassword?: () => void;
 }
 
 export interface ProfileSelectorConfig {
@@ -63,6 +64,7 @@ export interface ProfileDropdownProps extends BaseComponentProps {
   onProfileCreate?: () => void;
   onProfileEdit?: (profile: UserProfile) => void;
   onProfileDelete?: (profile: UserProfile) => void;
+  onChangePassword?: () => void;
   config: ProfileSelectorConfig;
 }
 

@@ -16,6 +16,7 @@ export const useSchemaManagerPage = () => {
   const [activeTab, setActiveTab] = useState<SchemaTab>('system');
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState>({ open: false, schema: null });
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [error, setError] = useState<{ message: string; statusCode?: number } | null>(null);
 
   const fetchSchemas = useCallback(async (isRefresh = false) => {
     try {
@@ -24,16 +25,28 @@ export const useSchemaManagerPage = () => {
       } else {
         setLoading(true);
       }
+      setError(null);
 
       const response = await fetch(config.schemaApi.basePath);
       const result = await response.json();
 
-      if (result.success) {
-        setSchemas(result.data as FormSchema[]);
+      if (!response.ok || !result.success) {
+        const errorMessage = result.error || result.message || `Failed to fetch schemas (${response.status})`;
+        setError({
+          message: errorMessage,
+          statusCode: response.status,
+        });
+        console.error('Failed to fetch schemas:', errorMessage);
       } else {
-        console.error('Failed to fetch schemas:', result.error);
+        setSchemas(result.data as FormSchema[]);
+        setError(null);
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error fetching schemas';
+      setError({
+        message: errorMessage,
+        statusCode: 500,
+      });
       console.error('Error fetching schemas:', error);
     } finally {
       setLoading(false);
@@ -176,5 +189,7 @@ export const useSchemaManagerPage = () => {
     openCreateDialog,
     closeCreateDialog,
     handleCreate,
+    error,
+    clearError: () => setError(null),
   };
 };

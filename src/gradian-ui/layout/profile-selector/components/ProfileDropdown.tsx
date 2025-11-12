@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { ProfileDropdownProps } from '../types';
 import { cn } from '../../../shared/utils';
-import { Settings, User, LogOut, ChevronDown } from 'lucide-react';
+import { Settings, User, LogOut, ChevronDown, Key } from 'lucide-react';
 
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   profiles,
@@ -12,6 +12,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   onProfileCreate,
   onProfileEdit,
   onProfileDelete,
+  onChangePassword,
   config,
   className,
   ...props
@@ -236,6 +237,20 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
               <User className={menuIconClasses} />
               <span>Profile</span>
             </div>
+
+            {/* Change Password */}
+            {onChangePassword && (
+              <div
+                onClick={() => {
+                  onChangePassword();
+                  setIsOpen(false);
+                }}
+                className={menuItemClasses}
+              >
+                <Key className={menuIconClasses} />
+                <span>Change Password</span>
+              </div>
+            )}
 
             {/* Settings */}
             <div

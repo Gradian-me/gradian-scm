@@ -2559,6 +2559,7 @@
         "type": "text",
         "component": "text",
         "placeholder": "Enter company",
+        "defaultValue": "CinnaGen",
         "required": false,
         "colSpan": 1,
         "order": 6
@@ -2579,6 +2580,7 @@
           { "id": "inactive", "label": "Inactive", "icon": "Slash", "color": "muted" }
         ],
         "validation": { "required": true },
+        "defaultValue": "pending",
         "colSpan": 1,
         "order": 7
       }

@@ -181,9 +181,15 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   }, [isRelationBased, relatedEntities, onChange, section.id, targetSchemaData, values]);
   
   
+  // Check if sections are collapsible (default to true for backward compatibility)
+  const isCollapsible = schema.isCollapsibleSections !== false;
+  
   // Use controlled state if provided, otherwise use internal state
   const [internalIsExpanded, setInternalIsExpanded] = useState(initialState === 'expanded');
-  const isExpanded = controlledIsExpanded !== undefined ? controlledIsExpanded : internalIsExpanded;
+  // If not collapsible, always keep expanded
+  const isExpanded = isCollapsible 
+    ? (controlledIsExpanded !== undefined ? controlledIsExpanded : internalIsExpanded)
+    : true;
   
   // Get section-level error
   const sectionError = errors?.[section.id];
@@ -264,6 +270,11 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         {fieldsToRender.map((field, index) => {
           if (!field) return null;
 
+          // Skip hidden fields
+          if (field.hidden || (field as any).layout?.hidden) {
+            return null;
+          }
+
           // Build name/value/error/touched for normal vs repeating sections
           const isItem = itemIndex !== undefined && isRepeatingSection;
 
@@ -276,9 +287,14 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           const nestedErrors = (errors as any) || {};
           const nestedTouched = (touched as any) || {};
 
-          const fieldValue = isItem 
+          let fieldValue = isItem 
             ? nestedValues?.[section.id]?.[itemIndex]?.[field.name]
             : nestedValues?.[field.name];
+          
+          // Use defaultValue if value is undefined, null, or empty string
+          if ((fieldValue === undefined || fieldValue === null || fieldValue === '') && field.defaultValue !== undefined) {
+            fieldValue = field.defaultValue;
+          }
 
           const fieldError = isItem 
             ? (nestedErrors?.[section.id]?.[itemIndex]?.[field.name] 
@@ -475,7 +491,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       const displayField = entity.name || entity.title || entity.id || `Item ${index + 1}`;
       return (
         <div className="flex items-center justify-between gap-2">
-          <div className="text-sm text-gray-900">
+          <div className="text-sm text-gray-900 dark:text-gray-100">
             {displayField}
           </div>
           {actionButtons && (
@@ -580,7 +596,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             fallback={getInitials(avatarField)}
             size="md"
             variant="primary"
-            className="border border-gray-200 shrink-0"
+            className="border border-gray-200 dark:border-gray-700 shrink-0"
           >
             {getInitials(avatarField)}
           </Avatar>
@@ -591,17 +607,17 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
               {hasCodeField && codeField && (
                 <CodeBadge code={codeField} />
               )}
-              <h4 className="text-sm font-semibold text-gray-900 truncate flex-1 min-w-0">
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate flex-1 min-w-0">
                 {title}
               </h4>
             </div>
             {subtitle && (
-              <p className="text-xs text-gray-500 truncate mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                 {subtitle}
               </p>
             )}
             {description && (
-              <p className="text-xs text-gray-600 mt-1.5 line-clamp-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 line-clamp-2">
                 {description}
               </p>
             )}
@@ -664,21 +680,25 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         <>
           <Card className={cn(
             'border border-gray-200 rounded-2xl bg-gray-50/50',
-            styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent',
-            styling?.variant === 'card' && 'shadow-sm bg-white'
+            'dark:border-gray-700 dark:bg-gray-800/30',
+            styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent dark:bg-transparent',
+            styling?.variant === 'card' && 'shadow-sm bg-white dark:bg-gray-800/50 dark:border-gray-700'
           )}>
             <CardHeader 
-              className="pb-4 px-6 pt-4 cursor-pointer hover:bg-gray-100/50 transition-colors"
-              onClick={toggleExpanded}
+              className={cn(
+                "pb-4 px-6 pt-4 transition-colors",
+                isCollapsible && "cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+              )}
+              onClick={isCollapsible ? toggleExpanded : undefined}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+                  <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100">{title}</CardTitle>
+                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
                     {itemsCount}
                   </span>
                   {headerSectionMessage && (
-                    <span className="text-sm text-red-600 mt-0.5" role="alert">
+                    <span className="text-sm text-red-600 dark:text-red-400 mt-0.5" role="alert">
                       • {headerSectionMessage}
                     </span>
                   )}
@@ -715,32 +735,35 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                       Select {targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="p-1 h-6 w-6 hover:bg-gray-200"
-                    onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
-                  </Button>
+                  {isCollapsible && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="p-1 h-6 w-6 hover:bg-gray-200"
+                      onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
               {description && (
-                <p className="text-xs text-gray-600 mt-1">{description}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{description}</p>
               )}
             </CardHeader>
             
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  layout
-                  key="relation-section-content"
-                  initial={{ height: 0, opacity: 0 }}
+            {isCollapsible ? (
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    layout
+                    key="relation-section-content"
+                    initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
@@ -753,7 +776,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                           {[1, 2, 3].map((i) => (
                             <div
                               key={i}
-                              className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                              className="rounded-xl bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700 overflow-hidden"
                             >
                               <div className="px-4 sm:px-6 py-4">
                                 <div className="flex items-start justify-between gap-3 w-full">
@@ -786,7 +809,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                           ))}
                         </div>
                       ) : itemsCount === 0 ? (
-                        <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800/30 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
                           <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
                         </div>
                       ) : (
@@ -828,7 +851,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                             return (
                               <div
                                 key={(entity as any).id || `entity-${index}`}
-                                className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                                className="rounded-xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
                               >
                                 <div className="px-4 sm:px-6 py-4">
                                   {renderEntitySummary(entity, index + 1, actionButtons)}
@@ -871,72 +894,180 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                 </motion.div>
               )}
             </AnimatePresence>
+          ) : (
+            <CardContent className="px-6 pb-6">
+              <div className="space-y-4">
+                {isLoadingRelations ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                      >
+                        <div className="px-4 sm:px-6 py-4">
+                          <div className="flex items-start justify-between gap-3 w-full">
+                            <div className="flex items-start gap-3 flex-1 min-w-0">
+                              <Skeleton className="h-10 w-10 rounded-full" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-4 w-32" />
+                                <Skeleton className="h-3 w-24" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : itemsCount === 0 ? (
+                  <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                    <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {itemsToDisplay.map((entity, index) => {
+                      const relation = relations.find(r => r.targetId === (entity as any).id);
+                      const actionButtons = (
+                        <>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (relation) handleEditEntity((entity as any).id, relation.id);
+                            }}
+                            className="h-8 w-8"
+                            title="Edit"
+                            disabled={disabled}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {relation && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => handleDeleteClick(relation.id, e)}
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Delete"
+                              disabled={disabled}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </>
+                      );
+                      return (
+                        <div
+                          key={(entity as any).id || `entity-${index}`}
+                          className="rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                        >
+                          <div className="px-4 sm:px-6 py-4">
+                            {renderEntitySummary(entity, index + 1, actionButtons)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Add button - only show if addType is 'addOnly' or 'canSelectFromData' */}
+                {onAddRepeatingItem && addType !== 'mustSelectFromData' && (
+                  <div className="space-y-2">
+                    <div className="flex justify-center mb-4">
+                      <AddButtonFull
+                        label={section.repeatingConfig?.addButtonText || `Add ${title}`}
+                        onClick={onAddRepeatingItem}
+                        disabled={disabled || !currentEntityId}
+                        loading={isAddingItem}
+                      />
+                    </div>
+                    {addItemError && (
+                      <FormAlert 
+                        type="warning" 
+                        message={addItemError}
+                        dismissible={false}
+                      />
+                    )}
+                    {!currentEntityId && (
+                      <FormAlert 
+                        type="info" 
+                        message="Please save the form first before adding related items"
+                        dismissible={false}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          )}
           </Card>
           
-                    {/* Edit Modal for related entities */}
-                    {editEntityId && targetSchema && (
-                      <FormModal
-                        schemaId={targetSchema}
-                        mode="edit"
-                        entityId={editEntityId}
-                        onSuccess={() => {
-                          setEditEntityId(null);
-                          setEditRelationId(null);
-                          // Refresh relations using the shared fetch function
-                          fetchRelations();
-                        }}
-                        onClose={() => {
-                          setEditEntityId(null);
-                          setEditRelationId(null);
-                        }}
-                      />
-                    )}
-                    
-                    {/* Delete Confirmation Dialog */}
-                    <ConfirmationMessage
-                      isOpen={deleteConfirmDialog.open}
-                      onOpenChange={(open) => setDeleteConfirmDialog({ open, relationId: deleteConfirmDialog.relationId })}
-                      title={section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove Relation' : 'Delete Item'}
-                      message={
-                        section.repeatingConfig?.deleteType === 'relationOnly'
-                          ? 'Are you sure you want to remove this relation? The related item will remain but will no longer be linked to this record.'
-                          : 'Are you sure you want to delete this item and its relation? This action cannot be undone.'
-                      }
-                      variant={section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive'}
-                      buttons={[
-                        {
-                          label: 'Cancel',
-                          variant: 'outline',
-                          action: () => setDeleteConfirmDialog({ open: false, relationId: null }),
-                        },
-                        {
-                          label: section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove' : 'Delete',
-                          variant: section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive',
-                          icon: 'Trash2',
-                          action: () => {
-                            if (deleteConfirmDialog.relationId) {
-                              handleRemoveRelation(deleteConfirmDialog.relationId);
-                            }
-                          },
-                        },
-                      ]}
-                    />
-                    
-                    {/* Popup Picker for selecting existing items */}
-                    {targetSchema && (addType === 'canSelectFromData' || addType === 'mustSelectFromData') && (
-                      <PopupPicker
-                        isOpen={isPickerOpen}
-                        onClose={() => setIsPickerOpen(false)}
-                        schemaId={targetSchema}
-                        schema={targetSchemaData || undefined}
-                        onSelect={handleSelectFromPicker}
-                        title={`Select ${targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}`}
-                        description={`Choose an existing ${targetSchemaData?.singular_name || 'item'} to link to this record`}
-                        excludeIds={shouldExcludeIds ? selectedIds : undefined}
-                        canViewList={true}
-                        viewListUrl={`/page/${targetSchema}`}
-                      />
-                    )}
+          {/* Edit Modal for related entities */}
+          {editEntityId && targetSchema && (
+            <FormModal
+              schemaId={targetSchema}
+              mode="edit"
+              entityId={editEntityId}
+              onSuccess={() => {
+                setEditEntityId(null);
+                setEditRelationId(null);
+                // Refresh relations using the shared fetch function
+                fetchRelations();
+              }}
+              onClose={() => {
+                setEditEntityId(null);
+                setEditRelationId(null);
+              }}
+            />
+          )}
+          
+          {/* Delete Confirmation Dialog */}
+          <ConfirmationMessage
+            isOpen={deleteConfirmDialog.open}
+            onOpenChange={(open) => setDeleteConfirmDialog({ open, relationId: deleteConfirmDialog.relationId })}
+            title={section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove Relation' : 'Delete Item'}
+            message={
+              section.repeatingConfig?.deleteType === 'relationOnly'
+                ? 'Are you sure you want to remove this relation? The related item will remain but will no longer be linked to this record.'
+                : 'Are you sure you want to delete this item and its relation? This action cannot be undone.'
+            }
+            variant={section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive'}
+            buttons={[
+              {
+                label: 'Cancel',
+                variant: 'outline',
+                action: () => setDeleteConfirmDialog({ open: false, relationId: null }),
+              },
+              {
+                label: section.repeatingConfig?.deleteType === 'relationOnly' ? 'Remove' : 'Delete',
+                variant: section.repeatingConfig?.deleteType === 'relationOnly' ? 'default' : 'destructive',
+                icon: 'Trash2',
+                action: () => {
+                  if (deleteConfirmDialog.relationId) {
+                    handleRemoveRelation(deleteConfirmDialog.relationId);
+                  }
+                },
+              },
+            ]}
+          />
+          
+          {/* Popup Picker for selecting existing items */}
+          {targetSchema && (addType === 'canSelectFromData' || addType === 'mustSelectFromData') && (
+            <PopupPicker
+              isOpen={isPickerOpen}
+              onClose={() => setIsPickerOpen(false)}
+              schemaId={targetSchema}
+              schema={targetSchemaData || undefined}
+              onSelect={handleSelectFromPicker}
+              title={`Select ${targetSchemaData?.plural_name || targetSchemaData?.singular_name || targetSchema}`}
+              description={`Choose an existing ${targetSchemaData?.singular_name || 'item'} to link to this record`}
+              excludeIds={shouldExcludeIds ? selectedIds : undefined}
+              canViewList={true}
+              viewListUrl={`/page/${targetSchema}`}
+            />
+          )}
         </>
       );
     }
@@ -955,48 +1086,51 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-                <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+                <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100">{title}</CardTitle>
+                <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
                   {(repeatingItems || []).length}
                 </span>
                 {displaySectionError && (
-                  <span className="text-sm text-red-600" role="alert">
+                  <span className="text-sm text-red-600 dark:text-red-400" role="alert">
                     • {displaySectionError}
                   </span>
                 )}
               </div>
               {description && (
-                <p className="text-xs text-gray-600 mt-1">{description}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{description}</p>
               )}
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-            className="p-1 h-6 w-6 hover:bg-gray-200"
-            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-            >
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
+            {isCollapsible && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="p-1 h-6 w-6 hover:bg-gray-200"
+                onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+              >
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </Button>
+            )}
           </div>
         </CardHeader>
         
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              layout
-              key="inline-repeating-section-content"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="overflow-hidden"
-            >
-              <CardContent className="px-6 pb-6">
+        {isCollapsible ? (
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                layout
+                key="inline-repeating-section-content"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <CardContent className="px-6 pb-6">
                 <div className="space-y-4">
                   {(repeatingItems || []).length === 0 ? (
                     <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
@@ -1007,10 +1141,10 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
                       {(repeatingItems || []).map((item, index) => (
                         <div
                           key={item.id || `item-${index}`}
-                          className="rounded-xl bg-white border border-gray-200 shadow-sm"
+                            className="rounded-xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm"
                         >
                           <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                               {section.repeatingConfig?.itemTitle 
                                 ? section.repeatingConfig.itemTitle(index + 1)
                                 : `${title} ${index + 1}`
@@ -1063,71 +1197,153 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
+      ) : (
+        <CardContent className="px-6 pb-6">
+          <div className="space-y-4">
+            {(repeatingItems || []).length === 0 ? (
+              <div className="text-center py-8 text-gray-500 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                <p>{section.repeatingConfig?.emptyMessage || 'No items added yet'}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {(repeatingItems || []).map((item, index) => (
+                  <div
+                    key={item.id || `item-${index}`}
+                            className="rounded-xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between px-4 sm:px-6 pt-4">
+                      <div className="text-sm font-medium text-gray-900">
+                        {section.repeatingConfig?.itemTitle 
+                          ? section.repeatingConfig.itemTitle(index + 1)
+                          : `${title} ${index + 1}`
+                        }
+                      </div>
+                      {onRemoveRepeatingItem && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onRemoveRepeatingItem(index)}
+                          className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200 p-2"
+                          disabled={disabled}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="px-4 sm:px-6 pb-4">
+                      <div className={gridClasses}>
+                        {renderFields(fields, index)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {onAddRepeatingItem && (
+              <div className="space-y-2">
+                <div className="flex justify-center mb-4">
+                  <AddButtonFull
+                    label={section.repeatingConfig?.addButtonText || `Add ${title}`}
+                    onClick={onAddRepeatingItem}
+                    disabled={disabled}
+                    loading={isAddingItem}
+                  />
+                </div>
+                {addItemError && (
+                  <FormAlert 
+                    type="warning" 
+                    message={addItemError}
+                    dismissible={false}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      )}
       </Card>
     );
   }
 
   return (
-    <Card className={cn(
-      'border border-gray-200 rounded-2xl bg-gray-50/50',
-      styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent',
-      styling?.variant === 'card' && 'shadow-sm bg-white'
-    )}>
-      <CardHeader 
-        className="pb-4 px-6 pt-4 cursor-pointer hover:bg-gray-100/50 transition-colors"
-        onClick={toggleExpanded}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base font-medium text-gray-900">{title}</CardTitle>
-              {displaySectionError && (
-                <span className="text-sm text-red-600" role="alert">
-                  • {displaySectionError}
-                </span>
-              )}
+      <Card className={cn(
+        'border border-gray-200 dark:border-gray-700 rounded-2xl bg-gray-50/50 dark:bg-gray-800/30',
+        'dark:border-gray-700 dark:bg-gray-800/30',
+        styling?.variant === 'minimal' && 'border-0 shadow-none bg-transparent dark:bg-transparent',
+        styling?.variant === 'card' && 'shadow-sm bg-white dark:bg-gray-800/50 dark:border-gray-700'
+      )}>
+        <CardHeader 
+          className={cn(
+            "pb-4 px-6 pt-4 transition-colors",
+            isCollapsible && "cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-700/50 rounded-t-2xl"
+          )}
+          onClick={isCollapsible ? toggleExpanded : undefined}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100">{title}</CardTitle>
+                {displaySectionError && (
+                  <span className="text-sm text-red-600 dark:text-red-400" role="alert">
+                    • {displaySectionError}
+                  </span>
+                )}
             </div>
             {description && (
-              <p className="text-xs text-gray-600 mt-1">{description}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{description}</p>
             )}
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="p-1 h-6 w-6 hover:bg-gray-200"
-            onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
-          >
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </Button>
+          {isCollapsible && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="p-1 h-6 w-6 hover:bg-gray-200"
+              onClick={(e) => { e.stopPropagation(); toggleExpanded(); }}
+            >
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
       </CardHeader>
       
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            layout
-            key="standard-section-content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <CardContent className="px-6 pb-6">
-              <div className={sectionClasses}>
-                <div className={gridClasses}>
-                  {renderFields(fields)}
+      {isCollapsible ? (
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              layout
+              key="standard-section-content"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <CardContent className="px-6 pb-6">
+                <div className={sectionClasses}>
+                  <div className={gridClasses}>
+                    {renderFields(fields)}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </CardContent>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      ) : (
+        <CardContent className="px-6 pb-6">
+          <div className={sectionClasses}>
+            <div className={gridClasses}>
+              {renderFields(fields)}
+            </div>
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 };

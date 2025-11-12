@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FormAlert } from '@/components/ui/form-alert';
@@ -12,6 +11,47 @@ import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-ut
 import type { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { config } from '@/lib/config';
 import { useCompanyStore } from '@/stores/company.store';
+
+type Testimonial = {
+  avatarSrc: string;
+  name: string;
+  handle: string;
+  text: string;
+};
+
+const sampleTestimonials: Testimonial[] = [
+  {
+    avatarSrc: 'https://randomuser.me/api/portraits/women/57.jpg',
+    name: 'Sarah Chen',
+    handle: 'Supply Chain Director',
+    text: 'Gradian has revolutionized our business management. Real-time tracking and inventory visibility have reduced our operational costs by 30%.',
+  },
+  {
+    avatarSrc: 'https://randomuser.me/api/portraits/men/64.jpg',
+    name: 'Marcus Johnson',
+    handle: 'Operations Manager',
+    text: 'The comprehensive dashboard and analytics in Gradian give us complete visibility into our business. Compliance tracking has never been easier.',
+  },
+  {
+    avatarSrc: 'https://randomuser.me/api/portraits/men/32.jpg',
+    name: 'David Martinez',
+    handle: 'Procurement Lead',
+    text: "Gradian's intuitive interface and powerful features make managing complex business operations effortless. It's transformed our workflow completely.",
+  },
+];
+
+const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial; delay: string }) => (
+  <div
+    className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}
+  >
+    <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
+    <div className="text-sm leading-snug">
+      <p className="flex items-center gap-1 font-medium">{testimonial.name}</p>
+      <p className="text-muted-foreground">{testimonial.handle}</p>
+      <p className="mt-1 text-foreground/80">{testimonial.text}</p>
+    </div>
+  </div>
+);
 
 interface FeedbackState {
   type: 'success' | 'error';
@@ -25,6 +65,7 @@ export default function SignUpPage() {
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [initialValues, setInitialValues] = useState<Record<string, any>>({});
   const [submitFeedback, setSubmitFeedback] = useState<FeedbackState | null>(null);
   const [submitForm, setSubmitForm] = useState<(() => void) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,23 +76,74 @@ export default function SignUpPage() {
     const loadSchema = async () => {
       try {
         setIsLoading(true);
+        setLoadError(null);
+        
         const response = await fetch(`${config.schemaApi.basePath}/users`);
+        
+        if (!response.ok) {
+          let errorMessage = `Failed to load user schema (${response.status})`;
+          try {
+            const errorResult = await response.json();
+            errorMessage = errorResult.error || errorResult.message || errorMessage;
+          } catch {
+            // If response is not JSON, use status text
+            errorMessage = response.statusText || errorMessage;
+          }
+          throw new Error(errorMessage);
+        }
+
         const result = await response.json();
 
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || 'Unable to load user schema.');
+        if (!result.success) {
+          throw new Error(result.error || result.message || 'Unable to load user schema.');
         }
 
         if (isMounted) {
-          setSchema(asFormBuilderSchema(result.data));
+          const formSchema = asFormBuilderSchema(result.data);
+          const updatedSchema = {
+            ...formSchema,
+            isCollapsibleSections: false, // Sign-up form should always be expanded
+            fields: formSchema.fields.map((field) =>
+              field.name === 'status'
+                ? {
+                    ...field,
+                    defaultValue: field.defaultValue ?? 'pending',
+                    disabled: true,
+                  }
+                : field
+            ),
+          };
+
+          setSchema(updatedSchema);
+          setInitialValues((prev) =>
+            prev.status === 'pending'
+              ? prev
+              : {
+                  ...prev,
+                  status: 'pending',
+                }
+          );
           setLoadError(null);
         }
       } catch (error) {
         console.error('Failed to load users schema:', error);
         if (isMounted) {
-          setLoadError(
-            error instanceof Error ? error.message : 'Failed to load schema. Please try again later.'
-          );
+          let errorMessage = 'Failed to load schema. Please try again later.';
+          
+          if (error instanceof Error) {
+            errorMessage = error.message;
+          } else if (typeof error === 'string') {
+            errorMessage = error;
+          } else if (error && typeof error === 'object' && 'message' in error) {
+            errorMessage = String(error.message);
+          }
+          
+          // Handle network errors specifically
+          if (errorMessage.includes('fetch failed') || errorMessage.includes('Failed to fetch')) {
+            errorMessage = 'Network error: Unable to connect to the server. Please check your internet connection and try again.';
+          }
+          
+          setLoadError(errorMessage);
         }
       } finally {
         if (isMounted) {
@@ -133,11 +225,58 @@ export default function SignUpPage() {
   const renderContent = useMemo(() => {
     if (isLoading) {
       return (
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-48" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-32 w-full" />
+        <div className="space-y-6">
+          {/* Section Header Skeleton */}
+          <div className="space-y-2 pb-4 border-b border-border/40">
+            <Skeleton className="h-7 w-40 bg-gray-200/60 dark:bg-gray-700/60" />
+            <Skeleton className="h-4 w-56 bg-gray-200/40 dark:bg-gray-700/40" />
+          </div>
+
+          {/* Form Fields Skeleton - 2 Column Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Field 1 - Username */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+              <Skeleton className="h-3 w-full max-w-xs bg-gray-200/40 dark:bg-gray-700/30" />
+            </div>
+
+            {/* Field 2 - First Name */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+
+            {/* Field 3 - Last Name */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+
+            {/* Field 4 - Email */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+
+            {/* Field 5 - Post Title */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+
+            {/* Field 6 - Company */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+
+            {/* Field 7 - Status (Dropdown) */}
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16 bg-gray-200/60 dark:bg-gray-700/60" />
+              <Skeleton className="h-10 w-full rounded-lg bg-gray-200/50 dark:bg-gray-800/50 border border-gray-300/50 dark:border-gray-600/50" />
+            </div>
+          </div>
         </div>
       );
     }
@@ -166,6 +305,7 @@ export default function SignUpPage() {
       <SchemaFormWrapper
         schema={schema}
         onSubmit={handleSubmit}
+        initialValues={initialValues}
         onMount={(submitFn) => setSubmitForm(() => submitFn)}
         hideActions
         disabled={isSubmitting}
@@ -174,48 +314,90 @@ export default function SignUpPage() {
   }, [isLoading, loadError, schema, handleSubmit, isSubmitting]);
 
   return (
-    <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto w-full max-w-4xl">
-        <Card className="shadow-lg border border-slate-200">
-          <CardHeader className="space-y-1 text-center sm:text-left">
-            <CardTitle className="text-2xl font-semibold text-gray-900">
-              Create your Gradian account
-            </CardTitle>
-            <p className="text-sm text-gray-500">
-              Fill out the form below to get started. All fields marked with * are required.
+    <div className="min-h-screen h-screen flex flex-col md:flex-row font-sans overflow-hidden">
+      <section className="flex-1 flex items-center justify-center p-8 overflow-y-auto min-h-0">
+        <div className="w-full max-w-md">
+          <div className="flex flex-col gap-6">
+            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">
+              Create account
+            </h1>
+            <p className="animate-element animate-delay-200 text-muted-foreground hidden md:block">
+              The password link would be sent to your email address after the account is activated by administrator.
             </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
+
             {submitFeedback && (
-              <FormAlert
-                type={submitFeedback.type}
-                message={submitFeedback.message}
-                dismissible
-                onDismiss={() => setSubmitFeedback(null)}
-              />
+              <div className={`animate-element animate-delay-250 rounded-2xl border p-4 ${
+                submitFeedback.type === 'error'
+                  ? 'border-red-500/50 bg-red-500/10 dark:bg-red-500/5'
+                  : 'border-emerald-500/50 bg-emerald-500/10 dark:bg-emerald-500/5'
+              }`}>
+                <p className={`text-sm font-medium ${
+                  submitFeedback.type === 'error'
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-emerald-600 dark:text-emerald-400'
+                }`}>
+                  {submitFeedback.message}
+                </p>
+              </div>
             )}
 
-            {renderContent}
+            {loadError && (
+              <div className="animate-element animate-delay-250">
+                <FormAlert
+                  type="error"
+                  message={loadError}
+                  dismissible
+                  onDismiss={() => setLoadError(null)}
+                />
+              </div>
+            )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4">
+            <div className="animate-element animate-delay-300">
+              {renderContent}
+            </div>
+
+            <div className="animate-element animate-delay-500 flex flex-col gap-4">
               <Button
                 type="button"
                 onClick={() => submitForm?.()}
                 disabled={!submitForm || isSubmitting || isLoading || !!loadError}
-                className="bg-violet-600 hover:bg-violet-700"
+                className="w-full rounded-2xl bg-violet-500 py-4 font-medium text-violet-50 hover:bg-violet-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Creating Account...' : 'Create Account'}
               </Button>
-              <div className="text-sm text-gray-600 text-center sm:text-left">
+
+              <p className="animate-element animate-delay-700 text-center text-sm text-muted-foreground">
                 Already have an account?{' '}
-                <Link href="/authentication/login" className="font-medium text-violet-600 hover:text-violet-700">
+                <Link href="/authentication/login" className="text-violet-400 hover:underline transition-colors">
                   Sign in instead
                 </Link>
-              </div>
+              </p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+          </div>
+        </div>
+      </section>
+
+      <section className="hidden md:block flex-1 relative p-4 overflow-hidden">
+        <div
+          className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
+          style={{ backgroundImage: 'url(/screenshots/gradian.me_bg_desktop.png)' }}
+        ></div>
+        {sampleTestimonials.length > 0 && (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
+            <TestimonialCard testimonial={sampleTestimonials[0]} delay="animate-delay-1000" />
+            {sampleTestimonials[1] && (
+              <div className="hidden xl:flex">
+                <TestimonialCard testimonial={sampleTestimonials[1]} delay="animate-delay-1200" />
+              </div>
+            )}
+            {sampleTestimonials[2] && (
+              <div className="hidden 2xl:flex">
+                <TestimonialCard testimonial={sampleTestimonials[2]} delay="animate-delay-1400" />
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }

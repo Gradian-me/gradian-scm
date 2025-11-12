@@ -15,6 +15,7 @@ export interface FormField {
   description?: string;
   required?: boolean;
   disabled?: boolean;
+  hidden?: boolean;
   readonly?: boolean;
   canCopy?: boolean;
   role?: 'title' | 'subtitle' | 'description' | 'image' | 'avatar' | 'icon' | 'rating' | 'badge' | 'status' | 'email' | 'location' | 'tel' | 'duedate' | 'code';
@@ -337,6 +338,7 @@ export interface FormSchema {
     showSuccess?: boolean;
   };
   customButtons?: QuickAction[]; // Custom buttons shown above filter pane in list page
+  isCollapsibleSections?: boolean; // If false, sections are always expanded and collapse/expand UI is hidden (default: true)
 }
 
 // Form state and data types

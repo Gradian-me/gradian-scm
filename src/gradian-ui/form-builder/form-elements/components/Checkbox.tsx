@@ -67,7 +67,7 @@ export const Checkbox = forwardRef<FormElementRef, CheckboxProps>(
             onBlur={onBlur}
             onFocus={onFocus}
             disabled={disabled}
-            required={required || config.validation?.required}
+            required={required ?? config.required ?? config.validation?.required ?? false}
             className={checkboxClasses}
             {...props}
           >

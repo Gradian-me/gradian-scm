@@ -51,6 +51,8 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     // Convert field to config format
     const { field, value, error, touched, onChange, onBlur, onFocus, disabled, ...otherProps } = props;
     config = field;
+    // Merge disabled from field.disabled with passed disabled prop
+    const mergedDisabled = disabled || field?.disabled || false;
     restProps = {
       value,
       error,
@@ -58,9 +60,10 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
       onChange,
       onBlur,
       onFocus,
-      disabled,
+      disabled: mergedDisabled,
       ...otherProps,
     };
+    // Prioritize field.required over field.validation?.required
     const derivedRequired = field?.required ?? field?.validation?.required ?? false;
     if (typeof restProps.required === 'undefined') {
       restProps.required = derivedRequired;
@@ -69,7 +72,13 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
     // Use config directly
     const { config: configProp, ...otherProps } = props;
     config = configProp;
-    restProps = otherProps;
+    // Merge disabled from config.disabled with passed disabled prop
+    const mergedDisabled = (otherProps as any).disabled || configProp?.disabled || false;
+    restProps = {
+      ...otherProps,
+      disabled: mergedDisabled,
+    };
+    // Prioritize config.required over config.validation?.required
     const derivedRequired =
       configProp?.required ??
       configProp?.validation?.required ??
@@ -170,7 +179,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
           options={selectOptions}
           className={restProps.className}
           error={restProps.error}
-          required={config.validation?.required || config.required}
+          required={config.required ?? config.validation?.required ?? false}
           placeholder={config.placeholder}
         />
       );
@@ -191,8 +200,9 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
           {...restProps}
           required={
             restProps.required ??
+            config.required ??
             config.validation?.required ??
-            config.required
+            false
           }
         />
       );
@@ -231,8 +241,9 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
           className={restProps.className}
           required={
             restProps.required ??
+            config.required ??
             config.validation?.required ??
-            config.required
+            false
           }
           options={toggleGroupOptions}
           type={resolvedType}

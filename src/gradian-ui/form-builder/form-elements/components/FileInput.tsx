@@ -115,7 +115,7 @@ export const FileInput = forwardRef<FormElementRef, FileInputProps>(
             onFocus={handleFocus}
             accept={acceptTypes}
             multiple={multiple || (config as any).multiple}
-            required={required || config.validation?.required}
+            required={required ?? config.required ?? config.validation?.required ?? false}
             disabled={disabled}
             className={inputClasses}
             {...props}

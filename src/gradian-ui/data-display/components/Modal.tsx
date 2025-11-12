@@ -27,7 +27,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const modalClasses = cn(
-    'bg-white shadow-xl overflow-hidden',
+    'bg-white dark:bg-gray-900 shadow-xl overflow-hidden',
     'rounded-none sm:rounded-2xl', // No rounded corners on mobile, rounded on desktop
     'h-full w-full lg:max-w-5xl lg:max-h-[90vh]', // Full screen on mobile, auto on desktop
     'mx-0 md:mx-2', // No margin on mobile, margin on desktop

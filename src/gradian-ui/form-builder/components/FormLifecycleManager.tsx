@@ -38,9 +38,33 @@ export const useFormContext = () => {
   return context;
 };
 
+// Helper function to merge initial values with default values from schema
+const mergeInitialValuesWithDefaults = (initialValues: FormData, schema: FormSchema): FormData => {
+  const mergedValues = { ...initialValues };
+  
+  // Process all fields to apply default values where needed
+  schema.fields.forEach(field => {
+    // Skip if field is in a repeating section (handled separately)
+    const section = schema.sections.find(s => s.id === field.sectionId);
+    if (section?.isRepeatingSection) {
+      return;
+    }
+    
+    // Apply defaultValue if field value is undefined, null, or empty string
+    if (field.defaultValue !== undefined && 
+        (mergedValues[field.name] === undefined || 
+         mergedValues[field.name] === null || 
+         mergedValues[field.name] === '')) {
+      mergedValues[field.name] = field.defaultValue;
+    }
+  });
+  
+  return mergedValues;
+};
+
 // Helper function to ensure repeating section items have unique IDs
 const ensureRepeatingItemIds = (values: FormData, schema: FormSchema): FormData => {
-  const newValues = { ...values };
+  const newValues = mergeInitialValuesWithDefaults(values, schema);
   
   schema.sections.forEach(section => {
     if (section.isRepeatingSection && newValues[section.id]) {
@@ -49,11 +73,36 @@ const ensureRepeatingItemIds = (values: FormData, schema: FormSchema): FormData 
         newValues[section.id] = items.map((item: any, index: number) => {
           // Only add id if it doesn't already exist
           if (!item.id) {
-            return {
+            const itemWithId = {
               ...item,
               id: ulid()
             };
+            
+            // Apply default values to repeating section items
+            const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+            sectionFields.forEach(field => {
+              if (field.defaultValue !== undefined && 
+                  (itemWithId[field.name] === undefined || 
+                   itemWithId[field.name] === null || 
+                   itemWithId[field.name] === '')) {
+                itemWithId[field.name] = field.defaultValue;
+              }
+            });
+            
+            return itemWithId;
           }
+          
+          // Apply default values to existing items too
+          const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
+          sectionFields.forEach(field => {
+            if (field.defaultValue !== undefined && 
+                (item[field.name] === undefined || 
+                 item[field.name] === null || 
+                 item[field.name] === '')) {
+              item[field.name] = field.defaultValue;
+            }
+          });
+          
           return item;
         });
       }
@@ -192,12 +241,17 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
         fieldValue = state.values[action.fieldName];
       }
       
-      if (!field || (!field.required && !field.validation)) return state;
+      if (!field) return state;
+      
+      // Check if field should be validated (required or has validation rules)
+      // Prioritize field.required over field.validation?.required
+      const isRequired = field.required ?? field.validation?.required ?? false;
+      if (!isRequired && !field.validation) return state;
       
       const validationRules = {
         ...field.validation,
-        // Ensure required is set if field.required is true
-        required: field.required || field.validation?.required || false
+        // Prioritize field.required over field.validation?.required
+        required: field.required ?? field.validation?.required ?? false
       };
       const result = validateFieldUtil(fieldValue, validationRules);
       return {
@@ -215,11 +269,13 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       
       action.schema.fields.forEach(field => {
         // Check if field is required or has validation rules
-        if (field.required || field.validation) {
+        // Prioritize field.required over field.validation?.required
+        const isRequired = field.required ?? field.validation?.required ?? false;
+        if (isRequired || field.validation) {
           const validationRules = {
             ...field.validation,
-            // Ensure required is set if field.required is true
-            required: field.required || field.validation?.required || false
+            // Prioritize field.required over field.validation?.required
+            required: field.required ?? field.validation?.required ?? false
           };
           const result = validateFieldUtil(state.values[field.name], validationRules);
           if (!result.isValid) {
@@ -460,11 +516,13 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           items.forEach((item: any, itemIndex: number) => {
             sectionFields.forEach(field => {
               // Check if field is required or has validation rules
-              if (field.required || field.validation) {
+              // Prioritize field.required over field.validation?.required
+              const isRequired = field.required ?? field.validation?.required ?? false;
+              if (isRequired || field.validation) {
                 const validationRules = {
                   ...field.validation,
-                  // Ensure required is set if field.required is true
-                  required: field.required || field.validation?.required || false
+                  // Prioritize field.required over field.validation?.required
+                  required: field.required ?? field.validation?.required ?? false
                 };
                 const fieldValue = item[field.name];
                 const result = validateFieldUtil(fieldValue, validationRules);
@@ -482,11 +540,13 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
         const sectionFields = schema.fields.filter(f => f.sectionId === section.id);
         sectionFields.forEach(field => {
           // Check if field is required or has validation rules
-          if (field.required || field.validation) {
+          // Prioritize field.required over field.validation?.required
+          const isRequired = field.required ?? field.validation?.required ?? false;
+          if (isRequired || field.validation) {
             const validationRules = {
               ...field.validation,
-              // Ensure required is set if field.required is true
-              required: field.required || field.validation?.required || false
+              // Prioritize field.required over field.validation?.required
+              required: field.required ?? field.validation?.required ?? false
             };
             const result = validateFieldUtil(state.values[field.name], validationRules);
             if (!result.isValid) {
@@ -578,11 +638,13 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       items.forEach((item: any, itemIndex: number) => {
         sectionFields.forEach(field => {
           // Check if field is required or has validation rules
-          if (field.required || field.validation) {
+          // Prioritize field.required over field.validation?.required
+          const isRequired = field.required ?? field.validation?.required ?? false;
+          if (isRequired || field.validation) {
             const validationRules = {
               ...field.validation,
-              // Ensure required is set if field.required is true
-              required: field.required || field.validation?.required || false
+              // Prioritize field.required over field.validation?.required
+              required: field.required ?? field.validation?.required ?? false
             };
             const fieldValue = item[field.name];
             const result = validateFieldUtil(fieldValue, validationRules);
@@ -919,7 +981,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           )}
           
           {actionConfigs.length > 0 && !hideActions && (
-            <div className="space-y-3 pb-2 mb-2 border-b border-gray-200 sticky top-0 bg-white z-10">
+            <div className="space-y-3 pb-2 mb-2 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-900 z-10">
               <div className="flex justify-end space-x-3">
                 {actionConfigs.map((config) => {
                   if (config.type === 'submit') {
@@ -985,7 +1047,7 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
           )}
           
           {/* Collapse/Expand All Buttons */}
-          {schema.sections.length > 0 && (
+          {schema.sections.length > 0 && schema.isCollapsibleSections !== false && (
             <div className="flex justify-end gap-2 mb-4">
               <Button
                 type="button"

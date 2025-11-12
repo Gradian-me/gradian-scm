@@ -10,6 +10,7 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   const router = useRouter();
   const [schemaId, setSchemaId] = useState<string>('');
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
 
   useEffect(() => {
     params.then((resolvedParams) => {
@@ -23,11 +24,14 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
 
     if (result.success) {
       setLoadError(null);
+      setApiResponse(null); // Clear any previous errors
       return result.data;
     }
 
     console.error('Failed to fetch schema:', result.error);
     setLoadError(result.error || 'Failed to load schema');
+    // Store the response for MessageBox to display
+    setApiResponse(result);
     router.replace(`/builder/schemas/${id}/not-found`);
     throw new Error('Failed to fetch schema');
   };
@@ -41,6 +45,9 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
     });
 
     const result = await response.json();
+    // Store the response for MessageBox to display
+    setApiResponse(result);
+    
     if (!result.success) {
       throw new Error('Failed to save schema');
     }
@@ -52,6 +59,8 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
       fetchSchema={fetchSchema}
       saveSchema={saveSchema}
       onBack={() => router.push('/builder/schemas')}
+      apiResponse={apiResponse}
+      onClearResponse={() => setApiResponse(null)}
     />
   );
 }

@@ -137,14 +137,15 @@ export function FieldEditor({
 
       {showDialog && (
         <Dialog open={showDialog} onOpenChange={(open) => !open && setShowDialog(false)}>
-          <DialogContent className="w-[95vw] sm:w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className="w-[95vw] sm:w-full max-w-3xl max-h-[90vh] flex flex-col p-0">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
               <DialogTitle>Edit Field</DialogTitle>
               <DialogDescription>
                 Configure field properties and settings
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-5 py-4">
+            <div className="flex-1 overflow-y-auto px-6">
+              <div className="space-y-5 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <TextInput
                   config={{
@@ -278,8 +279,9 @@ export function FieldEditor({
                   />
                 </div>
               </div>
+              </div>
             </div>
-            <DialogFooter className="flex-col sm:flex-row gap-2">
+            <DialogFooter className="px-6 pt-4 pb-6 border-t border-gray-100 flex-shrink-0 flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={() => setShowDialog(false)} className="w-full sm:w-auto text-sm md:text-base">
                 Cancel
               </Button>

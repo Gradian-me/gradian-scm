@@ -109,7 +109,7 @@ export default function LoginPage() {
   };
 
   const handleCreateAccount = () => {
-    toast.info('Account creation functionality coming soon');
+    router.push('/authentication/sign-up');
   };
 
   return (

@@ -88,7 +88,7 @@ export const Toggle = forwardRef<FormElementRef, ToggleProps>(
           onBlur={handleBlur}
           onFocus={handleFocus}
           disabled={disabled}
-          data-required={required || config?.validation?.required}
+          data-required={required ?? config?.required ?? config?.validation?.required ?? false}
           className={cn(
             'min-w-[4.5rem] gap-2',
             error && 'border-red-500 focus-visible:ring-red-500 data-[state=on]:border-red-500',

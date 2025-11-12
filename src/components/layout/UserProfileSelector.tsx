@@ -6,7 +6,6 @@ import { ProfileSelector } from '@/gradian-ui/layout/profile-selector/components
 import { ProfileSelectorConfig } from '@/gradian-ui/layout/profile-selector/types';
 import { UserProfile } from '@/gradian-ui/shared/types';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 
 interface UserProfileSelectorProps {
   config?: Partial<ProfileSelectorConfig>;
@@ -97,6 +96,11 @@ export function UserProfileSelector({
     router.push('/settings');
   };
 
+  // Handle change password
+  const handleChangePassword = () => {
+    router.push('/authentication/change-password');
+  };
+
   // Handle logout
   const handleProfileDelete = async (profile: UserProfile) => {
     try {
@@ -140,20 +144,16 @@ export function UserProfileSelector({
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <ProfileSelector
-        config={defaultConfig}
-        profiles={profiles}
-        currentProfile={userProfile}
-        onProfileSelect={handleProfileSelect}
-        onProfileEdit={handleProfileEdit}
-        onProfileDelete={handleProfileDelete}
-        className={className}
-      />
-      <Button variant="outline" size="sm" onClick={() => router.push('/authentication/change-password')}>
-        Change Password
-      </Button>
-    </div>
+    <ProfileSelector
+      config={defaultConfig}
+      profiles={profiles}
+      currentProfile={userProfile}
+      onProfileSelect={handleProfileSelect}
+      onProfileEdit={handleProfileEdit}
+      onProfileDelete={handleProfileDelete}
+      onChangePassword={handleChangePassword}
+      className={className}
+    />
   );
 }
 
