@@ -370,9 +370,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
           behavior: { hoverable: !disableAnimation, clickable: true }
         }}
         className={cn(
-          "h-full bg-white rounded-xl overflow-hidden",
-          !className?.includes('border-none') && "border border-gray-200",
-          !disableAnimation && "transition-all duration-200 hover:shadow-sm hover:border-violet-300",
+          "h-full bg-white dark:bg-gray-900/50 rounded-2xl overflow-hidden",
+          !className?.includes('border-none') && "border border-gray-200 dark:border-gray-500",
+          !disableAnimation && "transition-all duration-200 hover:shadow-sm hover:border-gray-300",
           className?.includes('border-none') ? "focus-within:ring-0" : "focus-within:ring-2 focus-within:ring-violet-400 focus-within:ring-offset-0 focus-within:rounded-xl"
         )}
         onKeyDown={(e: KeyboardEvent) => {
@@ -416,7 +416,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <motion.h3
-                        className="text-md font-semibold text-gray-900 group-hover:text-violet-700 transition-colors duration-200 truncate flex-1 min-w-0"
+                        className="text-md font-semibold text-gray-900 dark:text-gray-50 transition-colors duration-200 truncate flex-1 min-w-0"
                           whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         {renderHighlightedText(cardConfig.title, normalizedHighlightQuery)}
