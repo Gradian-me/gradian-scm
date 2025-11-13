@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DynamicPageRenderer } from '@/gradian-ui/data-display/components/DynamicPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
-import { useSchemaStore } from '@/stores/schema.store';
-import { config } from '@/lib/config';
+import { useSchemaById } from '@/gradian-ui/schema-manager/hooks/use-schema-by-id';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface DynamicEntityPageClientProps {
   initialSchema: FormSchema;
@@ -47,35 +47,6 @@ function processSchema(schema: any): FormSchema {
   }
   
   return processedSchema as FormSchema;
-}
-
-/**
- * Client-only function to fetch schema from API (no server-only imports)
- */
-async function fetchSchemaByIdClient(schemaId: string): Promise<FormSchema | null> {
-  try {
-    const response = await fetch(`${config.schemaApi.basePath}/${schemaId}`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-      },
-    });
-    
-    if (!response.ok) {
-      return null;
-    }
-    
-    const result = await response.json();
-    if (!result.success) {
-      return null;
-    }
-    
-    // Process the schema to convert string patterns to RegExp
-    return processSchema(result.data);
-  } catch (error) {
-    console.error('Error fetching schema:', error);
-    return null;
-  }
 }
 
 /**
@@ -124,7 +95,7 @@ function reconstructRegExp(obj: any): any {
 
 export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEntityPageClientProps) {
   const router = useRouter();
-  const { getSchema, setSchema } = useSchemaStore();
+  const queryClient = useQueryClient();
   
   // Reconstruct RegExp objects from serialized schema from server
   const reconstructedInitialSchema = useMemo(
@@ -132,69 +103,44 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     [initialSchema]
   );
   
-  // Initialize with cached schema if available, otherwise use initial schema from server
-  const [schema, setSchemaState] = useState<FormSchema>(() => {
-    const cachedSchema = getSchema(schemaId);
-    if (cachedSchema) {
-      return cachedSchema;
-    }
-    return reconstructedInitialSchema;
+  // Use React Query to fetch and cache schema
+  // Use initial schema from server as initialData to populate React Query cache
+  // This ensures the cache is populated with server-side data, avoiding unnecessary fetches
+  const { schema: fetchedSchema, refetch: refetchSchema } = useSchemaById(schemaId, {
+    enabled: false, // Don't fetch on mount, use initial schema from server
+    initialData: reconstructedInitialSchema, // Populate cache with server-side data
   });
+  
+  // Use fetched schema if available, otherwise use initial schema from server
+  const schema = fetchedSchema || reconstructedInitialSchema;
 
-  // Reload schema from API using route-based endpoint /api/schemas/${schemaId}
-  // This ensures we only fetch the specific schema, not all schemas
-  const reloadSchema = useCallback(async () => {
-    try {
-      // Use route-based endpoint: /api/schemas/${schemaId}
-      // This is more efficient than /api/schemas?id=${schemaId} which loads all schemas first
-      const freshSchema = await fetchSchemaByIdClient(schemaId);
-      if (freshSchema) {
-        // Update state and cache silently without showing loading state
-        setSchemaState(freshSchema);
-        setSchema(schemaId, freshSchema);
-      }
-    } catch (error) {
-      console.error('Error reloading schema:', error);
-      // Silently fail - don't disrupt user experience
-    }
-  }, [schemaId, setSchema]);
-
-  // Update cache when initial schema changes (from server)
-  // Server-side page.tsx already fetches the schema using loadSchemaById (no HTTP call)
-  // So we just need to cache the initial schema from the server
+  // Listen for React Query cache clear events - invalidate and refetch silently
   useEffect(() => {
-    const cachedSchema = getSchema(schemaId);
-    if (!cachedSchema) {
-      // Cache the initial schema from server (server already loaded it from file system)
-      setSchema(schemaId, reconstructedInitialSchema);
-    }
-  }, [schemaId, reconstructedInitialSchema, getSchema, setSchema]);
-
-  // Listen for cache clear events - update silently in background
-  useEffect(() => {
-    // Listen for custom cache clear event (same tab)
-    const handleCacheClear = () => {
-      // Reload schema silently in background without showing loading state
-      reloadSchema();
+    const handleCacheClear = async () => {
+      // Invalidate React Query cache for this schema and refetch silently
+      await queryClient.invalidateQueries({ queryKey: ['schemas', schemaId] });
+      await refetchSchema();
     };
+
+    // Listen for React Query cache clear event (same tab)
+    window.addEventListener('react-query-cache-clear', handleCacheClear as EventListener);
 
     // Listen for storage events (from other tabs/windows)
-    const handleStorageChange = (e: StorageEvent) => {
-      // Check if schema cache was cleared
-      if (e.key === 'schema-cache-cleared') {
-        // Reload schema silently in background
-        reloadSchema();
+    const handleStorageChange = async (e: StorageEvent) => {
+      if (e.key === 'react-query-cache-cleared') {
+        // Invalidate and refetch silently
+        await queryClient.invalidateQueries({ queryKey: ['schemas', schemaId] });
+        await refetchSchema();
       }
     };
 
-    window.addEventListener('schema-cache-cleared', handleCacheClear);
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
-      window.removeEventListener('schema-cache-cleared', handleCacheClear);
+      window.removeEventListener('react-query-cache-clear', handleCacheClear as EventListener);
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [reloadSchema]);
+  }, [schemaId, queryClient, refetchSchema]);
 
   // Serialize schema for client component
   const serializedSchema = serializeSchema(schema);

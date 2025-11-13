@@ -6,26 +6,31 @@ import { FormSchema } from '../types/form-schema';
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 
 /**
- * Hook to fetch schemas with client-side caching using React Query
+ * Hook to fetch a single schema by ID with client-side caching using React Query
  * This deduplicates requests and shares cache across all components
  * Uses the QueryClient from QueryClientProvider context automatically
  */
-export function useSchemas() {
-  // Get cache configuration for /api/schemas route
-  const cacheConfig = getCacheConfigByPath('/api/schemas');
+export function useSchemaById(
+  schemaId: string | null | undefined, 
+  options?: { enabled?: boolean; initialData?: FormSchema }
+) {
+  // Get cache configuration for /api/schemas/:id route
+  const cacheConfig = getCacheConfigByPath(`/api/schemas/${schemaId || ''}`);
   
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['schemas'],
+    queryKey: ['schemas', schemaId],
     queryFn: async () => {
-      console.log('[REACT_QUERY] 🔄 Fetching schemas from API...');
-      // Use /api/schemas directly (apiRequest will handle it correctly via resolveApiUrl)
-      const response = await apiRequest<FormSchema[]>('/api/schemas');
-      if (!response.success || !response.data) {
-        throw new Error(response.error || 'Failed to fetch schemas');
+      if (!schemaId) {
+        throw new Error('Schema ID is required');
       }
-      console.log(`[REACT_QUERY] ✅ Fetched ${response.data.length} schemas - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
+      const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
+      if (!response.success || !response.data) {
+        throw new Error(response.error || 'Failed to fetch schema');
+      }
       return response.data;
     },
+    enabled: options?.enabled !== false && !!schemaId,
+    initialData: options?.initialData, // Populate cache with initial data (e.g., from SSR)
     staleTime: cacheConfig.staleTime ?? 10 * 60 * 1000,
     gcTime: cacheConfig.gcTime ?? 30 * 60 * 1000,
     refetchOnMount: false, // Don't refetch on mount if data exists in cache
@@ -33,11 +38,10 @@ export function useSchemas() {
     refetchOnReconnect: false, // Don't refetch on reconnect
     retry: 1, // Only retry once on failure
     retryDelay: 1000, // Wait 1 second before retrying
-    placeholderData: (previousData) => previousData, // Use previous data as placeholder
   });
 
   return {
-    schemas: data || [],
+    schema: data || null,
     isLoading,
     error,
     refetch,

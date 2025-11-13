@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
-import { useSchemaStore } from '@/stores/schema.store';
+import { useSchemaById } from '@/gradian-ui/schema-manager/hooks/use-schema-by-id';
 import { resolveFieldById, getValueByRole } from '@/gradian-ui/form-builder/form-elements/utils/field-resolver';
 import {
   RelationDirection,
@@ -14,7 +14,6 @@ export function useRepeatingTableData(
   params: UseRepeatingTableDataParams
 ): UseRepeatingTableDataResult {
   const { config, schema, data, sourceId, sourceSchemaId } = params;
-  const { fetchSchema } = useSchemaStore();
 
   const isRelationBased = Boolean(config.targetSchema);
   const targetSchemaId = config.targetSchema || null;
@@ -25,42 +24,16 @@ export function useRepeatingTableData(
 
   const [relatedEntities, setRelatedEntities] = useState<any[]>([]);
   const [isLoadingRelations, setIsLoadingRelations] = useState(false);
-  const [targetSchemaData, setTargetSchemaData] = useState<any>(null);
-  const [isLoadingTargetSchema, setIsLoadingTargetSchema] = useState(false);
   const [relationDirections, setRelationDirections] = useState<Set<RelationDirection>>(new Set());
 
   const isFetchingRelationsRef = useRef(false);
   const lastFetchParamsRef = useRef('');
 
-  useEffect(() => {
-    if (!isRelationBased || !targetSchemaId) {
-      return;
-    }
-
-    let isMounted = true;
-
-    if (!targetSchemaData) {
-      setIsLoadingTargetSchema(true);
-      fetchSchema(targetSchemaId)
-        .then((loadedSchema) => {
-          if (isMounted && loadedSchema) {
-            setTargetSchemaData(loadedSchema);
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading target schema:', error);
-        })
-        .finally(() => {
-          if (isMounted) {
-            setIsLoadingTargetSchema(false);
-          }
-        });
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetchSchema, isRelationBased, targetSchemaData, targetSchemaId]);
+  // Use React Query to fetch target schema
+  const { schema: targetSchemaData, isLoading: isLoadingTargetSchema } = useSchemaById(
+    isRelationBased ? targetSchemaId : null,
+    { enabled: isRelationBased && !!targetSchemaId }
+  );
 
   const fetchRelations = useCallback(async () => {
     if (!isRelationBased || !effectiveSourceId || !targetSchemaId || isFetchingRelationsRef.current) {

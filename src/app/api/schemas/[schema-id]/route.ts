@@ -6,11 +6,15 @@ import fs from 'fs';
 import path from 'path';
 
 import { isDemoModeEnabled, proxySchemaRequest } from '../utils';
+import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 
 // Cache for loaded schemas
 let cachedSchemas: any[] | null = null;
 let cacheTimestamp: number | null = null;
-const CACHE_TTL_MS = 60000; // 60 seconds cache TTL
+// Get cache TTL from configuration (this route handles /api/schemas/:id)
+// Use a placeholder ID for pattern matching - the config will match 'schemas/:id' pattern
+const CACHE_CONFIG = getCacheConfigByPath('/api/schemas/placeholder-id');
+const CACHE_TTL_MS = CACHE_CONFIG.ttl;
 
 /**
  * Clear schema cache (useful for development)

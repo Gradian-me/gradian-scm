@@ -88,22 +88,19 @@ export default function BuilderPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Clear client-side schema cache
-        if (typeof window !== 'undefined') {
-          // Import and clear the schema store
-          const { useSchemaStore } = await import('@/stores/schema.store');
-          useSchemaStore.getState().clearAllSchemas();
-          
-          // Dispatch event to notify all pages to update their cache silently
-          // Pages will fetch fresh schema on next interaction, not force reload
-          window.dispatchEvent(new Event('schema-cache-cleared'));
+        // Clear React Query caches client-side
+        if (typeof window !== 'undefined' && data.clearReactQueryCache) {
+          // Dispatch event to clear React Query caches
+          window.dispatchEvent(new CustomEvent('react-query-cache-clear', { 
+            detail: { queryKeys: ['schemas', 'companies'] } 
+          }));
           
           // Also trigger storage event for other tabs
-          window.localStorage.setItem('schema-cache-cleared', Date.now().toString());
-          window.localStorage.removeItem('schema-cache-cleared');
+          window.localStorage.setItem('react-query-cache-cleared', JSON.stringify(['schemas', 'companies']));
+          window.localStorage.removeItem('react-query-cache-cleared');
         }
         
-        toast.success('Schema cache cleared successfully!', { id: toastId });
+        toast.success('Cache cleared successfully!', { id: toastId });
       } else {
         toast.error(data.error || 'Failed to clear cache', { id: toastId });
       }

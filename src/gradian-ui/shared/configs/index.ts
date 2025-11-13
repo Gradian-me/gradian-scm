@@ -2,6 +2,9 @@
 
 import { ThemeConfig, LayoutConfig, ChartConfig } from '../types';
 
+// Export cache configuration
+export * from './cache-config';
+
 /**
  * Default theme configuration
  */

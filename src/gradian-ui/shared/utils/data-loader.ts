@@ -6,6 +6,7 @@ import 'server-only';
 
 import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
 import { LogType } from '@/gradian-ui/shared/constants/application-variables';
+import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 
 // Cache storage structure
 interface CacheEntry<T> {
@@ -133,7 +134,9 @@ export async function loadData<T = any>(
     logType?: LogType;
   }
 ): Promise<T> {
-  const { ttl = CACHE_TTL, processor, logType = LogType.SCHEMA_LOADER } = options || {};
+  // Get cache configuration from config file, fallback to options.ttl or default
+  const cacheConfig = getCacheConfigByPath(apiPath);
+  const { ttl = cacheConfig.ttl, processor, logType = LogType.SCHEMA_LOADER } = options || {};
   
   initializeCacheEntry(routeKey);
   const entry = cacheRegistry.get(routeKey)!;
@@ -249,7 +252,9 @@ export async function loadDataById<T = any>(
     logType?: LogType;
   }
 ): Promise<T | null> {
-  const { ttl = CACHE_TTL, processor, findInCache, logType = LogType.SCHEMA_LOADER } = options || {};
+  // Get cache configuration from config file, fallback to options.ttl or default
+  const cacheConfig = getCacheConfigByPath(`${apiBasePath}/${id}`);
+  const { ttl = cacheConfig.ttl, processor, findInCache, logType = LogType.SCHEMA_LOADER } = options || {};
   
   initializeCacheEntry(routeKey);
   const entry = cacheRegistry.get(routeKey)!;

@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 
 interface Company {
   id: string | number;
@@ -16,6 +17,9 @@ interface Company {
  * Uses the QueryClient from QueryClientProvider context automatically
  */
 export function useCompanies() {
+  // Get cache configuration for /api/data/companies route
+  const cacheConfig = getCacheConfigByPath('/api/data/companies');
+  
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['companies'],
     queryFn: async () => {
@@ -32,8 +36,8 @@ export function useCompanies() {
       
       return [allCompaniesOption, ...response.data];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes - data is fresh for 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes - cache persists for 10 minutes (formerly cacheTime)
+    staleTime: cacheConfig.staleTime ?? 15 * 60 * 1000,
+    gcTime: cacheConfig.gcTime ?? 30 * 60 * 1000,
     refetchOnMount: false, // Don't refetch on mount if data exists in cache
     refetchOnWindowFocus: false, // Don't refetch on window focus
     refetchOnReconnect: false, // Don't refetch on reconnect

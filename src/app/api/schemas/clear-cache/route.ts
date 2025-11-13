@@ -169,6 +169,8 @@ async function callRemoteClearCache(method: string = 'POST') {
  * 
  * This route always runs on the current server to clear local caches.
  * If DEMO_MODE is false, it also calls the remote API's clear-cache endpoint.
+ * 
+ * Note: React Query caches are cleared client-side via custom event dispatch.
  */
 export async function POST(request: NextRequest) {
   // Always clear local caches first (this route always runs on current server)
@@ -192,12 +194,13 @@ export async function POST(request: NextRequest) {
     remoteResult = await callRemoteClearCache('POST');
   }
 
-  // Return success response
+  // Return success response with instruction to clear React Query caches client-side
   return NextResponse.json({
     success: true,
     message: 'All caches cleared successfully',
     local: true,
     remote: remoteResult?.success || false,
+    clearReactQueryCache: true, // Signal to client to clear React Query caches
     timestamp: new Date().toISOString(),
   });
 }
@@ -208,6 +211,8 @@ export async function POST(request: NextRequest) {
  * 
  * This route always runs on the current server to clear local caches.
  * If DEMO_MODE is false, it also calls the remote API's clear-cache endpoint.
+ * 
+ * Note: React Query caches are cleared client-side via custom event dispatch.
  */
 export async function GET(request: NextRequest) {
   // Always clear local caches first (this route always runs on current server)
@@ -231,12 +236,13 @@ export async function GET(request: NextRequest) {
     remoteResult = await callRemoteClearCache('GET');
   }
 
-  // Return success response
+  // Return success response with instruction to clear React Query caches client-side
   return NextResponse.json({
     success: true,
     message: 'All caches cleared successfully',
     local: true,
     remote: remoteResult?.success || false,
+    clearReactQueryCache: true, // Signal to client to clear React Query caches
     timestamp: new Date().toISOString(),
   });
 }

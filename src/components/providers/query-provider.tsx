@@ -1,7 +1,11 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { ReactNode, useEffect } from 'react';
+import { getCacheConfig } from '@/gradian-ui/shared/configs/cache-config';
+
+// Get default cache configuration from config file
+const defaultCacheConfig = getCacheConfig('schemas');
 
 // Create a client factory function
 function makeQueryClient() {
@@ -10,8 +14,12 @@ function makeQueryClient() {
       queries: {
         // With SSR, we usually want to set some default staleTime
         // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000, // 1 minute
-        gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
+        // Use default from cache config, but allow individual queries to override
+        staleTime: defaultCacheConfig.staleTime ?? 10 * 60 * 1000,
+        gcTime: defaultCacheConfig.gcTime ?? 30 * 60 * 1000,
+        refetchOnMount: false, // Don't refetch on mount if data exists in cache
+        refetchOnWindowFocus: false, // Don't refetch on window focus
+        refetchOnReconnect: false, // Don't refetch on reconnect
       },
     },
   });
@@ -34,6 +42,46 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
+/**
+ * Component to handle React Query cache clearing events
+ * Listens for cache clear events from the clear-cache API route
+ */
+function ReactQueryCacheClearHandler() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Listen for custom cache clear event (from clear-cache API route)
+    const handleCacheClear = async (event: CustomEvent) => {
+      const queryKeys = event.detail?.queryKeys || ['schemas', 'companies'];
+      for (const queryKey of queryKeys) {
+        await queryClient.invalidateQueries({ queryKey: [queryKey] });
+      }
+    };
+
+    // Listen for storage events (from other tabs/windows)
+    const handleStorageChange = async (e: StorageEvent) => {
+      if (e.key === 'react-query-cache-cleared') {
+        const queryKeys = e.newValue ? JSON.parse(e.newValue) : ['schemas', 'companies'];
+        for (const queryKey of queryKeys) {
+          await queryClient.invalidateQueries({ queryKey: [queryKey] });
+        }
+      }
+    };
+
+    // Listen for custom event
+    window.addEventListener('react-query-cache-clear', handleCacheClear as EventListener);
+    // Listen for storage events (cross-tab)
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('react-query-cache-clear', handleCacheClear as EventListener);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [queryClient]);
+
+  return null;
+}
+
 export function QueryProvider({ children }: { children: ReactNode }) {
   // NOTE: Avoid useState when initializing the query client if you don't
   // have a suspense boundary between this and the code that may suspend
@@ -43,6 +91,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryCacheClearHandler />
       {children}
     </QueryClientProvider>
   );
