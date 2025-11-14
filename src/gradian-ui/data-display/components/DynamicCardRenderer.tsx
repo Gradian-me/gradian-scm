@@ -447,10 +447,10 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       initial={disableAnimation ? false : { opacity: 0, x: -10 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                         transition={disableAnimation ? {} : { duration: 0.3 }}
-                      className="text-xs text-gray-500 truncate"
+                      className="text-xs text-gray-500 dark:text-gray-400 truncate"
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                           {renderHighlightedText(cardConfig.subtitle, normalizedHighlightQuery)}
                         </p>
                     </motion.div>
@@ -634,7 +634,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                       transition={disableAnimation ? {} : { duration: 0.3 }}
                       className={cn(
-                        "text-base font-semibold text-gray-900 truncate flex-1 min-w-0",
+                        "text-base font-semibold text-gray-900 dark:text-gray-200 truncate flex-1 min-w-0",
                         !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
                       )}
                       whileHover={disableAnimation ? undefined : {
@@ -670,7 +670,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                     transition={disableAnimation ? {} : { duration: 0.3 }}
                     className={cn(
-                      "text-xs text-gray-500 truncate",
+                      "text-xs text-gray-500 dark:text-gray-400 truncate",
                       !disableAnimation && "group-hover:text-gray-700 transition-colors duration-200"
                     )}
                     whileHover={disableAnimation ? undefined : {

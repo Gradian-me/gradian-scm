@@ -33,10 +33,10 @@ export const ProfileGrid: React.FC<ProfileGridProps> = ({
               {profile.name?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
                 {profile.name || 'Unknown'}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                 {profile.role || 'User'}
               </p>
             </div>

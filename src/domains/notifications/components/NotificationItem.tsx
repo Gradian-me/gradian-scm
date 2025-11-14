@@ -83,9 +83,11 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
 
   return (
     <>
-      <Card 
-        className={`hover:shadow-md transition-all duration-200 cursor-pointer ${
-          !notification.isRead ? 'bg-violet-50/30 border-violet-200' : 'bg-white'
+      <Card
+        className={`hover:shadow-md transition-all duration-200 cursor-pointer border ${
+          !notification.isRead
+            ? 'bg-violet-50/30 dark:bg-violet-500/10 border-violet-200 dark:border-violet-400/40'
+            : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800'
         }`}
         onClick={() => {
           setIsDialogOpen(true);
@@ -130,7 +132,7 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
                   </div>
                   <h3
                     className={`text-md font-medium ${
-                      !notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'
+                      !notification.isRead ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
                     } sm:hidden`}
                   >
                     {notification.title}
@@ -157,12 +159,12 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
                       </Badge>
                     </motion.div>
                     <h3 className={`text-sm font-medium ${
-                      !notification.isRead ? 'font-semibold text-gray-900' : 'text-gray-700'
+                      !notification.isRead ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-700 dark:text-gray-300'
                     }`}>
                       {notification.title}
                     </h3>
                   </div>
-                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                     {notification.message}
                   </p>
                 </div>
@@ -170,35 +172,35 @@ export function NotificationItem({ notification, onMarkAsRead, onAcknowledge, on
               
               {/* Creator, Assigned To, and Date Info */}
               <div className="mt-2 space-y-1">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
                   {notification.createdBy && (
                     <div className="flex items-center gap-1.5">
                       <User className="h-3 w-3" />
-                      <span>Created by: <span className="text-gray-700 font-medium">{notification.createdBy}</span></span>
+                      <span>Created by: <span className="text-gray-700 dark:text-gray-200 font-medium">{notification.createdBy}</span></span>
                     </div>
                   )}
                   {notification.assignedTo && notification.assignedTo.length > 0 && (
                     <div className="flex items-center gap-1.5">
                       <Users className="h-3 w-3" />
-                      <span>Assigned to: <span className="text-gray-700 font-medium">{notification.assignedTo.length} user{notification.assignedTo.length > 1 ? 's' : ''}</span></span>
+                      <span>Assigned to: <span className="text-gray-700 dark:text-gray-200 font-medium">{notification.assignedTo.length} user{notification.assignedTo.length > 1 ? 's' : ''}</span></span>
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3 w-3" />
-                    <span>Created <span className="text-gray-700 font-medium" title={formatFullDate(notification.createdAt)}>• {formatRelativeTime(notification.createdAt)}</span></span>
+                    <span>Created <span className="text-gray-700 dark:text-gray-200 font-medium" title={formatFullDate(notification.createdAt)}>• {formatRelativeTime(notification.createdAt)}</span></span>
                   </div>
                   {notification.readAt && (
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3 w-3" />
-                      <span>Read: <span className="text-gray-700 font-medium">{formatDateTime(notification.readAt)}</span></span>
+                      <span>Read: <span className="text-gray-700 dark:text-gray-200 font-medium">{formatDateTime(notification.readAt)}</span></span>
                     </div>
                   )}
                   {notification.acknowledgedAt && (
                     <div className="flex items-center gap-1.5">
                       <Clock className="h-3 w-3" />
-                      <span>Acknowledged: <span className="text-gray-700 font-medium">{formatDateTime(notification.acknowledgedAt)}</span></span>
+                      <span>Acknowledged: <span className="text-gray-700 dark:text-gray-200 font-medium">{formatDateTime(notification.acknowledgedAt)}</span></span>
                     </div>
                   )}
                 </div>

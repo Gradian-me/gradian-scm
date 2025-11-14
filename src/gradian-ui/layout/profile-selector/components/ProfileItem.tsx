@@ -61,17 +61,17 @@ export const ProfileItem: React.FC<ProfileItemProps> = ({
       {/* Profile Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">
             {profile.name}
           </p>
           {showStatus && (
             <ProfileStatus status="active" size="sm" />
           )}
         </div>
-        <p className="text-xs text-gray-500 truncate">
+        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
           {profile.email}
         </p>
-        <p className="text-xs text-gray-400 truncate">
+        <p className="text-xs text-gray-400 dark:text-gray-400 truncate">
           {profile.role}
         </p>
       </div>

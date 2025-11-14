@@ -133,13 +133,13 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full h-full lg:max-w-4xl lg:max-h-[90vh] p-0 flex flex-col">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 shrink-0">
+      <DialogContent className="w-full h-full rounded-2xl lg:max-w-4xl lg:max-h-[90vh] p-0 flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">
               {getTypeIcon(notification.type)}
               <div className="flex-1">
-                <DialogTitle className="text-xl font-semibold text-gray-900 mb-2">
+                <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
                   {notification.title}
                 </DialogTitle>
                 <div className="flex items-center space-x-2">
@@ -163,15 +163,15 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
         <ScrollArea className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Message Content */}
-            <Card>
+            <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-gray-600" />
+                <CardTitle className="text-lg flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                  <AlertCircle className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <span>Message</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                   {notification.message}
                 </p>
               </CardContent>
@@ -179,10 +179,10 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
 
             {/* Metadata */}
             {notification.metadata && Object.keys(notification.metadata).length > 0 && (
-              <Card>
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center space-x-2">
-                    <Tag className="h-5 w-5 text-gray-600" />
+                  <CardTitle className="text-lg flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                    <Tag className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                     <span>Details</span>
                   </CardTitle>
                 </CardHeader>
@@ -194,7 +194,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                       
                       return (
                         <div key={key} className="space-y-1">
-                          <label className="text-sm font-medium text-gray-600 capitalize">
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400 capitalize">
                             {formattedKey}
                           </label>
                           {isArray ? (
@@ -205,11 +205,11 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                               className="mt-1"
                             />
                           ) : typeof value === 'object' && value !== null ? (
-                            <p className="text-sm text-gray-900">
+                            <p className="text-sm text-gray-900 dark:text-gray-200">
                               {JSON.stringify(value)}
                             </p>
                           ) : (
-                            <p className="text-sm text-gray-900">
+                            <p className="text-sm text-gray-900 dark:text-gray-200">
                               {String(value)}
                             </p>
                           )}
@@ -222,30 +222,30 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
             )}
 
             {/* Timestamps */}
-            <Card>
+            <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center space-x-2">
-                  <Clock className="h-5 w-5 text-gray-600" />
+                <CardTitle className="text-lg flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                  <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <span>Timeline</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600">Created</span>
-                    <div className="text-sm text-gray-900">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Created</span>
+                    <div className="text-sm text-gray-900 dark:text-gray-200">
                       {formatFullDate(notification.createdAt)}
-                      <span className="text-gray-500 ml-2">
+                      <span className="text-gray-500 dark:text-gray-400 ml-2">
                         ({formatRelativeTime(notification.createdAt)})
                       </span>
                     </div>
                   </div>
                   {notification.readAt && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Read</span>
-                      <div className="text-sm text-gray-900">
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Read</span>
+                      <div className="text-sm text-gray-900 dark:text-gray-200">
                         {formatFullDate(notification.readAt)}
-                        <span className="text-gray-500 ml-2">
+                        <span className="text-gray-500 dark:text-gray-400 ml-2">
                           ({formatRelativeTime(notification.readAt)})
                         </span>
                       </div>
@@ -253,10 +253,10 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
                   )}
                   {notification.acknowledgedAt && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-600">Acknowledged</span>
-                      <div className="text-sm text-gray-900">
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Acknowledged</span>
+                      <div className="text-sm text-gray-900 dark:text-gray-200">
                         {formatFullDate(notification.acknowledgedAt)}
-                        <span className="text-gray-500 ml-2">
+                        <span className="text-gray-500 dark:text-gray-400 ml-2">
                           ({formatRelativeTime(notification.acknowledgedAt)})
                         </span>
                       </div>
@@ -269,7 +269,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
         </ScrollArea>
 
         {/* Actions Footer - Fixed at bottom */}
-        <div className="p-6 border-t border-gray-200 shrink-0">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-800 shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               {!notification.isRead ? (

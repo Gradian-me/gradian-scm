@@ -74,7 +74,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   const avatarClasses = cn(
     'h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium',
     'bg-gradient-to-br from-violet-500 to-purple-600 text-white',
-    isDarkTheme ? 'ring-2 ring-gray-800 shadow-md' : 'ring-2 ring-white dark:ring-gray-500 shadow-sm'
+    isDarkTheme ? 'ring-2 ring-gray-800 shadow-md' : 'ring-2 ring-white dark:ring-gray-00 shadow-sm'
   );
 
   const menuItemClasses = cn(

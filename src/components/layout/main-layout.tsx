@@ -238,7 +238,7 @@ export function MainLayout({
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="fixed left-0 top-0 h-full w-80 bg-gray-900 text-white z-50 md:hidden"
+              className="fixed left-0 top-0 h-full w-80 bg-gray-950 text-white z-50 md:hidden"
             >
               <Sidebar 
                 isCollapsed={false} 

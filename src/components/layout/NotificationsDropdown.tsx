@@ -80,7 +80,7 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           className={cn(
-            "z-50 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white p-0 text-gray-900 shadow-lg",
+            "z-50 w-80 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-500 bg-white dark:bg-gray-800 p-0 text-gray-900 dark:text-gray-200 shadow-lg",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -90,8 +90,8 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
           align="end"
           sideOffset={4}
         >
-          <div className="p-4 border-b border-gray-100">
-            <DropdownMenuPrimitive.Label className="text-sm font-semibold text-gray-900 flex items-center justify-between">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-500">
+            <DropdownMenuPrimitive.Label className="text-sm font-semibold text-gray-900 dark:text-gray-200 flex items-center justify-between">
               Notifications
               <Badge variant="default" className="text-xs">{notificationCount}</Badge>
             </DropdownMenuPrimitive.Label>
@@ -102,7 +102,7 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
               <DropdownMenuPrimitive.Item
                 className={cn(
                   "relative flex cursor-pointer select-none items-start rounded-lg p-3 text-sm outline-none",
-                  "hover:bg-violet-50 focus:bg-violet-50"
+                  "hover:bg-violet-50 dark:hover:bg-gray-700 focus:bg-violet-50 dark:focus:bg-gray-700"
                 )}
                 onSelect={() => handleNotificationClick('notification-1')}
               >
@@ -112,13 +112,13 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
-                      <p className="text-sm font-medium">New Quotation Received</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">New Quotation Received</p>
                       <Badge variant="success" className="text-xs">New</Badge>
                     </div>
-                    <p className="text-xs text-gray-500">Transfarma submitted a quotation for HPLC Columns</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Transfarma submitted a quotation for HPLC Columns</p>
                     <div className="flex items-center space-x-1 mt-1">
-                      <Clock className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-400">2 minutes ago</span>
+                      <Clock className="h-3 w-3 text-gray-400 dark:text-gray-400" />
+                      <span className="text-xs text-gray-400 dark:text-gray-400">2 minutes ago</span>
                     </div>
                   </div>
                 </div>
@@ -127,7 +127,7 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
               <DropdownMenuPrimitive.Item
                 className={cn(
                   "relative flex cursor-pointer select-none items-start rounded-lg p-3 text-sm outline-none",
-                  "hover:bg-violet-50 focus:bg-violet-50"
+                  "hover:bg-violet-50 dark:hover:bg-gray-700 focus:bg-violet-50 dark:focus:bg-gray-700"
                 )}
                 onSelect={() => handleNotificationClick('notification-2')}
               >
@@ -137,13 +137,13 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
-                      <p className="text-sm font-medium">Purchase Order Approved</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">Purchase Order Approved</p>
                       <Badge variant="info" className="text-xs">Approved</Badge>
                     </div>
-                    <p className="text-xs text-gray-500">PO-2024-001 has been approved</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">PO-2024-001 has been approved</p>
                     <div className="flex items-center space-x-1 mt-1">
-                      <Clock className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-400">1 hour ago</span>
+                      <Clock className="h-3 w-3 text-gray-400 dark:text-gray-400" />
+                      <span className="text-xs text-gray-400 dark:text-gray-400">1 hour ago</span>
                     </div>
                   </div>
                 </div>
@@ -152,7 +152,7 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
               <DropdownMenuPrimitive.Item
                 className={cn(
                   "relative flex cursor-pointer select-none items-start rounded-lg p-3 text-sm outline-none",
-                  "hover:bg-violet-50 focus:bg-violet-50"
+                  "hover:bg-violet-50 dark:hover:bg-gray-700 focus:bg-violet-50 dark:focus:bg-gray-700"
                 )}
                 onSelect={() => handleNotificationClick('notification-3')}
               >
@@ -162,13 +162,13 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
-                      <p className="text-sm font-medium">Shipment Delayed</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">Shipment Delayed</p>
                       <Badge variant="warning" className="text-xs">Urgent</Badge>
                     </div>
-                    <p className="text-xs text-gray-500">SH-2024-001 is experiencing delays</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">SH-2024-001 is experiencing delays</p>
                     <div className="flex items-center space-x-1 mt-1">
-                      <Clock className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-400">3 hours ago</span>
+                      <Clock className="h-3 w-3 text-gray-400 dark:text-gray-400" />
+                      <span className="text-xs text-gray-400 dark:text-gray-400">3 hours ago</span>
                     </div>
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
               <DropdownMenuPrimitive.Item
                 className={cn(
                   "relative flex cursor-pointer select-none items-start rounded-lg p-3 text-sm outline-none",
-                  "hover:bg-violet-50 focus:bg-violet-50"
+                  "hover:bg-violet-50 dark:hover:bg-gray-700 focus:bg-violet-50 dark:focus:bg-gray-700"
                 )}
                 onSelect={() => handleNotificationClick('notification-4')}
               >
@@ -187,13 +187,13 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
-                      <p className="text-sm font-medium">Vendor Registration Complete</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate">Vendor Registration Complete</p>
                       <Badge variant="success" className="text-xs">Complete</Badge>
                     </div>
-                    <p className="text-xs text-gray-500">New vendor Merck has been registered</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">New vendor Merck has been registered</p>
                     <div className="flex items-center space-x-1 mt-1">
-                      <Clock className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-400">1 day ago</span>
+                      <Clock className="h-3 w-3 text-gray-400 dark:text-gray-400" />
+                      <span className="text-xs text-gray-400 dark:text-gray-400">1 day ago</span>
                     </div>
                   </div>
                 </div>
@@ -201,11 +201,11 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
             </div>
           </ScrollArea>
           
-          <div className="p-3 border-t border-gray-100">
+          <div className="p-3 border-t border-gray-100 dark:border-gray-500">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full text-xs"
+              className="w-full text-xs text-gray-900 dark:text-gray-200"
               onClick={handleViewAllClick}
               aria-label="View all notifications"
             >

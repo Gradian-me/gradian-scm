@@ -132,54 +132,56 @@ export function NotificationsPage() {
     { id: 'status', label: 'By Status', icon: 'ListChecks' }
   ];
 
+  const cardClass = 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm';
+
   return (
     <MainLayout title="Notifications">
       <div className="space-y-6">
         {/* Header Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
+          <Card className={cardClass}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Bell className="h-5 w-5 text-violet-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.all}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filterCounts.all}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
+
+          <Card className={cardClass}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Unread</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.unread}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Unread</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filterCounts.unread}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
+
+          <Card className={cardClass}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <CheckCheck className="h-5 w-5 text-violet-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Need Acknowledgement</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.needsAcknowledgement || 0}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Need Acknowledgement</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filterCounts.needsAcknowledgement || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
+
+          <Card className={cardClass}>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <X className="h-5 w-5 text-red-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Important</p>
-                  <p className="text-2xl font-bold text-gray-900">{filterCounts.important || 0}</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Important</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{filterCounts.important || 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -187,11 +189,12 @@ export function NotificationsPage() {
         </div>
 
         {/* Search and Filters */}
-        <Card>
+        <Card className={cardClass}>
           <CardHeader>
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <CardTitle className="text-lg">Search & Filter</CardTitle>
-              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 w-full md:w-auto">
+              <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Search & Filter</CardTitle>
+              <div className="w-full md:w-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-flow-col lg:auto-cols-max gap-2">
                 <Select
                   options={groupByOptions}
                   value={groupBy}
@@ -200,12 +203,13 @@ export function NotificationsPage() {
                   config={{ name: 'groupBy', label: '' }}
                   size="sm"
                   className="w-full sm:w-[180px] md:w-[140px]"
+                  className="w-full"
                 />
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="w-full sm:w-auto"
+                  className="w-full"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Filters
@@ -215,7 +219,7 @@ export function NotificationsPage() {
                     variant="default"
                     size="sm"
                     onClick={markAllAsRead}
-                    className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700"
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-white"
                   >
                     <CheckCircle2 className="h-4 w-4 mr-2" />
                     Mark All Read
@@ -223,6 +227,7 @@ export function NotificationsPage() {
                 )}
               </div>
             </div>
+          </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -240,7 +245,7 @@ export function NotificationsPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-4 border-t border-gray-200"
+                  className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-800"
                 >
                   <Select
                     options={typeOptions}
@@ -282,8 +287,8 @@ export function NotificationsPage() {
 
               {/* Active Filters */}
               {(filters.type || filters.category || filters.isRead !== undefined) && (
-                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
-                  <span className="text-sm text-gray-600">Active filters:</span>
+                <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200 dark:border-gray-800">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
                   {filters.type && (
                     <Badge variant="info" className="text-xs">
                       Type: {NotificationService.getTypeLabel(filters.type)}
@@ -317,22 +322,22 @@ export function NotificationsPage() {
         {isLoading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mx-auto"></div>
-            <p className="text-gray-600 mt-2">Loading notifications...</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">Loading notifications...</p>
           </div>
         ) : error ? (
-          <Card>
+          <Card className={cardClass}>
             <CardContent className="p-6 text-center">
               <X className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Notifications</h3>
-              <p className="text-gray-600">{error}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Notifications</h3>
+              <p className="text-gray-600 dark:text-gray-400">{error}</p>
             </CardContent>
           </Card>
         ) : groupedNotifications.length === 0 ? (
-          <Card>
+          <Card className={cardClass}>
             <CardContent className="p-6 text-center">
               <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Notifications Found</h3>
-              <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No Notifications Found</h3>
+              <p className="text-gray-600 dark:text-gray-400">Try adjusting your search or filter criteria.</p>
             </CardContent>
           </Card>
         ) : (

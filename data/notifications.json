@@ -102,7 +102,7 @@
     "type": "info",
     "category": "system",
     "priority": "medium",
-    "isRead": false,
+    "isRead": true,
     "createdAt": "2024-12-08T16:00:00.000Z",
     "metadata": {
       "maintenanceDate": "2024-12-15",
@@ -116,7 +116,8 @@
       ]
     },
     "updatedAt": "2025-11-04T11:45:08.174Z",
-    "interactionType": "canRead"
+    "interactionType": "canRead",
+    "readAt": "2025-11-14T23:11:20.977Z"
   },
   {
     "id": "7",

@@ -53,10 +53,10 @@ export function NotificationGroup({ group, groupBy = 'category', onMarkAsRead, o
   };
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900">
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {getGroupLabel(group.category, groupBy)}
           </CardTitle>
           <div className="flex items-center space-x-2">

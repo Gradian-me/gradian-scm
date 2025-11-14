@@ -610,7 +610,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                     )}
                   </div>
                   {subtitle && (
-                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                       {renderHighlightedText(subtitle, highlightQuery)}
                     </p>
                   )}
