@@ -190,6 +190,12 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
 
   // Use shared companies hook for client-side caching
   const { companies: companiesData, isLoading: isLoadingCompaniesData } = useCompanies();
+
+  const availableCompanyIds = useMemo(() => {
+    return companiesData
+      .filter((company: any) => company.id !== -1 && company.id !== undefined && company.id !== null)
+      .map((company: any) => String(company.id));
+  }, [companiesData]);
   
   // Fetch companies schema for grouping (companies data comes from useCompanies hook with caching)
   useEffect(() => {
@@ -239,18 +245,15 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     
     // Skip company filtering if schema is not company-based
     if (!schema?.isNotCompanyBased) {
-      // Support companyIds array for filtering by multiple companies
-      // For now, we still use single companyId for backward compatibility
-      // But the API supports companyIds[] array parameter
       if (selectedCompany && selectedCompany.id !== -1) {
-        // Use companyIds array (even with single value) for consistency
         filters.companyIds = [String(selectedCompany.id)];
+      } else if (availableCompanyIds.length > 0) {
+        filters.companyIds = [...availableCompanyIds];
       }
-      // If "All Companies" (-1) is selected, don't add companyIds filter (show all)
     }
     
     return filters;
-  }, [currentFilters, selectedCompany, schema?.isNotCompanyBased]);
+  }, [currentFilters, selectedCompany, schema?.isNotCompanyBased, availableCompanyIds]);
 
   // Confirm and execute delete
   const confirmDelete = useCallback(async () => {
