@@ -53,6 +53,17 @@ interface PendingSelection {
   raw?: any | null;
 }
 
+const normalizeIdList = (ids?: Array<string | number>): string[] =>
+  (ids ?? []).map((id) => String(id));
+
+const buildIdsKey = (ids?: Array<string | number>): string => {
+  const normalized = normalizeIdList(ids);
+  if (normalized.length === 0) {
+    return '';
+  }
+  return normalized.slice().sort().join('|');
+};
+
 const buildSelectionEntry = (item: any, schema?: FormSchema | null): NormalizedOption => {
   if (!item) {
     return {
@@ -139,14 +150,13 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const [pendingSelections, setPendingSelections] = useState<Map<string, PendingSelection>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const baseSelectedIds = useMemo(
-    () => new Set((selectedIds ?? []).map((id) => String(id))),
-    [selectedIds]
-  );
+  const baseSelectedIdsRef = useRef<Set<string>>(new Set());
+  const baseSelectedIds = baseSelectedIdsRef.current;
 
   // Use refs to track previous array values for comparison
   const prevExcludeIdsRef = useRef<string>('');
   const prevIncludeIdsRef = useRef<string>('');
+  const prevSelectedIdsKeyRef = useRef<string>('');
 
   // Fetch schema if not provided
   useEffect(() => {
@@ -175,12 +185,18 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
       setSearchQuery('');
       setError(null);
       setPendingSelections(new Map());
-      setSessionSelectedIds(new Set(baseSelectedIds));
+      setSessionSelectedIds(new Set(baseSelectedIdsRef.current));
     }
-  }, [isOpen, baseSelectedIds]);
+  }, [isOpen]);
 
   useEffect(() => {
-    const normalized = new Set((selectedIds ?? []).map((id) => String(id)));
+    const nextKey = buildIdsKey(selectedIds);
+    if (nextKey === prevSelectedIdsKeyRef.current) {
+      return;
+    }
+    prevSelectedIdsKeyRef.current = nextKey;
+    const normalized = new Set(normalizeIdList(selectedIds));
+    baseSelectedIdsRef.current = normalized;
     setSessionSelectedIds(new Set(normalized));
     setPendingSelections(new Map());
   }, [selectedIds]);

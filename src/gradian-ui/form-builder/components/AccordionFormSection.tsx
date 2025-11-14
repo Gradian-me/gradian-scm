@@ -135,15 +135,49 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           ? relationsResponse.data 
           : [];
         setRelations(relationsList);
-        
-        // Fetch related entities
-        const entitiesPromises = relationsList.map(async (relation: DataRelation) => {
-          const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
-          return entityResponse.success && entityResponse.data ? entityResponse.data : null;
-        });
-        
-        const entities = await Promise.all(entitiesPromises);
-        setRelatedEntities(entities.filter(e => e !== null));
+
+        if (!targetSchema || relationsList.length === 0) {
+          setRelatedEntities([]);
+          return;
+        }
+
+        const uniqueTargetIds = Array.from(
+          new Set(
+            relationsList
+              .map((relation) => relation.targetId)
+              .filter((id): id is string => Boolean(id))
+          )
+        );
+
+        let resolvedEntities: any[] = [];
+
+        if (uniqueTargetIds.length > 0) {
+          const batchResponse = await apiRequest<any[]>(`/api/data/${targetSchema}`, {
+            params: {
+              includeIds: uniqueTargetIds.join(','),
+            },
+          });
+
+          if (batchResponse.success && Array.isArray(batchResponse.data)) {
+            const entityMap = new Map<string, any>(
+              batchResponse.data.map((entity) => [String(entity.id), entity])
+            );
+
+            resolvedEntities = relationsList
+              .map((relation) => entityMap.get(relation.targetId))
+              .filter((entity): entity is any => Boolean(entity));
+          } else {
+            const fallbackEntities = await Promise.all(
+              relationsList.map(async (relation: DataRelation) => {
+                const entityResponse = await apiRequest<any>(`/api/data/${targetSchema}/${relation.targetId}`);
+                return entityResponse.success && entityResponse.data ? entityResponse.data : null;
+              })
+            );
+            resolvedEntities = fallbackEntities.filter((entity): entity is any => Boolean(entity));
+          }
+        }
+
+        setRelatedEntities(resolvedEntities);
       }
     } catch (error) {
       console.error('Error fetching relations:', error);
@@ -224,11 +258,11 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   const gridClasses = cn(
     'grid gap-3',
     columns === 1 && 'grid-cols-1',
-    columns === 2 && 'grid-cols-1 lg:grid-cols-2',
-    columns === 3 && 'grid-cols-1 lg:grid-cols-3',
-    columns === 4 && 'grid-cols-1 lg:grid-cols-4',
-    columns === 6 && 'grid-cols-1 lg:grid-cols-6',
-    columns === 12 && 'grid-cols-1 lg:grid-cols-12',
+    columns === 2 && 'grid-cols-1 md:grid-cols-2',
+    columns === 3 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+    columns === 4 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    columns === 6 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-6',
+    columns === 12 && 'grid-cols-1 md:grid-cols-2 lg:grid-cols-12',
     gap !== undefined && gap !== null && gap !== 0 && `gap-${gap}`
   );
 
@@ -317,28 +351,28 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
           // and apply the actual span at md and up.
           let colSpanClass = 'col-span-1';
           if (colSpan === columns) {
-            colSpanClass = 'col-span-1 lg:col-span-full';
+            colSpanClass = 'col-span-1 md:col-span-full';
           } else {
             // For responsive layouts at md+
             if (columns === 3) {
               if (colSpan === 2) {
-                colSpanClass = 'col-span-1 lg:col-span-2';
+                colSpanClass = 'col-span-1 md:col-span-2';
               }
             } else if (columns === 2) {
               if (colSpan === 2) {
-                colSpanClass = 'col-span-1 lg:col-span-2';
+                colSpanClass = 'col-span-1 md:col-span-2';
               }
             } else if (columns === 4) {
               if (colSpan === 2) {
-                colSpanClass = 'col-span-1 lg:col-span-2';
+                colSpanClass = 'col-span-1 md:col-span-2';
               } else if (colSpan === 3) {
-                colSpanClass = 'col-span-1 lg:col-span-3';
+                colSpanClass = 'col-span-1 md:col-span-3';
               }
             } else if (columns === 6 || columns === 12) {
-              colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
+              colSpanClass = `col-span-1 md:col-span-${colSpan}`;
             } else {
               // Default for other column counts
-              colSpanClass = `col-span-1 lg:col-span-${colSpan}`;
+              colSpanClass = `col-span-1 md:col-span-${colSpan}`;
             }
           }
 

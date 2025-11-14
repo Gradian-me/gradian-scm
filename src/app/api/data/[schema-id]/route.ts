@@ -78,14 +78,18 @@ export async function GET(
       const companyIdsString = searchParams.get('companyIds');
       // Check for backward compatibility: single companyId parameter
       const companyId = searchParams.get('companyId');
+      // Allow includeIds to bypass company filter since records are explicitly targeted
+      const hasIncludeIds =
+        searchParams.has('includeIds') ||
+        searchParams.getAll('includeIds[]').length > 0;
       
       // Parse companyIds from comma-separated string if provided
       const companyIds = companyIdsString 
         ? companyIdsString.split(',').map(id => id.trim()).filter(id => id.length > 0)
         : [];
       
-      // Validate that at least one company ID is provided
-      if (!companyId && companyIds.length === 0) {
+      // Validate that at least one company ID is provided, unless includeIds is used
+      if (!companyId && companyIds.length === 0 && !hasIncludeIds) {
         return NextResponse.json(
           { 
             success: false, 
