@@ -25,6 +25,41 @@ function resolveApiUrl(endpoint: string): string {
   return endpoint;
 }
 
+const isDevEnvironment = (): boolean => process.env.NODE_ENV === 'development';
+
+const extractCallerFromStack = (): string | undefined => {
+  const stack = new Error().stack;
+  if (!stack) return undefined;
+
+  const frames = stack
+    .split('\n')
+    .map((line) => line.trim())
+    // Skip the first frames which belong to Error creation and api helpers themselves
+    .slice(3);
+
+  const callerFrame = frames.find(
+    (frame) =>
+      frame &&
+      !frame.includes('ApiClient') &&
+      !frame.includes('apiRequest') &&
+      !frame.includes('api.ts')
+  );
+
+  if (!callerFrame) return undefined;
+
+  // Frame format examples:
+  // at someFunction (path:line:column)
+  // at path:line:column
+  const cleaned = callerFrame.replace(/^at\s+/, '');
+  const parts = cleaned.split(' ');
+
+  if (parts.length > 1) {
+    return parts[0];
+  }
+
+  return cleaned;
+};
+
 export class ApiClient {
   private baseURL: string;
 
@@ -81,35 +116,60 @@ export class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<ApiResponse<T>> {
+  async get<T>(
+    endpoint: string,
+    params?: Record<string, any>,
+    requestOptions?: RequestInit
+  ): Promise<ApiResponse<T>> {
     const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
-    const result = await this.request<T>(url, { method: 'GET' });
+    const result = await this.request<T>(url, {
+      ...requestOptions,
+      method: 'GET',
+    });
     return result;
   }
 
-  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async post<T>(
+    endpoint: string,
+    data?: any,
+    requestOptions?: RequestInit
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
+      ...requestOptions,
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async put<T>(
+    endpoint: string,
+    data?: any,
+    requestOptions?: RequestInit
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
+      ...requestOptions,
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  async patch<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+  async patch<T>(
+    endpoint: string,
+    data?: any,
+    requestOptions?: RequestInit
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
+      ...requestOptions,
       method: 'PATCH',
       body: data ? JSON.stringify(data) : undefined,
     });
   }
 
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async delete<T>(endpoint: string, requestOptions?: RequestInit): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      ...requestOptions,
+      method: 'DELETE',
+    });
   }
 }
 
@@ -128,22 +188,34 @@ export async function apiRequest<T>(
     body?: any;
     headers?: Record<string, string>;
     params?: Record<string, any>;
+    callerName?: string;
   }
 ): Promise<ApiResponse<T>> {
   const method = options?.method || 'GET';
+  const isDev = isDevEnvironment();
+  const callerName = isDev ? options?.callerName || extractCallerFromStack() || 'unknown' : undefined;
+  const baseHeaders = options?.headers ? { ...options.headers } : undefined;
+  const headersWithCaller =
+    isDev && callerName
+      ? { ...(baseHeaders || {}), 'x-function-name': callerName }
+      : baseHeaders;
+
+  if (isDev && callerName) {
+    console.info(`[apiRequest] ${method} ${endpoint} invoked by ${callerName}`);
+  }
   
   try {
     switch (method) {
       case 'GET':
-        return await apiClient.get<T>(endpoint, options?.params);
+        return await apiClient.get<T>(endpoint, options?.params, headersWithCaller ? { headers: headersWithCaller } : undefined);
       case 'POST':
-        return await apiClient.post<T>(endpoint, options?.body);
+        return await apiClient.post<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
       case 'PUT':
-        return await apiClient.put<T>(endpoint, options?.body);
+        return await apiClient.put<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
       case 'PATCH':
-        return await apiClient.patch<T>(endpoint, options?.body);
+        return await apiClient.patch<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
       case 'DELETE':
-        return await apiClient.delete<T>(endpoint);
+        return await apiClient.delete<T>(endpoint, headersWithCaller ? { headers: headersWithCaller } : undefined);
       default:
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
