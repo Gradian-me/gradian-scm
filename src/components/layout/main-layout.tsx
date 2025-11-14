@@ -14,6 +14,7 @@ import { useCompanyStore } from '@/stores/company.store';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileSelector } from './UserProfileSelector';
 import type { HeaderConfig } from '@/gradian-ui/layout/header';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ interface MainLayoutProps {
   onCreateClick?: () => void;
   editSchemaPath?: string;
   isAdmin?: boolean;
+  navigationSchemas?: FormSchema[];
 }
 
 const DESKTOP_BREAKPOINT = 768;
@@ -47,7 +49,8 @@ export function MainLayout({
   createButtonText = "Create",
   onCreateClick,
   editSchemaPath,
-  isAdmin = false
+  isAdmin = false,
+  navigationSchemas,
 }: MainLayoutProps) {
   const router = useRouter();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -223,6 +226,7 @@ export function MainLayout({
             abbreviation: selectedCompany.abbreviation,
             id: selectedCompany.id
           } : undefined}
+          navigationSchemas={navigationSchemas}
         />
       </div>
       
@@ -256,6 +260,7 @@ export function MainLayout({
                   abbreviation: selectedCompany.abbreviation,
                   id: selectedCompany.id
                 } : undefined}
+                navigationSchemas={navigationSchemas}
               />
             </motion.div>
           </>

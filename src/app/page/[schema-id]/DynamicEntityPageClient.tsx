@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 interface DynamicEntityPageClientProps {
   initialSchema: FormSchema;
   schemaId: string;
+  navigationSchemas?: FormSchema[];
 }
 
 /**
@@ -93,7 +94,7 @@ function reconstructRegExp(obj: any): any {
   return obj;
 }
 
-export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEntityPageClientProps) {
+export function DynamicEntityPageClient({ initialSchema, schemaId, navigationSchemas }: DynamicEntityPageClientProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   
@@ -101,6 +102,11 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
   const reconstructedInitialSchema = useMemo(
     () => reconstructRegExp(initialSchema) as FormSchema,
     [initialSchema]
+  );
+
+  const reconstructedNavigationSchemas = useMemo(
+    () => (navigationSchemas ?? []).map((schema) => reconstructRegExp(schema) as FormSchema),
+    [navigationSchemas]
   );
   
   // Use React Query to fetch and cache schema
@@ -149,6 +155,7 @@ export function DynamicEntityPageClient({ initialSchema, schemaId }: DynamicEnti
     <DynamicPageRenderer 
       schema={serializedSchema} 
       entityName={schema.singular_name || 'Entity'}
+      navigationSchemas={reconstructedNavigationSchemas}
     />
   );
 }

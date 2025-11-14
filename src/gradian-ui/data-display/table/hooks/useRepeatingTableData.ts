@@ -45,7 +45,13 @@ export function useRepeatingTableData(
   );
 
   const fetchRelations = useCallback(async () => {
-    if (!isRelationBased || !effectiveSourceId || !targetSchemaId || isFetchingRelationsRef.current) {
+    if (
+      !isRelationBased ||
+      !effectiveSourceId ||
+      !targetSchemaId ||
+      !targetSchemaData ||
+      isFetchingRelationsRef.current
+    ) {
       return;
     }
 
@@ -53,11 +59,6 @@ export function useRepeatingTableData(
     setIsLoadingRelations(true);
 
     try {
-      let schemaToUse = targetSchemaData;
-      if (!schemaToUse && targetSchemaId) {
-        schemaToUse = await fetchSchemaClient(targetSchemaId);
-      }
-
       const allRelationsUrl = `/api/data/all-relations?schema=${effectiveSourceSchemaId}&id=${effectiveSourceId}&direction=both&otherSchema=${targetSchemaId}`;
 
       const allRelationsResponse = await apiRequest<Array<{
@@ -84,8 +85,8 @@ export function useRepeatingTableData(
           entities.push(...annotatedData);
         }
 
-        if (schemaToUse?.fields?.length && entities.length > 0) {
-          const pickerFields = schemaToUse.fields.filter(
+        if (targetSchemaData?.fields?.length && entities.length > 0) {
+          const pickerFields = targetSchemaData.fields.filter(
             (field: any) => field.type === 'picker' && field.targetSchema
           );
 
@@ -107,23 +108,16 @@ export function useRepeatingTableData(
                       const resolvedEntity = resolvedResponse.data;
                       let resolvedLabel = resolvedEntity.name || resolvedEntity.title || fieldValue;
 
-                      try {
-                        const targetSchemaForPicker = await fetchSchemaClient(field.targetSchema);
-                        if (targetSchemaForPicker) {
-                          const titleByRole = getValueByRole(
-                            targetSchemaForPicker,
-                            resolvedEntity,
-                            'title'
-                          );
-                          if (titleByRole && titleByRole.trim() !== '') {
-                            resolvedLabel = titleByRole;
-                          }
-                        }
-                      } catch (schemaError) {
-                        console.error(
-                          `Error fetching target schema for picker field ${field.name}:`,
-                          schemaError
+                      const targetSchemaForPicker = await fetchSchemaClient(field.targetSchema);
+                      if (targetSchemaForPicker) {
+                        const titleByRole = getValueByRole(
+                          targetSchemaForPicker,
+                          resolvedEntity,
+                          'title'
                         );
+                        if (titleByRole && titleByRole.trim() !== '') {
+                          resolvedLabel = titleByRole;
+                        }
                       }
 
                       entity[`_${field.name}_resolved`] = {
@@ -166,7 +160,7 @@ export function useRepeatingTableData(
   ]);
 
   useEffect(() => {
-    if (!isRelationBased || !effectiveSourceId || !targetSchemaId) {
+    if (!isRelationBased || !effectiveSourceId || !targetSchemaId || !targetSchemaData) {
       return;
     }
 

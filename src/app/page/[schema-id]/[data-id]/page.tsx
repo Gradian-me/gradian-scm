@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { DynamicDetailPageClient } from './DynamicDetailPageClient';
+import { getAllSchemasArray } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 
 // Set revalidate to 0 to force dynamic rendering
 // This ensures schema changes are reflected immediately when cache is cleared
@@ -38,6 +39,7 @@ function serializeSchema(schema: FormSchema): any {
 export default async function DynamicDetailPage({ params }: PageProps) {
   const { 'schema-id': schemaId, 'data-id': dataId } = await params;
   const schema = await fetchSchemaById(schemaId);
+  const navigationSchemas = await getAllSchemasArray();
 
   if (!schema) {
     notFound();
@@ -45,6 +47,7 @@ export default async function DynamicDetailPage({ params }: PageProps) {
 
   // Serialize schema to make it safe for Client Component
   const serializedSchema = serializeSchema(schema);
+  const serializedNavigationSchemas = navigationSchemas.map(serializeSchema);
 
   return (
     <Suspense fallback={
@@ -59,6 +62,7 @@ export default async function DynamicDetailPage({ params }: PageProps) {
         dataId={dataId}
         schemaId={schemaId}
         entityName={schema.singular_name || 'Entity'}
+        navigationSchemas={serializedNavigationSchemas}
       />
     </Suspense>
   );

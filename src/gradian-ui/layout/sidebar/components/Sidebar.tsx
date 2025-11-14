@@ -20,6 +20,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   user: _user,
   company,
   className,
+  navigationSchemas,
 }) => {
   const width = isMobile ? 320 : (isCollapsed ? config.styling?.collapsedWidth || 80 : config.styling?.expandedWidth || 280);
 
@@ -52,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         items={navigationItems}
         isCollapsed={isCollapsed}
         isMobile={isMobile}
+        navigationSchemas={navigationSchemas}
       />
 
       {/* User Profile */}

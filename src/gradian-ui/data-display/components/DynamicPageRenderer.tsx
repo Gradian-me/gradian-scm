@@ -41,6 +41,7 @@ import { UI_PARAMS } from '@/gradian-ui/shared/constants/application-variables';
 interface DynamicPageRendererProps {
   schema: FormSchema;
   entityName: string;
+  navigationSchemas?: FormSchema[];
 }
 
 /**
@@ -71,10 +72,14 @@ function reconstructRegExp(obj: any): any {
   return obj;
 }
 
-export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPageRendererProps) {
+export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationSchemas }: DynamicPageRendererProps) {
   const router = useRouter();
   // Reconstruct RegExp objects in the schema
   const schema = reconstructRegExp(rawSchema) as FormSchema;
+  const reconstructedNavigationSchemas = useMemo(
+    () => (navigationSchemas ?? []).map((navSchema) => reconstructRegExp(navSchema) as FormSchema),
+    [navigationSchemas]
+  );
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -467,6 +472,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
       icon={schema.icon}
       editSchemaPath={schema.id ? `/builder/schemas/${schema.id}` : undefined}
       isAdmin={isAdmin}
+      navigationSchemas={reconstructedNavigationSchemas}
     >
       {/* Individual entity loading indicator */}
       <div 

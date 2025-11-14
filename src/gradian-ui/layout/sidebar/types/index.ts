@@ -1,6 +1,7 @@
 // Sidebar Types
 
 import { BaseComponentProps } from '../../../shared/types';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { LucideIcon } from 'lucide-react';
 
 export interface SidebarProps extends BaseComponentProps {
@@ -38,6 +39,11 @@ export interface SidebarProps extends BaseComponentProps {
    * Company badge information
    */
   company?: CompanyBadge;
+
+  /**
+   * Preloaded schemas for dynamic navigation
+   */
+  navigationSchemas?: FormSchema[];
 }
 
 export interface SidebarConfig {
@@ -166,6 +172,7 @@ export interface SidebarNavigationProps extends BaseComponentProps {
   isMobile: boolean;
   activePath?: string;
   onItemClick?: (item: NavigationItem) => void;
+  navigationSchemas?: FormSchema[];
 }
 
 export interface SidebarUserProfileProps extends BaseComponentProps {

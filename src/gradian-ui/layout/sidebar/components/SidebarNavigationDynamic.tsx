@@ -17,15 +17,19 @@ interface SidebarNavigationDynamicProps {
   isCollapsed: boolean;
   isMobile: boolean;
   className?: string;
+  initialSchemas?: FormSchema[];
 }
 
 export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> = ({
   isCollapsed,
   isMobile,
-  className
+  className,
+  initialSchemas,
 }) => {
   const pathname = usePathname();
-  const { schemas: allSchemas, isLoading } = useSchemas();
+  const { schemas: allSchemas, isLoading } = useSchemas({
+    initialData: initialSchemas,
+  });
 
   // Filter schemas that have showInNavigation enabled
   const schemas = useMemo(() => {

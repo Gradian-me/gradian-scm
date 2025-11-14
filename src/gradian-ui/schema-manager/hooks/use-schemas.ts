@@ -10,9 +10,15 @@ import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
  * This deduplicates requests and shares cache across all components
  * Uses the QueryClient from QueryClientProvider context automatically
  */
-export function useSchemas() {
+interface UseSchemasOptions {
+  enabled?: boolean;
+  initialData?: FormSchema[];
+}
+
+export function useSchemas(options?: UseSchemasOptions) {
   // Get cache configuration for /api/schemas route
   const cacheConfig = getCacheConfigByPath('/api/schemas');
+  const { enabled, initialData } = options || {};
   
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['schemas'],
@@ -37,6 +43,8 @@ export function useSchemas() {
       console.log(`[REACT_QUERY] ✅ Fetched ${list.length} schemas - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
       return list;
     },
+    enabled: enabled !== false,
+    initialData,
     staleTime: cacheConfig.staleTime ?? 10 * 60 * 1000,
     gcTime: cacheConfig.gcTime ?? 30 * 60 * 1000,
     refetchOnMount: false, // Don't refetch on mount if data exists in cache

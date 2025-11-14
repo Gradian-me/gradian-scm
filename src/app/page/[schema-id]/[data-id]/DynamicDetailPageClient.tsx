@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DynamicDetailPageRenderer, getPageTitle, getPageSubtitle } from '@/gradian-ui/data-display/components/DynamicDetailPageRenderer';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
@@ -13,6 +13,7 @@ interface DynamicDetailPageClientProps {
   dataId: string;
   schemaId: string;
   entityName: string;
+  navigationSchemas?: FormSchema[];
 }
 
 /**
@@ -60,7 +61,8 @@ export function DynamicDetailPageClient({
   schema: rawSchema,
   dataId,
   schemaId,
-  entityName
+  entityName,
+  navigationSchemas,
 }: DynamicDetailPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,6 +75,11 @@ export function DynamicDetailPageClient({
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const reconstructedNavigationSchemas = useMemo(
+    () => (navigationSchemas ?? []).map((schema) => reconstructRegExp(schema) as FormSchema),
+    [navigationSchemas]
+  );
+
 
   // Use the dynamic entity hook for CRUD operations
   const {
@@ -185,7 +192,11 @@ export function DynamicDetailPageClient({
   const pageSubtitle = getPageSubtitle(schemaState, entityName);
 
   return (
-    <MainLayout title={pageTitle} subtitle={pageSubtitle}>
+    <MainLayout
+      title={pageTitle}
+      subtitle={pageSubtitle}
+      navigationSchemas={reconstructedNavigationSchemas}
+    >
       <DynamicDetailPageRenderer
         schema={schemaState}
         data={data}

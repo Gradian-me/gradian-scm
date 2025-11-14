@@ -18,6 +18,7 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   activePath,
   onItemClick,
   className,
+  navigationSchemas,
 }) => {
   const pathname = usePathname();
   const currentPath = activePath || pathname;
@@ -76,6 +77,7 @@ export const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
       <SidebarNavigationDynamic
         isCollapsed={isCollapsed}
         isMobile={isMobile}
+        initialSchemas={navigationSchemas}
       />
     </ScrollArea>
   );

@@ -2,7 +2,7 @@
 // Renders any entity page based on schema ID
 import { notFound } from 'next/navigation';
 import { DynamicEntityPageClient } from './DynamicEntityPageClient';
-import { getAvailableSchemaIds } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
+import { getAllSchemasArray, getAvailableSchemaIds } from '@/gradian-ui/schema-manager/utils/schema-registry.server';
 import { fetchSchemaById } from '@/gradian-ui/schema-manager/utils/schema-registry';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
@@ -46,6 +46,7 @@ function serializeSchema(schema: FormSchema): any {
 export default async function DynamicEntityPage({ params }: PageProps) {
   const { 'schema-id': schemaId } = await params;
   const schema = await fetchSchemaById(schemaId);
+  const navigationSchemas = await getAllSchemasArray();
 
   if (!schema) {
     notFound();
@@ -53,12 +54,14 @@ export default async function DynamicEntityPage({ params }: PageProps) {
 
   // Serialize schema to make it safe for Client Component (removes RegExp objects)
   const serializedSchema = serializeSchema(schema);
+  const serializedNavigationSchemas = navigationSchemas.map(serializeSchema);
 
   // Pass schema to client component which will handle caching
   return (
     <DynamicEntityPageClient 
       initialSchema={serializedSchema}
       schemaId={schemaId}
+      navigationSchemas={serializedNavigationSchemas}
     />
   );
 }
