@@ -168,10 +168,16 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
   }
   
   // Always use API endpoint with caching (works for both DEMO_MODE=true and DEMO_MODE=false)
-  // When DEMO_MODE=true: fetches from local /api/schemas (cached)
-  // When DEMO_MODE=false: fetches from external URL_SCHEMA_CRUD/api/schemas (cached)
+  // When DEMO_MODE=true and schemaApi.basePath points to local API, we can read directly from file to avoid nested HTTP calls
   const apiPath = config.schemaApi.basePath;
-  
+  const isServerRuntime = typeof window === 'undefined';
+  const isLocalApiPath =
+    apiPath.startsWith('/api/') ||
+    apiPath.startsWith('/api') ||
+    apiPath.startsWith('http://localhost') ||
+    apiPath.startsWith('https://localhost');
+  const shouldReadFromFile = isServerRuntime && isLocalApiPath;
+
   try {
     return await loadData<FormSchema[]>(
       SCHEMAS_ROUTE_KEY,
@@ -186,6 +192,16 @@ export async function loadAllSchemas(): Promise<FormSchema[]> {
           return data.map(processSchema);
         },
         logType: LogType.SCHEMA_LOADER,
+        fetcher: shouldReadFromFile
+          ? async () => {
+              const fileData = readSchemasFromFile();
+              if (fileData) {
+                return fileData;
+              }
+              loggingCustom(LogType.SCHEMA_LOADER, 'warn', 'Local schemas file not found while using local API path');
+              return [];
+            }
+          : undefined,
       }
     );
   } catch (error) {

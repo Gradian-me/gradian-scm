@@ -88,15 +88,18 @@ export default function BuilderPage() {
       const data = await response.json();
 
       if (data.success) {
+        const reactQueryKeys: string[] = Array.isArray(data.reactQueryKeys) && data.reactQueryKeys.length > 0
+          ? data.reactQueryKeys
+          : ['schemas', 'companies'];
         // Clear React Query caches client-side
         if (typeof window !== 'undefined' && data.clearReactQueryCache) {
           // Dispatch event to clear React Query caches
           window.dispatchEvent(new CustomEvent('react-query-cache-clear', { 
-            detail: { queryKeys: ['schemas', 'companies'] } 
+            detail: { queryKeys: reactQueryKeys } 
           }));
           
           // Also trigger storage event for other tabs
-          window.localStorage.setItem('react-query-cache-cleared', JSON.stringify(['schemas', 'companies']));
+          window.localStorage.setItem('react-query-cache-cleared', JSON.stringify(reactQueryKeys));
           window.localStorage.removeItem('react-query-cache-cleared');
         }
         

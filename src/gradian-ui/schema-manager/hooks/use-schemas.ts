@@ -23,8 +23,19 @@ export function useSchemas() {
       if (!response.success || !response.data) {
         throw new Error(response.error || 'Failed to fetch schemas');
       }
-      console.log(`[REACT_QUERY] ✅ Fetched ${response.data.length} schemas - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
-      return response.data;
+      const normalizeSchemas = (raw: any): FormSchema[] => {
+        if (!raw) return [];
+        if (Array.isArray(raw)) return raw;
+        if (Array.isArray(raw.data)) return raw.data;
+        if (typeof raw === 'object') {
+          return Object.values(raw) as FormSchema[];
+        }
+        return [];
+      };
+
+      const list = normalizeSchemas(response.data);
+      console.log(`[REACT_QUERY] ✅ Fetched ${list.length} schemas - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
+      return list;
     },
     staleTime: cacheConfig.staleTime ?? 10 * 60 * 1000,
     gcTime: cacheConfig.gcTime ?? 30 * 60 * 1000,

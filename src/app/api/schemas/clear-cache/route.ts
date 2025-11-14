@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 import { isDemoModeEnabled, proxySchemaRequest } from '../utils';
+import { getAllReactQueryKeys } from '@/gradian-ui/shared/configs/cache-config';
 
 /**
  * Clear cache from schema-loader (server-side cache)
@@ -201,6 +202,7 @@ export async function POST(request: NextRequest) {
     local: true,
     remote: remoteResult?.success || false,
     clearReactQueryCache: true, // Signal to client to clear React Query caches
+    reactQueryKeys: getAllReactQueryKeys(),
     timestamp: new Date().toISOString(),
   });
 }
@@ -243,6 +245,7 @@ export async function GET(request: NextRequest) {
     local: true,
     remote: remoteResult?.success || false,
     clearReactQueryCache: true, // Signal to client to clear React Query caches
+    reactQueryKeys: getAllReactQueryKeys(),
     timestamp: new Date().toISOString(),
   });
 }

@@ -11,6 +11,8 @@ export interface RouteCacheConfig {
   staleTime?: number;
   /** Client-side React Query gcTime (garbage collection time) in milliseconds */
   gcTime?: number;
+  /** React Query keys that should be invalidated when this route cache is cleared */
+  reactQueryKeys?: string[];
   /** Description for documentation */
   description?: string;
 }
@@ -25,12 +27,14 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     ttl: 10 * 60 * 1000, // 10 minutes - server-side cache
     staleTime: 10 * 60 * 1000, // 10 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['schemas'],
     description: 'All schemas list',
   },
   'schemas/:id': {
     ttl: 10 * 60 * 1000, // 10 minutes - server-side cache
     staleTime: 10 * 60 * 1000, // 10 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['schemas'],
     description: 'Single schema by ID',
   },
   
@@ -39,12 +43,14 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     ttl: 15 * 60 * 1000, // 15 minutes - server-side cache
     staleTime: 15 * 60 * 1000, // 15 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['companies'],
     description: 'Companies list',
   },
   'companies/:id': {
     ttl: 15 * 60 * 1000, // 15 minutes - server-side cache
     staleTime: 15 * 60 * 1000, // 15 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['companies'],
     description: 'Single company by ID',
   },
   
@@ -53,12 +59,14 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     ttl: 5 * 60 * 1000, // 5 minutes - server-side cache
     staleTime: 2 * 60 * 1000, // 2 minutes - React Query stale time (shorter for data)
     gcTime: 10 * 60 * 1000, // 10 minutes - React Query garbage collection
+    reactQueryKeys: ['entities'],
     description: 'Entity list by schema ID',
   },
   'data/:schemaId/:id': {
     ttl: 5 * 60 * 1000, // 5 minutes - server-side cache
     staleTime: 2 * 60 * 1000, // 2 minutes - React Query stale time
     gcTime: 10 * 60 * 1000, // 10 minutes - React Query garbage collection
+    reactQueryKeys: ['entities'],
     description: 'Single entity by schema ID and entity ID',
   },
   
@@ -67,12 +75,14 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     ttl: 15 * 60 * 1000, // 15 minutes - server-side cache
     staleTime: 15 * 60 * 1000, // 15 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['relation-types'],
     description: 'Relation types list',
   },
   'relation-types/:id': {
     ttl: 15 * 60 * 1000, // 15 minutes - server-side cache
     staleTime: 15 * 60 * 1000, // 15 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
+    reactQueryKeys: ['relation-types'],
     description: 'Single relation type by ID',
   },
   
@@ -81,6 +91,7 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     ttl: 2 * 60 * 1000, // 2 minutes - server-side cache (shorter for relations)
     staleTime: 1 * 60 * 1000, // 1 minute - React Query stale time
     gcTime: 5 * 60 * 1000, // 5 minutes - React Query garbage collection
+    reactQueryKeys: ['relations'],
     description: 'Relations data',
   },
 };
@@ -113,6 +124,7 @@ export function getCacheConfig(routeKey: string): RouteCacheConfig {
     ttl: 10 * 60 * 1000, // 10 minutes
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
+    reactQueryKeys: [],
     description: 'Default cache configuration',
   };
 }
@@ -164,5 +176,16 @@ export function formatCacheTime(ms: number): string {
   } else {
     return `${Math.round(ms / (60 * 60 * 1000))}h`;
   }
+}
+
+/**
+ * Get unique list of React Query keys referenced in cache config
+ */
+export function getAllReactQueryKeys(): string[] {
+  const keys = new Set<string>();
+  Object.values(CACHE_CONFIG).forEach(config => {
+    config.reactQueryKeys?.forEach(key => keys.add(key));
+  });
+  return Array.from(keys);
 }
 

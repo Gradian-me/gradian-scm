@@ -132,11 +132,17 @@ export async function loadData<T = any>(
     ttl?: number;
     processor?: (data: any) => T;
     logType?: LogType;
+    fetcher?: () => Promise<any>;
   }
 ): Promise<T> {
   // Get cache configuration from config file, fallback to options.ttl or default
   const cacheConfig = getCacheConfigByPath(apiPath);
-  const { ttl = cacheConfig.ttl, processor, logType = LogType.SCHEMA_LOADER } = options || {};
+  const {
+    ttl = cacheConfig.ttl,
+    processor,
+    logType = LogType.SCHEMA_LOADER,
+    fetcher,
+  } = options || {};
   
   initializeCacheEntry(routeKey);
   const entry = cacheRegistry.get(routeKey)!;
@@ -155,35 +161,44 @@ export async function loadData<T = any>(
     return await fetchPromise;
   }
   
-  loggingCustom(logType, 'info', `🔄 CACHE MISS [${instanceId}] - Fetching data from API for route "${routeKey}"...`);
+  loggingCustom(logType, 'info', `🔄 CACHE MISS [${instanceId}] - Fetching data for route "${routeKey}"...`);
 
   // Create a promise and store it to prevent concurrent fetches
   const promise = (async () => {
     try {
-      const fetchUrl = getApiUrl(apiPath);
       const startTime = Date.now();
+      let rawData: any;
 
-      const response = await fetch(fetchUrl, {
-        // Use no-store to ensure fresh data when cache is cleared
-        // The in-memory cache provides performance, Next.js cache would persist stale data
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      if (fetcher) {
+        loggingCustom(logType, 'info', `🌐 [${instanceId}] Using custom fetcher for route "${routeKey}"`);
+        rawData = await fetcher();
+      } else {
+        const fetchUrl = getApiUrl(apiPath);
+        loggingCustom(logType, 'info', `🌐 [${instanceId}] Fetching data from ${fetchUrl}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch data from ${apiPath}: ${response.status} ${response.statusText}`);
-      }
+        const response = await fetch(fetchUrl, {
+          // Use no-store to ensure fresh data when cache is cleared
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-      const result = await response.json();
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data from ${apiPath}: ${response.status} ${response.statusText}`);
+        }
 
-      if (!result.success) {
-        throw new Error(result.error || `Failed to load data from ${apiPath}`);
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || `Failed to load data from ${apiPath}`);
+        }
+
+        rawData = result.data;
       }
 
       // Process data if processor is provided
-      const processedData = processor ? processor(result.data) : result.data;
+      const processedData = processor ? processor(rawData) : rawData;
       const fetchTime = Date.now() - startTime;
 
       // Update cache

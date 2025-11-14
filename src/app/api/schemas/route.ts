@@ -6,59 +6,38 @@ import fs from 'fs';
 import path from 'path';
 
 import { isDemoModeEnabled, proxySchemaRequest } from './utils';
-
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
+import { loadData, clearCache } from '@/gradian-ui/shared/utils/data-loader';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 
-// Cache for loaded schemas
-let cachedSchemas: any[] | null = null;
-let cacheTimestamp: number | null = null;
-// Get cache TTL from configuration
+// Get cache configuration
 const CACHE_CONFIG = getCacheConfigByPath('/api/schemas');
-const CACHE_TTL_MS = CACHE_CONFIG.ttl;
 
 /**
  * Clear schema cache (useful for development)
  */
 export function clearSchemaCache() {
-  cachedSchemas = null;
-  cacheTimestamp = null;
+  clearCache('schemas');
 }
 
 /**
- * Load schemas with caching
- * Always uses cache if available and valid, regardless of environment
+ * Load schemas with shared cache
  */
-function loadSchemas(): any[] {
-  const now = Date.now();
-  
-  // Check if cache is valid and return it (works in all environments)
-  if (cachedSchemas !== null && cacheTimestamp !== null) {
-    const cacheAge = now - cacheTimestamp;
-    if (cacheAge < CACHE_TTL_MS) {
-      // Cache hit - log for debugging
-      console.log(`[SCHEMA_API] ✅ CACHE HIT - Returning cached schemas (age: ${Math.round(cacheAge / 1000)}s, TTL: ${Math.round(CACHE_TTL_MS / 1000)}s)`);
-      return cachedSchemas;
-    } else {
-      // Cache expired
-      console.log(`[SCHEMA_API] ⏰ CACHE EXPIRED - Cache age: ${Math.round(cacheAge / 1000)}s, TTL: ${Math.round(CACHE_TTL_MS / 1000)}s`);
-    }
-  }
-  
-  // Cache miss or expired - read from file and update cache
-  console.log(`[SCHEMA_API] 🔄 CACHE MISS - Loading schemas from file...`);
-  const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
-  
-  if (!fs.existsSync(dataPath)) {
-    console.log(`[SCHEMA_API] ❌ File not found: ${dataPath}`);
-    return [];
-  }
-  
-  const fileContents = fs.readFileSync(dataPath, 'utf8');
-  cachedSchemas = JSON.parse(fileContents);
-  cacheTimestamp = now;
-  console.log(`[SCHEMA_API] 📥 LOADED ${cachedSchemas.length} schemas from file - Cached for ${Math.round(CACHE_TTL_MS / 1000)}s`);
-  
-  return cachedSchemas || [];
+async function loadSchemas(): Promise<any[]> {
+  return await loadData<any[]>('schemas', '/api/schemas', {
+    ttl: CACHE_CONFIG.ttl,
+    logType: LogType.SCHEMA_LOADER,
+    fetcher: async () => {
+      const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
+      
+      if (!fs.existsSync(dataPath)) {
+        return [];
+      }
+      
+      const fileContents = fs.readFileSync(dataPath, 'utf8');
+      return JSON.parse(fileContents);
+    },
+  });
 }
 
 /**
@@ -77,7 +56,7 @@ export async function GET(request: NextRequest) {
     const schemaId = searchParams.get('id');
 
     // Load schemas (with caching)
-    const schemas = loadSchemas();
+    const schemas = await loadSchemas();
     
     if (!schemas || schemas.length === 0) {
       return NextResponse.json(
@@ -145,7 +124,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Load schemas (with caching)
-    const schemas = loadSchemas();
+    const schemas = await loadSchemas();
     
     if (!schemas || schemas.length === 0) {
       return NextResponse.json(
@@ -172,8 +151,7 @@ export async function POST(request: NextRequest) {
     fs.writeFileSync(schemaFilePath, JSON.stringify(schemas, null, 2), 'utf8');
     
     // Clear cache to force reload on next request
-    cachedSchemas = null;
-    cacheTimestamp = null;
+    clearCache('schemas');
 
     return NextResponse.json({
       success: true,
