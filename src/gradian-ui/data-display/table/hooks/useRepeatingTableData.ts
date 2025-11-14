@@ -22,7 +22,7 @@ async function fetchSchemaClient(schemaId: string): Promise<FormSchema | null> {
 export function useRepeatingTableData(
   params: UseRepeatingTableDataParams
 ): UseRepeatingTableDataResult {
-  const { config, schema, data, sourceId, sourceSchemaId } = params;
+  const { config, schema, data, sourceId, sourceSchemaId, initialTargetSchema } = params;
 
   const isRelationBased = Boolean(config.targetSchema);
   const targetSchemaId = config.targetSchema || null;
@@ -39,9 +39,14 @@ export function useRepeatingTableData(
   const lastFetchParamsRef = useRef('');
 
   // Use React Query to fetch target schema
+  const shouldFetchTargetSchema = isRelationBased && !!targetSchemaId && !initialTargetSchema;
+
   const { schema: targetSchemaData, isLoading: isLoadingTargetSchema } = useSchemaById(
     isRelationBased ? targetSchemaId : null,
-    { enabled: isRelationBased && !!targetSchemaId }
+    {
+      enabled: shouldFetchTargetSchema,
+      initialData: initialTargetSchema ?? undefined,
+    }
   );
 
   const fetchRelations = useCallback(async () => {

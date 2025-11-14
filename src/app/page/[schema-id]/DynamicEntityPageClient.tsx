@@ -108,6 +108,18 @@ export function DynamicEntityPageClient({ initialSchema, schemaId, navigationSch
     () => (navigationSchemas ?? []).map((schema) => reconstructRegExp(schema) as FormSchema),
     [navigationSchemas]
   );
+
+  useEffect(() => {
+    if (!reconstructedNavigationSchemas.length) {
+      return;
+    }
+
+    reconstructedNavigationSchemas.forEach((schema) => {
+      if (schema?.id) {
+        queryClient.setQueryData(['schemas', schema.id], schema);
+      }
+    });
+  }, [queryClient, reconstructedNavigationSchemas]);
   
   // Use React Query to fetch and cache schema
   // Use initial schema from server as initialData to populate React Query cache

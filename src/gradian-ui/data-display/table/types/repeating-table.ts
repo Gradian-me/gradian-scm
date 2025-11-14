@@ -21,6 +21,7 @@ export interface UseRepeatingTableDataParams {
   data: any;
   sourceSchemaId?: string;
   sourceId?: string;
+  initialTargetSchema?: FormSchema | null;
 }
 
 export interface UseRepeatingTableDataResult<T = any> {

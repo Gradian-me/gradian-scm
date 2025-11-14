@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { FormModal } from '@/gradian-ui/form-builder';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
 
 export interface DynamicQuickActionsProps {
   actions: QuickAction[];
@@ -16,6 +17,7 @@ export interface DynamicQuickActionsProps {
   data: any; // Current item data
   className?: string;
   disableAnimation?: boolean;
+  schemaCache?: Record<string, FormSchema>;
 }
 
 export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
@@ -23,13 +25,32 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
   schema,
   data,
   className,
-  disableAnimation = false
+  disableAnimation = false,
+  schemaCache,
 }) => {
   const router = useRouter();
   
   // Track loading state per action (not globally)
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   const [targetSchemaId, setTargetSchemaId] = useState<string | null>(null);
+  const [schemaCacheState, setSchemaCacheState] = useState<Record<string, FormSchema>>(() => schemaCache || {});
+
+  useEffect(() => {
+    if (!schemaCache) {
+      return;
+    }
+    setSchemaCacheState((prev) => {
+      const next = { ...prev };
+      let hasChanges = false;
+      Object.entries(schemaCache).forEach(([id, schema]) => {
+        if (schema && !next[id]) {
+          next[id] = schema;
+          hasChanges = true;
+        }
+      });
+      return hasChanges ? next : prev;
+    });
+  }, [schemaCache]);
 
   /**
    * Handle action click - simplified
@@ -50,20 +71,31 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
       window.open(url, '_blank', 'noopener,noreferrer');
       
     } else if (action.action === 'openFormDialog' && action.targetSchema) {
-      // Set loading state for this specific action
       setLoadingActionId(action.id);
       
       try {
-        // Set target schema ID to trigger modal
+        if (!schemaCacheState?.[action.targetSchema]) {
+          const response = await apiRequest<FormSchema[]>(`/api/schemas?schemaIds=${action.targetSchema}`);
+          if (!response.success || !Array.isArray(response.data) || !response.data[0]) {
+            throw new Error(response.error || `Schema ${action.targetSchema} not found`);
+          }
+
+          setSchemaCacheState((prev) => ({
+            ...prev,
+            [response.data[0].id]: response.data[0],
+          }));
+        }
+
         setTargetSchemaId(action.targetSchema);
+      } catch (error) {
+        console.error(`Failed to load schema for action ${action.id}:`, error);
       } finally {
-        // Clear loading state after a short delay to allow modal to render
         setTimeout(() => {
           setLoadingActionId(null);
         }, 100);
       }
     }
-  }, [router, data]);
+  }, [router, data, schemaCacheState]);
 
   if (!actions || actions.length === 0) {
     return null;
@@ -107,6 +139,7 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
         <FormModal
           schemaId={targetSchemaId}
           mode="create"
+          getInitialSchema={(requestedId) => schemaCacheState?.[requestedId] ?? null}
           enrichData={(formData) => {
             // Enrich data with reference if needed
             return data?.id ? {

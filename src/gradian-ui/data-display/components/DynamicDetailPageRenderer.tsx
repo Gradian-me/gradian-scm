@@ -45,6 +45,7 @@ export interface DynamicDetailPageRendererProps {
   // Custom components registry
   customComponents?: Record<string, React.ComponentType<any>>;
   onRefreshData?: () => Promise<void> | void;
+  preloadedSchemas?: FormSchema[];
 }
 
 /**
@@ -300,13 +301,40 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   showBack = false,
   customComponents = {},
   onRefreshData,
+  preloadedSchemas = [],
 }) => {
   const [editEntityId, setEditEntityId] = useState<string | null>(null);
   const [relatedSchemas, setRelatedSchemas] = useState<string[]>([]);
   const [isLoadingAutoTables, setIsLoadingAutoTables] = useState(false);
+  const [targetSchemaCache, setTargetSchemaCache] = useState<Record<string, FormSchema>>(() => {
+    const cache: Record<string, FormSchema> = {};
+    preloadedSchemas.forEach((schema) => {
+      if (schema?.id) {
+        cache[schema.id] = schema;
+      }
+    });
+    return cache;
+  });
   const detailMetadata = schema.detailPageMetadata;
   const isFetchingRef = useRef(false);
   const [documentTitle, setDocumentTitle] = useState<string>('');
+
+  useEffect(() => {
+    if (!preloadedSchemas.length) {
+      return;
+    }
+    setTargetSchemaCache((prev) => {
+      let hasChanges = false;
+      const next = { ...prev };
+      preloadedSchemas.forEach((schema) => {
+        if (schema?.id && !next[schema.id]) {
+          next[schema.id] = schema;
+          hasChanges = true;
+        }
+      });
+      return hasChanges ? next : prev;
+    });
+  }, [preloadedSchemas]);
   
   // Memoize tableRenderers to prevent infinite loops - use stable reference
   const tableRenderersFromMetadata = useMemo(() => {
@@ -397,6 +425,55 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
 
     fetchRelatedSchemas();
   }, [data?.id, schema?.id, coveredTargetSchemasSet, isLoading]);
+
+  const requiredTargetSchemaIds = useMemo(() => {
+    const ids = new Set<string>();
+    tableRenderersFromMetadata.forEach((renderer) => {
+      if (renderer.targetSchema) {
+        ids.add(renderer.targetSchema);
+      }
+    });
+    relatedSchemas.forEach((schemaId) => ids.add(schemaId));
+    ids.delete(schema?.id || '');
+    return Array.from(ids);
+  }, [relatedSchemas, tableRenderersFromMetadata, schema?.id]);
+
+  useEffect(() => {
+    if (!requiredTargetSchemaIds.length) {
+      return;
+    }
+
+    const missingSchemaIds = requiredTargetSchemaIds.filter(
+      (schemaId) => schemaId && !targetSchemaCache[schemaId]
+    );
+
+    if (missingSchemaIds.length === 0) {
+      return;
+    }
+
+    const fetchSchemas = async () => {
+      try {
+        const response = await apiRequest<FormSchema[]>(
+          `/api/schemas?schemaIds=${missingSchemaIds.join(',')}`
+        );
+        if (response.success && Array.isArray(response.data)) {
+          setTargetSchemaCache((prev) => {
+            const next = { ...prev };
+            response.data?.forEach((schema) => {
+              if (schema?.id) {
+                next[schema.id] = schema;
+              }
+            });
+            return next;
+          });
+        }
+      } catch (error) {
+        console.error('Error preloading related schemas:', error);
+      }
+    };
+
+    fetchSchemas();
+  }, [requiredTargetSchemaIds, targetSchemaCache]);
 
   // Default layout values (can be overridden in detailPageMetadata if needed)
   const mainColumns = 2 as 1 | 2 | 3;
@@ -1049,6 +1126,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     schema={schema}
                     data={data}
                     disableAnimation={disableAnimation}
+                    schemaCache={targetSchemaCache}
                   />
                 )}
 
@@ -1145,17 +1223,22 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 {tableRenderers.length > 0 && (
               <div className="space-y-6 mt-6 w-full min-w-0">
                 {tableRenderers.map((tableConfig, index) => (
-                      <DynamicRepeatingTableViewer
-                        key={tableConfig.id}
-                        config={tableConfig}
-                        schema={schema}
-                        data={data}
-                        index={index + mainComponents.length + sectionsForMain.length}
-                        disableAnimation={disableAnimation}
-                        sourceSchemaId={schema.id}
-                        sourceId={data?.id}
-                        showRefreshButton
-                      />
+                  <DynamicRepeatingTableViewer
+                    key={tableConfig.id}
+                    config={tableConfig}
+                    schema={schema}
+                    data={data}
+                    index={index + mainComponents.length + sectionsForMain.length}
+                    disableAnimation={disableAnimation}
+                    sourceSchemaId={schema.id}
+                    sourceId={data?.id}
+                    showRefreshButton
+                    initialTargetSchema={
+                      tableConfig.targetSchema
+                        ? targetSchemaCache[tableConfig.targetSchema]
+                        : null
+                    }
+                  />
                 ))}
               </div>
             )}
@@ -1179,7 +1262,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     disableAnimation={disableAnimation}
                     sourceSchemaId={schema.id}
                     sourceId={data?.id}
-                        showRefreshButton
+                    showRefreshButton
+                    initialTargetSchema={targetSchemaCache[targetSchema]}
                   />
                 ))}
               </div>
@@ -1203,6 +1287,11 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 sourceSchemaId={schema.id}
                 sourceId={data?.id}
                 showRefreshButton
+                initialTargetSchema={
+                  tableConfig.targetSchema
+                    ? targetSchemaCache[tableConfig.targetSchema]
+                    : null
+                }
               />
             ))}
           </div>
@@ -1227,7 +1316,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     disableAnimation={disableAnimation}
                     sourceSchemaId={schema.id}
                     sourceId={data?.id}
-                        showRefreshButton
+                    showRefreshButton
+                    initialTargetSchema={targetSchemaCache[targetSchema]}
                   />
                 ))}
               </div>
@@ -1246,6 +1336,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           schemaId={schema.id}
           entityId={editEntityId}
           mode="edit"
+          getInitialSchema={(requestedId) => (requestedId === schema.id ? schema : null)}
         onSuccess={async () => {
             // Reset edit state and refresh the page to get updated data
             setEditEntityId(null);

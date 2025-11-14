@@ -797,6 +797,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
         <FormModal
           schemaId={schema.id}
           mode="create"
+          getInitialSchema={(requestedId) => (requestedId === schema.id ? schema : null)}
           enrichData={(formData) => {
             // Email validation function
             const isValidEmail = (email: string) => {
@@ -911,6 +912,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
           schemaId={schema.id}
           entityId={editEntityId}
           mode="edit"
+          getInitialSchema={(requestedId) => (requestedId === schema.id ? schema : null)}
           enrichData={(formData) => {
             // Email validation function
             const isValidEmail = (email: string) => {

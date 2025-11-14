@@ -7,6 +7,7 @@ import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useDynamicEntity } from '@/gradian-ui/shared/hooks/use-dynamic-entity';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { MainLayout } from '@/components/layout/main-layout';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface DynamicDetailPageClientProps {
   schema: FormSchema;
@@ -66,6 +67,7 @@ export function DynamicDetailPageClient({
 }: DynamicDetailPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const showBack = searchParams?.get('showBack') === 'true';
   const [schemaState, setSchemaState] = useState<FormSchema>(() => {
     const reconstructed = reconstructRegExp(rawSchema) as FormSchema;
@@ -80,6 +82,18 @@ export function DynamicDetailPageClient({
     [navigationSchemas]
   );
 
+  useEffect(() => {
+    if (!reconstructedNavigationSchemas.length) {
+      return;
+    }
+
+    reconstructedNavigationSchemas.forEach((schema) => {
+      if (schema?.id) {
+        queryClient.setQueryData(['schemas', schema.id], schema);
+      }
+    });
+  }, [queryClient, reconstructedNavigationSchemas]);
+
 
   // Use the dynamic entity hook for CRUD operations
   const {
@@ -93,17 +107,18 @@ export function DynamicDetailPageClient({
 
   const refreshSchema = useCallback(async () => {
     try {
-      const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
-      if (response.success && response.data) {
-        const updated = reconstructRegExp(response.data) as FormSchema;
+      const response = await apiRequest<FormSchema[]>(`/api/schemas?schemaIds=${schemaId}`);
+      if (response.success && Array.isArray(response.data) && response.data.length > 0) {
+        const updated = reconstructRegExp(response.data[0]) as FormSchema;
         setSchemaState(ensureSchemaActions(updated));
+        queryClient.setQueryData(['schemas', schemaId], updated);
       } else {
         console.warn(`Schema ${schemaId} could not be reloaded after cache clear.`);
       }
     } catch (err) {
       console.error('Error refreshing schema after cache clear:', err);
     }
-  }, [schemaId]);
+  }, [queryClient, schemaId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -208,6 +223,7 @@ export function DynamicDetailPageClient({
         onRefreshData={() => loadData({ silent: true })}
         disableAnimation={false}
         showBack={showBack}
+        preloadedSchemas={reconstructedNavigationSchemas}
       />
     </MainLayout>
   );

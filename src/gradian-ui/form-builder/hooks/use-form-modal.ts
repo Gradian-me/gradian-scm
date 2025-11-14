@@ -57,6 +57,12 @@ export interface UseFormModalOptions {
    * Optional callback when modal is closed
    */
   onClose?: () => void;
+
+  /**
+   * Optional function to supply an already-loaded schema to avoid refetching.
+   * Return null to fall back to API.
+   */
+  getInitialSchema?: (schemaId: string) => FormSchema | null;
 }
 
 export interface UseFormModalReturn {
@@ -170,7 +176,7 @@ export interface UseFormModalReturn {
 export function useFormModal(
   options: UseFormModalOptions = {}
 ): UseFormModalReturn {
-  const { enrichData, onSuccess, onClose } = options;
+  const { enrichData, onSuccess, onClose, getInitialSchema } = options;
   const { getCompanyId } = useCompanyStore();
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -199,15 +205,30 @@ export function useFormModal(
     setIsLoading(true);
     
     try {
-      // Fetch schema using React Query (will use cache if available)
-      const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
-      
-      if (!response.success || !response.data) {
-        throw new Error(response.error || `Schema not found: ${schemaId}`);
+      let schemaSource: FormSchema | null = null;
+      if (getInitialSchema) {
+        try {
+          schemaSource = getInitialSchema(schemaId) ?? null;
+        } catch (error) {
+          console.warn('getInitialSchema threw an error, falling back to API fetch.', error);
+          schemaSource = null;
+        }
       }
 
+      if (!schemaSource) {
+        const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
+        
+        if (!response.success || !response.data) {
+          throw new Error(response.error || `Schema not found: ${schemaId}`);
+        }
+
+        schemaSource = response.data;
+      }
+
+      const schemaCopy = JSON.parse(JSON.stringify(schemaSource));
+
       // Reconstruct RegExp objects
-      const rawSchema = reconstructRegExp(response.data) as FormSchema;
+      const rawSchema = reconstructRegExp(schemaCopy) as FormSchema;
       
       // Validate schema structure
       if (!rawSchema?.id) {

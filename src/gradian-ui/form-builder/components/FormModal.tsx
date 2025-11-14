@@ -78,6 +78,7 @@ export const FormModal: React.FC<FormModalProps> = ({
   enrichData,
   onSuccess,
   onClose,
+  getInitialSchema,
 }) => {
   const {
     targetSchema,
@@ -99,6 +100,7 @@ export const FormModal: React.FC<FormModalProps> = ({
     enrichData,
     onSuccess,
     onClose,
+    getInitialSchema,
   });
 
   // Track the last opened combination to prevent duplicate opens

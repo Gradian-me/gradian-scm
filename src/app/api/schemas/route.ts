@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const schemaId = searchParams.get('id');
+    const schemaIdsParam = searchParams.get('schemaIds');
 
     // Load schemas (with caching)
     const schemas = await loadSchemas();
@@ -63,6 +64,34 @@ export async function GET(request: NextRequest) {
         { success: false, error: 'Schemas file not found or empty' },
         { status: 404 }
       );
+    }
+
+    // If multiple schema IDs requested, return only those schemas
+    if (schemaIdsParam) {
+      const schemaIds = schemaIdsParam
+        .split(',')
+        .map(id => id.trim())
+        .filter(id => id.length > 0);
+      const uniqueSchemaIds = Array.from(new Set(schemaIds));
+
+      const matchedSchemas = uniqueSchemaIds
+        .map((id) => schemas.find((s: any) => s.id === id))
+        .filter((schema): schema is any => Boolean(schema));
+
+      return NextResponse.json({
+        success: true,
+        data: matchedSchemas,
+        meta: {
+          requestedIds: uniqueSchemaIds,
+          returnedCount: matchedSchemas.length,
+        },
+      }, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
     }
 
     // If specific schema ID requested, return only that schema

@@ -36,6 +36,7 @@ export interface DynamicRepeatingTableViewerProps {
   sourceSchemaId?: string; // Source schema ID for relation-based tables
   sourceId?: string; // Source entity ID for relation-based tables
   showRefreshButton?: boolean;
+  initialTargetSchema?: FormSchema | null;
 }
 
 export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerProps> = ({
@@ -48,6 +49,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
   sourceSchemaId,
   sourceId,
   showRefreshButton = false,
+  initialTargetSchema = null,
 }) => {
   const router = useRouter();
 
@@ -57,6 +59,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
     data,
     sourceSchemaId,
     sourceId,
+    initialTargetSchema,
   });
 
   const {
