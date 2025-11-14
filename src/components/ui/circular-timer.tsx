@@ -1,5 +1,13 @@
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
+import type { ColorFormat } from 'react-countdown-circle-timer';
 import { cn } from '@/lib/utils';
+
+type ColorArray = [`#${string}`, `#${string}`, ...`#${string}`[]];
+type ColorsTimeArray = [number, number, ...number[]];
+
+type CountdownColorProps =
+  | { colors: ColorFormat; colorsTime?: never }
+  | { colors: ColorArray; colorsTime: ColorsTimeArray };
 
 export type CircularTimerProps = {
   duration: number;
@@ -9,11 +17,21 @@ export type CircularTimerProps = {
   className?: string;
   onComplete?: () => void;
   onUpdate?: (remaining: number) => void;
-  colors?: `#${string}`[];
-  colorsTime?: number[];
+  colors?: ColorFormat | ColorArray;
+  colorsTime?: ColorsTimeArray;
 };
 
-const DEFAULT_COLORS: `#${string}`[] = ['#7C3AED', '#F97316', '#FACC15', '#EF4444'];
+const DEFAULT_COLORS: ColorArray = ['#7C3AED', '#F97316', '#FACC15', '#EF4444'];
+
+const createDefaultColorsTime = (duration: number, segments: number): ColorsTimeArray => {
+  const safeSegments = Math.max(2, segments);
+  const step = duration / (safeSegments - 1 || 1);
+  const values = Array.from({ length: safeSegments }, (_, index) =>
+    Math.max(Math.round(duration - step * index), 0),
+  );
+  values[values.length - 1] = 0;
+  return values as ColorsTimeArray;
+};
 
 export function CircularTimer({
   duration,
@@ -26,6 +44,15 @@ export function CircularTimer({
   colors = DEFAULT_COLORS,
   colorsTime,
 }: CircularTimerProps) {
+  const resolvedColors = colors ?? DEFAULT_COLORS;
+  const resolvedColorsTime =
+    Array.isArray(resolvedColors) && resolvedColors.length >= 2
+      ? colorsTime ?? createDefaultColorsTime(duration, resolvedColors.length)
+      : undefined;
+  const countdownColorProps: CountdownColorProps = Array.isArray(resolvedColors)
+    ? { colors: resolvedColors, colorsTime: resolvedColorsTime as ColorsTimeArray }
+    : { colors: resolvedColors };
+
   return (
     <div className={cn('relative flex items-center justify-center', className)}>
       <CountdownCircleTimer
@@ -33,8 +60,7 @@ export function CircularTimer({
         duration={duration}
         size={size}
         strokeWidth={strokeWidth}
-        colors={colors}
-        colorsTime={colorsTime}
+        {...countdownColorProps}
         onUpdate={onUpdate}
         onComplete={() => {
           onComplete?.();

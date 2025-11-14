@@ -22,7 +22,6 @@ export function loadArgon2() {
   
   // Direct require - serverExternalPackages ensures this is not bundled
   // Using a string literal here is safe because it's marked as external
-  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
   argon2Cache = require("argon2");
   
   return argon2Cache;

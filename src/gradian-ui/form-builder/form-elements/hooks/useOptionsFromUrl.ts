@@ -145,7 +145,6 @@ export function useOptionsFromUrl({
       setError(null);
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceUrl, enabled, JSON.stringify(queryParams)]);
 
   const normalizedOptions = useMemo(() => {

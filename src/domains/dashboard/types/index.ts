@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../shared/types/common';
+import { BaseEntity } from '@/gradian-ui/shared/types/common';
 
 export interface DashboardStats {
   totalVendors: number;

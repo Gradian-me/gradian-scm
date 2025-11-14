@@ -250,7 +250,6 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     loadItems();
     // Note: excludeIds and includeIds are intentionally not in dependencies
     // We compare them inside the effect using refs to avoid infinite loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [schemaId, isOpen]);
   const handleRefresh = async (event?: React.MouseEvent<HTMLButtonElement>) => {
     event?.preventDefault();

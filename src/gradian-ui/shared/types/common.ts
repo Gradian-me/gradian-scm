@@ -38,13 +38,6 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface FilterOption {
-  key: string;
-  label: string;
-  type: 'select' | 'text' | 'date' | 'number';
-  options?: SelectOption[];
-}
-
 export interface TableColumn<T = any> {
   key: keyof T | string;
   label: string;

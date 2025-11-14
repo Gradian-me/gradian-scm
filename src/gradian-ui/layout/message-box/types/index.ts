@@ -10,6 +10,7 @@ export interface Message {
  * Messages structure in API response
  */
 export interface MessagesResponse {
+  success?: boolean;
   messages?: Message[];
   message?: string | Record<string, string>; // Single message (can be string or object with language keys)
 }

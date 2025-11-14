@@ -1,39 +1,30 @@
-// Gradian UI - Main Export File
-// This file exports all components from the gradian-ui library
+// Gradian UI - Namespaced Export File
+// Components and utilities are grouped under namespaces to avoid export collisions.
 
-// Form Builder Components
-export * from './form-builder';
+export * as FormBuilder from './form-builder';
+export type { FormConfig } from './form-builder/form-wrapper/types';
 
-// Layout Components
-export * from './layout';
+export * as Layout from './layout';
+export type { HeaderConfig } from './layout/header/types';
 
-// Analytics Components
-export * from './analytics';
+export * as Analytics from './analytics';
 
-// Data Display Components  
-export * from './data-display';
+export * as DataDisplay from './data-display';
 export type { CardConfig } from './data-display/card/types';
 
-// Schema Manager (exclude FormField to avoid conflict with form-builder)
+export * as SchemaManagerComponents from './schema-manager/components';
+export * as SchemaManagerHooks from './schema-manager/hooks';
+export * as SchemaManagerUtils from './schema-manager/utils';
+export * as SchemaManagerTypes from './schema-manager/types';
 export type { FormSchema, FormSection } from './schema-manager/types/form-schema';
-export * from './schema-manager/components';
-export * from './schema-manager/hooks';
-export * from './schema-manager/utils';
-export * from './schema-manager/types';
 
-// Relation Manager
-export * from './relation-manager';
+export * as RelationManager from './relation-manager';
 
-// Shared Types and Utilities
-export * from './shared/types';
-export * from './shared/utils';
-export * from './shared/hooks';
-export * from './shared/configs';
-export * from './shared/constants';
-export * from './shared/components';
-export * from './shared/domain';
-export * from './shared/errors';
-
-// Export specific types that may conflict
-export type { HeaderConfig } from './layout/header/types';
-export type { FormConfig } from './form-builder/form-wrapper/types';
+export * as SharedTypes from './shared/types';
+export * as SharedUtils from './shared/utils';
+export * as SharedHooks from './shared/hooks';
+export * as SharedConfigs from './shared/configs';
+export * as SharedConstants from './shared/constants';
+export * as SharedComponents from './shared/components';
+export * as SharedDomain from './shared/domain';
+export * as SharedErrors from './shared/errors';

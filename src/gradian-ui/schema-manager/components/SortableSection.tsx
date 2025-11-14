@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { Card } from '@/components/ui/card';
 import { ButtonMinimal, Badge } from '@/gradian-ui/form-builder/form-elements';
 import { GripVertical, Trash2, Edit } from 'lucide-react';
@@ -24,6 +25,7 @@ export interface SortableSectionProps {
   onFieldUpdate: (fieldId: string, updates: any) => void;
   onFieldDelete: (fieldId: string) => void;
   onFieldMove?: (fieldId: string, direction: 'up' | 'down') => void;
+  onFieldDragEnd?: (event: DragEndEvent, sectionId: string) => void;
   config?: any;
   currentSchemaId?: string;
   isIncomplete?: boolean;
@@ -42,6 +44,7 @@ export function SortableSection({
   onFieldUpdate,
   onFieldDelete,
   onFieldMove,
+  onFieldDragEnd,
   config,
   currentSchemaId,
   isIncomplete = false
@@ -138,7 +141,7 @@ export function SortableSection({
                       </Badge>
                     )}
                     {isIncomplete && !isInactive && (
-                      <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
+              <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
                         Incomplete
                       </Badge>
                     )}

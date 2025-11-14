@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { useSchemaById } from '@/gradian-ui/schema-manager/hooks/use-schema-by-id';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { resolveFieldById, getValueByRole } from '@/gradian-ui/form-builder/form-elements/utils/field-resolver';
 import {
   RelationDirection,
@@ -9,6 +10,14 @@ import {
   UseRepeatingTableDataResult,
 } from '../types';
 import { formatRelationType } from '../utils';
+
+async function fetchSchemaClient(schemaId: string): Promise<FormSchema | null> {
+  const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
+  if (response.success && response.data) {
+    return response.data;
+  }
+  return null;
+}
 
 export function useRepeatingTableData(
   params: UseRepeatingTableDataParams
@@ -46,10 +55,7 @@ export function useRepeatingTableData(
     try {
       let schemaToUse = targetSchemaData;
       if (!schemaToUse && targetSchemaId) {
-        schemaToUse = await fetchSchema(targetSchemaId);
-        if (schemaToUse) {
-          setTargetSchemaData(schemaToUse);
-        }
+        schemaToUse = await fetchSchemaClient(targetSchemaId);
       }
 
       const allRelationsUrl = `/api/data/all-relations?schema=${effectiveSourceSchemaId}&id=${effectiveSourceId}&direction=both&otherSchema=${targetSchemaId}`;
@@ -102,7 +108,7 @@ export function useRepeatingTableData(
                       let resolvedLabel = resolvedEntity.name || resolvedEntity.title || fieldValue;
 
                       try {
-                        const targetSchemaForPicker = await fetchSchema(field.targetSchema);
+                        const targetSchemaForPicker = await fetchSchemaClient(field.targetSchema);
                         if (targetSchemaForPicker) {
                           const titleByRole = getValueByRole(
                             targetSchemaForPicker,
@@ -153,7 +159,6 @@ export function useRepeatingTableData(
   }, [
     effectiveSourceId,
     effectiveSourceSchemaId,
-    fetchSchema,
     isRelationBased,
     relationTypeId,
     targetSchemaData,

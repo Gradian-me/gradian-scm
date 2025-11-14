@@ -154,6 +154,7 @@ export interface FileInputProps extends FormElementProps {
 
 export interface FormElementConfig extends FormFieldConfig {
   component: 'text' | 'email' | 'password' | 'number' | 'select' | 'textarea' | 'checkbox' | 'checkbox-list' | 'radio' | 'date' | 'file' | 'picker' | 'toggle' | 'toggle-group';
+  required?: boolean;
   metadata?: {
     allowMultiselect?: boolean;
     [key: string]: any;
@@ -200,7 +201,7 @@ export interface FormElementRef {
   setValue: (value: any) => void;
 }
 
-export interface OTPInputProps extends FormElementProps {
+export interface OTPInputProps extends Omit<FormElementProps, 'config'> {
   config?: any;
   resendDuration?: number;
   resendButtonLabel?: string;

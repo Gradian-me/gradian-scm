@@ -51,11 +51,14 @@ function ReactQueryCacheClearHandler() {
 
   useEffect(() => {
     // Listen for custom cache clear event (from clear-cache API route)
-    const handleCacheClear = async (event: CustomEvent) => {
+    const handleCacheClear = async (event: CustomEvent<{ queryKeys?: string[] }>) => {
       const queryKeys = event.detail?.queryKeys || ['schemas', 'companies'];
       for (const queryKey of queryKeys) {
         await queryClient.invalidateQueries({ queryKey: [queryKey] });
       }
+    };
+    const handleCacheClearEvent: EventListener = (event) => {
+      void handleCacheClear(event as CustomEvent<{ queryKeys?: string[] }>);
     };
 
     // Listen for storage events (from other tabs/windows)
@@ -69,12 +72,12 @@ function ReactQueryCacheClearHandler() {
     };
 
     // Listen for custom event
-    window.addEventListener('react-query-cache-clear', handleCacheClear as EventListener);
+    window.addEventListener('react-query-cache-clear', handleCacheClearEvent);
     // Listen for storage events (cross-tab)
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      window.removeEventListener('react-query-cache-clear', handleCacheClear as EventListener);
+      window.removeEventListener('react-query-cache-clear', handleCacheClearEvent);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [queryClient]);

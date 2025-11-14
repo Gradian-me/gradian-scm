@@ -500,7 +500,7 @@
     {
       "number": "CGN-2025-09",
       "inquiryDate": "2025-11-03T09:38",
-      "inquiryDeadlineDate": "2025-11-14T11:30",
+      "inquiryDeadlineDate": "2025-11-21T11:30",
       "state": [
         {
           "id": "2",
@@ -517,12 +517,12 @@
         },
         {
           "id": "01K96WRHRE30636NDY6QVJT5AR",
-          "label": "HPLC Equipment Agilent 2190 "
+          "label": "HPLC Equipment Agilent 2190"
         }
       ],
       "id": "01K945BGN1YV7RG3XKG169CGS1",
       "createdAt": "2025-11-03T06:09:31.312Z",
-      "updatedAt": "2025-11-08T09:53:59.944Z",
+      "updatedAt": "2025-11-14T08:57:57.661Z",
       "companyId": "01K94V4PJSFKCXS6AVX07P86N5",
       "inquiry-vendors": [
         {

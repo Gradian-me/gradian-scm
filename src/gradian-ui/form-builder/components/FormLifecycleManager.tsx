@@ -394,7 +394,6 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
       });
       return newExpanded;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sectionIds]);
 
   const setValue = useCallback((fieldName: string, value: any) => {
@@ -826,7 +825,6 @@ export const SchemaFormWrapper: React.FC<FormWrapperProps> = ({
   // Call onMount with submit function if provided
   useEffect(() => {
     onMount?.(submit);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submit]);
 
   const formClasses = cn(

@@ -275,7 +275,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
   useEffect(() => {
     const filters = buildFilters();
     fetchEntities(filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Refetch when company changes (only if schema is company-based)
@@ -285,7 +284,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     }
     const filters = buildFilters();
     fetchEntities(filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCompany?.id, schema?.isNotCompanyBased]);
 
   // Refetch when UI filters change
@@ -298,7 +296,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName }: DynamicPa
     if (filters.search || filters.status || filters.category || filters.companyId || (filters.companyIds && filters.companyIds.length > 0)) {
       fetchEntities(filters);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentFilters.search, currentFilters.status, currentFilters.category]);
 
 
