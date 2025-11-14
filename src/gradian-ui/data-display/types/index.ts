@@ -309,7 +309,7 @@ export interface FilterBarProps extends BaseComponentProps {
 export interface ModalProps extends BaseComponentProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';

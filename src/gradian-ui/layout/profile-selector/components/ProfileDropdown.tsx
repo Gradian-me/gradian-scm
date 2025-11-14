@@ -151,7 +151,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
           {layout.showName !== false && (
             <span className={cn(
-              'text-sm font-medium hidden sm:block',
+              'text-sm font-medium',
               isDarkTheme ? 'text-gray-100' : 'text-gray-900'
             )}>
               {currentProfile?.name || 'User'}

@@ -5,6 +5,60 @@ import { Modal } from '@/gradian-ui/data-display/components/Modal';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { useFormModal, UseFormModalOptions, FormModalMode } from '../hooks/use-form-modal';
 import { Spinner } from '@/components/ui/spinner';
+import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { getValueByRole } from '@/gradian-ui/data-display/utils';
+import { getPrimaryDisplayString, hasDisplayValue } from '@/gradian-ui/data-display/utils/value-display';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+
+const EXCLUDED_TITLE_ROLES = new Set(['code', 'subtitle', 'description']);
+
+const getEntityDisplayTitle = (
+  schema?: FormSchema,
+  data?: Record<string, any>
+): string | null => {
+  if (!schema || !data) {
+    return null;
+  }
+
+  if (schema.fields?.some((field) => field.role === 'title')) {
+    const titleByRole = getValueByRole(schema, data, 'title');
+    if (typeof titleByRole === 'string' && titleByRole.trim() !== '') {
+      return titleByRole;
+    }
+  }
+
+  const textFields = schema.fields
+    ?.filter(
+      (field) =>
+        field.type === 'text' &&
+        (!field.role || !EXCLUDED_TITLE_ROLES.has(field.role)) &&
+        hasDisplayValue(data[field.name])
+    )
+    .sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+
+  if (textFields && textFields.length > 0) {
+    const firstField = textFields[0];
+    const value = data[firstField.name];
+    const primary = getPrimaryDisplayString(value);
+    if (primary) {
+      return primary;
+    }
+    if (value !== null && value !== undefined) {
+      const stringValue = String(value).trim();
+      if (stringValue !== '') {
+        return stringValue;
+      }
+    }
+  }
+
+  const fallback =
+    data.name ??
+    data.title ??
+    data.id ??
+    null;
+
+  return fallback ? String(fallback) : null;
+};
 
 export interface FormModalProps extends UseFormModalOptions {
   /**
@@ -137,21 +191,45 @@ export const FormModal: React.FC<FormModalProps> = ({
     }
   }, [schemaId, entityId, mode, isOpen, targetSchema, isLoading, openFormModal]);
 
-  // Don't render if modal is not open
-  if (!isOpen && !targetSchema) {
-    return null;
-  }
+  const entityDisplayTitle = React.useMemo(
+    () => getEntityDisplayTitle(targetSchema, entityData || undefined),
+    [targetSchema, entityData]
+  );
+
+  const shouldRender = isOpen || Boolean(targetSchema);
 
   const modalMode = currentMode || mode;
   const isEdit = modalMode === 'edit';
-  
-  const modalTitle = title || (isEdit 
-    ? `Edit ${targetSchema?.name || 'Item'}` 
-    : `Create New ${targetSchema?.name || 'Item'}`);
+
+  const schemaName = targetSchema?.name || 'Item';
+  const defaultTitle = isEdit ? (entityDisplayTitle ? `Edit ${schemaName}: ${entityDisplayTitle}` : `Edit ${schemaName}`) : `Create New ${schemaName}`;
+
+  const schemaIconName = targetSchema?.icon;
+
+  const modalTitle = React.useMemo(() => {
+    if (title) {
+      return title;
+    }
+
+    if (isEdit && schemaIconName) {
+      return (
+        <span className="inline-flex items-center gap-2">
+          <IconRenderer iconName={schemaIconName} className="h-5 w-5 text-violet-600" />
+          <span>{defaultTitle}</span>
+        </span>
+      );
+    }
+
+    return defaultTitle;
+  }, [title, isEdit, schemaIconName, defaultTitle]);
     
   const modalDescription = description || (isEdit
     ? `Update ${(targetSchema?.name || 'item').toLowerCase()} information`
     : `Add a new ${(targetSchema?.name || 'item').toLowerCase()} to your system`);
+
+  if (!shouldRender) {
+    return null;
+  }
 
   return (
     <Modal

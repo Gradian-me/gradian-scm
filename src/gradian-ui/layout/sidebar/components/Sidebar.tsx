@@ -10,6 +10,7 @@ import { SidebarHeader } from './SidebarHeader';
 import { CompanySelector } from '@/components/layout/CompanySelector';
 import { SidebarNavigation } from './SidebarNavigation';
 import { UserProfileSelector } from '@/components/layout/UserProfileSelector';
+import { ModeToggle } from '../../mode-toggle/components/ModeToggle';
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
@@ -44,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       />
 
       {/* Company Selector */}
-      <div className="px-4 py-3 border-b border-gray-800 sm:block md:hidden">
+      <div className="px-4 py-3 border-b border-gray-800 sm:block lg:hidden">
         <CompanySelector variant="dark" fullWidth showLogo="sidebar-avatar" />
       </div>
 
@@ -57,10 +58,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       />
 
       {/* User Profile */}
-      <div className="mt-auto border-t border-gray-800 p-4 sm:block md:hidden">
+      <div className="mt-auto border-t border-gray-800 p-4 sm:block lg:hidden flex flex-row flex-nowrap">
         <UserProfileSelector
           className={cn(
-            "w-full",
             isCollapsed && !isMobile ? "justify-center" : ""
           )}
           config={{
@@ -82,6 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             },
           }}
         />
+        <ModeToggle />
       </div>
     </motion.div>
   );

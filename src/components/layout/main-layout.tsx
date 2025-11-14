@@ -166,10 +166,10 @@ export function MainLayout({
 
   const headerActionsContent = (
     <div className="flex items-center gap-2">
-      <div className="hidden md:flex items-center space-x-4">
+      <div className="hidden lg:flex items-center space-x-4">
         <ModeToggle />
         <CompanySelector />
-        <NotificationsDropdown initialCount={3} />
+        <NotificationsDropdown initialCount={5} />
         <UserProfileSelector />
         {showCreateButton && (
           <Button
@@ -182,8 +182,7 @@ export function MainLayout({
           </Button>
         )}
       </div>
-      <div className="flex md:hidden items-center space-x-2">
-        <ModeToggle />
+      <div className="flex lg:hidden items-center space-x-2">
         <Button
           variant="ghost"
           size="icon"
