@@ -1,6 +1,14 @@
 import { ApiResponse, PaginationParams } from '../types/common';
 import { handleError } from '../errors';
 import { config } from '@/lib/config';
+import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
+import {
+  getIndexedDbCacheStrategy,
+  type CacheStrategyPreResult,
+  type CacheStrategyContext,
+} from '@/gradian-ui/indexdb-manager/cache-strategies';
+import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
+import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 
 // Helper function to resolve API endpoint URL based on demo mode
 function resolveApiUrl(endpoint: string): string {
@@ -59,6 +67,45 @@ const extractCallerFromStack = (): string | undefined => {
 
   return cleaned;
 };
+
+const isBrowserEnvironment = (): boolean => typeof window !== 'undefined';
+
+function normalizeEndpointWithParams(endpoint: string, params?: Record<string, any>): string {
+  const [basePath, queryString = ''] = endpoint.split('?');
+  const searchParams = new URLSearchParams(queryString);
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      searchParams.delete(key);
+      if (Array.isArray(value)) {
+        value.forEach((item) => searchParams.append(key, String(item)));
+      } else {
+        searchParams.append(key, String(value));
+      }
+    });
+  }
+
+  const mergedQuery = searchParams.toString();
+  return mergedQuery ? `${basePath}?${mergedQuery}` : basePath;
+}
+
+function getCacheStrategyContext(
+  endpoint: string,
+  originalEndpoint: string,
+  options?: {
+    params?: Record<string, any>;
+  }
+): CacheStrategyContext {
+  return {
+    endpoint,
+    originalEndpoint,
+    params: options?.params,
+  };
+}
 
 export class ApiClient {
   private baseURL: string;
@@ -204,21 +251,71 @@ export async function apiRequest<T>(
     console.info(`[apiRequest] ${method} ${endpoint} invoked by ${callerName}`);
   }
   
+  const normalizedEndpoint = method === 'GET' ? normalizeEndpointWithParams(endpoint, options?.params) : endpoint;
+
+  let cacheStrategyContext: CacheStrategyContext | null = null;
+  let cacheStrategyPreResult: CacheStrategyPreResult<any> | null = null;
+  const cacheStrategy =
+    method === 'GET' && isBrowserEnvironment()
+      ? getIndexedDbCacheStrategy(getCacheConfigByPath(normalizedEndpoint).indexedDbKey)
+      : null;
+
+  if (cacheStrategy) {
+    cacheStrategyContext = getCacheStrategyContext(normalizedEndpoint, endpoint, {
+      params: options?.params,
+    });
+    cacheStrategyPreResult = await cacheStrategy.preRequest(cacheStrategyContext);
+
+    if (cacheStrategyPreResult?.hit && cacheStrategyPreResult.data !== undefined) {
+      loggingCustom(
+        LogType.INDEXDB_CACHE,
+        'info',
+        `IndexedDB cache hit for "${normalizedEndpoint}". Served from cache without calling API.`
+      );
+      return {
+        success: true,
+        data: cacheStrategyPreResult.data as T,
+        statusCode: 200,
+      };
+    }
+  }
+
+  const requestHeaders = headersWithCaller ? { headers: headersWithCaller } : undefined;
+
   try {
+    let response: ApiResponse<T>;
+
     switch (method) {
-      case 'GET':
-        return await apiClient.get<T>(endpoint, options?.params, headersWithCaller ? { headers: headersWithCaller } : undefined);
+      case 'GET': {
+        const endpointForRequest = cacheStrategyPreResult?.overrideEndpoint ?? endpoint;
+        const paramsForRequest =
+          cacheStrategyPreResult?.overrideEndpoint !== undefined
+            ? cacheStrategyPreResult.overrideParams
+            : options?.params;
+        response = await apiClient.get<T>(endpointForRequest, paramsForRequest, requestHeaders);
+        break;
+      }
       case 'POST':
-        return await apiClient.post<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
+        response = await apiClient.post<T>(endpoint, options?.body, requestHeaders);
+        break;
       case 'PUT':
-        return await apiClient.put<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
+        response = await apiClient.put<T>(endpoint, options?.body, requestHeaders);
+        break;
       case 'PATCH':
-        return await apiClient.patch<T>(endpoint, options?.body, headersWithCaller ? { headers: headersWithCaller } : undefined);
+        response = await apiClient.patch<T>(endpoint, options?.body, requestHeaders);
+        break;
       case 'DELETE':
-        return await apiClient.delete<T>(endpoint, headersWithCaller ? { headers: headersWithCaller } : undefined);
+        response = await apiClient.delete<T>(endpoint, requestHeaders);
+        break;
       default:
         throw new Error(`Unsupported HTTP method: ${method}`);
     }
+
+    if (method === 'GET' && cacheStrategy && cacheStrategyContext) {
+      return await cacheStrategy.postRequest(cacheStrategyContext, response, cacheStrategyPreResult);
+    }
+
+    return response;
   } catch (error) {
     return {
       success: false,

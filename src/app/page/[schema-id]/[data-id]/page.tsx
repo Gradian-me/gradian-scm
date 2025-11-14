@@ -38,8 +38,8 @@ function serializeSchema(schema: FormSchema): any {
 
 export default async function DynamicDetailPage({ params }: PageProps) {
   const { 'schema-id': schemaId, 'data-id': dataId } = await params;
-  const schema = await fetchSchemaById(schemaId);
   const navigationSchemas = await getAllSchemasArray();
+  const schema = navigationSchemas.find((entry) => entry.id === schemaId) ?? null;
 
   if (!schema) {
     notFound();

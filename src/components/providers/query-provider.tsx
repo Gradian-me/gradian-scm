@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ReactNode, useEffect } from 'react';
 import { getCacheConfig } from '@/gradian-ui/shared/configs/cache-config';
+import { clearSchemaCache } from '@/gradian-ui/indexdb-manager/schema-cache';
+import { clearCompaniesCache } from '@/gradian-ui/indexdb-manager/companies-cache';
 
 // Get default cache configuration from config file
 const defaultCacheConfig = getCacheConfig('schemas');
@@ -53,6 +55,16 @@ function ReactQueryCacheClearHandler() {
     // Listen for custom cache clear event (from clear-cache API route)
     const handleCacheClear = async (event: CustomEvent<{ queryKeys?: string[] }>) => {
       const queryKeys = event.detail?.queryKeys || ['schemas', 'companies'];
+      try {
+        await clearSchemaCache();
+      } catch (error) {
+        console.warn('[schema-cache] Failed to clear IndexedDB cache:', error);
+      }
+      try {
+        await clearCompaniesCache();
+      } catch (error) {
+        console.warn('[schema-cache] Failed to clear companies IndexedDB cache:', error);
+      }
       for (const queryKey of queryKeys) {
         await queryClient.invalidateQueries({ queryKey: [queryKey] });
       }
@@ -65,6 +77,16 @@ function ReactQueryCacheClearHandler() {
     const handleStorageChange = async (e: StorageEvent) => {
       if (e.key === 'react-query-cache-cleared') {
         const queryKeys = e.newValue ? JSON.parse(e.newValue) : ['schemas', 'companies'];
+        try {
+          await clearSchemaCache();
+        } catch (error) {
+          console.warn('[schema-cache] Failed to clear IndexedDB cache from storage event:', error);
+        }
+        try {
+          await clearCompaniesCache();
+        } catch (error) {
+          console.warn('[schema-cache] Failed to clear companies cache from storage event:', error);
+        }
         for (const queryKey of queryKeys) {
           await queryClient.invalidateQueries({ queryKey: [queryKey] });
         }

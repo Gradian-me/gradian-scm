@@ -143,28 +143,14 @@ export async function loadData<T = any>(
     logType = LogType.SCHEMA_LOADER,
     fetcher,
   } = options || {};
+  const disableServerCache = cacheConfig.disableServerCache === true;
   
   initializeCacheEntry(routeKey);
   const entry = cacheRegistry.get(routeKey)!;
-  const { cache, fetchPromise, instanceId } = entry;
+  const { instanceId } = entry;
 
-  // Return cached data if available and valid
-  if (isCacheValid(cache, ttl) && cache !== null) {
-    const cacheAge = Date.now() - cache.timestamp;
-    loggingCustom(logType, 'info', `✅ CACHE HIT [${instanceId}] - Returning cached data for route "${routeKey}" (age: ${Math.round(cacheAge / 1000)}s)`);
-    return cache.data as T;
-  }
-
-  // If there's already a fetch in progress, wait for it instead of starting a new one
-  if (fetchPromise) {
-    loggingCustom(logType, 'info', `⏳ [${instanceId}] Fetch already in progress for route "${routeKey}", waiting for existing request...`);
-    return await fetchPromise;
-  }
-  
-  loggingCustom(logType, 'info', `🔄 CACHE MISS [${instanceId}] - Fetching data for route "${routeKey}"...`);
-
-  // Create a promise and store it to prevent concurrent fetches
-  const promise = (async () => {
+  const fetchFreshData = async (shouldCache: boolean): Promise<T> => {
+    const cacheBeforeFetch = entry.cache;
     try {
       const startTime = Date.now();
       let rawData: any;
@@ -177,7 +163,6 @@ export async function loadData<T = any>(
         loggingCustom(logType, 'info', `🌐 [${instanceId}] Fetching data from ${fetchUrl}`);
 
         const response = await fetch(fetchUrl, {
-          // Use no-store to ensure fresh data when cache is cleared
           cache: 'no-store',
           headers: {
             'Content-Type': 'application/json',
@@ -197,52 +182,79 @@ export async function loadData<T = any>(
         rawData = result.data;
       }
 
-      // Process data if processor is provided
       const processedData = processor ? processor(rawData) : rawData;
       const fetchTime = Date.now() - startTime;
 
-      // Update cache
-      entry.cache = {
-        data: processedData,
-        timestamp: Date.now(),
-      };
-
-      loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED from API (${fetchTime}ms) - Cached data for route "${routeKey}"`);
+      if (shouldCache) {
+        entry.cache = {
+          data: processedData,
+          timestamp: Date.now(),
+        };
+        loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED from API (${fetchTime}ms) - Cached data for route "${routeKey}"`);
+      } else {
+        loggingCustom(logType, 'info', `📥 [${instanceId}] FETCHED from API (${fetchTime}ms) - Server cache disabled for route "${routeKey}"`);
+      }
 
       return processedData as T;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const isConnectionError = error instanceof Error && (
-        errorMessage.includes('ECONNREFUSED') || 
-        errorMessage.includes('fetch failed') ||
-        errorMessage.includes('connect')
-      );
-      
-      // During build time, connection errors are expected - return empty array/object
+      const isConnectionError =
+        error instanceof Error &&
+        (errorMessage.includes('ECONNREFUSED') ||
+          errorMessage.includes('fetch failed') ||
+          errorMessage.includes('connect'));
+
       const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
-      
+
       if (isConnectionError && isBuildTime) {
-        loggingCustom(logType, 'warn', `Build-time connection error for route "${routeKey}" (expected during static generation) - returning empty data`);
-        // Return empty array or object based on expected type
-        const emptyData = (Array.isArray(cache?.data) ? [] : {}) as T;
+        loggingCustom(
+          logType,
+          'warn',
+          `Build-time connection error for route "${routeKey}" (expected during static generation) - returning empty data`
+        );
+        const emptyData = (Array.isArray(cacheBeforeFetch?.data) ? [] : {}) as T;
         return emptyData;
       }
-      
+
       loggingCustom(logType, 'error', `Error loading data from ${apiPath}: ${errorMessage}`);
 
-      // If cache exists and API fails, return cached data as fallback
-      if (cache !== null) {
+      if (shouldCache && cacheBeforeFetch !== null) {
         loggingCustom(logType, 'warn', `API fetch failed for route "${routeKey}", using cached data`);
-        return cache.data as T;
+        return cacheBeforeFetch!.data as T;
       }
 
-      // No cache available, throw error
       throw error;
     } finally {
-      // Clear the promise cache after fetch completes (success or failure)
-      entry.fetchPromise = null;
+      if (shouldCache) {
+        entry.fetchPromise = null;
+      }
     }
-  })();
+  };
+
+  if (disableServerCache) {
+    loggingCustom(logType, 'info', `🚫 Server cache disabled for route "${routeKey}" - fetching fresh data`);
+    return await fetchFreshData(false);
+  }
+
+  const { cache, fetchPromise } = entry;
+
+  // Return cached data if available and valid
+  if (isCacheValid(cache, ttl) && cache !== null) {
+    const cacheAge = Date.now() - cache.timestamp;
+    loggingCustom(logType, 'info', `✅ CACHE HIT [${instanceId}] - Returning cached data for route "${routeKey}" (age: ${Math.round(cacheAge / 1000)}s)`);
+    return cache.data as T;
+  }
+
+  // If there's already a fetch in progress, wait for it instead of starting a new one
+  if (fetchPromise) {
+    loggingCustom(logType, 'info', `⏳ [${instanceId}] Fetch already in progress for route "${routeKey}", waiting for existing request...`);
+    return await fetchPromise;
+  }
+  
+  loggingCustom(logType, 'info', `🔄 CACHE MISS [${instanceId}] - Fetching data for route "${routeKey}"...`);
+
+  // Create a promise and store it to prevent concurrent fetches
+  const promise = fetchFreshData(true);
 
   entry.fetchPromise = promise;
   return await promise;
@@ -269,11 +281,107 @@ export async function loadDataById<T = any>(
 ): Promise<T | null> {
   // Get cache configuration from config file, fallback to options.ttl or default
   const cacheConfig = getCacheConfigByPath(`${apiBasePath}/${id}`);
-  const { ttl = cacheConfig.ttl, processor, findInCache, logType = LogType.SCHEMA_LOADER } = options || {};
+  const {
+    ttl = cacheConfig.ttl,
+    processor,
+    findInCache,
+    logType = LogType.SCHEMA_LOADER,
+  } = options || {};
+  const disableServerCache = cacheConfig.disableServerCache === true;
   
   initializeCacheEntry(routeKey);
   const entry = cacheRegistry.get(routeKey)!;
-  const { cache, instanceId } = entry;
+  const { instanceId } = entry;
+
+  const fetchItem = async (shouldCache: boolean): Promise<T | null> => {
+    const cacheBeforeFetch = entry.cache;
+    try {
+      const fetchUrl = getApiUrl(`${apiBasePath}/${id}`);
+      const startTime = Date.now();
+
+      const response = await fetch(fetchUrl, {
+        cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data) {
+        return null;
+      }
+
+      const processedData = processor ? processor(result.data) : result.data;
+      const fetchTime = Date.now() - startTime;
+
+      if (shouldCache) {
+        if (entry.cache === null) {
+          entry.cache = {
+            data: Array.isArray(processedData) ? processedData : [processedData],
+            timestamp: Date.now(),
+          };
+        } else if (Array.isArray(entry.cache.data)) {
+          const existingIndex = entry.cache.data.findIndex((item: any) => item.id === id);
+          if (existingIndex === -1) {
+            entry.cache.data.push(processedData);
+          } else {
+            entry.cache.data[existingIndex] = processedData;
+          }
+          entry.cache = {
+            ...entry.cache,
+            timestamp: Date.now(),
+          };
+        } else {
+          const existingData = entry.cache.data;
+          entry.cache = {
+            data: Array.isArray(existingData) ? [...existingData, processedData] : [existingData, processedData],
+            timestamp: Date.now(),
+          };
+        }
+
+        loggingCustom(
+          logType,
+          'info',
+          `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Cached result`
+        );
+      } else {
+        loggingCustom(
+          logType,
+          'info',
+          `📥 [${instanceId}] FETCHED "${routeKey}" ID "${id}" from API (${fetchTime}ms) - Server cache disabled`
+        );
+      }
+
+      return processedData as T;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      loggingCustom(logType, 'error', `Error loading "${routeKey}" ID "${id}" from API: ${errorMessage}`);
+
+      if (shouldCache && cacheBeforeFetch !== null) {
+        const cachedData = Array.isArray(cacheBeforeFetch.data)
+          ? cacheBeforeFetch.data.find((item: any) => item.id === id)
+          : cacheBeforeFetch.data;
+        if (cachedData) {
+          loggingCustom(logType, 'warn', `API fetch failed for "${routeKey}" ID "${id}", using cached data`);
+          return cachedData as T;
+        }
+      }
+
+      return null;
+    }
+  };
+
+  if (disableServerCache) {
+    loggingCustom(logType, 'info', `🚫 Server cache disabled for "${routeKey}" ID "${id}" - fetching fresh data`);
+    return await fetchItem(false);
+  }
+
+  const { cache } = entry;
 
   // First check cache - much faster than API call
   if (isCacheValid(cache, ttl) && cache !== null) {

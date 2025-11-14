@@ -13,6 +13,10 @@ export interface RouteCacheConfig {
   gcTime?: number;
   /** React Query keys that should be invalidated when this route cache is cleared */
   reactQueryKeys?: string[];
+  /** Optional IndexedDB cache key associated with this route */
+  indexedDbKey?: string;
+  /** Disable server-side in-memory cache for this route */
+  disableServerCache?: boolean;
   /** Description for documentation */
   description?: string;
 }
@@ -28,6 +32,7 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     staleTime: 10 * 60 * 1000, // 10 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
     reactQueryKeys: ['schemas'],
+    indexedDbKey: 'schemas',
     description: 'All schemas list',
   },
   'schemas/:id': {
@@ -35,6 +40,7 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     staleTime: 10 * 60 * 1000, // 10 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
     reactQueryKeys: ['schemas'],
+    indexedDbKey: 'schemas',
     description: 'Single schema by ID',
   },
   
@@ -44,6 +50,7 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     staleTime: 15 * 60 * 1000, // 15 minutes - React Query stale time
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
     reactQueryKeys: ['companies'],
+    indexedDbKey: 'companies',
     description: 'Companies list',
   },
   'companies/:id': {
@@ -52,6 +59,21 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     gcTime: 30 * 60 * 1000, // 30 minutes - React Query garbage collection
     reactQueryKeys: ['companies'],
     description: 'Single company by ID',
+  },
+  'data/companies': {
+    ttl: 15 * 60 * 1000,
+    staleTime: 15 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    reactQueryKeys: ['companies'],
+    indexedDbKey: 'companies',
+    description: 'Companies list via data API',
+  },
+  'data/companies/:id': {
+    ttl: 15 * 60 * 1000,
+    staleTime: 15 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    reactQueryKeys: ['companies'],
+    description: 'Single company via data API',
   },
   
   // Data routes (dynamic entity routes)
@@ -63,11 +85,12 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     description: 'Entity list by schema ID',
   },
   'data/:schemaId/:id': {
-    ttl: 5 * 60 * 1000, // 5 minutes - server-side cache
-    staleTime: 2 * 60 * 1000, // 2 minutes - React Query stale time
-    gcTime: 10 * 60 * 1000, // 10 minutes - React Query garbage collection
+    ttl: 0, // Always fetch fresh data on the server
+    staleTime: 0, // Always treat client data as stale
+    gcTime: 0, // Allow React Query to drop immediately
     reactQueryKeys: ['entities'],
-    description: 'Single entity by schema ID and entity ID',
+    disableServerCache: true,
+    description: 'Single entity by schema ID and entity ID (no caching)',
   },
   
   // Relation types
@@ -134,34 +157,63 @@ export function getCacheConfig(routeKey: string): RouteCacheConfig {
  * @param apiPath - API path (e.g., '/api/schemas', '/api/schemas/inquiries', '/api/data/companies')
  * @returns Cache configuration or default configuration
  */
-export function getCacheConfigByPath(apiPath: string): RouteCacheConfig {
-  // Remove leading '/api/' and trailing slashes
-  const cleanPath = apiPath.replace(/^\/api\//, '').replace(/\/$/, '');
+export function resolveRouteKeyByPath(apiPath: string): string {
+  const normalized = (() => {
+    if (!apiPath) return '';
+    let path = apiPath;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      try {
+        const url = new URL(path);
+        path = url.pathname;
+      } catch {
+        // ignore
+      }
+    }
+    const [clean] = path.split('?');
+    return clean || '';
+  })();
+
+  const cleanPath = normalized.replace(/^\/api\//, '').replace(/\/$/, '');
+
+  if (cleanPath === '') {
+    return cleanPath;
+  }
+
+  if (cleanPath === 'data/companies') {
+    return 'data/companies';
+  }
+
+  if (cleanPath.startsWith('data/companies/')) {
+    return 'data/companies/:id';
+  }
   
-  // Extract route key (handle dynamic routes)
-  let routeKey = cleanPath;
-  
-  // Handle dynamic data routes (e.g., '/api/data/inquiries' -> 'data/:schemaId')
   if (cleanPath.startsWith('data/')) {
     const parts = cleanPath.split('/');
     if (parts.length >= 2) {
-      routeKey = `data/:schemaId`;
-      // If there's an ID part, it's a single entity route
       if (parts.length === 3) {
-        routeKey = `data/:schemaId/:id`;
+        return 'data/:schemaId/:id';
       }
+      return 'data/:schemaId';
     }
-  } else if (cleanPath.startsWith('schemas/') && cleanPath.split('/').length === 2) {
-    // Single schema route (e.g., '/api/schemas/inquiries' -> 'schemas/:id')
-    routeKey = 'schemas/:id';
-  } else if (cleanPath.startsWith('companies/') && cleanPath.split('/').length === 2) {
-    // Single company route
-    routeKey = 'companies/:id';
-  } else if (cleanPath.startsWith('relation-types/') && cleanPath.split('/').length === 2) {
-    // Single relation type route
-    routeKey = 'relation-types/:id';
   }
-  
+
+  if (cleanPath.startsWith('schemas/') && cleanPath.split('/').length === 2) {
+    return 'schemas/:id';
+  }
+
+  if (cleanPath.startsWith('companies/') && cleanPath.split('/').length === 2) {
+    return 'companies/:id';
+  }
+
+  if (cleanPath.startsWith('relation-types/') && cleanPath.split('/').length === 2) {
+    return 'relation-types/:id';
+  }
+
+  return cleanPath;
+}
+
+export function getCacheConfigByPath(apiPath: string): RouteCacheConfig {
+  const routeKey = resolveRouteKeyByPath(apiPath);
   return getCacheConfig(routeKey);
 }
 
@@ -185,6 +237,19 @@ export function getAllReactQueryKeys(): string[] {
   const keys = new Set<string>();
   Object.values(CACHE_CONFIG).forEach(config => {
     config.reactQueryKeys?.forEach(key => keys.add(key));
+  });
+  return Array.from(keys);
+}
+
+/**
+ * Get unique IndexedDB cache keys referenced in cache config
+ */
+export function getIndexedDbCacheKeys(): string[] {
+  const keys = new Set<string>();
+  Object.values(CACHE_CONFIG).forEach((config) => {
+    if (config.indexedDbKey) {
+      keys.add(config.indexedDbKey);
+    }
   });
   return Array.from(keys);
 }

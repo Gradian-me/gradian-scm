@@ -9,7 +9,7 @@ import {
   Plus,
   Star
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Spinner } from '@/components/ui/spinner';
@@ -250,10 +250,19 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     
     // Skip company filtering if schema is not company-based
     if (!schema?.isNotCompanyBased) {
+      // If we don't yet have company context, skip building filters (avoid hitting API without companyIds)
+      const hasSelectedCompany = selectedCompany && selectedCompany.id !== undefined && selectedCompany.id !== null;
+      if (!hasSelectedCompany && availableCompanyIds.length === 0) {
+        return null;
+      }
+
       if (selectedCompany && selectedCompany.id !== -1) {
         filters.companyIds = [String(selectedCompany.id)];
       } else if (availableCompanyIds.length > 0) {
         filters.companyIds = [...availableCompanyIds];
+      } else {
+        // No company filters available yet; skip fetch
+        return null;
       }
     }
     
@@ -276,33 +285,24 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     }
   }, [deleteConfirmDialog.entity, handleDeleteEntity, fetchEntities, buildFilters]);
 
-  // Initial fetch on mount
+  const lastFiltersRef = useRef<string>('');
+
+  // Fetch whenever derived filters change (includes initial mount and company/filter updates)
   useEffect(() => {
     const filters = buildFilters();
-    fetchEntities(filters);
-  }, []);
-
-  // Refetch when company changes (only if schema is company-based)
-  useEffect(() => {
-    if (schema?.isNotCompanyBased) {
-      return; // Skip refetch on company change if not company-based
+    if (!filters) {
+      return;
     }
-    const filters = buildFilters();
-    fetchEntities(filters);
-  }, [selectedCompany?.id, schema?.isNotCompanyBased]);
+    const filtersKey = JSON.stringify(filters);
 
-  // Refetch when UI filters change
-  useEffect(() => {
-    const filters = buildFilters();
-    
+    if (lastFiltersRef.current === filtersKey) {
+      return;
+    }
+
+    lastFiltersRef.current = filtersKey;
     setFilters(filters);
-    
-    // Fetch if we have any active filters
-    if (filters.search || filters.status || filters.category || filters.companyId || (filters.companyIds && filters.companyIds.length > 0)) {
-      fetchEntities(filters);
-    }
-  }, [currentFilters.search, currentFilters.status, currentFilters.category]);
-
+    fetchEntities(filters);
+  }, [buildFilters, fetchEntities, setFilters]);
 
   // Handle edit entity - set entity ID to trigger FormModal
   const handleEditEntity = useCallback(async (entity: any) => {

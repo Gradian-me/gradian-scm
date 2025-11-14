@@ -1235,7 +1235,7 @@
         "label": "Phone Number",
         "sectionId": "section-1762151413279",
         "type": "phone",
-        "component": "phone",
+        "component": "tel",
         "order": 4,
         "required": true,
         "role": "tel"

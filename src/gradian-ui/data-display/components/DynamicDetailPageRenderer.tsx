@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import React from 'react';
-import { ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar';
 import { Badge } from '../../../components/ui/badge';
@@ -524,6 +524,11 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   
   // Check if avatar field exists in schema
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
+  const hasRating = headerInfo.rating > 0;
+  const hasStatusBadge =
+    Boolean(headerInfo.status && headerInfo.status.trim() !== '') ||
+    Boolean(headerInfo.statusMetadata?.label) ||
+    Boolean(badgeConfig?.label);
 
   useEffect(() => {
     if (typeof document === 'undefined') {
@@ -920,8 +925,25 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 </Button>
               )}
 
-              {showActions && (onEdit || onDelete) && (
+              {showActions && (onEdit || onDelete || onRefreshData) && (
                 <div className="flex items-center space-x-2">
+                  {onRefreshData && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const maybePromise = onRefreshData();
+                        if (maybePromise instanceof Promise) {
+                          maybePromise.catch((error) => {
+                            console.error('Failed to refresh entity data:', error);
+                          });
+                        }
+                      }}
+                      className="px-4 py-2 gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      <span className="hidden md:block">Refresh</span>
+                    </Button>
+                  )}
                   {onEdit && (
                     <Button variant="outline" onClick={handleEdit} className="px-4 py-2 gap-2">
                       <Edit className="h-4 w-4  " />
@@ -1002,8 +1024,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     />
                   </div>
                 )}
+              {(hasRating || hasStatusBadge) && (
                 <div className="flex items-end flex-col justify-end gap-2">
-                  {headerInfo.rating > 0 && (
+                  {hasRating && (
                     <motion.div whileHover={{ x: 2 }} transition={{ duration: 0.15 }}>
                       <Rating
                         value={headerInfo.rating}
@@ -1013,7 +1036,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                       />
                     </motion.div>
                   )}
-                  {(headerInfo.status && headerInfo.status.trim() !== '') || headerInfo.statusMetadata?.label ? (
+                  {hasStatusBadge ? (
                     <motion.div
                       initial={disableAnimation ? false : { opacity: 0, scale: 0.8, y: 5 }}
                       animate={disableAnimation ? false : { opacity: 1, scale: 1, y: 0 }}
@@ -1033,6 +1056,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                     </motion.div>
                   ) : null}
                 </div>
+              )}
               </div>
             </div>
           </div>
@@ -1337,6 +1361,9 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           entityId={editEntityId}
           mode="edit"
           getInitialSchema={(requestedId) => (requestedId === schema.id ? schema : null)}
+        getInitialEntityData={(requestedSchemaId, requestedEntityId) =>
+          requestedSchemaId === schema.id && requestedEntityId === data?.id ? data : null
+        }
         onSuccess={async () => {
             // Reset edit state and refresh the page to get updated data
             setEditEntityId(null);

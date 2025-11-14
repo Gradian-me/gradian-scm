@@ -42,6 +42,11 @@ export interface FormModalProps extends UseFormModalOptions {
    * Show loading spinner while schema/entity loads
    */
   showLoadingSpinner?: boolean;
+
+  /**
+   * Optional preloaded entity data for edit mode to skip refetching.
+   */
+  getInitialEntityData?: UseFormModalOptions['getInitialEntityData'];
 }
 
 /**
@@ -79,6 +84,7 @@ export const FormModal: React.FC<FormModalProps> = ({
   onSuccess,
   onClose,
   getInitialSchema,
+  getInitialEntityData,
 }) => {
   const {
     targetSchema,
@@ -101,6 +107,7 @@ export const FormModal: React.FC<FormModalProps> = ({
     onSuccess,
     onClose,
     getInitialSchema,
+    getInitialEntityData,
   });
 
   // Track the last opened combination to prevent duplicate opens

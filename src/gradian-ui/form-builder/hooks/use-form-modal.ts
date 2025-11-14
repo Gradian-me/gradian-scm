@@ -63,6 +63,12 @@ export interface UseFormModalOptions {
    * Return null to fall back to API.
    */
   getInitialSchema?: (schemaId: string) => FormSchema | null;
+
+  /**
+   * Optional function to supply already-loaded entity data (edit mode).
+   * Return null to fall back to API fetch.
+   */
+  getInitialEntityData?: (schemaId: string, entityId?: string) => any | null;
 }
 
 export interface UseFormModalReturn {
@@ -176,7 +182,7 @@ export interface UseFormModalReturn {
 export function useFormModal(
   options: UseFormModalOptions = {}
 ): UseFormModalReturn {
-  const { enrichData, onSuccess, onClose, getInitialSchema } = options;
+  const { enrichData, onSuccess, onClose, getInitialSchema, getInitialEntityData } = options;
   const { getCompanyId } = useCompanyStore();
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -245,6 +251,21 @@ export function useFormModal(
 
       // For edit mode, fetch entity data
       if (modalMode === 'edit' && editEntityId) {
+        let entitySource: any | null = null;
+        if (getInitialEntityData) {
+          try {
+            entitySource = getInitialEntityData(schemaId, editEntityId) ?? null;
+          } catch (error) {
+            console.warn('getInitialEntityData threw an error, falling back to API fetch.', error);
+            entitySource = null;
+          }
+        }
+
+        if (entitySource) {
+          setEntityData(entitySource);
+          setEntityId(editEntityId);
+        }
+
         const apiEndpoint = `/api/data/${schemaId}/${editEntityId}`;
         const entityResult = await apiRequest(apiEndpoint, {
           method: 'GET',
@@ -274,7 +295,7 @@ export function useFormModal(
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getInitialSchema, getInitialEntityData]);
 
   /**
    * Close form modal

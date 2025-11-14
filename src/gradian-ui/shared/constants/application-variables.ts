@@ -4,7 +4,8 @@ export enum LogType {
   REQUEST_BODY = 'REQUEST_BODY',
   REQUEST_RESPONSE = 'REQUEST_RESPONSE',
   SCHEMA_LOADER = 'SCHEMA_LOADER',
-  CALL_BACKEND = 'CALL_BACKEND'
+  CALL_BACKEND = 'CALL_BACKEND',
+  INDEXDB_CACHE = 'INDEXDB_CACHE',
 }
 
 // Log flags configuration
@@ -13,7 +14,8 @@ export const LOG_CONFIG = {
   [LogType.REQUEST_BODY]: true,
   [LogType.REQUEST_RESPONSE]: true,
   [LogType.SCHEMA_LOADER]: true,
-  [LogType.CALL_BACKEND]: true
+  [LogType.CALL_BACKEND]: true,
+  [LogType.INDEXDB_CACHE]: true,
 };
 
 // Authentication configuration
