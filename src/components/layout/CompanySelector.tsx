@@ -205,7 +205,7 @@ export function CompanySelector({
   return (
     <div className={cn("flex items-center space-x-2", fullWidth && "w-full")}>
       {selectedCompany?.logo && showLogo === 'full' && (
-        <div className="relative h-10 w-30 overflow-hidden bg-white">
+        <div className="relative h-10 w-30 overflow-hidden">
           <Image 
             src={selectedCompany.logo} 
             alt={selectedCompany.name}
@@ -238,7 +238,7 @@ export function CompanySelector({
             <span
               className={cn(
                 "text-sm font-medium line-clamp-1 whitespace-nowrap overflow-hidden text-ellipsis text-start",
-                isDarkVariant ? "text-gray-200" : "text-gray-700",
+                isDarkVariant ? "text-gray-300" : "text-gray-700 dark:text-gray-300",
                 fullWidth ? "flex-1" : ""
               )}
             >

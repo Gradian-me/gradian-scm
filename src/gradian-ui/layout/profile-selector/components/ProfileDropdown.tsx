@@ -52,10 +52,10 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   const isDarkTheme = (config.styling?.theme || 'light') === 'dark';
   const buttonClasses = cn(
-    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 text-sm justify-between',
+    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 text-sm justify-between bg-white dark:bg-gray-800',
     isDarkTheme
       ? 'bg-gray-800 text-gray-200 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600'
-      : 'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 text-gray-900 bg-white'
+      : 'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 text-gray-900 bg-white'
   );
 
   const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-50';
@@ -74,7 +74,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   const avatarClasses = cn(
     'h-8 w-8 rounded-full flex items-center justify-center text-sm font-medium',
     'bg-gradient-to-br from-violet-500 to-purple-600 text-white',
-    isDarkTheme ? 'ring-2 ring-gray-800 shadow-md' : 'ring-2 ring-white shadow-sm'
+    isDarkTheme ? 'ring-2 ring-gray-800 shadow-md' : 'ring-2 ring-white dark:ring-gray-500 shadow-sm'
   );
 
   const menuItemClasses = cn(
@@ -152,7 +152,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
           {layout.showName !== false && (
             <span className={cn(
               'text-sm font-medium',
-              isDarkTheme ? 'text-gray-100' : 'text-gray-900'
+              isDarkTheme ? 'text-gray-100' : 'text-gray-900 dark:text-gray-300'
             )}>
               {currentProfile?.name || 'User'}
               {currentProfile?.lastname ? ` ${currentProfile.lastname}` : ''}

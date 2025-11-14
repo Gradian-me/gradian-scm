@@ -33,21 +33,21 @@ export function TableHeader<T = any>({
   bordered,
 }: TableHeaderProps<T>) {
   const headerClasses = cn(
-    'bg-gray-50/50 border-b border-gray-100',
+    'bg-gray-50/50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-500',
     striped && 'bg-gray-50/50',
     bordered && 'border-b border-gray-100'
   );
 
   const thClasses = (column: TableColumn<T>) =>
     cn(
-      'text-left text-xs font-semibold text-gray-900 uppercase tracking-wider',
+      'text-left text-xs font-semibold text-gray-900 dark:text-gray-200 uppercase tracking-wider',
       column.align === 'center' && 'text-center',
       column.align === 'right' && 'text-right',
-      column.sortable && onSort && 'cursor-pointer select-none hover:bg-gray-100',
-      column.sticky === 'left' && 'sticky left-0 z-10 bg-gray-50/50',
-      column.sticky === 'right' && 'sticky right-0 z-10 bg-gray-50/50',
+      column.sortable && onSort && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700',
+      column.sticky === 'left' && 'sticky left-0 z-10 bg-gray-50/50 dark:bg-gray-700',
+      column.sticky === 'right' && 'sticky right-0 z-10 bg-gray-50/50 dark:bg-gray-700',
       stickyHeader && 'sticky top-0 z-20',
-      bordered && 'border-r border-gray-200 last:border-r-0',
+      bordered && 'border-r border-gray-200 dark:border-gray-500 last:border-r-0',
       // Match padding with td cells - use same padding as TableBody
       'px-4 py-3'
     );

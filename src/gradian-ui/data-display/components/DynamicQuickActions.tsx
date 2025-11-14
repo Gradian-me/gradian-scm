@@ -76,13 +76,14 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
       try {
         if (!schemaCacheState?.[action.targetSchema]) {
           const response = await apiRequest<FormSchema[]>(`/api/schemas?schemaIds=${action.targetSchema}`);
-          if (!response.success || !Array.isArray(response.data) || !response.data[0]) {
+          const schemaResponse = response.data?.[0];
+          if (!response.success || !Array.isArray(response.data) || !schemaResponse) {
             throw new Error(response.error || `Schema ${action.targetSchema} not found`);
           }
 
           setSchemaCacheState((prev) => ({
             ...prev,
-            [response.data[0].id]: response.data[0],
+            [schemaResponse.id]: schemaResponse,
           }));
         }
 
@@ -110,7 +111,7 @@ export const DynamicQuickActions: React.FC<DynamicQuickActionsProps> = ({
         className={cn('space-y-2', className)}
       >
         <Card className="p-4">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3">Quick Actions</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-200 mb-3">Quick Actions</h3>
           <div className="space-y-2">
             {actions.map((action) => {
               const isLoading = loadingActionId === action.id;

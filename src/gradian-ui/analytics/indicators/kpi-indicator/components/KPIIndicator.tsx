@@ -68,11 +68,11 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
       case 'minimal':
         return 'bg-transparent border-none shadow-none';
       case 'card':
-        return 'bg-white border border-gray-200 shadow-sm';
+        return 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-500 shadow-sm';
       case 'compact':
         return 'p-3';
       default:
-        return 'bg-white border border-gray-200 shadow-sm';
+        return 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-500 shadow-sm';
     }
   };
 
@@ -83,7 +83,7 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
     className
   );
 
-  const valueClasses = cn('font-bold text-gray-900');
+  const valueClasses = cn('font-bold text-gray-900 dark:text-gray-200');
 
   return (
     <div
@@ -98,8 +98,8 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
-            {icon && <span className="text-gray-500">{icon}</span>}
-            <h3 className="text-sm font-medium text-gray-600">{title}</h3>
+            {icon && <span className="text-gray-500 dark:text-gray-400">{icon}</span>}
+            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-200">{title}</h3>
           </div>
           
           <div className="flex items-baseline space-x-2">
@@ -107,12 +107,12 @@ export const KPIIndicator: React.FC<KPIIndicatorProps> = ({
               {formatValue(value)}
             </span>
             {unit && (
-              <span className="text-sm text-gray-500">{unit}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{unit}</span>
             )}
           </div>
           
           {description && (
-            <p className="mt-1 text-xs text-gray-500">{description}</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{description}</p>
           )}
           
           <div className="mt-3 space-y-2">

@@ -131,7 +131,7 @@ export function MainLayout({
           {icon && (
             <IconRenderer
               iconName={icon}
-              className="h-5 w-5 md:h-6 md:w-6 text-violet-600"
+              className="h-5 w-5 md:h-6 md:w-6 text-violet-600 dark:text-violet-300"
             />
           )}
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -167,20 +167,10 @@ export function MainLayout({
   const headerActionsContent = (
     <div className="flex items-center gap-2">
       <div className="hidden lg:flex items-center space-x-4">
-        <ModeToggle />
         <CompanySelector />
+        <ModeToggle />
         <NotificationsDropdown initialCount={5} />
         <UserProfileSelector />
-        {showCreateButton && (
-          <Button
-            onClick={onCreateClick}
-            className="flex items-center space-x-2"
-            aria-label={createButtonText}
-          >
-            <Plus className="h-4 w-4" />
-            <span>{createButtonText}</span>
-          </Button>
-        )}
       </div>
       <div className="flex lg:hidden items-center space-x-2">
         <Button

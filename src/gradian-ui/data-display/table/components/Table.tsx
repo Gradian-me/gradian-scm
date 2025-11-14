@@ -46,7 +46,7 @@ export function Table<T = any>({
 
   const containerClasses = cn(
     'overflow-x-auto w-full',
-    config.bordered && 'border border-gray-200 rounded-lg m-2',
+    config.bordered && 'border border-gray-200 dark:border-gray-500 rounded-lg m-2',
     className
   );
 

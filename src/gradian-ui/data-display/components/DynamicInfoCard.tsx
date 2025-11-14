@@ -297,12 +297,12 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                 size: 'md'
               }
             }}
-            className="h-auto bg-white border border-gray-200 shadow-sm"
+            className="h-auto bg-white dark:bg-gray-700  border border-gray-200 dark:border-gray-500 shadow-sm"
           >
-            <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
-              <CardTitle className="text-base font-semibold text-gray-900">{section.title}</CardTitle>
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 pb-4 rounded-t-xl">
+              <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-200">{section.title}</CardTitle>
               {section.description && (
-                <p className="text-sm text-gray-500 mt-1.5">{section.description}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{section.description}</p>
               )}
             </CardHeader>
             <CardContent>
@@ -361,10 +361,10 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
             size: 'md'
           }
         }}
-        className="h-auto bg-white border border-gray-200 shadow-sm"
+        className="h-auto bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-500 shadow-sm"
       >
-        <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
-          <CardTitle className="text-base font-semibold text-gray-900">{section.title}</CardTitle>
+        <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 pb-4 rounded-t-xl">
+          <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-200">{section.title}</CardTitle>
           {section.description && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{section.description}</p>
           )}
@@ -378,13 +378,13 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
                 whileHover={{ x: 2 }}
                 transition={{ duration: 0.15 }}
               >
-                <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
                   {field.icon && (
                     <IconRenderer iconName={field.icon} className="h-4 w-4" />
                   )}
                   {field.label}
                 </label>
-                <div className="text-sm text-gray-900 overflow-wrap-anywhere wrap-break-word">
+                <div className="text-sm text-gray-900 dark:text-gray-200 overflow-wrap-anywhere wrap-break-word">
                   {formatFieldValue(field, field.value, data, section)}
                 </div>
               </motion.div>

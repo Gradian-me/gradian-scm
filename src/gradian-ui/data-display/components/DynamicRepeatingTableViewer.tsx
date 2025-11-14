@@ -219,10 +219,10 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
         }}
         className="h-auto bg-white border border-gray-200 shadow-sm"
       >
-        <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
+        <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 pb-4 rounded-t-xl">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
+              <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</CardTitle>
               {showRefreshButton && (
                 <Button
                   type="button"
@@ -267,7 +267,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <div className="flex items-center gap-1 text-xs text-gray-900">
+                      <div className="flex items-center gap-1 text-xs text-gray-900 dark:text-gray-200">
                         {relationDirections.has('target') ? (
                           <>
                             <span>{targetSchemaData?.title || targetSchemaData?.plural_name || targetSchemaData?.name || config.targetSchema}</span>
@@ -286,7 +286,7 @@ export const DynamicRepeatingTableViewer: React.FC<DynamicRepeatingTableViewerPr
                   </Tooltip>
                 </TooltipProvider>
                 {relationTypeTexts.length > 0 && (
-                  <div className="text-xs font-medium text-gray-500 text-right">
+                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 text-end">
                     {relationTypeTexts.map((text, relationIndex) => (
                       <div key={`${text}-${relationIndex}`}>{text}</div>
                     ))}

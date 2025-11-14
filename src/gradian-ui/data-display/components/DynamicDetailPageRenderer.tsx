@@ -60,7 +60,7 @@ export const getPageSubtitle = (schema: FormSchema, entityName: string): React.R
     <span className="flex items-center gap-1.5">
       <IconRenderer 
         iconName={schema.icon} 
-        className="h-4 w-4 text-violet-600" 
+        className="h-4 w-4 text-violet-600 dark:text-violet-300" 
       />
       <span>{entityName}</span>
     </span>

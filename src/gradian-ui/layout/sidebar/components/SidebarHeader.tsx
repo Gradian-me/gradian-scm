@@ -46,7 +46,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
         variant="ghost"
         size="icon"
         onClick={onToggle}
-        className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg"
+        className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg dark:text-violet-300"
       >
         {isMobile ? (
           <PanelRightOpen className="h-5 w-5" />

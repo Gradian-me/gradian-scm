@@ -34,15 +34,15 @@ export function TableBody<T = any>({
   const trClasses = (index: number, isSelected: boolean) =>
     cn(
       'transition-colors',
-      striped && index % 2 === 1 && 'bg-gray-50',
+      striped && index % 2 === 1 && 'bg-gray-50 dark:bg-gray-700',
       hoverable && 'hover:bg-gray-100 cursor-pointer',
       isSelected && 'bg-blue-50',
-      bordered && 'border-b border-gray-200'
+      bordered && 'border-b border-gray-200 dark:border-gray-500'
     );
 
   const tdClasses = (column: TableColumn<T>, rowIndex: number, isSelected: boolean) =>
     cn(
-      'px-4 py-3 text-xs text-gray-900',
+      'px-4 py-3 text-xs text-gray-900 dark:text-gray-200',
       // Use better word breaking for columns with maxWidth - break on words, not characters
       column.maxWidth && 'wrap-break-word',
       column.align === 'center' && 'text-center',
@@ -51,11 +51,11 @@ export function TableBody<T = any>({
       column.sticky === 'left' && 'sticky left-0 z-10',
       column.sticky === 'right' && 'sticky right-0 z-10',
       // Set background for sticky columns based on row state (selected > striped > default)
-      column.sticky === 'left' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 1 ? 'bg-gray-50' : 'bg-white')),
-      column.sticky === 'right' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 1 ? 'bg-gray-50' : 'bg-white')),
+      column.sticky === 'left' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 1 ? 'bg-gray-50 dark:bg-gray-700' : 'bg-white')),
+      column.sticky === 'right' && (isSelected ? 'bg-blue-50' : (striped && rowIndex % 2 === 1 ? 'bg-gray-50 dark:bg-gray-700' : 'bg-white')),
       // For non-sticky columns, use transparent to show row background
       !column.sticky && striped && 'bg-transparent',
-      bordered && 'border-r border-gray-200 last:border-r-0'
+      bordered && 'border-r border-gray-200 dark:border-gray-500 last:border-r-0'
     );
 
   const handleRowClick = (row: T, index: number) => {
