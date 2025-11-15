@@ -134,7 +134,7 @@ export function NotificationDialog({ notification, isOpen, onClose, onMarkAsRead
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full h-full rounded-2xl lg:max-w-4xl lg:max-h-[90vh] p-0 flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
-        <DialogHeader className="p-6 pb-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
+        <DialogHeader className="p-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">
               {getTypeIcon(notification.type)}

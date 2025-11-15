@@ -89,7 +89,7 @@ const CollapsibleCardHeader = React.forwardRef<
 >(({ className, title, description, isCollapsed, onToggle, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center justify-between p-6 pb-4 border-b border-gray-100 bg-gray-50/50", className)}
+    className={cn("flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50", className)}
     {...props}
   >
     <div className="flex-1">

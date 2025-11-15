@@ -38,7 +38,10 @@ export function useCompanies() {
         }
 
         const allCompaniesOption: Company = { id: -1, name: 'All Companies' };
-        setCachedCompanies([allCompaniesOption, ...result.companies]);
+        setCachedCompanies([
+          allCompaniesOption,
+          ...result.companies.map(normalizeCompanyRecord),
+        ]);
       } catch (error) {
         console.warn('[useCompanies] Failed to read companies cache', error);
       }
@@ -63,8 +66,10 @@ export function useCompanies() {
         throw new Error(response.error || 'Failed to fetch companies');
       }
 
+      const normalized = response.data.map(normalizeCompanyRecord);
+
       try {
-        await persistCompaniesToCache(response.data);
+        await persistCompaniesToCache(normalized);
       } catch (cacheError) {
         console.warn('[useCompanies] Failed to persist companies cache', cacheError);
       }
@@ -74,7 +79,7 @@ export function useCompanies() {
         name: 'All Companies'
       };
       
-      return [allCompaniesOption, ...response.data];
+      return [allCompaniesOption, ...normalized];
     },
     initialData: cachedCompanies,
     staleTime: cacheConfig.staleTime ?? 15 * 60 * 1000,
@@ -95,5 +100,63 @@ export function useCompanies() {
     error,
     refetch,
   };
+}
+
+function normalizeCompanyRecord(company: CompanyRecord): Company {
+  if (!company) {
+    return { id: 'unknown', name: 'Untitled company' };
+  }
+
+  const resolvedName = deriveCompanyName(company);
+  const trimmedName = typeof resolvedName === 'string' ? resolvedName.trim() : '';
+
+  if (company.name && company.name.trim() === trimmedName) {
+    return {
+      ...company,
+      name: trimmedName,
+    };
+  }
+
+  return {
+    ...company,
+    name: trimmedName || 'Untitled company',
+  };
+}
+
+function deriveCompanyName(company?: CompanyRecord | null): string {
+  if (!company) {
+    return 'Untitled company';
+  }
+
+  const candidateValues = [
+    company.name,
+    (company as any)?.companyTitle,
+    (company as any)?.label,
+    (company as any)?.title,
+    (company as any)?.companyName,
+    (company as any)?.company_name,
+    (company as any)?.displayName,
+    (company as any)?.metadata?.name,
+    (company as any)?.profile?.name,
+  ];
+
+  for (const value of candidateValues) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  if (company.abbreviation && typeof company.abbreviation === 'string') {
+    return company.abbreviation.trim();
+  }
+
+  if (company.id !== undefined && company.id !== null) {
+    const idString = String(company.id);
+    if (idString.trim()) {
+      return `Company ${idString.slice(-4)}`;
+    }
+  }
+
+  return 'Untitled company';
 }
 
