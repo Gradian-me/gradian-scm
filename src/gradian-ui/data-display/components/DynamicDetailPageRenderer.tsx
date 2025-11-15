@@ -29,6 +29,7 @@ import { Skeleton } from '../../../components/ui/skeleton';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { RepeatingTableRendererConfig } from '@/gradian-ui/schema-manager/types/form-schema';
 import { normalizeOptionArray } from '../../form-builder/form-elements/utils/option-normalizer';
+import { toast } from 'sonner';
 
 export interface DynamicDetailPageRendererProps {
   schema: FormSchema;
@@ -318,6 +319,26 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   const detailMetadata = schema.detailPageMetadata;
   const isFetchingRef = useRef(false);
   const [documentTitle, setDocumentTitle] = useState<string>('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const refreshLabel = schema.singular_name || 'Record';
+
+  const handleRefreshAction = useCallback(async () => {
+    if (!onRefreshData) {
+      return;
+    }
+
+    const toastId = toast.loading(`Refreshing ${refreshLabel.toLowerCase()}...`);
+    setIsRefreshing(true);
+    try {
+      await Promise.resolve(onRefreshData());
+      toast.success(`${refreshLabel} updated`, { id: toastId });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to refresh data';
+      toast.error(errorMessage, { id: toastId });
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [onRefreshData, refreshLabel]);
 
   useEffect(() => {
     if (!preloadedSchemas.length) {
@@ -918,7 +939,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
             <div className='flex items-center justify-between w-full'>
               {showBackButton && (onBack || backUrl) && (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={onBack}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
@@ -931,18 +952,12 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   {onRefreshData && (
                     <Button
                       variant="outline"
-                      onClick={() => {
-                        const maybePromise = onRefreshData();
-                        if (maybePromise instanceof Promise) {
-                          maybePromise.catch((error) => {
-                            console.error('Failed to refresh entity data:', error);
-                          });
-                        }
-                      }}
+                      onClick={handleRefreshAction}
+                      disabled={isRefreshing}
                       className="px-4 py-2 gap-2"
                     >
-                      <RefreshCw className="h-4 w-4" />
-                      <span className="hidden md:block">Refresh</span>
+                      <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                      <span className="hidden md:block">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
                     </Button>
                   )}
                   {onEdit && (

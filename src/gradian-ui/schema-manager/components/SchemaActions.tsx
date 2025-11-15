@@ -38,7 +38,7 @@ export function SchemaActions({
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap">
       {onBack && (
-        <Button variant="outline" onClick={onBack}>
+        <Button variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">{backLabel}</span>
         </Button>

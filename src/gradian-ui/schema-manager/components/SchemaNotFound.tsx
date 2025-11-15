@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FileQuestion, ArrowLeft, Home } from 'lucide-react';
+import { FileQuestion, ArrowLeft, Home, RefreshCw, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -14,6 +14,8 @@ interface SchemaNotFoundProps {
   showGoBackButton?: boolean;
   homeHref?: string;
   showHomeButton?: boolean;
+  onRefresh?: () => void | Promise<void>;
+  refreshing?: boolean;
 }
 
 export function SchemaNotFound({
@@ -24,6 +26,8 @@ export function SchemaNotFound({
   showGoBackButton = true,
   homeHref = '/',
   showHomeButton = true,
+  onRefresh,
+  refreshing = false,
 }: SchemaNotFoundProps) {
   const handleGoBack = () => {
     if (onGoBack) {
@@ -49,7 +53,7 @@ export function SchemaNotFound({
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
               className="relative"
             >
-              <div className="absolute inset-0 bg-violet-100 rounded-full blur-2xl opacity-50" />
+              <div className="absolute inset-0 bg-violet-100 rounded-full blur-md opacity-50" />
               <div className="relative bg-linear-to-br from-violet-50 to-violet-50 p-8 rounded-full w-32 h-32 flex items-center justify-center">
                 <FileQuestion className="h-16 w-16 text-violet-600" strokeWidth={1.5} />
               </div>
@@ -60,7 +64,7 @@ export function SchemaNotFound({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-3xl md:text-4xl font-bold text-gray-900"
+                className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100"
               >
                 {title}
               </motion.h2>
@@ -68,7 +72,7 @@ export function SchemaNotFound({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-lg text-gray-600 max-w-md"
+                className="text-lg text-gray-600 dark:text-gray-300 max-w-md"
               >
                 {description}
               </motion.p>
@@ -85,12 +89,12 @@ export function SchemaNotFound({
               </p>
             </motion.div>
 
-            {(showGoBackButton || showHomeButton) && (
+            {(showGoBackButton || showHomeButton || onRefresh) && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="flex flex-col sm:flex-row gap-3 pt-4"
+                className="flex flex-col sm:flex-row gap-3 pt-4 flex-wrap"
               >
                 {showGoBackButton && (
                   <Button
@@ -100,6 +104,21 @@ export function SchemaNotFound({
                   >
                     <ArrowLeft className="h-4 w-4" />
                     <span>Go Back</span>
+                  </Button>
+                )}
+                {onRefresh && (
+                  <Button
+                    variant="outline"
+                    onClick={() => onRefresh()}
+                    disabled={refreshing}
+                    className="flex items-center space-x-2"
+                  >
+                    {refreshing ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                    <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
                   </Button>
                 )}
                 {showHomeButton && (
@@ -119,7 +138,7 @@ export function SchemaNotFound({
               transition={{ delay: 0.7 }}
               className="pt-8 border-t border-gray-200 w-full"
             >
-              <p className="text-xs text-gray-500">Error Code: 404 | Schema Not Found</p>
+              <p className="text-xs text-gray-500 dark:text-gray-300">Error Code: 404 | Schema Not Found</p>
             </motion.div>
           </div>
         </Card>

@@ -352,11 +352,11 @@ export function SchemaBuilderEditor({
           saving={saving}
           onRefresh={onRefreshSchema}
           refreshing={refreshing}
-          refreshLabel="Refresh Schema"
+          refreshLabel="Refresh"
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40 select-none">
             <TabsTrigger
               value="general"
               className="text-xs sm:text-sm rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"

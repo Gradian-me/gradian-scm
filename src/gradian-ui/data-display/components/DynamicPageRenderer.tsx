@@ -80,7 +80,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     () => (navigationSchemas ?? []).map((navSchema) => reconstructRegExp(navSchema) as FormSchema),
     [navigationSchemas]
   );
-
   useEffect(() => {
     if (typeof document === 'undefined') {
       return;
@@ -109,6 +108,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     open: boolean;
     entity: any | null;
   }>({ open: false, entity: null });
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
   
   // State for companies data and grouping
   const [companies, setCompanies] = useState<any[]>([]);
@@ -268,6 +268,31 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     
     return filters;
   }, [currentFilters, selectedCompany, schema?.isNotCompanyBased, availableCompanyIds]);
+
+  const handleManualRefresh = useCallback(async () => {
+    const filters = buildFilters();
+    if (!filters) {
+      toast.warning('Select a company to refresh', {
+        description: 'Choose a company context before refreshing the data.',
+      });
+      return;
+    }
+
+    const toastId = toast.loading(`Refreshing ${pluralName.toLowerCase()}...`);
+    setIsManualRefresh(true);
+    try {
+      const result = await fetchEntities(filters);
+      if (result && result.success === false) {
+        throw new Error(result.error || 'Failed to refresh data');
+      }
+      toast.success(`${pluralName} updated`, { id: toastId });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to refresh data';
+      toast.error(errorMessage, { id: toastId });
+    } finally {
+      setIsManualRefresh(false);
+    }
+  }, [buildFilters, fetchEntities, pluralName]);
 
   // Confirm and execute delete
   const confirmDelete = useCallback(async () => {
@@ -541,11 +566,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onAddNew={handleOpenCreateModal}
-          onRefresh={() => {
-            const filters = buildFilters();
-            fetchEntities(filters);
-          }}
-          isRefreshing={isLoading}
+          onRefresh={handleManualRefresh}
+          isRefreshing={isLoading || isManualRefresh}
           searchPlaceholder={`Search ${pluralName.toLowerCase()}...`}
           addButtonText={`Add ${singularName}`}
         />

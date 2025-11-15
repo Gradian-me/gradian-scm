@@ -299,7 +299,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
             }}
             className="h-auto bg-white dark:bg-gray-700  border border-gray-200 dark:border-gray-500 shadow-sm"
           >
-            <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 pb-4 rounded-t-xl">
+            <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 rounded-t-xl">
               <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-200">{section.title}</CardTitle>
               {section.description && (
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{section.description}</p>
@@ -363,7 +363,7 @@ export const DynamicInfoCard: React.FC<DynamicInfoCardProps> = ({
         }}
         className="h-auto bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-500 shadow-sm"
       >
-        <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 pb-4 rounded-t-xl">
+        <CardHeader className="bg-gray-50/50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-500 rounded-t-xl">
           <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-200">{section.title}</CardTitle>
           {section.description && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{section.description}</p>

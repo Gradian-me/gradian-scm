@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { ButtonMinimal, Badge } from '@/gradian-ui/form-builder/form-elements';
-import { GripVertical, Trash2, Edit } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GripVertical, Trash2, Edit, Pencil } from 'lucide-react';
 import { FormSection, FormSchema } from '../types/form-schema';
 import { SectionEditor } from './SectionEditor';
 import { SchemaBuilderDialog } from './SchemaBuilderDialog';
@@ -106,7 +107,8 @@ export function SortableSection({
   return (
     <>
       <div ref={setNodeRef} style={style} className="relative">
-        <Card className={`w-full border hover:shadow-sm transition-all duration-200 ${
+        <Card
+          className={`w-full border hover:shadow-sm transition-all duration-200 ${
           isDragging 
             ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white dark:bg-gray-900' 
             : isInactive
@@ -114,41 +116,58 @@ export function SortableSection({
             : isIncomplete 
               ? 'border-amber-300 dark:border-amber-500 bg-amber-50/50 dark:bg-amber-500/10 ring-1 ring-amber-200 dark:ring-amber-500/40' 
               : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
-        }`}>
-          <div className="p-6">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
+          }`}
+        >
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
                 <button
                   {...attributes}
                   {...listeners}
-                  className={`cursor-grab active:cursor-grabbing transition-colors p-0.5 ${
-                    isInactive ? 'text-gray-300 dark:text-gray-600' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                  className={`cursor-grab active:cursor-grabbing transition-colors mt-1 ${
+                    isInactive
+                      ? 'text-gray-300 dark:text-gray-600'
+                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                   }`}
+                  title="Drag to reorder section"
                 >
                   <GripVertical className="h-4 w-4" />
                 </button>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h4 className={`text-md font-semibold truncate ${
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CardTitle
+                      className={`text-base font-semibold truncate ${
                       isInactive 
                         ? 'text-gray-500 dark:text-gray-400' 
                         : isIncomplete 
                           ? 'text-amber-700 dark:text-amber-400' 
                           : 'text-gray-900 dark:text-gray-100'
-                    }`}>
+                      }`}
+                    >
                       {section.title || 'Untitled Section'}
-                    </h4>
+                    </CardTitle>
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] px-1.5 py-0 bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-100"
+                    >
+                      {fields.length} {fields.length === 1 ? 'field' : 'fields'}
+                    </Badge>
                     {isInactive && (
                       <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-200">
                         Inactive
                       </Badge>
                     )}
                     {isIncomplete && !isInactive && (
-              <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
+                      <Badge variant="warning" size="sm" className="text-[10px] px-1.5 py-0">
                         Incomplete
                       </Badge>
                     )}
-                    {targetSchemaName ? (
+                    {section.isRepeatingSection && (
+                      <Badge variant="primary" size="sm" className="text-[10px] px-1.5 py-0">
+                        Repeating
+                      </Badge>
+                    )}
+                    {targetSchemaName && (
                       <button
                         type="button"
                         onClick={(e) => {
@@ -168,48 +187,35 @@ export function SortableSection({
                           {targetSchemaName}
                         </Badge>
                       </button>
-                    ) : (
-                      <Badge variant="outline" size="sm" className="shrink-0">
-                        {fields.length} {fields.length === 1 ? 'field' : 'fields'}
-                      </Badge>
-                    )}
-                    {isIncomplete && fields.length === 0 && !section.isRepeatingSection && (
-                      <span className="text-xs text-amber-600 dark:text-amber-400 ml-1">
-                        • No fields are selected
-                      </span>
                     )}
                   </div>
                   {section.description && (
-                    <p className={`text-xs truncate mt-0.5 ${
-                      isInactive 
-                        ? 'text-gray-400 dark:text-gray-500' 
-                        : isIncomplete 
-                          ? 'text-amber-600 dark:text-amber-400' 
-                          : 'text-gray-500 dark:text-gray-400'
-                    }`}>
+                    <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 truncate">
                       {section.description}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="flex gap-0.5 shrink-0">
-                <ButtonMinimal
-                  icon={Edit}
-                  title="Edit Section"
-                  color="violet"
-                  size="md"
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setShowDialog(true)}
-                />
-                <ButtonMinimal
-                  icon={Trash2}
-                  title="Delete Section"
-                  color="red"
-                  size="md"
+                >
+                  <Pencil className="h-3 w-3 me-2" />
+                  Edit Section
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={onDelete}
-                />
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          </div>
+          </CardHeader>
         </Card>
       </div>
 

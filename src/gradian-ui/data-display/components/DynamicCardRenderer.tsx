@@ -417,7 +417,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <motion.h3
-                        className="text-md font-semibold text-gray-900 dark:text-gray-50 transition-colors duration-200 truncate flex-1 min-w-0"
+                        className="text-md font-semibold text-gray-900 dark:text-gray-50 group-hover:text-violet-400 dark:group-hover:text-violet-300 transition-colors duration-100 truncate flex-1 min-w-0"
                           whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         {renderHighlightedText(cardConfig.title, normalizedHighlightQuery)}
@@ -632,12 +632,12 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <motion.h3
-                      initial={disableAnimation ? false : { opacity: 0, x: -10 }}
+                      initial={disableAnimation ? false : { opacity: 0, x: -5 }}
                       animate={disableAnimation ? false : { opacity: 1, x: 0 }}
                       transition={disableAnimation ? {} : { duration: 0.3 }}
                       className={cn(
                         "text-base font-semibold text-gray-900 dark:text-gray-200 truncate flex-1 min-w-0",
-                        !disableAnimation && "group-hover:text-violet-700 transition-colors duration-200"
+                        !disableAnimation && "group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors duration-100"
                       )}
                       whileHover={disableAnimation ? undefined : {
                         x: 2,

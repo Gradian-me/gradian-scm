@@ -75,11 +75,16 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
       
       if (response.success && response.data) {
         setEntities(response.data);
+        return { success: true as const };
       } else {
-        setError(response.error || 'Failed to fetch entities');
+        const errorMessage = response.error || 'Failed to fetch entities';
+        setError(errorMessage);
+        return { success: false as const, error: errorMessage };
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch entities');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch entities';
+      setError(errorMessage);
+      return { success: false as const, error: errorMessage };
     } finally {
       setIsLoading(false);
     }

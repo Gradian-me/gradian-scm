@@ -107,7 +107,7 @@ export function SchemaManagerWrapper() {
         </div>
 
         <Tabs value={activeTab} onValueChange={value => setActiveTab(value as 'system' | 'business')}>
-          <TabsList className="w-full grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40">
+          <TabsList className="w-full grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40 select-none">
             <TabsTrigger
               value="system"
               className="flex items-center gap-2 flex-1 rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"
@@ -159,7 +159,7 @@ export function SchemaManagerWrapper() {
             onClick={handleRefresh}
             disabled={loading || refreshing}
             className="h-10 w-10"
-            title="Refresh schemas"
+            title="Refresh"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>

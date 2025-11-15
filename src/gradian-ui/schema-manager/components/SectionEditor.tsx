@@ -6,7 +6,7 @@ import { Textarea } from '../../../components/ui/textarea';
 import { Switch } from '../../../components/ui/switch';
 import { Button } from '../../../components/ui/button';
 import { Select, Slider, ButtonMinimal, NameInput } from '@/gradian-ui/form-builder/form-elements';
-import { Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { SectionEditorProps } from '../types/builder';
 import { FieldEditor } from './FieldEditor';
 import { SortableField } from './SortableField';
@@ -190,8 +190,8 @@ export function SectionEditor({
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose?.()}>
       <DialogContent className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] flex flex-col p-0 rounded-2xl">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
-          <DialogTitle>Edit Section</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 shrink-0">
+          <DialogTitle><Pencil className="h-4 w-4 mr-2" /> Edit Section</DialogTitle>
           <DialogDescription>
             Configure section properties and fields
           </DialogDescription>

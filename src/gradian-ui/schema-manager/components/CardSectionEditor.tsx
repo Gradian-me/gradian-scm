@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TextInput, NameInput, Slider, SortableSelector } from '@/gradian-ui/form-builder/form-elements';
 import type { SortableSelectorItem } from '@/gradian-ui/form-builder/form-elements';
 import { CardSection } from '../types/form-schema';
+import { Pencil } from 'lucide-react';
 
 interface CardSectionEditorProps {
   section: CardSection;
@@ -35,7 +36,7 @@ export function CardSectionEditor({
 }: CardSectionEditorProps) {
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl w-[95vw]">
+      <DialogContent className="rounded-2xl max-w-3xl w-[95vw]">
         <DialogHeader>
           <DialogTitle>Edit Card Section</DialogTitle>
           <DialogDescription>
@@ -105,7 +106,7 @@ export function CardSectionEditor({
         </div>
 
         <DialogFooter className="flex justify-between w-full">
-          <Button variant="destructive" onClick={onDelete}>
+          <Button variant="ghost" onClick={onDelete}>
             Delete Section
           </Button>
           <Button onClick={onClose}>Done</Button>

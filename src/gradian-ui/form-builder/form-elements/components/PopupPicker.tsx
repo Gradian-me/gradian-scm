@@ -603,7 +603,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
                         "text-sm font-semibold truncate transition-colors flex-1 min-w-0",
                         isSelected
                           ? "text-violet-900"
-                          : "text-gray-900 group-hover:text-violet-700"
+                          : "text-gray-900 group-hover:text-violet-700 dark:group-hover:text-violet-300"
                       )}
                     >
                       {renderHighlightedText(title, highlightQuery)}

@@ -10,6 +10,7 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useCompanyStore } from '@/stores/company.store';
 import { useCompanies } from '@/gradian-ui/shared/hooks/use-companies';
+import { useTheme } from 'next-themes';
 
 interface Company {
   id: string | number;
@@ -21,7 +22,7 @@ interface Company {
 interface CompanySelectorProps {
   onCompanyChange?: (company: string) => void;
   onCompanyChangeFull?: (company: Company) => void;
-  variant?: 'light' | 'dark';
+  variant?: 'light' | 'dark' | 'auto';
   fullWidth?: boolean;
   showLogo?: 'none' | 'sidebar-avatar' | 'full';
 }
@@ -29,7 +30,7 @@ interface CompanySelectorProps {
 export function CompanySelector({
   onCompanyChange,
   onCompanyChangeFull,
-  variant = 'light',
+  variant = 'auto',
   fullWidth = false,
   showLogo = 'full',
 }: CompanySelectorProps) {
@@ -39,7 +40,9 @@ export function CompanySelector({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const onCompanyChangeFullRef = useRef(onCompanyChangeFull);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const isDarkVariant = variant === 'dark';
+  const { resolvedTheme } = useTheme();
+  const computedVariant = variant === 'auto' ? (resolvedTheme === 'dark' ? 'dark' : 'light') : variant;
+  const isDarkVariant = computedVariant === 'dark';
   
   // Keep ref in sync with callback
   useEffect(() => {

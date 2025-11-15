@@ -485,7 +485,7 @@ export default function AnalyticsPage() {
             onValueChange={value => setActiveTab(value as typeof activeTab)}
             className="w-full"
           >
-            <FormTabsList className="min-w-full bg-gray-100 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+            <FormTabsList className="min-w-full bg-gray-100 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 select-none">
               {tabs.map(tab => (
                 <FormTabsTrigger
                   key={tab.id}

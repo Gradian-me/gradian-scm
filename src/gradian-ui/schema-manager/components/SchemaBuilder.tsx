@@ -70,7 +70,7 @@ export function SchemaBuilder({ schemaId, config }: SchemaBuilderProps) {
           // This would need to be implemented in the hook
         }}
       >
-        <TabsList className="grid w-full grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40">
+        <TabsList className="grid w-full grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40 select-none">
           <TabsTrigger
             value="general"
             className="flex items-center justify-center gap-2 rounded-lg py-2 px-3 text-sm font-medium text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"

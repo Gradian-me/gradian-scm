@@ -53,12 +53,6 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   );
 
   const isDarkTheme = (config.styling?.theme || 'light') === 'dark';
-  const buttonClasses = cn(
-    'flex items-center gap-2 h-10 px-3 rounded-lg transition-all duration-200 text-sm justify-between focus:outline-none focus:ring-2',
-    isDarkTheme
-      ? 'border border-gray-700 bg-gray-900 text-gray-100 hover:bg-gray-800 focus:ring-gray-600'
-      : 'border border-gray-200 bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-200'
-  );
 
   const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-[9999]';
   const panelThemeClasses = isDarkTheme
@@ -132,9 +126,15 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             setPanelPlacement('bottom');
           }
         }}
-        className={buttonClasses}
-        aria-label="User menu"
+        className={cn(
+          'flex items-center gap-2 h-10 px-3 rounded-xl transition-all duration-200 text-sm justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+          layout.fullWidth ? 'w-full' : 'w-auto',
+          isDarkTheme
+            ? 'border border-violet-300/60 bg-gray-900 text-violet-200 hover:bg-gray-800 focus-visible:ring-violet-500 focus-visible:ring-offset-gray-900'
+            : 'border border-violet-200 bg-white text-violet-700 hover:bg-violet-50 hover:border-violet-300 focus-visible:ring-violet-500 focus-visible:ring-offset-white'
+        )}
         style={{ width: fullWidth ? '100%' : undefined }}
+        aria-label="User menu"
       >
         <div className="flex flex-row items-center gap-2">
           {layout.showAvatar !== false && (
