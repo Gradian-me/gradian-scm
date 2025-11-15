@@ -16,7 +16,7 @@ import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { AnimatePresence, motion } from 'framer-motion';
 import { List, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getArrayValuesByRole, getFieldsByRole, getSingleValueByRole, getValueByRole } from '../utils/field-resolver';
 import { Avatar } from './Avatar';
@@ -27,6 +27,9 @@ import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
 import { renderHighlightedText } from '@/gradian-ui/shared/utils/highlighter';
 import { formatFieldValue, getFieldValue } from '@/gradian-ui/data-display/table/utils/field-formatters';
 import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { AddButtonFull } from './AddButtonFull';
+import { EndLine } from '@/gradian-ui/layout';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 12, scale: 0.96 },
@@ -113,7 +116,8 @@ const buildSelectionEntry = (item: any, schema?: FormSchema | null): NormalizedO
 export interface PopupPickerProps {
   isOpen: boolean;
   onClose: () => void;
-  schemaId: string;
+  schemaId?: string;
+  sourceUrl?: string;
   schema?: FormSchema;
   onSelect: (selections: NormalizedOption[], rawItems: any[]) => Promise<void> | void;
   title?: string;
@@ -124,12 +128,15 @@ export interface PopupPickerProps {
   canViewList?: boolean; // If true, shows a button to navigate to the list page
   viewListUrl?: string; // Custom URL for the list page (defaults to /page/{schemaId})
   allowMultiselect?: boolean; // Enables multi-select mode with confirm button
+  staticItems?: any[]; // Optional static dataset (skips API calls when provided)
+  pageSize?: number; // Page size for paginated data sources
 }
 
 export const PopupPicker: React.FC<PopupPickerProps> = ({
   isOpen,
   onClose,
   schemaId,
+  sourceUrl,
   schema: providedSchema,
   onSelect,
   title,
@@ -140,6 +147,8 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   canViewList = false,
   viewListUrl,
   allowMultiselect = false,
+  staticItems,
+  pageSize = 48,
 }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -152,9 +161,30 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   const [sessionSelectedIds, setSessionSelectedIds] = useState<Set<string>>(new Set());
   const [pendingSelections, setPendingSelections] = useState<Map<string, PendingSelection>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const effectivePageSize = Math.max(1, pageSize);
+  const [pageMeta, setPageMeta] = useState({
+    page: 1,
+    limit: effectivePageSize,
+    totalItems: 0,
+    hasMore: true,
+  });
 
   const baseSelectedIdsRef = useRef<Set<string>>(new Set());
   const baseSelectedIds = baseSelectedIdsRef.current;
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+  const supportsPagination = Boolean((sourceUrl || schemaId) && !staticItems);
+  const includeKey = useMemo(() => (includeIds && includeIds.length > 0 ? includeIds.slice().sort().join(',') : ''), [includeIds]);
+  const excludeKey = useMemo(() => (excludeIds && excludeIds.length > 0 ? excludeIds.slice().sort().join(',') : ''), [excludeIds]);
+  const lastQueryKeyRef = useRef<string>('__init__');
+
+  useEffect(() => {
+    setPageMeta((prev) => ({
+      ...prev,
+      limit: effectivePageSize,
+    }));
+  }, [effectivePageSize]);
 
   // Use refs to track previous array values for comparison
   const prevExcludeIdsRef = useRef<string>('');
@@ -163,7 +193,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
   // Fetch schema if not provided
   useEffect(() => {
-    if (!providedSchema && schemaId && isOpen) {
+    if (!staticItems && !sourceUrl && !providedSchema && schemaId && isOpen) {
       const fetchSchema = async () => {
         try {
           const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
@@ -205,42 +235,237 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     setPendingSelections(new Map());
   }, [selectedIds]);
 
-  const loadItems = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Build query params
-      const queryParams = new URLSearchParams();
-      
+  const buildSourceRequestUrl = useCallback(
+    (pageToLoad: number) => {
+      if (!sourceUrl) {
+        return '';
+      }
+      const params = new URLSearchParams();
+      params.set('page', pageToLoad.toString());
+      params.set('limit', effectivePageSize.toString());
+      const trimmedSearch = searchQuery.trim();
+      if (trimmedSearch) {
+        params.set('search', trimmedSearch);
+      }
       if (includeIds && includeIds.length > 0) {
-        queryParams.append('includeIds', includeIds.join(','));
+        params.set('includeIds', includeIds.join(','));
       }
-      
       if (excludeIds && excludeIds.length > 0) {
-        queryParams.append('excludeIds', excludeIds.join(','));
+        params.set('excludeIds', excludeIds.join(','));
       }
-      
-      const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      const response = await apiRequest<any[]>(url);
-      
-      if (response.success && response.data) {
-        const itemsArray = Array.isArray(response.data) ? response.data : [];
-        setItems(itemsArray);
-        setFilteredItems(itemsArray);
-      } else {
-        setError(response.error || 'Failed to fetch items');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch items');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const queryString = params.toString();
+      return `${sourceUrl}${sourceUrl.includes('?') ? '&' : '?'}${queryString}`;
+    },
+    [sourceUrl, effectivePageSize, searchQuery, includeIds, excludeIds]
+  );
 
-  // Fetch items - only when modal opens
+  const fetchSourceItems = useCallback(
+    async (pageToLoad = 1, append = false) => {
+      if (!sourceUrl) {
+        return;
+      }
+      setError(null);
+      if (pageToLoad === 1) {
+        setIsLoading(true);
+      } else {
+        setIsFetchingMore(true);
+      }
+      try {
+        const requestUrl = buildSourceRequestUrl(pageToLoad);
+        const response = await fetch(requestUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch items (${response.status})`);
+        }
+        const payload = await response.json();
+        const dataArray = Array.isArray(payload)
+          ? payload
+          : payload &&
+              typeof payload === 'object' &&
+              'data' in payload &&
+              Array.isArray((payload as Record<string, any>).data)
+            ? ((payload as Record<string, any>).data as any[])
+            : [];
+        setItems((prev) => (append ? [...prev, ...dataArray] : dataArray));
+        setFilteredItems((prev) => (append ? [...prev, ...dataArray] : dataArray));
+        setPageMeta((prev) => {
+          const meta = (payload as { meta?: { page?: number; limit?: number; totalItems?: number; hasMore?: boolean } }).meta;
+          const nextLimit = meta?.limit ?? effectivePageSize;
+          const nextPage = meta?.page ?? pageToLoad;
+          const nextTotal =
+            meta?.totalItems ??
+            (append ? (prev.totalItems || prev.page * prev.limit) + dataArray.length : dataArray.length);
+          const derivedHasMore =
+            typeof meta?.hasMore === 'boolean' ? meta.hasMore : nextPage * nextLimit < nextTotal;
+          return {
+            page: nextPage,
+            limit: nextLimit,
+            totalItems: nextTotal,
+            hasMore: Boolean(derivedHasMore),
+          };
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch items');
+        if (!append) {
+          setItems([]);
+          setFilteredItems([]);
+          setPageMeta((prev) => ({
+            ...prev,
+            page: 1,
+            hasMore: false,
+            totalItems: 0,
+          }));
+        }
+      } finally {
+        if (pageToLoad === 1) {
+          setIsLoading(false);
+        } else {
+          setIsFetchingMore(false);
+        }
+      }
+    },
+    [buildSourceRequestUrl, effectivePageSize, sourceUrl]
+  );
+
+  const fetchSchemaItems = useCallback(
+    async (pageToLoad = 1, append = false) => {
+      if (!schemaId) {
+        return;
+      }
+      setError(null);
+      if (pageToLoad === 1) {
+        setIsLoading(true);
+      } else {
+        setIsFetchingMore(true);
+      }
+      try {
+        const params: Record<string, string> = {
+          page: pageToLoad.toString(),
+          limit: effectivePageSize.toString(),
+        };
+        const trimmedSearch = searchQuery.trim();
+        if (trimmedSearch) {
+          params.search = trimmedSearch;
+        }
+        if (includeIds && includeIds.length > 0) {
+          params.includeIds = includeIds.join(',');
+        }
+        if (excludeIds && excludeIds.length > 0) {
+          params.excludeIds = excludeIds.join(',');
+        }
+
+        const response = await apiRequest<any>(`/api/data/${schemaId}`, { params });
+        if (!response.success || !Array.isArray(response.data)) {
+          throw new Error(response.error || 'Failed to fetch items');
+        }
+
+        const dataArray = response.data;
+        setItems((prev) => (append ? [...prev, ...dataArray] : dataArray));
+        setFilteredItems((prev) => (append ? [...prev, ...dataArray] : dataArray));
+
+        setPageMeta((prev) => {
+          const meta = (response as { meta?: { page?: number; limit?: number; totalItems?: number; hasMore?: boolean } }).meta;
+          const nextLimit = meta?.limit ?? effectivePageSize;
+          const nextPage = meta?.page ?? pageToLoad;
+          const nextTotal =
+            meta?.totalItems ??
+            (append ? (prev.totalItems || prev.page * prev.limit) + dataArray.length : dataArray.length);
+          const derivedHasMore =
+            typeof meta?.hasMore === 'boolean' ? meta.hasMore : nextPage * nextLimit < nextTotal;
+          return {
+            page: nextPage,
+            limit: nextLimit,
+            totalItems: nextTotal,
+            hasMore: Boolean(derivedHasMore),
+          };
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch items');
+        if (!append) {
+          setItems([]);
+          setFilteredItems([]);
+          setPageMeta((prev) => ({
+            ...prev,
+            page: 1,
+            hasMore: false,
+            totalItems: 0,
+          }));
+        }
+      } finally {
+        if (pageToLoad === 1) {
+          setIsLoading(false);
+        } else {
+          setIsFetchingMore(false);
+        }
+      }
+    },
+    [schemaId, effectivePageSize, searchQuery, includeIds, excludeIds]
+  );
+
+  const loadItems = useCallback(
+    async (pageToLoad = 1, append = false) => {
+      if (sourceUrl) {
+        await fetchSourceItems(pageToLoad, append);
+        return;
+      }
+      if (supportsPagination && schemaId) {
+        await fetchSchemaItems(pageToLoad, append);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (staticItems) {
+          setItems(staticItems);
+          setFilteredItems(staticItems);
+          return;
+        }
+
+        // Build query params
+        const queryParams = new URLSearchParams();
+
+        if (includeIds && includeIds.length > 0) {
+          queryParams.append('includeIds', includeIds.join(','));
+        }
+
+        if (excludeIds && excludeIds.length > 0) {
+          queryParams.append('excludeIds', excludeIds.join(','));
+        }
+
+        const url = `/api/data/${schemaId}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+        const response = await apiRequest<any[]>(url);
+
+        if (response.success && response.data) {
+          const itemsArray = Array.isArray(response.data) ? response.data : [];
+          setItems(itemsArray);
+          setFilteredItems(itemsArray);
+        } else {
+          setError(response.error || 'Failed to fetch items');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch items');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sourceUrl, fetchSourceItems, fetchSchemaItems, supportsPagination, schemaId, staticItems, includeIds, excludeIds]
+  );
+
+  // Keep items in sync when static dataset changes or when modal opens
+  useEffect(() => {
+    if (!staticItems) {
+      return;
+    }
+    if (isOpen) {
+      setItems(staticItems);
+      setFilteredItems(staticItems);
+    }
+  }, [staticItems, isOpen]);
+
+  // Fetch items - only when modal opens (skipped for static datasets)
   // Array comparisons are done inside the effect to avoid dependency issues
   useEffect(() => {
-    if (!schemaId || !isOpen) {
+    if (!isOpen || staticItems || supportsPagination) {
       return;
     }
 
@@ -267,19 +492,59 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     prevExcludeIdsRef.current = excludeIdsKey;
     prevIncludeIdsRef.current = includeIdsKey;
 
-    loadItems();
+    void loadItems();
     // Note: excludeIds and includeIds are intentionally not in dependencies
     // We compare them inside the effect using refs to avoid infinite loops
-  }, [schemaId, isOpen]);
+  }, [schemaId, isOpen, staticItems, sourceUrl, loadItems]);
   const handleRefresh = async (event?: React.MouseEvent<HTMLButtonElement>) => {
     event?.preventDefault();
     event?.stopPropagation();
-    await loadItems();
+    if (staticItems) {
+      setItems(staticItems);
+      return;
+    }
+    if (supportsPagination) {
+      setPageMeta((prev) => ({ ...prev, page: 1, hasMore: true }));
+      await loadItems(1, false);
+      return;
+    }
+    await loadItems(1, false);
   };
 
+  const handleLoadMore = useCallback(() => {
+    if (!supportsPagination || isLoading || isFetchingMore || !pageMeta.hasMore) {
+      return;
+    }
+    void loadItems(pageMeta.page + 1, true);
+  }, [supportsPagination, isLoading, isFetchingMore, pageMeta.hasMore, pageMeta.page, loadItems]);
 
-  // Filter items based on search query
   useEffect(() => {
+    if (!isOpen || !supportsPagination) {
+      return;
+    }
+    const trimmed = searchQuery.trim();
+    const queryKey = `${trimmed}|${includeKey}|${excludeKey}`;
+    if (queryKey === lastQueryKeyRef.current) {
+      return;
+    }
+    const handler = setTimeout(() => {
+      lastQueryKeyRef.current = queryKey;
+      setPageMeta((prev) => ({
+        ...prev,
+        page: 1,
+        hasMore: true,
+        totalItems: 0,
+      }));
+      void loadItems(1, false);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [isOpen, supportsPagination, searchQuery, includeKey, excludeKey, loadItems]);
+
+  useEffect(() => {
+    if (supportsPagination) {
+      return;
+    }
+
     if (!searchQuery.trim()) {
       setFilteredItems(items);
       return;
@@ -295,12 +560,38 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
 
       const title = getValueByRole(schema, item, 'title') || item.name || '';
       const subtitle = getSingleValueByRole(schema, item, 'subtitle', item.email) || item.email || '';
-      
       return title.toLowerCase().includes(query) || subtitle.toLowerCase().includes(query);
     });
 
     setFilteredItems(filtered);
-  }, [searchQuery, items, schema]);
+  }, [supportsPagination, searchQuery, items, schema]);
+
+  useEffect(() => {
+    if (!supportsPagination || !isOpen) {
+      return;
+    }
+    const target = loadMoreTriggerRef.current;
+    if (!target) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting && pageMeta.hasMore && !isLoading && !isFetchingMore) {
+          void loadItems(pageMeta.page + 1, true);
+        }
+      },
+      {
+        root: listContainerRef.current,
+        threshold: 0.25,
+      }
+    );
+
+    observer.observe(target);
+    return () => {
+      observer.disconnect();
+    };
+  }, [supportsPagination, isOpen, pageMeta.hasMore, pageMeta.page, isLoading, isFetchingMore, loadItems]);
 
   const commitSingleSelection = async (item: any) => {
     if (isSubmitting) return;
@@ -504,6 +795,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     if (!schema) {
       // Fallback rendering
       const displayName = item.name || item.title || item.id || `Item ${index + 1}`;
+      const iconName = item.icon || item.name || item.title;
       return (
         <motion.div key={item.id || index} {...motionProps}>
           <div
@@ -517,6 +809,12 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               isSelected ? selectedCardClasses : defaultCardClasses
             )}
           >
+            <div className="flex items-center gap-3">
+              {iconName && (
+                <div className="h-10 w-10 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center">
+                  <IconRenderer iconName={iconName} className="h-5 w-5" />
+                </div>
+              )}
             <div
               className={cn(
                 "font-medium text-sm",
@@ -524,6 +822,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               )}
             >
               {renderHighlightedText(displayName, highlightQuery)}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -703,7 +1002,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         </div>
 
         {/* Items Grid */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div ref={listContainerRef} className="flex-1 overflow-y-auto min-h-0">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -720,6 +1019,32 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
               <AnimatePresence mode="sync">
                 {filteredItems.map((item, index) => renderItemCard(item, index))}
               </AnimatePresence>
+              {supportsPagination && (
+                <>
+                  <div ref={loadMoreTriggerRef} className="col-span-full h-1 w-full" />
+                  {isFetchingMore && (
+                    <div className="col-span-full flex items-center justify-center py-4 text-sm text-gray-500">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Loading more icons...
+                    </div>
+                  )}
+                  {!pageMeta.hasMore && filteredItems.length > 0 && !isFetchingMore && (
+                    <div className="col-span-full">
+                      <EndLine />
+                    </div>
+                  )}
+                  {pageMeta.hasMore && (
+                    <div className="col-span-full">
+                      <AddButtonFull
+                        label="Load More"
+                        onClick={handleLoadMore}
+                        loading={isFetchingMore}
+                        disabled={isLoading || isFetchingMore}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>

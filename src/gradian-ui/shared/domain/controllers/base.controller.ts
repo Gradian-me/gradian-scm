@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { IService } from '../interfaces/service.interface';
 import { BaseEntity, FilterParams } from '../types/base.types';
 import { handleDomainError } from '../errors/domain.errors';
+import { parsePaginationParams, paginateArray, buildPaginationMeta } from '@/gradian-ui/shared/utils/pagination-utils';
 
 export class BaseController<T extends BaseEntity> {
   constructor(
@@ -77,11 +78,32 @@ export class BaseController<T extends BaseEntity> {
     try {
       const { searchParams } = new URL(request.url);
       const filters = this.extractFilters(searchParams);
+      const hasPagination = searchParams.has('page') || searchParams.has('limit');
+      const pagination = hasPagination
+        ? parsePaginationParams({
+            page: searchParams.get('page'),
+            limit: searchParams.get('limit'),
+          })
+        : null;
 
       const result = await this.service.getAll(filters);
 
       if (!result.success) {
         return NextResponse.json(result, { status: 400 });
+      }
+
+      if (pagination && Array.isArray(result.data)) {
+        const totalItems = result.data.length;
+        const pageItems = paginateArray(result.data, pagination.page, pagination.limit);
+        const meta = buildPaginationMeta(totalItems, pagination.page, pagination.limit);
+        return NextResponse.json(
+          {
+            ...result,
+            data: pageItems,
+            meta,
+          },
+          { status: 200 }
+        );
       }
 
       return NextResponse.json(result, { status: 200 });

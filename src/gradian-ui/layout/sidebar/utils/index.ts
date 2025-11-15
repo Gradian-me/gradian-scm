@@ -39,8 +39,8 @@ export const defaultNavigationItems: NavigationItem[] = [
     icon: BarChart3,
   },
   {
-    name: 'ERP Integration',
-    href: '/erp',
+    name: 'Integrations',
+    href: '/integrations',
     icon: Database,
   },
   {

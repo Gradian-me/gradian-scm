@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,8 @@ import {
   Activity
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import type { LucideIconLibraryItem } from '@/gradian-ui/shared/constants/lucide-icon-library';
 
 interface ERPIntegration {
   id: string;
@@ -28,10 +30,13 @@ interface ERPIntegration {
   description: string;
 }
 
-export default function ERPPage() {
+export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<ERPIntegration[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [iconLibrary, setIconLibrary] = useState<LucideIconLibraryItem[]>([]);
+  const [iconLoading, setIconLoading] = useState<boolean>(false);
+  const [iconError, setIconError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchIntegrations = async () => {
@@ -75,8 +80,34 @@ export default function ERPPage() {
       }
     };
 
+    const fetchIcons = async () => {
+      setIconLoading(true);
+      setIconError(null);
+      try {
+        const response = await fetch('/api/integrations/lucide-icons');
+        if (!response.ok) {
+          throw new Error(`Failed to load icons (${response.status})`);
+        }
+        const payload = await response.json();
+        const data = Array.isArray(payload) ? payload : payload?.data;
+        if (Array.isArray(data)) {
+          setIconLibrary(data as LucideIconLibraryItem[]);
+        } else {
+          throw new Error('Unexpected icon payload');
+        }
+      } catch (error) {
+        console.error('Error fetching lucide icons:', error);
+        setIconError(error instanceof Error ? error.message : 'Failed to load icons');
+      } finally {
+        setIconLoading(false);
+      }
+    };
+
     fetchIntegrations();
+    fetchIcons();
   }, []);
+
+  const displayedIcons = useMemo(() => iconLibrary.slice(0, 24), [iconLibrary]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -124,7 +155,7 @@ export default function ERPPage() {
 
   if (loading) {
     return (
-      <MainLayout title="ERP Integration">
+      <MainLayout title="Integrations">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -133,7 +164,7 @@ export default function ERPPage() {
   }
 
   return (
-    <MainLayout title="ERP Integration">
+    <MainLayout title="Integrations">
       <div className="space-y-6">
         {/* Header */}
         <motion.div
@@ -143,8 +174,8 @@ export default function ERPPage() {
           className="flex items-center justify-between"
         >
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ERP Integration</h2>
-            <p className="text-gray-600 dark:text-gray-400">Manage connections to external ERP systems</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Integrations</h2>
+            <p className="text-gray-600 dark:text-gray-400">Manage connections to external systems and icon libraries</p>
           </div>
           <div className="flex space-x-2">
             <Button variant="outline">
@@ -342,6 +373,98 @@ export default function ERPPage() {
                   <span>View Logs</span>
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Lucide Icon Library */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 1.1 }}
+        >
+          <Card>
+            <CardHeader className="flex items-center justify-between flex-col md:flex-row gap-3">
+              <div>
+                <CardTitle className="text-gray-800 dark:text-gray-200">Lucide Icon Library</CardTitle>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {iconLibrary.length.toLocaleString()} icons available for form builders and pickers
+                </p>
+              </div>
+              <div className="flex gap-2 w-full md:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={iconLoading}
+                  onClick={async () => {
+                    setIconLoading(true);
+                    setIconError(null);
+                    try {
+                      const res = await fetch('/api/integrations/lucide-icons/sync', { method: 'POST' });
+                      if (!res.ok) throw new Error('Failed to sync icons');
+                      await fetch('/api/integrations/lucide-icons')
+                        .then((response) => response.json())
+                        .then((data) => {
+                          if (Array.isArray(data)) {
+                            setIconLibrary(data);
+                          } else if (Array.isArray(data?.data)) {
+                            setIconLibrary(data.data);
+                          }
+                        });
+                    } catch (error) {
+                      console.error(error);
+                      setIconError(error instanceof Error ? error.message : 'Sync failed');
+                    } finally {
+                      setIconLoading(false);
+                    }
+                  }}
+                >
+                  {iconLoading ? 'Syncing…' : 'Sync Now'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.open('https://lucide.dev/icons', '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  Browse All
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {iconError && (
+                <div className="mb-4 text-sm text-red-600 dark:text-red-400">
+                  {iconError}
+                </div>
+              )}
+              {iconLoading && iconLibrary.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-sm text-gray-500">
+                  Loading icons…
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {displayedIcons.map((icon) => (
+                    <div
+                      key={icon.id}
+                      className="border rounded-lg p-3 flex flex-col items-center text-center hover:border-violet-400 hover:shadow-sm transition"
+                    >
+                      <div className="rounded-full bg-violet-50 text-violet-600 h-10 w-10 flex items-center justify-center mb-2">
+                        <IconRenderer iconName={icon.icon} className="h-5 w-5" />
+                      </div>
+                      <div className="text-xs font-medium truncate w-full">{icon.label}</div>
+                      <div className="text-[10px] text-gray-500 mt-1">{icon.icon}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {iconLibrary.length > displayedIcons.length && (
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                  Showing {displayedIcons.length} of {iconLibrary.length.toLocaleString()} icons
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>
