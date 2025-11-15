@@ -38,6 +38,8 @@ interface SchemaCardSkeletonGridProps {
 const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: SchemaCardProps) => {
   const animationDelay = Math.min(index * UI_PARAMS.CARD_INDEX_DELAY.STEP, UI_PARAMS.CARD_INDEX_DELAY.MAX);
   const isInactive = schema.inactive;
+  const sectionCount = schema.sectionsCount ?? schema.sections?.length ?? 0;
+  const fieldCount = schema.fieldsCount ?? schema.fields?.length ?? 0;
 
   return (
     <motion.div
@@ -116,11 +118,11 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
           }`}>
             <div className="flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" />
-              <span>{schema.sections?.length || 0} Sections</span>
+              <span>{sectionCount} Sections</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Type className="h-3.5 w-3.5" />
-              <span>{schema.fields?.length || 0} Fields</span>
+              <span>{fieldCount} Fields</span>
             </div>
           </div>
         </CardContent>

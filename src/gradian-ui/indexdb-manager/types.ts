@@ -2,6 +2,7 @@ import type { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
 export const SCHEMA_CACHE_KEY = 'schemas';
 export const SCHEMA_CACHE_VERSION = 1;
+export const SCHEMA_SUMMARY_CACHE_KEY = 'schemas-summary';
 
 export interface EncryptedStoreEntry {
   key: string;
@@ -33,6 +34,7 @@ export interface SchemaCacheLookupResult {
 export interface SchemaCacheEventDetail {
   reason: 'update' | 'clear';
   affectedIds?: string[];
+  cacheKey?: string;
 }
 
 export const COMPANY_CACHE_KEY = 'companies';

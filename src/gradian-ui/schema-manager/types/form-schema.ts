@@ -321,6 +321,8 @@ export interface FormSchema {
   inactive?: boolean;
   fields: FormField[]; // All fields at schema level, each with a sectionId
   sections: FormSection[]; // Sections no longer contain fields
+  fieldsCount?: number;
+  sectionsCount?: number;
   cardMetadata?: CardSection[];
   cardConfig?: CardConfig; // Form-builder specific
   listMetadata?: ListMetadata; // Form-builder specific

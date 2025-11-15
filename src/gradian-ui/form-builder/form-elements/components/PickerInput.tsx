@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { PopupPicker } from './PopupPicker';
@@ -10,6 +11,7 @@ import { getValueByRole, getSingleValueByRole } from '../utils/field-resolver';
 import { NormalizedOption, normalizeOptionArray, extractFirstId } from '../utils/option-normalizer';
 import { Search, X } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 export interface PickerInputProps {
   config: any;
@@ -40,6 +42,7 @@ export const PickerInput: React.FC<PickerInputProps> = ({
   const [targetSchema, setTargetSchema] = useState<FormSchema | null>(null);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [isLoadingSchema, setIsLoadingSchema] = useState(false);
+  const queryClient = useQueryClient();
 
   // Get targetSchema from config
   const targetSchemaId = (config as any).targetSchema;
@@ -68,6 +71,7 @@ export const PickerInput: React.FC<PickerInputProps> = ({
         try {
           const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchemaId}`);
           if (response.success && response.data) {
+            await cacheSchemaClientSide(response.data, { queryClient, persist: false });
             setTargetSchema(response.data);
           }
         } catch (err) {
@@ -78,7 +82,7 @@ export const PickerInput: React.FC<PickerInputProps> = ({
       };
       fetchSchema();
     }
-  }, [targetSchemaId, targetSchema]);
+  }, [targetSchemaId, targetSchema, queryClient]);
 
   // Fetch selected item when value changes
   useEffect(() => {

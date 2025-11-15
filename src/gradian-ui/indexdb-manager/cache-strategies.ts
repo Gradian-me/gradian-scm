@@ -14,6 +14,7 @@ import type {
   SchemaCacheRequest,
   CompanyRecord,
 } from './types';
+import { SCHEMA_CACHE_KEY, SCHEMA_SUMMARY_CACHE_KEY } from './types';
 
 export interface CacheStrategyContext {
   endpoint: string;
@@ -117,117 +118,123 @@ interface SchemaCacheMetadata {
   };
 }
 
-const schemaCacheStrategy: IndexedDbCacheStrategy<FormSchema | FormSchema[]> = {
-  async preRequest(context) {
-    const schemaRequest = parseSchemaRequestFromEndpoint(context.endpoint);
-    if (!schemaRequest) {
-      return null;
-    }
-
-    const cacheLookup = await readSchemasFromCache(schemaRequest);
-
-    if (cacheLookup.hit) {
-      const cachedData = buildSchemasFromCache(schemaRequest, cacheLookup.cachedMap);
-      if (cachedData) {
-        return {
-          hit: true,
-          data: cachedData,
-          metadata: {
-            schemaContext: {
-              request: schemaRequest,
-              cachedMap: cacheLookup.cachedMap,
-              missingIds: [],
-              requestedOrder:
-                schemaRequest.kind === 'batch'
-                  ? schemaRequest.schemaIds
-                  : schemaRequest.kind === 'single'
-                    ? [schemaRequest.schemaId]
-                    : undefined,
-            },
-          } satisfies SchemaCacheMetadata,
-        };
+function createSchemaCacheStrategy(cacheKey: string): IndexedDbCacheStrategy<FormSchema | FormSchema[]> {
+  return {
+    async preRequest(context) {
+      const schemaRequest = parseSchemaRequestFromEndpoint(context.endpoint);
+      if (!schemaRequest) {
+        return null;
       }
-    }
 
-    let overrideEndpoint: string | undefined;
-    let overrideParams: Record<string, any> | undefined;
+      const cacheLookup = await readSchemasFromCache(schemaRequest, cacheKey);
 
-    if (
-      schemaRequest.kind === 'batch' &&
-      cacheLookup.missingIds.length > 0 &&
-      cacheLookup.missingIds.length < schemaRequest.schemaIds.length
-    ) {
-      overrideEndpoint = buildEndpointForMissingSchemas(context.endpoint, cacheLookup.missingIds);
-      overrideParams = undefined;
-    }
-
-    return {
-      hit: false,
-      overrideEndpoint,
-      overrideParams,
-      metadata: {
-        schemaContext: {
-          request: schemaRequest,
-          cachedMap: cacheLookup.cachedMap,
-          missingIds: cacheLookup.missingIds,
-          requestedOrder:
-            schemaRequest.kind === 'batch'
-              ? schemaRequest.schemaIds
-              : schemaRequest.kind === 'single'
-                ? [schemaRequest.schemaId]
-                : undefined,
-        },
-      } satisfies SchemaCacheMetadata,
-    };
-  },
-
-  async postRequest(context, response, preResult) {
-    if (!preResult?.metadata?.schemaContext) {
-      return response;
-    }
-
-    const schemaMetadata = preResult.metadata.schemaContext;
-
-    if (!response.success || !response.data) {
-      return response;
-    }
-
-    if (schemaMetadata.request.kind === 'single') {
-      const schema = response.data as unknown as FormSchema;
-      if (schema?.id) {
-        await persistSchemasToCache([schema]);
+      if (cacheLookup.hit) {
+        const cachedData = buildSchemasFromCache(schemaRequest, cacheLookup.cachedMap);
+        if (cachedData) {
+          return {
+            hit: true,
+            data: cachedData,
+            metadata: {
+              schemaContext: {
+                request: schemaRequest,
+                cachedMap: cacheLookup.cachedMap,
+                missingIds: [],
+                requestedOrder:
+                  schemaRequest.kind === 'batch'
+                    ? schemaRequest.schemaIds
+                    : schemaRequest.kind === 'single'
+                      ? [schemaRequest.schemaId]
+                      : undefined,
+              },
+            } satisfies SchemaCacheMetadata,
+          };
+        }
       }
-      return response;
-    }
 
-    const dataArray = response.data as unknown as FormSchema[];
-    if (!Array.isArray(dataArray)) {
-      return response;
-    }
+      let overrideEndpoint: string | undefined;
+      let overrideParams: Record<string, any> | undefined;
 
-    await persistSchemasToCache(dataArray, {
-      hydrateAll: schemaMetadata.request.kind === 'all',
-    });
-
-    if (schemaMetadata.request.kind === 'batch' && schemaMetadata.requestedOrder) {
-      const combinedMap: Record<string, FormSchema> = { ...schemaMetadata.cachedMap };
-      dataArray.forEach((schema: FormSchema) => {
-        combinedMap[schema.id] = schema;
-      });
-
-      const merged = schemaMetadata.requestedOrder
-        .map((id: string) => combinedMap[id])
-        .filter((schema: FormSchema | undefined): schema is FormSchema => Boolean(schema));
+      if (
+        schemaRequest.kind === 'batch' &&
+        cacheLookup.missingIds.length > 0 &&
+        cacheLookup.missingIds.length < schemaRequest.schemaIds.length
+      ) {
+        overrideEndpoint = buildEndpointForMissingSchemas(context.endpoint, cacheLookup.missingIds);
+        overrideParams = undefined;
+      }
 
       return {
-        ...response,
-        data: merged as any,
+        hit: false,
+        overrideEndpoint,
+        overrideParams,
+        metadata: {
+          schemaContext: {
+            request: schemaRequest,
+            cachedMap: cacheLookup.cachedMap,
+            missingIds: cacheLookup.missingIds,
+            requestedOrder:
+              schemaRequest.kind === 'batch'
+                ? schemaRequest.schemaIds
+                : schemaRequest.kind === 'single'
+                  ? [schemaRequest.schemaId]
+                  : undefined,
+          },
+        } satisfies SchemaCacheMetadata,
       };
-    }
+    },
 
-    return response;
-  },
-};
+    async postRequest(_context, response, preResult) {
+      if (!preResult?.metadata?.schemaContext) {
+        return response;
+      }
+
+      const schemaMetadata = preResult.metadata.schemaContext;
+
+      if (!response.success || !response.data) {
+        return response;
+      }
+
+      if (schemaMetadata.request.kind === 'single') {
+        const schema = response.data as unknown as FormSchema;
+        if (schema?.id) {
+          await persistSchemasToCache([schema], { cacheKey });
+        }
+        return response;
+      }
+
+      const dataArray = response.data as unknown as FormSchema[];
+      if (!Array.isArray(dataArray)) {
+        return response;
+      }
+
+      await persistSchemasToCache(dataArray, {
+        hydrateAll: schemaMetadata.request.kind === 'all',
+        cacheKey,
+      });
+
+      if (schemaMetadata.request.kind === 'batch' && schemaMetadata.requestedOrder) {
+        const combinedMap: Record<string, FormSchema> = { ...schemaMetadata.cachedMap };
+        dataArray.forEach((schema: FormSchema) => {
+          combinedMap[schema.id] = schema;
+        });
+
+        const merged = schemaMetadata.requestedOrder
+          .map((id: string) => combinedMap[id])
+          .filter((schema: FormSchema | undefined): schema is FormSchema => Boolean(schema));
+
+        return {
+          ...response,
+          data: merged as any,
+        };
+      }
+
+      return response;
+    },
+  };
+}
+
+const schemaCacheStrategy = createSchemaCacheStrategy(SCHEMA_CACHE_KEY);
+const schemaSummaryCacheStrategy = createSchemaCacheStrategy(SCHEMA_SUMMARY_CACHE_KEY);
 
 const companiesCacheStrategy: IndexedDbCacheStrategy<CompanyRecord[]> = {
   async preRequest() {
@@ -260,6 +267,7 @@ const companiesCacheStrategy: IndexedDbCacheStrategy<CompanyRecord[]> = {
 
 const strategyImplementations: Record<string, IndexedDbCacheStrategy<any>> = {
   schemas: schemaCacheStrategy,
+  'schemas-summary': schemaSummaryCacheStrategy,
   companies: companiesCacheStrategy,
 };
 

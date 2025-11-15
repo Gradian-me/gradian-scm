@@ -1,6 +1,7 @@
 // Accordion Form Section Component
 
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FormSectionProps } from '@/gradian-ui/schema-manager/types/form-schema';
 import { FormElementFactory } from '../form-elements';
@@ -12,6 +13,7 @@ import { getFieldsForSection, getValueByRole, getSingleValueByRole, getFieldsByR
 import { FormAlert } from '../../../components/ui/form-alert';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { DataRelation, FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 import { FormModal } from './FormModal';
 import { Avatar, Rating, PopupPicker, ConfirmationMessage, AddButtonFull, CodeBadge } from '../form-elements';
 import { Badge } from '@/components/ui/badge';
@@ -91,6 +93,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
   }>({ open: false, relationId: null });
   const [targetSchemaData, setTargetSchemaData] = useState<FormSchema | null>(null);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const queryClient = useQueryClient();
   
   // Get current entity ID from form values (for creating relations)
   const currentEntityId = values?.id || (values as any)?.[schema.id]?.id;
@@ -106,6 +109,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
         try {
           const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
           if (response.success && response.data) {
+            await cacheSchemaClientSide(response.data, { queryClient, persist: false });
             setTargetSchemaData(response.data);
           }
         } catch (error) {
@@ -114,7 +118,7 @@ export const AccordionFormSection: React.FC<FormSectionProps> = ({
       };
       fetchTargetSchema();
     }
-  }, [targetSchema]);
+  }, [targetSchema, queryClient]);
 
   // Fetch relations and related entities function
   const fetchRelations = React.useCallback(async () => {

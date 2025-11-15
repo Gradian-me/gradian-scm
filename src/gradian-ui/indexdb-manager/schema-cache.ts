@@ -4,6 +4,7 @@ import { getIndexedDb } from './db';
 import {
   SCHEMA_CACHE_KEY,
   SCHEMA_CACHE_VERSION,
+  SCHEMA_SUMMARY_CACHE_KEY,
   type SchemaCacheLookupResult,
   type SchemaCachePayload,
   type SchemaCacheRequest,
@@ -12,30 +13,42 @@ import {
 import { decryptPayload, encryptPayload } from './utils/crypto';
 
 const SCHEMA_CACHE_EVENT = 'gradian-schema-cache-updated';
+const DEFAULT_SCHEMA_CACHE_KEY = SCHEMA_CACHE_KEY;
+const ALL_SCHEMA_CACHE_KEYS = Array.from(
+  new Set([SCHEMA_CACHE_KEY, SCHEMA_SUMMARY_CACHE_KEY]),
+);
 
 function isClient(): boolean {
   return typeof window !== 'undefined';
 }
 
-function emitSchemaCacheEvent(detail: SchemaCacheEventDetail) {
+function resolveSchemaCacheKey(cacheKey?: string) {
+  return cacheKey ?? DEFAULT_SCHEMA_CACHE_KEY;
+}
+
+function emitSchemaCacheEvent(detail: SchemaCacheEventDetail, cacheKey: string) {
   if (!isClient()) {
     return;
   }
 
   window.dispatchEvent(
     new CustomEvent<SchemaCacheEventDetail>(SCHEMA_CACHE_EVENT, {
-      detail,
+      detail: {
+        ...detail,
+        cacheKey,
+      },
     })
   );
 }
 
-async function readEncryptedPayload(): Promise<SchemaCachePayload | null> {
+async function readEncryptedPayload(cacheKey?: string): Promise<SchemaCachePayload | null> {
   const db = getIndexedDb();
   if (!db) {
     return null;
   }
 
-  const entry = await db.kvStore.get(SCHEMA_CACHE_KEY);
+  const storeKey = resolveSchemaCacheKey(cacheKey);
+  const entry = await db.kvStore.get(storeKey);
   if (!entry || entry.version !== SCHEMA_CACHE_VERSION) {
     return null;
   }
@@ -48,7 +61,7 @@ async function readEncryptedPayload(): Promise<SchemaCachePayload | null> {
   return decrypted;
 }
 
-async function writeEncryptedPayload(payload: SchemaCachePayload) {
+async function writeEncryptedPayload(payload: SchemaCachePayload, cacheKey?: string) {
   const db = getIndexedDb();
   if (!db) {
     return;
@@ -60,7 +73,7 @@ async function writeEncryptedPayload(payload: SchemaCachePayload) {
   }
 
   await db.kvStore.put({
-    key: SCHEMA_CACHE_KEY,
+    key: resolveSchemaCacheKey(cacheKey),
     ciphertext: encrypted.ciphertext,
     iv: encrypted.iv,
     updatedAt: Date.now(),
@@ -77,12 +90,15 @@ function buildEmptyPayload(): SchemaCachePayload {
   };
 }
 
-export async function getSchemaCacheSnapshot(): Promise<SchemaCachePayload | null> {
-  return readEncryptedPayload();
+export async function getSchemaCacheSnapshot(cacheKey?: string): Promise<SchemaCachePayload | null> {
+  return readEncryptedPayload(cacheKey);
 }
 
-export async function readSchemasFromCache(request: SchemaCacheRequest): Promise<SchemaCacheLookupResult> {
-  const payload = (await readEncryptedPayload()) ?? buildEmptyPayload();
+export async function readSchemasFromCache(
+  request: SchemaCacheRequest,
+  cacheKey?: string,
+): Promise<SchemaCacheLookupResult> {
+  const payload = (await readEncryptedPayload(cacheKey)) ?? buildEmptyPayload();
 
   if (request.kind === 'all') {
     return {
@@ -115,12 +131,16 @@ export async function readSchemasFromCache(request: SchemaCacheRequest): Promise
   };
 }
 
-export async function persistSchemasToCache(schemas: FormSchema[], options?: { hydrateAll?: boolean }) {
+export async function persistSchemasToCache(
+  schemas: FormSchema[],
+  options?: { hydrateAll?: boolean; cacheKey?: string },
+) {
   if (!schemas.length) {
     return;
   }
 
-  const payload = (await readEncryptedPayload()) ?? buildEmptyPayload();
+  const targetKey = resolveSchemaCacheKey(options?.cacheKey);
+  const payload = (await readEncryptedPayload(targetKey)) ?? buildEmptyPayload();
 
   const updatedMap = { ...payload.schemas };
   schemas.forEach((schema) => {
@@ -134,23 +154,26 @@ export async function persistSchemasToCache(schemas: FormSchema[], options?: { h
     updatedAt: Date.now(),
   };
 
-  await writeEncryptedPayload(nextPayload);
-  emitSchemaCacheEvent({ reason: 'update', affectedIds: schemas.map((schema) => schema.id) });
+  await writeEncryptedPayload(nextPayload, targetKey);
+  emitSchemaCacheEvent(
+    { reason: 'update', affectedIds: schemas.map((schema) => schema.id) },
+    targetKey,
+  );
 }
 
-export async function clearSchemaCache(ids?: string[]) {
+async function clearSchemaCacheForKey(ids: string[] | undefined, cacheKey: string) {
   const db = getIndexedDb();
   if (!db) {
     return;
   }
 
   if (!ids || ids.length === 0) {
-    await db.kvStore.delete(SCHEMA_CACHE_KEY);
-    emitSchemaCacheEvent({ reason: 'clear' });
+    await db.kvStore.delete(cacheKey);
+    emitSchemaCacheEvent({ reason: 'clear' }, cacheKey);
     return;
   }
 
-  const payload = await readEncryptedPayload();
+  const payload = await readEncryptedPayload(cacheKey);
   if (!payload) {
     return;
   }
@@ -167,17 +190,29 @@ export async function clearSchemaCache(ids?: string[]) {
     updatedAt: Date.now(),
   };
 
-  await writeEncryptedPayload(nextPayload);
-  emitSchemaCacheEvent({ reason: 'update', affectedIds: ids });
+  await writeEncryptedPayload(nextPayload, cacheKey);
+  emitSchemaCacheEvent({ reason: 'update', affectedIds: ids }, cacheKey);
 }
 
-export function subscribeToSchemaCache(listener: (detail: SchemaCacheEventDetail) => void): () => void {
+export async function clearSchemaCache(ids?: string[], cacheKey?: string) {
+  const keysToClear = cacheKey ? [resolveSchemaCacheKey(cacheKey)] : ALL_SCHEMA_CACHE_KEYS;
+  await Promise.all(keysToClear.map((key) => clearSchemaCacheForKey(ids, key)));
+}
+
+export function subscribeToSchemaCache(
+  listener: (detail: SchemaCacheEventDetail) => void,
+  cacheKey?: string,
+): () => void {
   if (!isClient()) {
     return () => {};
   }
 
   const handler = (event: Event) => {
-    listener((event as CustomEvent<SchemaCacheEventDetail>).detail);
+    const detail = (event as CustomEvent<SchemaCacheEventDetail>).detail;
+    if (cacheKey && detail.cacheKey && detail.cacheKey !== cacheKey) {
+      return;
+    }
+    listener(detail);
   };
 
   window.addEventListener(SCHEMA_CACHE_EVENT, handler);

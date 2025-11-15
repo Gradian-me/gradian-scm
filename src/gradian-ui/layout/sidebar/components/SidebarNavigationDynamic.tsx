@@ -29,6 +29,7 @@ export const SidebarNavigationDynamic: React.FC<SidebarNavigationDynamicProps> =
   const pathname = usePathname();
   const { schemas: allSchemas, isLoading } = useSchemas({
     initialData: initialSchemas,
+    summary: true,
   });
 
   // Filter schemas that have showInNavigation enabled

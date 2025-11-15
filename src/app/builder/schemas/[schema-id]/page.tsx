@@ -6,6 +6,9 @@ import { SchemaBuilderEditor } from '@/gradian-ui/schema-manager';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { Message } from '@/gradian-ui/layout/message-box';
 import { config } from '@/lib/config';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 /**
  * Transform API response messages to MessageBox format
@@ -45,6 +48,7 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   const [schemaId, setSchemaId] = useState<string>('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [apiResponse, setApiResponse] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     params.then((resolvedParams) => {
@@ -53,27 +57,29 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   }, [params]);
 
   const fetchSchema = async (id: string): Promise<FormSchema> => {
-    const response = await fetch(`${config.schemaApi.basePath}/${id}`);
-    const result = await response.json();
+    const response = await apiRequest<FormSchema>(`/api/schemas/${id}`);
 
-    if (result.success) {
+    if (response.success && response.data) {
+      await cacheSchemaClientSide(response.data, { queryClient });
       setLoadError(null);
       setApiResponse(null); // Clear any previous errors
-      return result.data;
+      return response.data;
     }
 
-    console.error('Failed to fetch schema:', result.error);
-    setLoadError(result.error || 'Failed to load schema');
-    // Transform messages if they exist
-    if (result.messages) {
-      const transformedMessages = transformMessages(result.messages);
+    const errorMessage = response.error || 'Failed to load schema';
+    console.error('Failed to fetch schema:', errorMessage);
+    setLoadError(errorMessage);
+
+    if (response as any && (response as any).messages) {
+      const transformedMessages = transformMessages((response as any).messages);
       setApiResponse({
-        ...result,
+        ...(response as any),
         messages: transformedMessages,
       });
     } else {
-      setApiResponse(result);
+      setApiResponse(response);
     }
+
     router.replace(`/builder/schemas/${id}/not-found`);
     throw new Error('Failed to fetch schema');
   };

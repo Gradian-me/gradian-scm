@@ -5,6 +5,9 @@ import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { FormSchema } from '../types/form-schema';
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 
+export const SCHEMAS_QUERY_KEY = ['schemas'] as const;
+export const SCHEMAS_SUMMARY_QUERY_KEY = ['schemas-summary'] as const;
+
 /**
  * Hook to fetch schemas with client-side caching using React Query
  * This deduplicates requests and shares cache across all components
@@ -13,19 +16,22 @@ import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 interface UseSchemasOptions {
   enabled?: boolean;
   initialData?: FormSchema[];
+  summary?: boolean;
 }
 
 export function useSchemas(options?: UseSchemasOptions) {
-  // Get cache configuration for /api/schemas route
-  const cacheConfig = getCacheConfigByPath('/api/schemas');
-  const { enabled, initialData } = options || {};
+  const { enabled, initialData, summary } = options || {};
+  const isSummary = summary === true;
+  const apiPath = isSummary ? '/api/schemas?summary=true' : '/api/schemas';
+  const queryKey = isSummary ? SCHEMAS_SUMMARY_QUERY_KEY : SCHEMAS_QUERY_KEY;
+  const cacheConfig = getCacheConfigByPath(apiPath);
   
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['schemas'],
+    queryKey,
     queryFn: async () => {
-      console.log('[REACT_QUERY] 🔄 Fetching schemas from API...');
+      console.log(`[REACT_QUERY] 🔄 Fetching ${isSummary ? 'schema summaries' : 'schemas'} from API...`);
       // Use /api/schemas directly (apiRequest will handle it correctly via resolveApiUrl)
-      const response = await apiRequest<FormSchema[]>('/api/schemas');
+      const response = await apiRequest<FormSchema[]>(apiPath);
       if (!response.success || !response.data) {
         throw new Error(response.error || 'Failed to fetch schemas');
       }
@@ -40,7 +46,7 @@ export function useSchemas(options?: UseSchemasOptions) {
       };
 
       const list = normalizeSchemas(response.data);
-      console.log(`[REACT_QUERY] ✅ Fetched ${list.length} schemas - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
+      console.log(`[REACT_QUERY] ✅ Fetched ${list.length} ${isSummary ? 'schema summaries' : 'schemas'} - Caching for ${Math.round((cacheConfig.staleTime ?? 10 * 60 * 1000) / 1000)}s`);
       return list;
     },
     enabled: enabled !== false,

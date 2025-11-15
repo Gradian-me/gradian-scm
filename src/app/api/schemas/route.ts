@@ -8,10 +8,39 @@ import path from 'path';
 import { isDemoModeEnabled, proxySchemaRequest } from './utils';
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
 import { loadData, clearCache } from '@/gradian-ui/shared/utils/data-loader';
-import { LogType } from '@/gradian-ui/shared/constants/application-variables';
+import { LogType, SCHEMA_SUMMARY_EXCLUDED_KEYS } from '@/gradian-ui/shared/constants/application-variables';
 
 // Get cache configuration
 const CACHE_CONFIG = getCacheConfigByPath('/api/schemas');
+const SCHEMA_SUMMARY_EXCLUDED_KEY_SET = new Set<string>(SCHEMA_SUMMARY_EXCLUDED_KEYS);
+
+function buildSchemaSummary<T extends Record<string, any>>(schema: T): T {
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+    return schema;
+  }
+
+  const fieldsCount =
+    Array.isArray((schema as Record<string, any>).fields) ? (schema as Record<string, any>).fields.length : undefined;
+  const sectionsCount =
+    Array.isArray((schema as Record<string, any>).sections) ? (schema as Record<string, any>).sections.length : undefined;
+
+  const summary = Object.keys(schema).reduce<Record<string, any>>((acc, key) => {
+    if (!SCHEMA_SUMMARY_EXCLUDED_KEY_SET.has(key)) {
+      acc[key] = schema[key];
+    }
+    return acc;
+  }, {});
+
+  if (typeof fieldsCount === 'number') {
+    summary.fieldsCount = fieldsCount;
+  }
+
+  if (typeof sectionsCount === 'number') {
+    summary.sectionsCount = sectionsCount;
+  }
+
+  return summary as T;
+}
 
 /**
  * Clear schema cache (useful for development)
@@ -55,6 +84,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const schemaId = searchParams.get('id');
     const schemaIdsParam = searchParams.get('schemaIds');
+    const summaryParam = searchParams.get('summary');
+    const isSummaryRequested = summaryParam === 'true' || summaryParam === '1';
 
     // Load schemas (with caching)
     const schemas = await loadSchemas();
@@ -77,10 +108,13 @@ export async function GET(request: NextRequest) {
       const matchedSchemas = uniqueSchemaIds
         .map((id) => schemas.find((s: any) => s.id === id))
         .filter((schema): schema is any => Boolean(schema));
+      const responseData = isSummaryRequested
+        ? matchedSchemas.map((schema) => buildSchemaSummary(schema))
+        : matchedSchemas;
 
       return NextResponse.json({
         success: true,
-        data: matchedSchemas,
+        data: responseData,
         meta: {
           requestedIds: uniqueSchemaIds,
           returnedCount: matchedSchemas.length,
@@ -105,9 +139,11 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      const responseSchema = isSummaryRequested ? buildSchemaSummary(schema) : schema;
+
       return NextResponse.json({
         success: true,
-        data: schema
+        data: responseSchema
       }, {
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -118,9 +154,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Return all schemas with cache-busting headers
+    const responseSchemas = isSummaryRequested
+      ? schemas.map((schema) => buildSchemaSummary(schema))
+      : schemas;
+
     return NextResponse.json({
       success: true,
-      data: schemas
+      data: responseSchemas
     }, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',

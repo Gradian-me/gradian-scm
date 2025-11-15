@@ -35,6 +35,14 @@ export const CACHE_CONFIG: Record<string, RouteCacheConfig> = {
     indexedDbKey: 'schemas',
     description: 'All schemas list',
   },
+  'schemas-summary': {
+    ttl: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    reactQueryKeys: ['schemas-summary'],
+    indexedDbKey: 'schemas-summary',
+    description: 'Schema summaries list',
+  },
   'schemas/:id': {
     ttl: 10 * 60 * 1000, // 10 minutes - server-side cache
     staleTime: 10 * 60 * 1000, // 10 minutes - React Query stale time
@@ -212,8 +220,34 @@ export function resolveRouteKeyByPath(apiPath: string): string {
   return cleanPath;
 }
 
+function hasSummaryFlag(apiPath: string): boolean {
+  if (!apiPath || !apiPath.includes('summary')) {
+    return false;
+  }
+
+  try {
+    const url = apiPath.startsWith('http') ? new URL(apiPath) : new URL(apiPath, 'http://localhost');
+    const summaryValue = url.searchParams.get('summary');
+    return summaryValue === 'true' || summaryValue === '1';
+  } catch {
+    const [, queryString = ''] = apiPath.split('?');
+    if (!queryString) {
+      return false;
+    }
+    const params = new URLSearchParams(queryString);
+    const summaryValue = params.get('summary');
+    return summaryValue === 'true' || summaryValue === '1';
+  }
+}
+
 export function getCacheConfigByPath(apiPath: string): RouteCacheConfig {
   const routeKey = resolveRouteKeyByPath(apiPath);
+  const isSchemasSummaryRequest = routeKey === 'schemas' && hasSummaryFlag(apiPath);
+
+  if (isSchemasSummaryRequest) {
+    return getCacheConfig('schemas-summary');
+  }
+
   return getCacheConfig(routeKey);
 }
 

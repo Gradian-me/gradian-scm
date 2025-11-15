@@ -10,10 +10,12 @@ import {
   UseRepeatingTableDataResult,
 } from '../types';
 import { formatRelationType } from '../utils';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 async function fetchSchemaClient(schemaId: string): Promise<FormSchema | null> {
   const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
   if (response.success && response.data) {
+    await cacheSchemaClientSide(response.data);
     return response.data;
   }
   return null;

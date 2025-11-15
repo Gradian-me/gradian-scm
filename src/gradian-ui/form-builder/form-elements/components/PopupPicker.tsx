@@ -17,6 +17,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { List, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { getArrayValuesByRole, getFieldsByRole, getSingleValueByRole, getValueByRole } from '../utils/field-resolver';
 import { Avatar } from './Avatar';
 import { CodeBadge } from './CodeBadge';
@@ -25,6 +26,7 @@ import { normalizeOptionArray, normalizeOptionEntry, NormalizedOption } from '..
 import { BadgeOption, getBadgeMetadata } from '../utils/badge-utils';
 import { renderHighlightedText } from '@/gradian-ui/shared/utils/highlighter';
 import { formatFieldValue, getFieldValue } from '@/gradian-ui/data-display/table/utils/field-formatters';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 12, scale: 0.96 },
@@ -140,6 +142,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
   allowMultiselect = false,
 }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [schema, setSchema] = useState<FormSchema | null>(providedSchema || null);
   const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
@@ -165,6 +168,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
         try {
           const response = await apiRequest<FormSchema>(`/api/schemas/${schemaId}`);
           if (response.success && response.data) {
+            await cacheSchemaClientSide(response.data, { queryClient, persist: false });
             setSchema(response.data);
           }
         } catch (err) {
@@ -175,7 +179,7 @@ export const PopupPicker: React.FC<PopupPickerProps> = ({
     } else if (providedSchema) {
       setSchema(providedSchema);
     }
-  }, [schemaId, providedSchema, isOpen]);
+  }, [schemaId, providedSchema, isOpen, queryClient]);
 
   // Reset state when modal closes
   useEffect(() => {

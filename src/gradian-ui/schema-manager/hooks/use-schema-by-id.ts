@@ -1,9 +1,10 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { FormSchema } from '../types/form-schema';
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
+import { cacheSchemaClientSide } from '../utils/schema-client-cache';
 
 /**
  * Hook to fetch a single schema by ID with client-side caching using React Query
@@ -16,6 +17,7 @@ export function useSchemaById(
 ) {
   // Get cache configuration for /api/schemas/:id route
   const cacheConfig = getCacheConfigByPath(`/api/schemas/${schemaId || ''}`);
+  const queryClient = useQueryClient();
   
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['schemas', schemaId],
@@ -27,6 +29,7 @@ export function useSchemaById(
       if (!response.success || !response.data) {
         throw new Error(response.error || 'Failed to fetch schema');
       }
+      await cacheSchemaClientSide(response.data, { queryClient, persist: false });
       return response.data;
     },
     enabled: options?.enabled !== false && !!schemaId,

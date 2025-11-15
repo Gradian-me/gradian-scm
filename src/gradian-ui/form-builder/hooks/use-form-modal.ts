@@ -4,11 +4,13 @@
 // Can be used to open create or edit modals for any schema ID
 
 import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '@/gradian-ui/shared/utils/api';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useCompanyStore } from '@/stores/company.store';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -184,6 +186,7 @@ export function useFormModal(
 ): UseFormModalReturn {
   const { enrichData, onSuccess, onClose, getInitialSchema, getInitialEntityData } = options;
   const { getCompanyId } = useCompanyStore();
+  const queryClient = useQueryClient();
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
   const [entityId, setEntityId] = useState<string | null>(null);
@@ -229,6 +232,7 @@ export function useFormModal(
         }
 
         schemaSource = response.data;
+        await cacheSchemaClientSide(schemaSource, { queryClient, persist: false });
       }
 
       const schemaCopy = JSON.parse(JSON.stringify(schemaSource));
@@ -295,7 +299,7 @@ export function useFormModal(
     } finally {
       setIsLoading(false);
     }
-  }, [getInitialSchema, getInitialEntityData]);
+  }, [getInitialSchema, getInitialEntityData, queryClient]);
 
   /**
    * Close form modal

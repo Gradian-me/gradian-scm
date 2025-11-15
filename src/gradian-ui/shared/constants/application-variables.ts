@@ -54,3 +54,10 @@ export const UI_PARAMS = {
     SKELETON_MAX: 0.25,
   },
 } as const;
+
+// Schema summary configuration
+export const SCHEMA_SUMMARY_EXCLUDED_KEYS = [
+  'fields',
+  'sections',
+  'detailPageMetadata',
+] as const;

@@ -1,0 +1,68 @@
+# HTTP Book - Schemas API Scenarios
+# @name schema_api_tests
+# Update @baseUrl and payload values as needed before running.
+###
+# @name schema_api_config
+# Run this once (no HTTP call) so subsequent sections have the shared variables.
+@baseUrl = http://localhost:3000
+@schemaId = inquiries
+@newSchemaId = schema-demo-{{$timestamp}}
+###
+# Get all schemas (full payload)
+GET {{baseUrl}}/api/schemas
+###
+# Get all schemas (full payload)
+GET http://CG-GR-API-DEV-1.cinnagen.com:3001/api/schemas
+
+HTTP/1.1 200  - OK
+x-powered-by: Express
+access-control-allow-origin: *
+access-control-allow-credentials: true
+content-type: application/json; charset=utf-8
+content-length: 1807
+etag: W/"70f-0KT/BTXvCm6ZhS0ZHVngK6Mw4QQ"
+date: Sat, 15 Nov 2025 08:01:17 GMT
+connection: close
+###
+# Get all schemas (summary payload)
+GET {{baseUrl}}/api/schemas?summary=true
+###
+# Get single schema by ID
+GET {{baseUrl}}/api/schemas?id={{schemaId}}
+###
+# Get multiple schemas by IDs (comma separated)
+GET {{baseUrl}}/api/schemas?schemaIds={{schemaId}},companies
+###
+# Get multiple schemas with summary mode
+GET {{baseUrl}}/api/schemas?schemaIds={{schemaId}},companies&summary=true
+###
+# Create a new schema (demo)
+POST {{baseUrl}}/api/schemas
+content-type: application/json
+
+{
+  "id": "{{newSchemaId}}",
+  "singular_name": "Demo Schema",
+  "plural_name": "Demo Schemas",
+  "description": "Created via HTTP book test",
+  "showInNavigation": false,
+  "isSystemSchema": false,
+  "fields": [],
+  "sections": []
+}
+###
+# Fetch the newly created schema to confirm it exists
+GET {{baseUrl}}/api/schemas?id={{newSchemaId}}
+###
+# Fetch summary for newly created schema
+GET {{baseUrl}}/api/schemas?schemaIds={{newSchemaId}}&summary=true
+###
+# Attempt to create duplicate schema (expects 409)
+POST {{baseUrl}}/api/schemas
+content-type: application/json
+
+{
+  "id": "{{newSchemaId}}",
+  "singular_name": "Demo Schema",
+  "plural_name": "Demo Schemas"
+}

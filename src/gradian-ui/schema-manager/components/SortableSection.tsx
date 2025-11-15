@@ -11,6 +11,9 @@ import { FormSection, FormSchema } from '../types/form-schema';
 import { SectionEditor } from './SectionEditor';
 import { SchemaBuilderDialog } from './SchemaBuilderDialog';
 import { config } from '@/lib/config';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface SortableSectionProps {
   section: FormSection;
@@ -53,6 +56,7 @@ export function SortableSection({
   const [showSchemaDialog, setShowSchemaDialog] = useState(false);
   const [targetSchemaName, setTargetSchemaName] = useState<string | null>(null);
   const [targetSchemaId, setTargetSchemaId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const {
     attributes,
     listeners,
@@ -77,26 +81,25 @@ export function SortableSection({
       setTargetSchemaId(targetSchema); // Set immediately so dialog can render
       const fetchTargetSchemaName = async () => {
         try {
-          const response = await fetch(`/api/schemas/${targetSchema}`);
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success) {
-              const schema: FormSchema = result.data;
-              setTargetSchemaName(schema.plural_name || schema.singular_name || targetSchema);
-            }
+          const response = await apiRequest<FormSchema>(`/api/schemas/${targetSchema}`);
+          if (response.success && response.data) {
+            await cacheSchemaClientSide(response.data, { queryClient, persist: false });
+            const schema = response.data;
+            setTargetSchemaName(schema.plural_name || schema.singular_name || targetSchema);
+            return;
           }
         } catch (error) {
           console.error('Error fetching target schema:', error);
           // Fallback to schema ID if fetch fails
-          setTargetSchemaName(targetSchema || null);
         }
+        setTargetSchemaName(targetSchema || null);
       };
       fetchTargetSchemaName();
     } else {
       setTargetSchemaName(null);
       setTargetSchemaId(null);
     }
-  }, [section.isRepeatingSection, section.repeatingConfig?.targetSchema]);
+  }, [section.isRepeatingSection, section.repeatingConfig?.targetSchema, queryClient]);
 
   const isInactive = section.inactive;
 

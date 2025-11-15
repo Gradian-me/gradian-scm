@@ -123,7 +123,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="rounded-xl border border-gray-200 bg-white/70 p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
                   <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability</p>
-                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{profile.availability ?? 'Available for new opportunities'}</p>
+                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{profile.availability ?? 'I am not available'}</p>
                 </div>
               </div>
             </div>

@@ -2,11 +2,13 @@
 // Can be used to open edit modals for any schema ID and entity ID
 
 import { useState, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { apiRequest } from '../utils/api';
 import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-utils';
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useCompanyStore } from '@/stores/company.store';
+import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -147,6 +149,7 @@ export function useEditModal(
 ): UseEditModalReturn {
   const { enrichData, onSuccess, onClose } = options;
   const { getCompanyId } = useCompanyStore();
+  const queryClient = useQueryClient();
 
   const [targetSchema, setTargetSchema] = useState<FormBuilderSchema | null>(null);
   const [entityData, setEntityData] = useState<any | null>(null);
@@ -174,6 +177,7 @@ export function useEditModal(
         throw new Error(schemaResponse.error || `Schema not found: ${schemaId}`);
       }
 
+      await cacheSchemaClientSide(schemaResponse.data, { queryClient, persist: false });
       // Reconstruct RegExp objects
       const rawSchema = reconstructRegExp(schemaResponse.data) as FormSchema;
       
@@ -213,7 +217,7 @@ export function useEditModal(
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [queryClient]);
 
   /**
    * Close edit modal
