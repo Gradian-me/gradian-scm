@@ -236,6 +236,7 @@ export async function apiRequest<T>(
     headers?: Record<string, string>;
     params?: Record<string, any>;
     callerName?: string;
+    disableCache?: boolean;
   }
 ): Promise<ApiResponse<T>> {
   const method = options?.method || 'GET';
@@ -255,8 +256,13 @@ export async function apiRequest<T>(
 
   let cacheStrategyContext: CacheStrategyContext | null = null;
   let cacheStrategyPreResult: CacheStrategyPreResult<any> | null = null;
+  const shouldUseCache =
+    method === 'GET' &&
+    !options?.disableCache &&
+    isBrowserEnvironment();
+
   const cacheStrategy =
-    method === 'GET' && isBrowserEnvironment()
+    shouldUseCache
       ? getIndexedDbCacheStrategy(getCacheConfigByPath(normalizedEndpoint).indexedDbKey)
       : null;
 

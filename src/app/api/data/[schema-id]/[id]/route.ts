@@ -76,7 +76,11 @@ export async function PUT(
 
   if (!isDemoModeEnabled()) {
     const body = await request.json();
-    return proxyDataRequest(request, targetPath, { body, method: 'PUT' });
+    return proxyDataRequest(request, targetPath, {
+      body,
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+    });
   }
 
   try {

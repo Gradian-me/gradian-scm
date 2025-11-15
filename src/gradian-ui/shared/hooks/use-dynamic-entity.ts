@@ -48,7 +48,7 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
   const apiEndpoint = `/api/data/${schema.id}`;
 
   // Fetch all entities
-  const fetchEntities = useCallback(async (filters?: EntityFilters) => {
+  const fetchEntities = useCallback(async (filters?: EntityFilters, options?: { disableCache?: boolean }) => {
     setIsLoading(true);
     setError(null);
     
@@ -71,7 +71,9 @@ export function useDynamicEntity<T = any>(schema: FormSchema) {
         ? `${apiEndpoint}?${queryParams.toString()}`
         : apiEndpoint;
       
-      const response = await apiRequest<T[]>(url);
+      const response = await apiRequest<T[]>(url, {
+        disableCache: options?.disableCache,
+      });
       
       if (response.success && response.data) {
         setEntities(response.data);

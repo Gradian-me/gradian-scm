@@ -12,6 +12,7 @@ import { loggingCustom } from '@/gradian-ui/shared/utils/logging-custom';
 import { LogType } from '@/gradian-ui/shared/constants/application-variables';
 import type { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { getActionConfig, getSingularName, isEditMode } from '../utils/action-config';
+import { toast } from 'sonner';
 
 export interface FormDialogProps {
   isOpen: boolean;
@@ -72,6 +73,10 @@ export const FormDialog: React.FC<FormDialogProps> = ({
     setIsSubmitting(true);
     try {
       await onSubmit?.(data);
+      const entityLabel = singularName || schema?.singular_name || schema?.name || 'Record';
+      const successTitle = editMode ? `${entityLabel} updated` : `${entityLabel} created`;
+      const successDescription = editMode ? 'Changes saved successfully.' : 'New record created successfully.';
+      toast.success(successTitle, { description: successDescription });
       loggingCustom(LogType.FORM_DATA, 'info', 'Form dialog submitted successfully');
       onClose();
     } catch (error) {

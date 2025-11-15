@@ -28,6 +28,7 @@ const DATA_OBJECT_PATHS: Array<Array<string>> = [
 type ProxyOptions = {
   body?: unknown;
   method?: string;
+  headers?: HeadersInit;
 };
 
 type NormalizeContext = {
@@ -348,12 +349,17 @@ export const proxyDataRequest = async (
   const headers = new Headers(request.headers);
   headers.delete('host');
 
+  if (options.headers) {
+    const overrideEntries = new Headers(options.headers);
+    overrideEntries.forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
   let body: BodyInit | undefined;
   if (options.body !== undefined) {
     body = JSON.stringify(options.body);
-    if (!headers.has('content-type')) {
-      headers.set('content-type', 'application/json');
-    }
+    headers.set('content-type', 'application/json');
   }
 
   const method = (options.method ?? request.method).toUpperCase();

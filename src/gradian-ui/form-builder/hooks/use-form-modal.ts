@@ -11,6 +11,7 @@ import { asFormBuilderSchema } from '@/gradian-ui/schema-manager/utils/schema-ut
 import type { FormSchema as FormBuilderSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { useCompanyStore } from '@/stores/company.store';
 import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
+import { toast } from 'sonner';
 
 /**
  * Reconstruct RegExp objects from serialized schema
@@ -364,6 +365,21 @@ export function useFormModal(
       });
 
       if (result.success) {
+        const entityLabel =
+          targetSchema.singular_name ||
+          targetSchema.name ||
+          targetSchema.title ||
+          'Record';
+        const successTitle =
+          mode === 'edit'
+            ? `${entityLabel} updated`
+            : `${entityLabel} created`;
+        const successDescription =
+          mode === 'edit'
+            ? 'Changes saved successfully.'
+            : 'New record created successfully.';
+
+        toast.success(successTitle, { description: successDescription });
         closeFormModal();
         onSuccess?.(result.data);
       } else {

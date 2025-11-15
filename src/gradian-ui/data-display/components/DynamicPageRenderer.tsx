@@ -283,7 +283,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     const toastId = toast.loading(`Refreshing ${pluralName.toLowerCase()}...`);
     setIsManualRefresh(true);
     try {
-      const result = await fetchEntities(filters);
+      const result = await fetchEntities(filters, { disableCache: true });
       if (result && result.success === false) {
         throw new Error(result.error || 'Failed to refresh data');
       }
@@ -305,7 +305,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
       setDeleteConfirmDialog({ open: false, entity: null });
       // Refresh entities after deletion with current filters
       const filters = buildFilters();
-      fetchEntities(filters);
+      if (filters) {
+        fetchEntities(filters, { disableCache: true });
+      }
     } catch (error) {
       console.error('Error deleting entity:', error);
       setDeleteConfirmDialog({ open: false, entity: null });
@@ -887,7 +889,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
           onSuccess={async () => {
             // Refresh entities list after successful creation with current filters
             const filters = buildFilters();
-            await fetchEntities(filters);
+            if (filters) {
+              await fetchEntities(filters, { disableCache: true });
+            }
             setCreateModalOpen(false);
           }}
           onClose={() => {
@@ -1004,7 +1008,9 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
           onSuccess={async () => {
             // Refresh entities list after successful update with current filters
             const filters = buildFilters();
-            await fetchEntities(filters);
+            if (filters) {
+              await fetchEntities(filters, { disableCache: true });
+            }
             setEditEntityId(null);
           }}
           onClose={() => {

@@ -288,6 +288,11 @@ const getInitials = (name: string): string => {
   return name.substring(0, 2).toUpperCase();
 };
 
+const skeletonCardClass =
+  'bg-white border border-gray-200 dark:bg-gray-900/50 dark:border-gray-800 rounded-lg shadow-sm';
+const skeletonSubtleSectionClass =
+  'bg-gray-50/50 border-b border-gray-200 dark:bg-gray-900/40 dark:border-gray-800';
+
 export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps> = ({
   schema,
   data,
@@ -638,7 +643,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 {(detailMetadata?.componentRenderers?.length || 0) > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {Array.from({ length: Math.min(detailMetadata?.componentRenderers?.length || 2, 4) }).map((_, index) => (
-                      <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                      <div key={index} className={`${skeletonCardClass} p-6`}>
                         <div className="space-y-3">
                           <div className="flex items-center space-x-2">
                             <Skeleton className="h-4 w-4" />
@@ -656,7 +661,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 {/* Info Cards Skeleton */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Array.from({ length: 2 }).map((_, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                    <div key={index} className={`${skeletonCardClass} p-6`}>
                       <div className="space-y-4">
                         <Skeleton className="h-5 w-32" />
                         <div className="space-y-2">
@@ -680,7 +685,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                 )}>
                   {/* Quick Actions Skeleton */}
                   {(detailMetadata?.quickActions?.length ?? 0) > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                    <div className={`${skeletonCardClass} p-6`}>
                       <div className="space-y-3">
                         <Skeleton className="h-5 w-32" />
                         {Array.from({ length: Math.min(detailMetadata?.quickActions?.length ?? 0, 3) }).map((_, index) => (
@@ -691,7 +696,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                   )}
 
                   {/* Sidebar Info Card Skeleton */}
-                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                  <div className={`${skeletonCardClass} p-6`}>
                     <div className="space-y-4">
                       <Skeleton className="h-5 w-32" />
                       <div className="space-y-2">
@@ -709,7 +714,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               {(detailMetadata?.componentRenderers?.length || 0) > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Array.from({ length: Math.min(detailMetadata?.componentRenderers?.length || 2, 4) }).map((_, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                    <div key={index} className={`${skeletonCardClass} p-6`}>
                       <div className="space-y-3">
                         <div className="flex items-center space-x-2">
                           <Skeleton className="h-4 w-4" />
@@ -727,7 +732,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               {/* Info Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {Array.from({ length: 2 }).map((_, index) => (
-                  <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                    <div key={index} className={`${skeletonCardClass} p-6`}>
                     <div className="space-y-4">
                       <Skeleton className="h-5 w-32" />
                       <div className="space-y-2">
@@ -744,8 +749,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
               {(detailMetadata?.tableRenderers?.length || 0) > 0 && (
                 <div className="space-y-6 mt-6">
                   {Array.from({ length: detailMetadata?.tableRenderers?.length || 1 }).map((_, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm">
-                      <div className="bg-gray-50/50 border-b border-gray-200 p-4">
+                    <div key={index} className={skeletonCardClass}>
+                      <div className={`${skeletonSubtleSectionClass} p-4`}>
                         <div className="flex items-center gap-2">
                           <Skeleton className="h-5 w-32" />
                           <Skeleton className="h-5 w-8 rounded-full" />
@@ -774,8 +779,8 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
           {hasSidebar && (detailMetadata?.tableRenderers?.length || 0) > 0 && (
             <div className="space-y-6 mt-6">
               {Array.from({ length: detailMetadata?.tableRenderers?.length || 1 }).map((_, index) => (
-                <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-sm">
-                  <div className="bg-gray-50/50 border-b border-gray-200 p-4">
+                <div key={index} className={skeletonCardClass}>
+                  <div className={`${skeletonSubtleSectionClass} p-4`}>
                     <div className="flex items-center gap-2">
                       <Skeleton className="h-5 w-32" />
                       <Skeleton className="h-5 w-8 rounded-full" />

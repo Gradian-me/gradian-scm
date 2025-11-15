@@ -126,7 +126,10 @@ export async function POST(
 
   if (!isDemoModeEnabled()) {
     const body = await request.json();
-    return proxyDataRequest(request, targetPath, { body });
+    return proxyDataRequest(request, targetPath, {
+      body,
+      headers: { 'content-type': 'application/json' },
+    });
   }
 
   try {
