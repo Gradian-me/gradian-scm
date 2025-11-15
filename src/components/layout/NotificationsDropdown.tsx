@@ -37,9 +37,9 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
   if (!isMounted) {
     return (
       <Button 
-        variant="ghost" 
+        variant="outline" 
         size="icon" 
-        className="relative"
+        className="relative rounded-xl"
         aria-label="Notifications"
         disabled
       >
@@ -60,9 +60,9 @@ export function NotificationsDropdown({ initialCount = 3 }: NotificationsDropdow
     <DropdownMenuPrimitive.Root>
         <DropdownMenuPrimitive.Trigger asChild>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="icon" 
-            className="relative"
+            className="relative rounded-xl"
             aria-label="Notifications"
           >
           <Bell className="h-5 w-5" />

@@ -6,6 +6,7 @@ import { ProfileSelector } from '@/gradian-ui/layout/profile-selector/components
 import { ProfileSelectorConfig } from '@/gradian-ui/layout/profile-selector/types';
 import { UserProfile } from '@/gradian-ui/shared/types';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 interface UserProfileSelectorProps {
   config?: Partial<ProfileSelectorConfig>;
@@ -153,13 +154,15 @@ export function UserProfileSelector({
   // Don't render if no user is logged in
   if (!hasAccessToken || !user || !userProfile) {
     return (
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
+        className="rounded-xl px-5 text-sm font-semibold"
         onClick={() => router.push('/authentication/login')}
-        className="rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
       >
         Login
-      </button>
+      </Button>
     );
   }
 

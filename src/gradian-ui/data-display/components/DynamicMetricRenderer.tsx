@@ -127,11 +127,9 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
         initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, delay: idx * 0.01 }}
-        whileHover={{
-          scale: 1.01,
-          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-        }}
-        className="px-1 py-0.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60"
+        whileHover={{ scale: 1.02 }}
+        className="px-1 py-0.5 rounded-lg transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-200 dark:focus-visible:outline-gray-700"
+        tabIndex={0}
       >
         {metricContent}
       </motion.div>

@@ -101,12 +101,12 @@ export function CompanySelector({
 
   const triggerHeightClasses = "h-10";
   const triggerBaseClasses = cn(
-    "flex items-center space-x-2 outline-none ring-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+    "flex items-center space-x-2 rounded-xl transition-colors outline-none ring-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
     triggerHeightClasses,
     fullWidth ? "w-full justify-between" : "",
     isDarkVariant
-      ? "border border-gray-700 bg-gray-900 text-gray-100 hover:bg-gray-800 focus-visible:ring-gray-600 focus-visible:ring-offset-gray-900"
-      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-200 focus-visible:ring-offset-white"
+      ? "border border-violet-300/60 bg-gray-900 text-violet-200 hover:bg-gray-800 focus-visible:ring-violet-500 focus-visible:ring-offset-gray-900"
+      : "border border-violet-200 bg-white text-violet-700 hover:bg-violet-50 hover:border-violet-300 focus-visible:ring-violet-500 focus-visible:ring-offset-white"
   );
   const avatarBorderClass = isDarkVariant ? "border-gray-700" : "border-gray-100";
   const chevronColorClass = isDarkVariant ? "text-gray-300" : "text-gray-500";
