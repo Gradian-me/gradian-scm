@@ -194,7 +194,7 @@ export default function BuilderPage() {
                         className="h-4 w-4 text-gray-400 dark:text-gray-500 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all shrink-0"
                       />
                     </div>
-                    <CardDescription className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
+                    <CardDescription className="text-sm text-gray-600 dark:text-gray-300 leading-snug">
                       {option.description}
                     </CardDescription>
                   </CardHeader>

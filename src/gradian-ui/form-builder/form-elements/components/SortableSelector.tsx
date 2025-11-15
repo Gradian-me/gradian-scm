@@ -5,7 +5,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BadgeRenderer } from '../utils/badge-viewer';
 import type { BadgeItem } from '../utils/badge-viewer';
@@ -28,6 +27,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { getLabelClasses } from '../utils/field-styles';
+
+interface SortableSelectorConfig {
+  name?: string;
+  label?: string;
+  required?: boolean;
+  helperText?: string;
+}
 
 export interface SortableSelectorItem {
   id: string;
@@ -62,6 +69,11 @@ export interface SortableSelectorProps {
    * Main field label/name displayed above the component
    */
   fieldLabel?: string;
+  
+  /**
+   * Optional config metadata (similar to other form elements)
+   */
+  config?: SortableSelectorConfig;
   
   /**
    * Label for the selected items section
@@ -202,6 +214,7 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
   onChange,
   isSortable = true,
   fieldLabel,
+  config,
   selectedLabel = 'Selected Items',
   availableLabel = 'Available Items',
   maxHeight = 'max-h-60',
@@ -296,19 +309,31 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
 
   const unselectedItems = getAvailableItems();
 
+  const resolvedFieldLabel = config?.label || fieldLabel;
+  const helperText = config?.helperText;
+  const fieldName = config?.name || resolvedFieldLabel?.toLowerCase().replace(/\s+/g, '-');
+
   return (
     <div className={cn("w-full", className)}>
-      {fieldLabel && (
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">
-          {fieldLabel}
-        </Label>
+      {resolvedFieldLabel && (
+        <label
+          htmlFor={fieldName}
+          className={getLabelClasses({ required: config?.required })}
+        >
+          {resolvedFieldLabel}
+        </label>
+      )}
+      {helperText && (
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {helperText}
+        </p>
       )}
       <div className={cn("space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0 border border-gray-200 rounded-lg p-4")}>
         {/* Available Items Section */}
         <div className="flex flex-col">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+        <p className="text-sm font-medium text-gray-700 mb-2 block dark:text-gray-200">
           {availableLabel}
-        </Label>
+        </p>
         <div className="flex-1">
           {isLoadingOptions ? (
             <div className="border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500">
@@ -333,9 +358,9 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
                       checked={false}
                       onCheckedChange={() => handleToggleItem(item.id)}
                     />
-                    <Label
+                    <label
                       htmlFor={`sortable-selector-${item.id}`}
-                      className="text-sm font-normal cursor-pointer flex-1"
+                      className="text-sm font-normal cursor-pointer flex-1 text-gray-700 dark:text-gray-200"
                     >
                       {hasIconOrColor ? (
                         <BadgeRenderer
@@ -352,7 +377,7 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
                       ) : (
                         <span>{item.label}</span>
                       )}
-                    </Label>
+                    </label>
                   </div>
                 );
               })}
@@ -363,9 +388,9 @@ export const SortableSelector: React.FC<SortableSelectorProps> = ({
 
       {/* Selected Items Section */}
       <div className="flex flex-col">
-        <Label className="text-sm font-medium text-gray-700 mb-2 block">
+        <p className="text-sm font-medium text-gray-700 mb-2 block dark:text-gray-200">
           {selectedLabel} ({selectedItems.length})
-        </Label>
+        </p>
         <div className="flex-1">
           {selectedItems.length > 0 ? (
             <div>

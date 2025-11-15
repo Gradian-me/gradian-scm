@@ -1,10 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { IconInput } from '@/components/ui/icon-input';
-import { Switch } from '@/components/ui/switch';
-import { TextInput, Textarea } from '@/gradian-ui/form-builder/form-elements';
+import { TextInput, Textarea, IconInput, Switch } from '@/gradian-ui/form-builder/form-elements';
 import { FormSchema } from '../types/form-schema';
 
 interface GeneralInfoTabProps {
@@ -56,60 +53,37 @@ export function GeneralInfoTab({ schema, onUpdate, readonly = false }: GeneralIn
             />
           </div>
         </div>
-        <div>
-          <Label htmlFor="schema-icon" className="text-gray-700">Icon</Label>
-          <IconInput 
-            id="schema-icon" 
-            value={schema.icon || ''} 
-            onChange={(e) => onUpdate({ icon: e.target.value })}
+        <IconInput
+          config={{ name: 'schema-icon', label: 'Icon' }}
+          value={schema.icon || ''}
+          onChange={(value) => onUpdate({ icon: value })}
+          disabled={readonly}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <Switch
+            config={{ name: 'show-in-navigation', label: 'Show in Navigation' }}
+            value={schema.showInNavigation || false}
+            onChange={(checked: boolean) => onUpdate({ showInNavigation: checked })}
             disabled={readonly}
           />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <Switch 
-              id="show-in-navigation"
-              checked={schema.showInNavigation || false}
-              onCheckedChange={(checked) => onUpdate({ showInNavigation: checked })}
-              disabled={readonly}
-            />
-            <Label htmlFor="show-in-navigation" className="cursor-pointer text-gray-700">
-              Show in Navigation
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch 
-              id="is-system-schema"
-              checked={schema.isSystemSchema || false}
-              onCheckedChange={(checked) => onUpdate({ isSystemSchema: checked })}
-              disabled={readonly}
-            />
-            <Label htmlFor="is-system-schema" className="cursor-pointer text-gray-700">
-              Is System Schema
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch 
-              id="is-not-company-based"
-              checked={schema.isNotCompanyBased || false}
-              onCheckedChange={(checked) => onUpdate({ isNotCompanyBased: checked })}
-              disabled={readonly}
-            />
-            <Label htmlFor="is-not-company-based" className="cursor-pointer text-gray-700">
-              Is Not Company Based
-            </Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch 
-              id="inactive"
-              checked={schema.inactive || false}
-              onCheckedChange={(checked) => onUpdate({ inactive: checked })}
-              disabled={readonly}
-            />
-            <Label htmlFor="inactive" className="cursor-pointer text-gray-700">
-              Inactive
-            </Label>
-          </div>
+          <Switch
+            config={{ name: 'is-system-schema', label: 'Is System Schema' }}
+            value={schema.isSystemSchema || false}
+            onChange={(checked: boolean) => onUpdate({ isSystemSchema: checked })}
+            disabled={readonly}
+          />
+          <Switch
+            config={{ name: 'is-not-company-based', label: 'Is Not Company Based' }}
+            value={schema.isNotCompanyBased || false}
+            onChange={(checked: boolean) => onUpdate({ isNotCompanyBased: checked })}
+            disabled={readonly}
+          />
+          <Switch
+            config={{ name: 'inactive-schema', label: 'Inactive' }}
+            value={schema.inactive || false}
+            onChange={(checked: boolean) => onUpdate({ inactive: checked })}
+            disabled={readonly}
+          />
         </div>
       </CardContent>
     </Card>

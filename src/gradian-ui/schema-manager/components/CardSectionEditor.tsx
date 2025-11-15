@@ -18,6 +18,8 @@ interface CardSectionEditorProps {
   onUpdate: (updates: Partial<CardSection>) => void;
   onFieldSelectionChange: (items: SortableSelectorItem[]) => void;
   onDelete: () => void;
+  onSave: () => void;
+  saveDisabled?: boolean;
   onClose: () => void;
 }
 
@@ -32,6 +34,8 @@ export function CardSectionEditor({
   onUpdate,
   onFieldSelectionChange,
   onDelete,
+  onSave,
+  saveDisabled,
   onClose,
 }: CardSectionEditorProps) {
   return (
@@ -109,7 +113,9 @@ export function CardSectionEditor({
           <Button variant="ghost" onClick={onDelete}>
             Delete Section
           </Button>
-          <Button onClick={onClose}>Done</Button>
+          <Button onClick={onSave} disabled={saveDisabled}>
+            Save Section
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

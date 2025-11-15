@@ -4,11 +4,8 @@ import { useState, useEffect } from 'react';
 // Button import for DialogFooter buttons
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { Select, ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
+import { TextInput, NameInput, NumberInput, Switch, Select, ButtonMinimal } from '@/gradian-ui/form-builder/form-elements';
 import {
   Dialog,
   DialogContent,
@@ -100,84 +97,88 @@ export function FieldEditorContent({ field, onUpdate, onDelete, sections }: Fiel
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Field Label</Label>
-                <Input value={tempField.label} onChange={(e) => setTempField({ ...tempField, label: e.target.value })} />
-              </div>
-              <div>
-                <Label>Field Name</Label>
-                <Input value={tempField.name} onChange={(e) => setTempField({ ...tempField, name: e.target.value })} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Field Type</Label>
-                <Select
-                  value={tempField.type}
-                  onValueChange={(value) => setTempField({ ...tempField, type: value as any, component: value as any })}
-                  options={[...FIELD_TYPES]}
-                />
-              </div>
-              <div>
-                <Label>Component</Label>
-                <Select
-                  value={tempField.component}
-                  onValueChange={(value) => setTempField({ ...tempField, component: value as any })}
-                  options={[...FIELD_TYPES]}
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Section</Label>
-              <Select
-                value={tempField.sectionId}
-                onValueChange={(value) => setTempField({ ...tempField, sectionId: value })}
-                options={sections.map(s => ({ value: s.id, label: s.title }))}
+              <TextInput
+                config={{ name: 'field-label', label: 'Field Label', placeholder: 'Enter field label...' }}
+                value={tempField.label || ''}
+                onChange={(value) => setTempField({ ...tempField, label: value })}
               />
-            </div>
-            <div>
-              <Label>Placeholder</Label>
-              <Input value={tempField.placeholder || ''} onChange={(e) => setTempField({ ...tempField, placeholder: e.target.value })} />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex items-center gap-2">
-                <Switch id={`required-${field.id}`} checked={tempField.required || false} onCheckedChange={(checked) => setTempField({ ...tempField, required: checked })} />
-                <Label htmlFor={`required-${field.id}`}>Required</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch id={`disabled-${field.id}`} checked={tempField.disabled || false} onCheckedChange={(checked) => setTempField({ ...tempField, disabled: checked })} />
-                <Label htmlFor={`disabled-${field.id}`}>Disabled</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch id={`readonly-${field.id}`} checked={tempField.readonly || false} onCheckedChange={(checked) => setTempField({ ...tempField, readonly: checked })} />
-                <Label htmlFor={`readonly-${field.id}`}>Readonly</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch id={`canCopy-${field.id}`} checked={tempField.canCopy || false} onCheckedChange={(checked) => setTempField({ ...tempField, canCopy: checked })} />
-                <Label htmlFor={`canCopy-${field.id}`}>Can Copy</Label>
-              </div>
-            </div>
-            <div>
-              <Label>Role</Label>
-              <Select
-                value={tempField.role || ''}
-                onValueChange={(value) => setTempField({ ...tempField, role: value ? (value as any) : undefined })}
-                options={[
-                  { value: '', label: 'None' },
-                  ...ROLES
-                ]}
-                placeholder="Select role..."
+              <NameInput
+                config={{ name: 'field-name', label: 'Field Name', placeholder: 'Enter field name...' }}
+                value={tempField.name || ''}
+                onChange={(value) => setTempField({ ...tempField, name: value })}
+                isCustomizable={false}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Column Span</Label>
-                <Input type="number" value={tempField.colSpan || 1} onChange={(e) => setTempField({ ...tempField, colSpan: parseInt(e.target.value) || 1 })} />
-              </div>
-              <div>
-                <Label>Order</Label>
-                <Input type="number" value={tempField.order || 1} onChange={(e) => setTempField({ ...tempField, order: parseInt(e.target.value) || 1 })} />
-              </div>
+              <Select
+                config={{ name: 'field-type', label: 'Field Type' }}
+                value={tempField.type}
+                onValueChange={(value) => setTempField({ ...tempField, type: value as any, component: value as any })}
+                options={[...FIELD_TYPES]}
+              />
+              <Select
+                config={{ name: 'field-component', label: 'Component' }}
+                value={tempField.component}
+                onValueChange={(value) => setTempField({ ...tempField, component: value as any })}
+                options={[...FIELD_TYPES]}
+              />
+            </div>
+            <Select
+              config={{ name: 'field-section', label: 'Section' }}
+              value={tempField.sectionId}
+              onValueChange={(value) => setTempField({ ...tempField, sectionId: value })}
+              options={sections.map((s) => ({ value: s.id, label: s.title }))}
+            />
+            <TextInput
+              config={{ name: 'field-placeholder', label: 'Placeholder' }}
+              value={tempField.placeholder || ''}
+              onChange={(value) => setTempField({ ...tempField, placeholder: value })}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Switch
+                config={{ name: `required-${field.id}`, label: 'Required' }}
+                value={tempField.required || false}
+                onChange={(checked: boolean) => setTempField({ ...tempField, required: checked })}
+              />
+              <Switch
+                config={{ name: `disabled-${field.id}`, label: 'Disabled' }}
+                value={tempField.disabled || false}
+                onChange={(checked: boolean) => setTempField({ ...tempField, disabled: checked })}
+              />
+              <Switch
+                config={{ name: `readonly-${field.id}`, label: 'Readonly' }}
+                value={tempField.readonly || false}
+                onChange={(checked: boolean) => setTempField({ ...tempField, readonly: checked })}
+              />
+              <Switch
+                config={{ name: `can-copy-${field.id}`, label: 'Can Copy' }}
+                value={tempField.canCopy || false}
+                onChange={(checked: boolean) => setTempField({ ...tempField, canCopy: checked })}
+              />
+            </div>
+            <Select
+              config={{ name: 'field-role', label: 'Role', placeholder: 'Select role...' }}
+              value={tempField.role || ''}
+              onValueChange={(value) => setTempField({ ...tempField, role: value ? (value as any) : undefined })}
+              options={[
+                { value: '', label: 'None' },
+                ...ROLES,
+              ]}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NumberInput
+                config={{ name: 'field-col-span', label: 'Column Span' }}
+                value={tempField.colSpan ?? 1}
+                onChange={(value) => setTempField({ ...tempField, colSpan: value === '' ? 1 : Number(value) || 1 })}
+                min={1}
+                max={4}
+              />
+              <NumberInput
+                config={{ name: 'field-order', label: 'Order' }}
+                value={tempField.order ?? 1}
+                onChange={(value) => setTempField({ ...tempField, order: value === '' ? 1 : Number(value) || 1 })}
+                min={1}
+              />
             </div>
           </div>
           <DialogFooter className="flex-col sm:flex-row gap-2">

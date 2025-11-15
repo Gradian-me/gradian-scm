@@ -41,7 +41,12 @@ export function CompanySelector({
   const onCompanyChangeFullRef = useRef(onCompanyChangeFull);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const { resolvedTheme } = useTheme();
-  const computedVariant = variant === 'auto' ? (resolvedTheme === 'dark' ? 'dark' : 'light') : variant;
+  const computedVariant =
+    variant === 'auto'
+      ? isMounted && resolvedTheme === 'dark'
+        ? 'dark'
+        : 'light'
+      : variant;
   const isDarkVariant = computedVariant === 'dark';
   
   // Keep ref in sync with callback
