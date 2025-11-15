@@ -18,6 +18,7 @@ import { extractFirstId, normalizeOptionArray, NormalizedOption } from '../utils
 import { BadgeViewer } from '../utils/badge-viewer';
 import { Check, ChevronDown } from 'lucide-react';
 import { useOptionsFromUrl } from '../hooks/useOptionsFromUrl';
+import { getLabelClasses, errorTextClasses } from '../utils/field-styles';
 
 export interface SelectOption {
   id?: string;
@@ -104,6 +105,20 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
     config?.metadata?.allowMultiselect ??
     (config as any)?.allowMultiselect
   );
+
+  const renderFieldLabel = () =>
+    fieldLabel ? (
+      <label htmlFor={fieldName} className={getLabelClasses({ error, required })}>
+        {fieldLabel}
+      </label>
+    ) : null;
+
+  const renderErrorMessage = (message?: string) =>
+    message ? (
+      <p className={errorTextClasses} role="alert">
+        {message}
+      </p>
+    ) : null;
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -444,31 +459,12 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   if (sourceUrl && isLoadingOptions) {
     return (
       <div className="w-full">
-        {fieldLabel && (
-          <label
-            htmlFor={fieldName}
-            className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              required && 'after:content-["*"] after:ml-1 after:text-red-500'
-            )}
-          >
-            {fieldLabel}
-          </label>
-        )}
+        {renderFieldLabel()}
         <div className={cn(selectClasses, 'flex items-center justify-center text-gray-500 border-gray-200')}>
           Loading options...
         </div>
-        {optionsError && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {optionsError}
-          </p>
-        )}
-        {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
+        {renderErrorMessage(optionsError)}
+        {renderErrorMessage(error)}
       </div>
     );
   }
@@ -477,26 +473,11 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   if (sourceUrl && optionsError) {
     return (
       <div className="w-full">
-        {fieldLabel && (
-          <label
-            htmlFor={fieldName}
-            className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              required && 'after:content-["*"] after:ml-1 after:text-red-500'
-            )}
-          >
-            {fieldLabel}
-          </label>
-        )}
+        {renderFieldLabel()}
         <div className={cn(selectClasses, 'flex items-center justify-center text-red-500 border-red-300')}>
           {optionsError}
         </div>
-        {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
+        {renderErrorMessage(error)}
       </div>
     );
   }
@@ -630,18 +611,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
 
       return (
         <div className="w-full" ref={containerRef}>
-          {fieldLabel && (
-            <label
-              htmlFor={fieldName}
-              className={cn(
-                'block text-sm font-medium mb-1',
-                error ? 'text-red-700' : 'text-gray-700',
-                required && 'after:content-["*"] after:ml-1 after:text-red-500'
-              )}
-            >
-              {fieldLabel}
-            </label>
-          )}
+          {renderFieldLabel()}
           <div className="relative">
             <button
               type="button"
@@ -720,29 +690,14 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
               </div>
             )}
           </div>
-          {error && (
-            <p className="mt-1 text-sm text-red-600" role="alert">
-              {error}
-            </p>
-          )}
+          {error && renderErrorMessage(error)}
         </div>
       );
     }
 
     return (
       <div className="w-full">
-        {fieldLabel && (
-          <label
-            htmlFor={fieldName}
-            className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              required && 'after:content-["*"] after:ml-1 after:text-red-500'
-            )}
-          >
-            {fieldLabel}
-          </label>
-        )}
+        {renderFieldLabel()}
         <RadixSelect
           value={selectValue}
           onValueChange={handleRadixChange}
@@ -777,11 +732,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
             ))}
           </SelectContent>
         </RadixSelect>
-        {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
-            {error}
-          </p>
-        )}
+        {error && renderErrorMessage(error)}
       </div>
     );
   }
@@ -789,18 +740,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
   // Default behavior for children
   return (
     <div className="w-full">
-      {fieldLabel && (
-        <label
-          htmlFor={fieldName}
-          className={cn(
-            'block text-sm font-medium mb-1',
-            error ? 'text-red-700' : 'text-gray-700',
-            required && 'after:content-["*"] after:ml-1 after:text-red-500'
-          )}
-        >
-          {fieldLabel}
-        </label>
-      )}
+      {renderFieldLabel()}
       <RadixSelect value={value} onValueChange={onValueChange} {...props}>
         <SelectTrigger className={selectClasses} id={fieldName}>
           <SelectValue placeholder={fieldPlaceholder} />
@@ -825,11 +765,7 @@ export const Select: React.FC<SelectWithBadgesProps> = ({
           ))}
         </SelectContent>
       </RadixSelect>
-      {error && (
-        <p className="mt-1 text-sm text-red-600" role="alert">
-          {error}
-        </p>
-      )}
+      {error && renderErrorMessage(error)}
     </div>
   );
 };

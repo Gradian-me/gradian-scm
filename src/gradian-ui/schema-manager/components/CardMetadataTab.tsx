@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { CardSectionEditor } from './CardSectionEditor';
+import { AddButtonFull } from '@/gradian-ui/form-builder/form-elements/components/AddButtonFull';
+import { ConfirmationMessage } from '@/gradian-ui/form-builder';
 
 interface CardMetadataTabProps {
   schema: FormSchema;
@@ -36,6 +38,7 @@ const titleToId = (title: string): string => {
 export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
   const [customSectionIds, setCustomSectionIds] = useState<Record<string, boolean>>({});
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [deleteConfirmSectionId, setDeleteConfirmSectionId] = useState<string | null>(null);
   const cardMetadata = schema.cardMetadata || [];
 
   const allFields = schema.fields || [];
@@ -112,6 +115,7 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
     const updated = cardMetadata.filter(section => section.id !== sectionId);
     onUpdate({ cardMetadata: updated });
     setEditingSectionId(prev => (prev === sectionId ? null : prev));
+    setDeleteConfirmSectionId(null);
   };
 
 
@@ -154,23 +158,24 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CardTitle>Card Metadata</CardTitle>
-              <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                {cardMetadata.length} {cardMetadata.length === 1 ? 'section' : 'sections'}
-              </Badge>
-            </div>
-            <Button onClick={addCardSection} size="sm" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Section
-            </Button>
+          <div className="flex items-center gap-2">
+            <CardTitle>Card Metadata</CardTitle>
+            <Badge variant="secondary" className="text-xs px-2 py-0.5">
+              {cardMetadata.length} {cardMetadata.length === 1 ? 'section' : 'sections'}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {cardMetadata.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>No card sections defined. Add a section to configure how cards are displayed in list views.</p>
+            <div className="space-y-4 py-6">
+              <p className="text-center text-gray-500 dark:text-gray-400">
+                No card sections defined. Add a section to configure how cards are displayed in list views.
+              </p>
+              <AddButtonFull
+                label="Add Card Section"
+                onClick={addCardSection}
+                className="border-dashed"
+              />
             </div>
           ) : (
             <AnimatePresence mode="popLayout">
@@ -213,7 +218,7 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteCardSection(section.id)}
+                            onClick={() => setDeleteConfirmSectionId(section.id)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -225,6 +230,13 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
                 </motion.div>
               ))}
             </AnimatePresence>
+          )}
+          {cardMetadata.length > 0 && (
+            <AddButtonFull
+              label="Add Card Section"
+              onClick={addCardSection}
+              className="border-dashed"
+            />
           )}
         </CardContent>
       </Card>
@@ -252,6 +264,34 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
           />
         );
       })()}
+      <ConfirmationMessage
+        isOpen={deleteConfirmSectionId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteConfirmSectionId(null);
+          }
+        }}
+        title="Delete Card Section"
+        message="Are you sure you want to delete this card section? This action cannot be undone, but you can add a new section later."
+        variant="destructive"
+        buttons={[
+          {
+            label: 'Cancel',
+            variant: 'outline',
+            action: () => setDeleteConfirmSectionId(null),
+          },
+          {
+            label: 'Delete',
+            variant: 'destructive',
+            icon: 'Trash2',
+            action: () => {
+              if (deleteConfirmSectionId) {
+                deleteCardSection(deleteConfirmSectionId);
+              }
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

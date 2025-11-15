@@ -79,13 +79,22 @@ export function DashboardPage() {
               Here's what's happening with your business today.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
+              <Badge
+                variant="secondary"
+                className="text-sm px-3 py-1 bg-violet-50 text-violet-700 border border-violet-100 dark:bg-violet-500/15 dark:text-violet-100 dark:border-violet-500/40 shadow-sm"
+              >
                 🚀 3 New Vendors This Week
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
+              <Badge
+                variant="secondary"
+                className="text-sm px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-500/15 dark:text-emerald-100 dark:border-emerald-500/40 shadow-sm"
+              >
                 📈 15% Cost Savings
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
+              <Badge
+                variant="secondary"
+                className="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-100 dark:border-indigo-500/40 shadow-sm"
+              >
                 ⚡ 98% On-Time Delivery
               </Badge>
             </div>
@@ -230,9 +239,9 @@ export function DashboardPage() {
                           {activity.userName} • {new Date(activity.timestamp).toLocaleString()}
                         </p>
                       </div>
-                      <Badge 
+                      <Badge
                         variant="secondary"
-                        className="text-xs"
+                        className="text-xs bg-violet-50 text-violet-700 border border-violet-100 dark:bg-violet-500/20 dark:text-violet-100 dark:border-violet-500/40"
                       >
                         {activity.type.replace('_', ' ')}
                       </Badge>

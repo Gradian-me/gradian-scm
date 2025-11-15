@@ -5,6 +5,7 @@ import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import { SliderProps, FormElementRef } from '../types';
 import { cn } from '../../../shared/utils';
 import { Slider as UISlider } from '@/components/ui/slider';
+import { getLabelClasses, errorTextClasses } from '../utils/field-styles';
 
 export const Slider = forwardRef<FormElementRef, SliderProps>(
   (
@@ -54,14 +55,11 @@ export const Slider = forwardRef<FormElementRef, SliderProps>(
           <div className="flex items-center justify-between mb-3">
             <label
               htmlFor={fieldName}
-              className={cn(
-                'block text-sm font-medium',
-                error ? 'text-red-700' : 'text-gray-700'
-              )}
+              className={getLabelClasses({ error })}
             >
               {fieldLabel}
             </label>
-            <span className="text-sm font-semibold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-md min-w-[2.5rem] text-center">
+            <span className="text-sm font-semibold text-violet-600 dark:text-violet-200 bg-violet-50 dark:bg-violet-500/20 px-2.5 py-1 rounded-md min-w-[2.5rem] text-center">
               {clampedValue}
             </span>
           </div>
@@ -82,7 +80,7 @@ export const Slider = forwardRef<FormElementRef, SliderProps>(
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className={errorTextClasses} role="alert">
             {error}
           </p>
         )}

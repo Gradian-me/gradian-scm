@@ -12,6 +12,7 @@ import { NormalizedOption, normalizeOptionArray, extractFirstId } from '../utils
 import { Search, X } from 'lucide-react';
 import { cn } from '@/gradian-ui/shared/utils';
 import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
+import { getLabelClasses, errorTextClasses } from '../utils/field-styles';
 
 export interface PickerInputProps {
   config: any;
@@ -199,11 +200,7 @@ export const PickerInput: React.FC<PickerInputProps> = ({
       {fieldLabel && (
         <label
           htmlFor={fieldName}
-          className={cn(
-            'block text-sm font-medium',
-            error ? 'text-red-700' : 'text-gray-700',
-            required && 'after:content-["*"] after:ml-1 after:text-red-500'
-          )}
+          className={getLabelClasses({ error, required })}
         >
           {fieldLabel}
         </label>
@@ -252,7 +249,7 @@ export const PickerInput: React.FC<PickerInputProps> = ({
         )}
       </div>
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p className={errorTextClasses} role="alert">
           {error}
         </p>
       )}

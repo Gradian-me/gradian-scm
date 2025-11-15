@@ -62,7 +62,7 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
                 {schema.icon && (
                   <IconRenderer 
                     iconName={schema.icon} 
-                    className={`h-5 w-5 shrink-0 ${isInactive ? 'text-gray-400' : 'text-violet-600'}`} 
+                    className={`h-5 w-5 shrink-0 ${isInactive ? 'text-gray-400' : 'text-violet-600 dark:text-violet-300'}`} 
                   />
                 )}
                 <CardTitle className={`text-base font-semibold truncate ${

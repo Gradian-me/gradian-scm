@@ -5,6 +5,7 @@ import { SwitchProps, FormElementRef } from '../types';
 import { cn, validateField } from '../../../shared/utils';
 import { Switch as RadixSwitch } from '../../../../components/ui/switch';
 import { Label } from '../../../../components/ui/label';
+import { getLabelClasses, errorTextClasses } from '../utils/field-styles';
 
 export const Switch = forwardRef<FormElementRef, SwitchProps>(
   (
@@ -74,19 +75,19 @@ export const Switch = forwardRef<FormElementRef, SwitchProps>(
           {config.label && (
             <Label
               htmlFor={config.name}
-              className={cn(
-                'text-xs font-medium cursor-pointer',
-                error ? 'text-red-700' : 'text-gray-700',
-                required && 'after:content-["*"] after:ml-1 after:text-red-500',
-                disabled && 'text-gray-400 cursor-not-allowed'
-              )}
+              className={getLabelClasses({
+                error,
+                required,
+                disabled,
+                className: 'text-xs cursor-pointer mb-0',
+              })}
             >
               {config.label}
             </Label>
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className={errorTextClasses} role="alert">
             {error}
           </p>
         )}

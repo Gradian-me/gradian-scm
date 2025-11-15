@@ -7,6 +7,7 @@ import { cn, validateField } from '../../../shared/utils';
 import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CopyContent } from './CopyContent';
+import { baseInputClasses, getLabelClasses, errorTextClasses } from '../utils/field-styles';
 
 export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
   (
@@ -64,11 +65,9 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
     };
 
     const inputClasses = cn(
-      'w-full direction-auto px-3 py-2 border rounded-lg border-gray-300 bg-white text-sm text-gray-900 ring-offset-background placeholder:text-gray-400 transition-colors',
-      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-300 focus-visible:ring-offset-1 focus-visible:border-violet-400',
-      'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100 disabled:text-gray-500',
+      baseInputClasses,
       error
-        ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500'
+        ? 'border-red-500 focus-visible:ring-red-300 focus-visible:border-red-500 dark:border-red-500 dark:focus-visible:ring-red-400 dark:focus-visible:border-red-500'
         : '',
       className
     );
@@ -88,11 +87,7 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
         {fieldLabel && (
           <label
             htmlFor={fieldName}
-            className={cn(
-              'block text-sm font-medium mb-1',
-              error ? 'text-red-700' : 'text-gray-700',
-              required && 'after:content-["*"] after:ml-1 after:text-red-500'
-            )}
+            className={getLabelClasses({ error, required })}
           >
             {fieldLabel}
           </label>
@@ -138,12 +133,12 @@ export const PhoneInput = forwardRef<FormElementRef, TextInputProps>(
           </div>
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600" role="alert">
+          <p className={errorTextClasses} role="alert">
             {error}
           </p>
         )}
         {config.validation?.maxLength && (
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
             {value.length}/{config.validation.maxLength}
           </p>
         )}

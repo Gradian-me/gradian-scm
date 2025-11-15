@@ -60,7 +60,7 @@ export const useSchemaManagerPage = () => {
 
   // Use schemas from React Query cache
   const schemas = fetchedSchemas;
-  const loading = isLoading;
+  const loading = isLoading || refreshing;
 
   // Handle error messages from React Query
   useEffect(() => {
