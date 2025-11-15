@@ -26,7 +26,7 @@ export const ViewSwitcher: React.FC<ViewSwitcherProps> = ({
         className={cn(
           'h-full w-10 p-0 rounded-md',
           currentView === 'grid' 
-            ? 'bg-violet-600 hover:bg-violet-700 text-white shadow-sm' 
+            ? 'bg-violet-500 hover:bg-violet-600 text-white shadow-sm' 
             : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50'
         )}
       >

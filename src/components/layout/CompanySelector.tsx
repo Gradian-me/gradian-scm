@@ -98,14 +98,22 @@ export function CompanySelector({
     }
   };
 
-  const companyInitials = selectedCompany
-    ? selectedCompany.name
-        .split(' ')
-        .map((word: string) => word[0])
-        .join('')
-        .substring(0, 2)
-        .toUpperCase()
-    : 'CO';
+  const getCompanyName = (company?: Company | null) =>
+    company?.name && company.name.trim().length > 0 ? company.name.trim() : 'Untitled company';
+
+  const companyInitials = (() => {
+    const name = getCompanyName(selectedCompany);
+    if (!name) {
+      return 'CO';
+    }
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .map((word: string) => word[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase() || 'CO';
+  })();
 
   const triggerHeightClasses = "h-10";
   const triggerBaseClasses = cn(
@@ -162,7 +170,7 @@ export function CompanySelector({
             fullWidth ? "flex-1 text-left truncate" : ""
           )}
         >
-          {selectedCompany?.name || 'Loading...'}
+          {getCompanyName(selectedCompany) || 'Loading...'}
         </span>
         <ChevronDown
           className={cn(
@@ -250,7 +258,7 @@ export function CompanySelector({
                 fullWidth ? "flex-1" : ""
               )}
             >
-              {selectedCompany?.name || 'Select company'}
+              {getCompanyName(selectedCompany) || 'Select company'}
             </span>
             <ChevronDown
               className={cn(
@@ -278,7 +286,9 @@ export function CompanySelector({
           
           <DropdownMenuPrimitive.Separator className={separatorClasses} />
           
-          {companies.map((company) => (
+          {companies
+            .filter((company) => company && (company.id !== undefined && company.id !== null))
+            .map((company) => (
             <DropdownMenuPrimitive.Item
               key={company.id}
               className={cn(
@@ -291,7 +301,7 @@ export function CompanySelector({
               )}
               onSelect={() => handleCompanySelect(company)}
             >
-              {company.name}
+              {getCompanyName(company)}
             </DropdownMenuPrimitive.Item>
           ))}
         </DropdownMenuPrimitive.Content>

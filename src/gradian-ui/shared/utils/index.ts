@@ -50,12 +50,9 @@ export const validateField = (
   }
 
   if (value && rules.pattern) {
-    const pattern =
-      typeof rules.pattern === 'string'
-        ? new RegExp(rules.pattern)
-        : rules.pattern;
+    const pattern = toRegExp(rules.pattern);
 
-    if (!pattern.test(value.toString())) {
+    if (pattern && typeof pattern.test === 'function' && !pattern.test(value.toString())) {
       return { isValid: false, error: 'Invalid format' };
     }
   }
@@ -75,6 +72,47 @@ export const validateField = (
 
   return { isValid: true };
 };
+
+function toRegExp(pattern: unknown): RegExp | null {
+  if (!pattern) {
+    return null;
+  }
+
+  if (pattern instanceof RegExp) {
+    return pattern;
+  }
+
+  if (typeof pattern === 'string') {
+    try {
+      return new RegExp(pattern);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof pattern === 'object') {
+    const maybePattern = pattern as Record<string, unknown>;
+    const source =
+      typeof maybePattern.source === 'string'
+        ? maybePattern.source
+        : typeof maybePattern.pattern === 'string'
+          ? maybePattern.pattern
+          : typeof maybePattern.value === 'string'
+            ? maybePattern.value
+            : undefined;
+    if (!source) {
+      return null;
+    }
+    const flags = typeof maybePattern.flags === 'string' ? maybePattern.flags : undefined;
+    try {
+      return new RegExp(source, flags);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
 
 /**
  * Formats number with proper locale formatting

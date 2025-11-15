@@ -417,7 +417,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         <motion.h3
-                        className="text-md font-semibold text-gray-900 dark:text-gray-50 group-hover:text-violet-400 dark:group-hover:text-violet-300 transition-colors duration-100 truncate flex-1 min-w-0"
+                        className="text-md font-semibold text-gray-900 dark:text-gray-50 group-hover:text-violet-800 dark:group-hover:text-violet-300 transition-colors duration-100 truncate flex-1 min-w-0"
                           whileHover={{ x: 2, transition: { duration: 0.15, delay: 0 } }}
                       >
                         {renderHighlightedText(cardConfig.title, normalizedHighlightQuery)}

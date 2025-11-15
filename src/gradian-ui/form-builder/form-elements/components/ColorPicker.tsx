@@ -1,6 +1,6 @@
 // ColorPicker Component
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from '../../../../components/ui/input';
 import { cn } from '../../../shared/utils';
 
@@ -30,7 +30,7 @@ export interface ColorPickerProps {
 
 export const ColorPicker: React.FC<ColorPickerProps> = ({
   config,
-  value = '#4E79A7',
+  value,
   onChange,
   onBlur,
   onFocus,
@@ -43,6 +43,8 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
   required = false,
   placeholder,
 }) => {
+  const defaultColor = '#4E79A7';
+  const resolvedValue = value ?? defaultColor;
   const fieldName = config?.name || id || 'color-picker';
   const fieldLabel = config?.label;
   const fieldPlaceholder = placeholder || config?.placeholder || 'Enter color code (e.g., #4E79A7)';
@@ -69,6 +71,12 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     }
   };
 
+  useEffect(() => {
+    if ((value === undefined || value === null || value === '') && !disabled) {
+      callOnChange(defaultColor);
+    }
+  }, [value, disabled]);
+
   const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     callOnChange(newValue, e);
@@ -78,17 +86,17 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
     const newValue = e.target.value;
     // Validate hex color format (allow partial input)
     if (/^#[0-9A-Fa-f]{0,6}$/.test(newValue) || newValue === '') {
-      callOnChange(newValue || '#4E79A7', e);
+      callOnChange(newValue || defaultColor, e);
     }
   };
 
   const handleInputBlur = () => {
     // Validate and normalize color value on blur
-    if (value && !/^#[0-9A-Fa-f]{6}$/.test(value)) {
+    if (resolvedValue && !/^#[0-9A-Fa-f]{6}$/.test(resolvedValue)) {
       // If invalid, try to fix it
-      let normalizedValue = value;
-      if (!value.startsWith('#')) {
-        normalizedValue = `#${value}`;
+      let normalizedValue = resolvedValue;
+      if (!resolvedValue.startsWith('#')) {
+        normalizedValue = `#${resolvedValue}`;
       }
       if (normalizedValue.length < 7) {
         normalizedValue = normalizedValue.padEnd(7, '0').slice(0, 7);
@@ -116,7 +124,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
         <input
           id={`${fieldName}-color-picker`}
           type="color"
-          value={value}
+          value={resolvedValue}
           onChange={handleColorChange}
           onBlur={onBlur}
           onFocus={onFocus}
@@ -130,7 +138,7 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({
           )}
         />
         <Input
-          value={value}
+          value={resolvedValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           onFocus={onFocus}

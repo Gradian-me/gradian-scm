@@ -84,9 +84,14 @@ export function useCompanies() {
     refetchOnReconnect: false,
   });
 
+  const companies = data ?? cachedCompanies ?? [];
+  const hasCachedCompanies = Boolean(!data && cachedCompanies?.length);
+  const isInitialLoading = isLoading && companies.length === 0;
+
   return {
-    companies: data || [],
-    isLoading,
+    companies,
+    isLoading: isInitialLoading,
+    isHydratingFromCache: hasCachedCompanies,
     error,
     refetch,
   };

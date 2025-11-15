@@ -140,11 +140,9 @@ export function validateField(
 
     // Pattern (RegExp stored as string)
     if (field.validation.pattern) {
-      const pattern = typeof field.validation.pattern === 'string' 
-        ? new RegExp(field.validation.pattern)
-        : field.validation.pattern;
+      const pattern = toRegExp(field.validation.pattern);
       
-      if (!pattern.test(value)) {
+      if (pattern && typeof pattern.test === 'function' && !pattern.test(value)) {
         errors.push({
           field: field.name,
           message: `${field.label} format is invalid`,
@@ -178,6 +176,47 @@ function isValidPhone(phone: string): boolean {
   // Basic phone validation - can be enhanced
   const phoneRegex = /^[\d\s\-\+\(\)]+$/;
   return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+}
+
+function toRegExp(pattern: unknown): RegExp | null {
+  if (!pattern) {
+    return null;
+  }
+
+  if (pattern instanceof RegExp) {
+    return pattern;
+  }
+
+  if (typeof pattern === 'string') {
+    try {
+      return new RegExp(pattern);
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof pattern === 'object') {
+    const maybePattern = pattern as Record<string, unknown>;
+    const source =
+      typeof maybePattern.source === 'string'
+        ? maybePattern.source
+        : typeof maybePattern.pattern === 'string'
+          ? maybePattern.pattern
+          : typeof maybePattern.value === 'string'
+            ? maybePattern.value
+            : undefined;
+    if (!source) {
+      return null;
+    }
+    const flags = typeof maybePattern.flags === 'string' ? maybePattern.flags : undefined;
+    try {
+      return new RegExp(source, flags);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 /**
