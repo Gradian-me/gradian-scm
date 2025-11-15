@@ -4,7 +4,8 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
+import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, createChartTheme } from '@/gradian-ui/shared/constants/chart-theme';
+import { useTheme } from 'next-themes';
 
 interface ProcurementEfficiencyData {
   month: string;
@@ -19,6 +20,12 @@ interface ProcurementEfficiencyChartProps {
 }
 
 export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const chartTheme = useMemo(() => createChartTheme(isDark), [isDark]);
+  const tooltipHeading = isDark ? '#F9FAFB' : '#111827';
+  const tooltipLabel = isDark ? '#94A3B8' : '#374151';
+
   const chartOption = useMemo(() => {
     const months = data.map(item => item.month);
     const processingTime = data.map(item => item.processingTime);
@@ -27,28 +34,28 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
     const automationRate = data.map(item => item.automationRate);
 
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       animation: true,
       animationDuration: CHART_ANIMATION_CONFIG.duration,
       animationEasing: CHART_ANIMATION_CONFIG.easing,
       grid: {
-        ...CHART_THEME.grid,
+        ...chartTheme.grid,
         top: '26%',
         bottom: '15%',
       },
       xAxis: {
-        ...CHART_THEME.xAxis,
+        ...chartTheme.xAxis,
         type: 'category',
         data: months,
         axisLabel: {
-          ...CHART_THEME.xAxis.axisLabel,
+          ...chartTheme.xAxis.axisLabel,
           interval: 0,
           rotate: 0,
         },
       },
       yAxis: [
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Days',
           nameLocation: 'middle',
@@ -58,12 +65,12 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
             fontWeight: '600',
           },
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => `${value}d`,
           },
         },
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Cost Savings ($)',
           nameLocation: 'middle',
@@ -73,7 +80,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
             fontWeight: '600',
           },
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => `$${(value / 1000).toFixed(0)}k`,
           },
           splitLine: {
@@ -81,7 +88,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
           },
         },
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Automation Rate (%)',
           nameLocation: 'middle',
@@ -91,7 +98,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
             fontWeight: '600',
           },
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => `${value}%`,
           },
           splitLine: {
@@ -221,7 +228,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
         },
       ],
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'axis',
         axisPointer: {
           type: 'cross',
@@ -237,33 +244,33 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
           
           return `
             <div style="padding: 12px;">
-              <div style="font-weight: 600; margin-bottom: 8px; color: #111827;">${params[0].axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 8px; color: ${tooltipHeading};">${params[0].axisValue}</div>
               ${processingParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${processingParam.color}; border-radius: 2px; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Processing Time:</span>
-                  <span style="font-weight: 600; color: #111827;">${processingParam.value} days</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Processing Time:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${processingParam.value} days</span>
                 </div>
               ` : ''}
               ${savingsParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${savingsParam.color}; border-radius: 50%; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Cost Savings:</span>
-                  <span style="font-weight: 600; color: #111827;">$${savingsParam.value.toLocaleString()}</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Cost Savings:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">$${savingsParam.value.toLocaleString()}</span>
                 </div>
               ` : ''}
               ${cycleParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${cycleParam.color}; border-radius: 0; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Cycle Time:</span>
-                  <span style="font-weight: 600; color: #111827;">${cycleParam.value} days</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Cycle Time:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${cycleParam.value} days</span>
                 </div>
               ` : ''}
               ${automationParam ? `
                 <div style="display: flex; align-items: center;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${automationParam.color}; border-radius: 0; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Automation Rate:</span>
-                  <span style="font-weight: 600; color: #111827;">${automationParam.value}%</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Automation Rate:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${automationParam.value}%</span>
                 </div>
               ` : ''}
             </div>
@@ -271,7 +278,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
         },
       },
       legend: {
-        ...CHART_THEME.legend,
+        ...chartTheme.legend,
         top: '6%',
         left: '2%',
         orient: 'horizontal',
@@ -281,7 +288,7 @@ export function ProcurementEfficiencyChart({ data }: ProcurementEfficiencyChartP
         itemHeight: 14,
       },
     };
-  }, [data]);
+  }, [chartTheme, data, tooltipHeading, tooltipLabel]);
 
   return (
     <motion.div

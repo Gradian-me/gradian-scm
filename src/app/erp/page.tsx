@@ -143,8 +143,8 @@ export default function ERPPage() {
           className="flex items-center justify-between"
         >
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">ERP Integration</h2>
-            <p className="text-gray-600">Manage connections to external ERP systems</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ERP Integration</h2>
+            <p className="text-gray-600 dark:text-gray-400">Manage connections to external ERP systems</p>
           </div>
           <div className="flex space-x-2">
             <Button variant="outline">
@@ -173,7 +173,7 @@ export default function ERPPage() {
                     <div className="text-2xl font-bold text-green-500">
                       {integrations.filter(i => i.status === 'connected').length}
                     </div>
-                    <div className="text-sm text-gray-600">Connected</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Connected</div>
                   </div>
                 </div>
               </CardContent>
@@ -193,7 +193,7 @@ export default function ERPPage() {
                     <div className="text-2xl font-bold text-red-500">
                       {integrations.filter(i => i.status === 'error').length}
                     </div>
-                    <div className="text-sm text-gray-600">Errors</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Errors</div>
                   </div>
                 </div>
               </CardContent>
@@ -213,7 +213,7 @@ export default function ERPPage() {
                     <div className="text-2xl font-bold text-blue-500">
                       {integrations.reduce((sum, i) => sum + i.recordsSynced, 0).toLocaleString()}
                     </div>
-                    <div className="text-sm text-gray-600">Records Synced</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Records Synced</div>
                   </div>
                 </div>
               </CardContent>
@@ -233,7 +233,7 @@ export default function ERPPage() {
                     <div className="text-2xl font-bold text-yellow-500">
                       {integrations.filter(i => i.status === 'syncing').length}
                     </div>
-                    <div className="text-sm text-gray-600">Syncing</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Syncing</div>
                   </div>
                 </div>
               </CardContent>
@@ -263,19 +263,19 @@ export default function ERPPage() {
                         </Badge>
                       </div>
                       
-                      <p className="text-gray-600 mb-4">{integration.description}</p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4">{integration.description}</p>
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-500">Last Sync:</span>
+                          <span className="text-gray-500 dark:text-gray-400">Last Sync:</span>
                           <div className="font-medium">{formatDate(integration.lastSync)}</div>
                         </div>
                         <div>
-                          <span className="text-gray-500">Records Synced:</span>
+                          <span className="text-gray-500 dark:text-gray-400">Records Synced:</span>
                           <div className="font-medium">{integration.recordsSynced.toLocaleString()}</div>
                         </div>
                         <div>
-                          <span className="text-gray-500">Errors:</span>
+                          <span className="text-gray-500 dark:text-gray-400">Errors:</span>
                           <div className={`font-medium ${integration.errors > 0 ? 'text-red-600' : 'text-green-600'}`}>
                             {integration.errors}
                           </div>
@@ -325,7 +325,7 @@ export default function ERPPage() {
         >
           <Card>
             <CardHeader>
-              <CardTitle className="text-gray-800">Integration Tools</CardTitle>
+              <CardTitle className="text-gray-800 dark:text-gray-200">Integration Tools</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -349,3 +349,5 @@ export default function ERPPage() {
     </MainLayout>
   );
 }
+
+

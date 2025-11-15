@@ -635,7 +635,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
                     {groupedEntities.ungrouped.map((entity: any, index: number) => (
                       <div key={entity.id} className="relative">
                         {isEditLoading[entity.id] && (
-                          <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                          <div className="absolute inset-0 bg-white/70 dark:bg-gray-900/60 flex items-center justify-center z-10 rounded-lg">
                             <div className="flex flex-col items-center space-y-2">
                               <Spinner size="lg" variant="primary" />
                               <span className="text-sm font-medium text-violet-600">Loading...</span>
@@ -686,7 +686,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
                     ),
                     ease: 'easeOut',
                   }}
-                  className="rounded-xl bg-white border border-gray-100 overflow-hidden"
+                  className="rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 overflow-hidden"
                 >
                   <div className="p-4 sm:p-6">
                     {/* Header with avatar and title */}
@@ -711,7 +711,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
                     </div>
                     
                     {/* Action buttons */}
-                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-50">
+                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-50 dark:border-gray-800">
                       <Skeleton className="h-7 w-14" />
                       <Skeleton className="h-7 w-14" />
                     </div>
@@ -722,7 +722,7 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
               filteredEntities.map((entity: any, index: number) => (
                 <div key={entity.id} className="relative">
                   {isEditLoading[entity.id] && (
-                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10 rounded-lg">
+                    <div className="absolute inset-0 bg-white/70 dark:bg-gray-900/60 flex items-center justify-center z-10 rounded-lg">
                       <div className="flex flex-col items-center space-y-2">
                         <Spinner size="lg" variant="primary" />
                         <span className="text-sm font-medium text-violet-600">Loading...</span>

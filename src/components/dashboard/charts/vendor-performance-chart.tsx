@@ -4,7 +4,8 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
+import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, createChartTheme } from '@/gradian-ui/shared/constants/chart-theme';
+import { useTheme } from 'next-themes';
 
 interface VendorPerformanceData {
   vendor: string;
@@ -19,6 +20,12 @@ interface VendorPerformanceChartProps {
 }
 
 export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const chartTheme = useMemo(() => createChartTheme(isDark), [isDark]);
+  const tooltipHeading = isDark ? '#F9FAFB' : '#111827';
+  const tooltipLabel = isDark ? '#94A3B8' : '#374151';
+
   const chartOption = useMemo(() => {
     const vendors = data.map(item => item.vendor);
     const ratings = data.map(item => item.rating);
@@ -26,28 +33,28 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
     const qualityScores = data.map(item => item.qualityScore);
 
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       animation: true,
       animationDuration: CHART_ANIMATION_CONFIG.duration,
       animationEasing: CHART_ANIMATION_CONFIG.easing,
       grid: {
-        ...CHART_THEME.grid,
+        ...chartTheme.grid,
         top: '15%',
         bottom: '15%',
       },
       xAxis: {
-        ...CHART_THEME.xAxis,
+        ...chartTheme.xAxis,
         type: 'category',
         data: vendors,
         axisLabel: {
-          ...CHART_THEME.xAxis.axisLabel,
+          ...chartTheme.xAxis.axisLabel,
           interval: 0,
           rotate: 45,
         },
       },
       yAxis: [
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Rating & Scores',
           nameLocation: 'middle',
@@ -55,12 +62,12 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
           min: 0,
           max: 5,
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => value.toFixed(1),
           },
         },
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'On-Time Delivery (%)',
           nameLocation: 'middle',
@@ -68,7 +75,7 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
           min: 0,
           max: 100,
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => `${value}%`,
           },
           splitLine: {
@@ -160,7 +167,7 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
         },
       ],
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'axis',
         axisPointer: {
           type: 'cross',
@@ -175,26 +182,26 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
           
           return `
             <div style="padding: 12px;">
-              <div style="font-weight: 600; margin-bottom: 8px; color: #111827;">${params[0].axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 8px; color: ${tooltipHeading};">${params[0].axisValue}</div>
               ${ratingParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${ratingParam.color}; border-radius: 2px; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Rating:</span>
-                  <span style="font-weight: 600; color: #111827;">${ratingParam.value}/5.0</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Rating:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${ratingParam.value}/5.0</span>
                 </div>
               ` : ''}
               ${qualityParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${qualityParam.color}; border-radius: 50%; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Quality Score:</span>
-                  <span style="font-weight: 600; color: #111827;">${qualityParam.value}/5.0</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Quality Score:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${qualityParam.value}/5.0</span>
                 </div>
               ` : ''}
               ${deliveryParam ? `
                 <div style="display: flex; align-items: center;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${deliveryParam.color}; border-radius: 0; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">On-Time Delivery:</span>
-                  <span style="font-weight: 600; color: #111827;">${deliveryParam.value}%</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">On-Time Delivery:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${deliveryParam.value}%</span>
                 </div>
               ` : ''}
             </div>
@@ -202,16 +209,17 @@ export function VendorPerformanceChart({ data }: VendorPerformanceChartProps) {
         },
       },
       legend: {
-        ...CHART_THEME.legend,
-        top: '5%',
-        right: '5%',
-        orient: 'vertical',
-        itemGap: 15,
+        ...chartTheme.legend,
+        top: '4%',
+        left: '2%',
+        orient: 'horizontal',
+        align: 'left',
+        itemGap: 18,
         itemWidth: 14,
         itemHeight: 14,
       },
     };
-  }, [data]);
+  }, [chartTheme, data, tooltipHeading, tooltipLabel]);
 
   return (
     <motion.div

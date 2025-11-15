@@ -57,32 +57,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
         navigationSchemas={navigationSchemas}
       />
 
-      {/* User Profile */}
-      <div className="mt-auto border-t border-gray-800 p-4 sm:block lg:hidden flex flex-row flex-nowrap">
-        <UserProfileSelector
-          className={cn(
-            isCollapsed && !isMobile ? "justify-center" : ""
-          )}
-          config={{
-            layout: {
-              variant: 'dropdown',
-              size: isCollapsed && !isMobile ? 'sm' : 'md',
-              showAvatar: true,
-              showName: !isCollapsed || isMobile,
-              showEmail: false,
-              showRole: false,
-              showStatus: false,
-              fullWidth: true,
-              popoverPlacement: 'auto',
-            },
-            styling: {
-              variant: 'minimal',
-              theme: 'dark',
-              rounded: true,
-            },
-          }}
-        />
-        <ModeToggle />
+      {/* User Profile / Mode Toggle */}
+      <div className="mt-auto border-t border-gray-800 p-4">
+        <div className="flex items-center gap-3">
+          <UserProfileSelector
+            className={cn(
+              "flex-1",
+              isCollapsed && !isMobile ? "justify-center" : ""
+            )}
+            theme="dark"
+            config={{
+              layout: {
+                variant: 'dropdown',
+                size: isCollapsed && !isMobile ? 'sm' : 'md',
+                showAvatar: true,
+                showName: !isCollapsed || isMobile,
+                showEmail: false,
+                showRole: false,
+                showStatus: false,
+                fullWidth: true,
+                popoverPlacement: 'auto',
+              },
+              styling: {
+                variant: 'minimal',
+                theme: 'dark',
+                rounded: true,
+              },
+            }}
+          />
+          <div className="shrink-0">
+            <ModeToggle />
+          </div>
+        </div>
       </div>
     </motion.div>
   );

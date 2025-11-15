@@ -105,12 +105,12 @@ export function SortableSection({
       <div ref={setNodeRef} style={style} className="relative">
         <Card className={`w-full border hover:shadow-sm transition-all duration-200 ${
           isDragging 
-            ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white' 
+            ? 'border-violet-400 shadow-lg ring-2 ring-violet-400 bg-white dark:bg-gray-900' 
             : isInactive
-              ? 'border-gray-300 bg-gray-50 opacity-60'
+              ? 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 opacity-60'
             : isIncomplete 
-              ? 'border-amber-300 bg-amber-50/50 ring-1 ring-amber-200' 
-              : 'border-gray-200 bg-white'
+              ? 'border-amber-300 dark:border-amber-500 bg-amber-50/50 dark:bg-amber-500/10 ring-1 ring-amber-200 dark:ring-amber-500/40' 
+              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
         }`}>
           <div className="p-6">
             <div className="flex items-center justify-between gap-3">
@@ -119,7 +119,7 @@ export function SortableSection({
                   {...attributes}
                   {...listeners}
                   className={`cursor-grab active:cursor-grabbing transition-colors p-0.5 ${
-                    isInactive ? 'text-gray-300' : 'text-gray-400 hover:text-gray-600'
+                    isInactive ? 'text-gray-300 dark:text-gray-600' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                   }`}
                 >
                   <GripVertical className="h-4 w-4" />
@@ -128,15 +128,15 @@ export function SortableSection({
                   <div className="flex items-center gap-2">
                     <h4 className={`text-md font-semibold truncate ${
                       isInactive 
-                        ? 'text-gray-500' 
+                        ? 'text-gray-500 dark:text-gray-400' 
                         : isIncomplete 
-                          ? 'text-amber-700' 
-                          : 'text-gray-900'
+                          ? 'text-amber-700 dark:text-amber-400' 
+                          : 'text-gray-900 dark:text-gray-100'
                     }`}>
                       {section.title || 'Untitled Section'}
                     </h4>
                     {isInactive && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600">
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-200">
                         Inactive
                       </Badge>
                     )}
@@ -160,7 +160,7 @@ export function SortableSection({
                         <Badge 
                           variant="primary" 
                           size="sm" 
-                          className="cursor-pointer hover:bg-blue-200 transition-colors"
+                          className="cursor-pointer hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors"
                         >
                           {targetSchemaName}
                         </Badge>
@@ -171,7 +171,7 @@ export function SortableSection({
                       </Badge>
                     )}
                     {isIncomplete && fields.length === 0 && !section.isRepeatingSection && (
-                      <span className="text-xs text-amber-600 ml-1">
+                      <span className="text-xs text-amber-600 dark:text-amber-400 ml-1">
                         • No fields are selected
                       </span>
                     )}
@@ -179,10 +179,10 @@ export function SortableSection({
                   {section.description && (
                     <p className={`text-xs truncate mt-0.5 ${
                       isInactive 
-                        ? 'text-gray-400' 
+                        ? 'text-gray-400 dark:text-gray-500' 
                         : isIncomplete 
-                          ? 'text-amber-600' 
-                          : 'text-gray-500'
+                          ? 'text-amber-600 dark:text-amber-400' 
+                          : 'text-gray-500 dark:text-gray-400'
                     }`}>
                       {section.description}
                     </p>

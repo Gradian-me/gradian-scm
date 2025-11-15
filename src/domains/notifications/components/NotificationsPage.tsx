@@ -195,39 +195,38 @@ export function NotificationsPage() {
               <CardTitle className="text-lg text-gray-900 dark:text-gray-100">Search & Filter</CardTitle>
               <div className="w-full md:w-auto">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-flow-col lg:auto-cols-max gap-2">
-                <Select
-                  options={groupByOptions}
-                  value={groupBy}
-                  onValueChange={(value) => updateGroupBy(value as any)}
-                  placeholder="Group by..."
-                  config={{ name: 'groupBy', label: '' }}
-                  size="sm"
-                  className="w-full sm:w-[180px] md:w-[140px]"
-                  className="w-full"
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="w-full"
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-                {unreadCount > 0 && (
-                  <Button
-                    variant="default"
+                  <Select
+                    options={groupByOptions}
+                    value={groupBy}
+                    onValueChange={(value) => updateGroupBy(value as any)}
+                    placeholder="Group by..."
+                    config={{ name: 'groupBy', label: '' }}
                     size="sm"
-                    onClick={markAllAsRead}
-                    className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                    className="w-full"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="w-full"
                   >
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Mark All Read
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
                   </Button>
-                )}
+                  {unreadCount > 0 && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={markAllAsRead}
+                      className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Mark All Read
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

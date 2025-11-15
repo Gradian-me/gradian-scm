@@ -14,16 +14,30 @@ interface UserProfileDropdownProps {
   userAvatar?: string;
   userInitials?: string;
   userId?: string;
+  variant?: 'light' | 'dark';
 }
 
 export function UserProfileDropdown({ 
   userName = "Mahyar Abidi", 
   userAvatar = "/avatars/mahyar.jpg", 
   userInitials = "MA",
-  userId = "mahyar" // Default user ID
+  userId = "mahyar", // Default user ID
+  variant = "light"
 }: UserProfileDropdownProps) {
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+  const isDarkVariant = variant === 'dark';
+  const buttonClasses = cn(
+    "flex items-center space-x-2 h-10 rounded-lg border px-3 transition-colors duration-200",
+    isDarkVariant
+      ? "border-gray-700 bg-gray-900 text-gray-200 hover:bg-gray-800"
+      : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50",
+    "dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/30",
+    isDarkVariant
+      ? "focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+      : "focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -48,8 +62,9 @@ export function UserProfileDropdown({
   if (!isMounted) {
     return (
       <Button 
+        type="button"
         variant="ghost" 
-        className="flex items-center space-x-2"
+        className={buttonClasses}
         aria-label="User profile menu"
         disabled
       >
@@ -59,10 +74,14 @@ export function UserProfileDropdown({
           fallback={userInitials}
           size="md"
           variant="primary"
-          className="border border-gray-100"
+          className={cn(
+            "border",
+            isDarkVariant ? "border-gray-700" : "border-gray-100",
+            "dark:border-gray-700"
+          )}
         />
-        <span className="text-sm font-medium">{userName}</span>
-        <ChevronDown className="h-4 w-4" />
+        <span className="text-sm font-medium truncate">{userName}</span>
+        <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-300" />
       </Button>
     );
   }
@@ -71,8 +90,9 @@ export function UserProfileDropdown({
     <DropdownMenuPrimitive.Root>
         <DropdownMenuPrimitive.Trigger asChild>
           <Button 
+            type="button"
             variant="ghost" 
-            className="flex items-center space-x-2"
+            className={buttonClasses}
             aria-label="User profile menu"
           >
           <Avatar
@@ -81,17 +101,25 @@ export function UserProfileDropdown({
             fallback={userInitials}
             size="md"
             variant="primary"
-            className="border border-gray-100"
+            className={cn(
+              "border",
+              isDarkVariant ? "border-gray-700" : "border-gray-100",
+              "dark:border-gray-700"
+            )}
           />
-          <span className="text-sm font-medium">{userName}</span>
-          <ChevronDown className="h-4 w-4" />
+          <span className="text-sm font-medium truncate">{userName}</span>
+          <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-300" />
         </Button>
       </DropdownMenuPrimitive.Trigger>
       
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           className={cn(
-            "z-50 min-w-32 overflow-hidden rounded-xl border border-gray-200 bg-white p-1 text-gray-900 shadow-lg",
+            "z-50 min-w-32 overflow-hidden rounded-xl border p-1 shadow-lg backdrop-blur-sm",
+            isDarkVariant
+              ? "border-gray-700 bg-gray-900/95 text-gray-100"
+              : "border-gray-200 bg-white/95 text-gray-900",
+            "dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-100",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -101,16 +129,17 @@ export function UserProfileDropdown({
           align="end"
           sideOffset={4}
         >
-          <DropdownMenuPrimitive.Label className="px-2 py-1.5 text-sm font-semibold text-gray-900">
+          <DropdownMenuPrimitive.Label className="px-2 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
             My Account
           </DropdownMenuPrimitive.Label>
           
-          <DropdownMenuPrimitive.Separator className="-mx-1 my-1 h-px bg-gray-200" />
+          <DropdownMenuPrimitive.Separator className="-mx-1 my-1 h-px bg-gray-200 dark:bg-gray-700" />
           
           <DropdownMenuPrimitive.Item
             className={cn(
               "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none",
-              "hover:bg-violet-50 focus:bg-violet-50"
+              "hover:bg-violet-50 focus:bg-violet-50",
+              "dark:hover:bg-violet-500/10 dark:focus:bg-violet-500/10"
             )}
             onSelect={handleProfileClick}
           >
@@ -120,19 +149,20 @@ export function UserProfileDropdown({
           <DropdownMenuPrimitive.Item
             className={cn(
               "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none",
-              "hover:bg-violet-50 focus:bg-violet-50"
+              "hover:bg-violet-50 focus:bg-violet-50",
+              "dark:hover:bg-violet-500/10 dark:focus:bg-violet-500/10"
             )}
             onSelect={handleSettingsClick}
           >
             Settings
           </DropdownMenuPrimitive.Item>
           
-          <DropdownMenuPrimitive.Separator className="-mx-1 my-1 h-px bg-gray-200" />
+          <DropdownMenuPrimitive.Separator className="-mx-1 my-1 h-px bg-gray-200 dark:bg-gray-700" />
           
           <DropdownMenuPrimitive.Item
             className={cn(
               "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none text-red-600",
-              "hover:bg-red-50 focus:bg-red-50"
+              "hover:bg-red-50 focus:bg-red-50 dark:hover:bg-red-500/10 dark:focus:bg-red-500/10"
             )}
             onSelect={handleLogout}
           >

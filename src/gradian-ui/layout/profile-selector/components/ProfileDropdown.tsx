@@ -52,10 +52,10 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   const isDarkTheme = (config.styling?.theme || 'light') === 'dark';
   const buttonClasses = cn(
-    'flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 text-sm justify-between bg-white dark:bg-gray-800',
+    'flex items-center gap-2 h-10 px-3 rounded-lg transition-all duration-200 text-sm justify-between focus:outline-none focus:ring-2',
     isDarkTheme
-      ? 'bg-gray-800 text-gray-200 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600'
-      : 'hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 text-gray-900 bg-white'
+      ? 'border border-gray-700 bg-gray-900 text-gray-100 hover:bg-gray-800 focus:ring-gray-600'
+      : 'border border-gray-200 bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-200'
   );
 
   const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-50';

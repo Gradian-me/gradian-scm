@@ -400,7 +400,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                         fallback={getInitials(cardConfig.avatarField)}
                         size="lg"
                         variant="primary"
-                        className="border border-gray-100"
+                        className="border border-gray-100 dark:border-gray-700"
                       >
                         {getInitials(cardConfig.avatarField)}
                       </Avatar>
@@ -501,7 +501,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   className="w-full mb-2"
                   whileHover={{ x: 2, transition: { duration: 0.15} }}
                 >
-                  <p className="text-xs text-gray-600 line-clamp-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
                     {renderHighlightedText(description, normalizedHighlightQuery)}
                   </p>
                 </motion.div>
@@ -550,9 +550,9 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                   initial={disableAnimation ? false : { opacity: 0, y: 10 }}
                   animate={disableAnimation ? false : { opacity: 1, y: 0 }}
                   transition={disableAnimation ? {} : { duration: 0.3}}
-                  className="w-full mb-2 border-t border-gray-100 pt-2 mt-2"
+                  className="w-full mb-2 border-t border-gray-100 dark:border-gray-800 pt-2 mt-2"
                 >
-                  <div className="text-xs text-gray-500 mb-1">Performance:</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Performance:</div>
                   <DynamicMetricRenderer
                     metrics={cardConfig.metricsField}
                     maxMetrics={maxMetrics}
@@ -564,7 +564,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
 
               {/* Separator after metrics */}
               {Array.isArray(cardConfig.metricsField) && cardConfig.metricsField.length > 0 && (
-                <div className="w-full border-t border-gray-100 mb-3"></div>
+                <div className="w-full border-t border-gray-100 dark:border-gray-800 mb-3"></div>
               )}
 
               {/* Due Date Countdown */}
@@ -621,7 +621,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                       fallback={getInitials(cardConfig.avatarField)}
                       size="md"
                       variant="primary"
-                      className="border border-gray-100"
+                      className="border border-gray-100 dark:border-gray-700"
                     >
                       {getInitials(cardConfig.avatarField)}
                     </Avatar>

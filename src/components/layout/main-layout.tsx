@@ -15,6 +15,7 @@ import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileSelector } from './UserProfileSelector';
 import type { HeaderConfig } from '@/gradian-ui/layout/header';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
+import { useTheme } from 'next-themes';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -53,6 +54,8 @@ export function MainLayout({
   navigationSchemas,
 }: MainLayoutProps) {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
+  const profileTheme = resolvedTheme === 'dark' ? 'dark' : 'light';
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notificationCount] = useState(3);
@@ -116,7 +119,7 @@ export function MainLayout({
         variant="ghost"
         size="icon"
         onClick={toggleMobileMenu}
-        className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+        className="md:hidden text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
         aria-label="Toggle sidebar"
       >
         <PanelLeftOpen className="h-5 w-5" />
@@ -142,7 +145,7 @@ export function MainLayout({
               variant="ghost"
               size="sm"
               onClick={handleEditSchemaClick}
-              className="hidden md:inline-flex h-8 w-8 p-0 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+              className="hidden md:inline-flex h-8 w-8 p-0 hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-300 transition-colors"
               aria-label="Edit schema"
               title="Edit schema"
             >
@@ -155,7 +158,7 @@ export function MainLayout({
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="text-sm text-gray-500 mt-0.5 hidden lg:block"
+            className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 hidden lg:block"
           >
             {subtitle}
           </motion.p>
@@ -170,7 +173,7 @@ export function MainLayout({
         <CompanySelector />
         <ModeToggle />
         <NotificationsDropdown initialCount={5} />
-        <UserProfileSelector />
+        <UserProfileSelector theme={profileTheme} />
       </div>
       <div className="flex lg:hidden items-center space-x-2">
         <Button
@@ -204,7 +207,7 @@ export function MainLayout({
   );
 
   return (
-    <div className="flex h-screen bg-gray-50 relative">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 relative">
       {/* Desktop Sidebar - Fixed Position */}
       <div className="hidden md:block fixed left-0 top-0 h-full z-30">
         <Sidebar 
@@ -271,7 +274,7 @@ export function MainLayout({
           config={headerConfig}
           brandContent={headerBrandContent}
           actionsContent={headerActionsContent}
-          className="bg-white border-b border-gray-200"
+          className="bg-white/90 border-b border-gray-200 dark:bg-gray-900/80 dark:border-gray-700 backdrop-blur-sm"
         />
 
         {/* Page Content */}
@@ -279,7 +282,7 @@ export function MainLayout({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50 dark:bg-gray-800"
+          className="flex-1 overflow-y-auto p-2 md:p-4 lg:p-6 bg-gray-50 dark:bg-gray-900"
           data-scroll-container="main-content"
         >
           <div className="max-w-7xl mx-auto w-full">

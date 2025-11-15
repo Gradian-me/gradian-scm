@@ -187,8 +187,8 @@ export default function CalendarPage() {
           className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:items-center"
         >
           <div className="text-center sm:text-left space-y-1">
-            <h2 className="text-2xl font-bold text-gray-900">Tender Calendar</h2>
-            <p className="text-gray-600">Track important dates and deadlines</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Tender Calendar</h2>
+            <p className="text-gray-600 dark:text-gray-400">Track important dates and deadlines</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button variant="outline" className="w-full sm:w-auto justify-center">
@@ -215,7 +215,7 @@ export default function CalendarPage() {
                   <AlertCircle className="h-5 w-5 text-red-500" />
                   <div>
                     <div className="text-2xl font-bold text-red-500">{overdueEvents.length}</div>
-                    <div className="text-sm text-gray-600">Overdue</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Overdue</div>
                   </div>
                 </div>
               </CardContent>
@@ -233,7 +233,7 @@ export default function CalendarPage() {
                   <Clock className="h-5 w-5 text-yellow-500" />
                   <div>
                     <div className="text-2xl font-bold text-yellow-500">{todayEvents.length}</div>
-                    <div className="text-sm text-gray-600">Today</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Today</div>
                   </div>
                 </div>
               </CardContent>
@@ -251,7 +251,7 @@ export default function CalendarPage() {
                   <Calendar className="h-5 w-5 text-blue-500" />
                   <div>
                     <div className="text-2xl font-bold text-blue-500">{upcomingEvents.length}</div>
-                    <div className="text-sm text-gray-600">Upcoming</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Upcoming</div>
                   </div>
                 </div>
               </CardContent>
@@ -269,7 +269,7 @@ export default function CalendarPage() {
                   <CheckCircle className="h-5 w-5 text-green-500" />
                   <div>
                     <div className="text-2xl font-bold text-green-500">{completedEvents.length}</div>
-                    <div className="text-sm text-gray-600">Completed</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Completed</div>
                   </div>
                 </div>
               </CardContent>
@@ -288,19 +288,19 @@ export default function CalendarPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-gray-800">
+                  <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-gray-200">
                     <AlertCircle className="h-5 w-5" />
                     <span>Overdue Events</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {overdueEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 bg-red-50">
-                      <div className="flex items-center space-x-3 text-gray-800">
+                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40">
+                      <div className="flex items-center space-x-3 text-gray-800 dark:text-gray-200">
                         {getEventTypeIcon(event.type)}
                         <div>
                           <div className="font-medium">{event.title}</div>
-                          <div className="text-sm text-gray-600">{formatDate(event.date)}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{formatDate(event.date)}</div>
                         </div>
                       </div>
                       <Badge variant="destructive">{getDaysUntilEvent(event.date)}</Badge>
@@ -320,19 +320,19 @@ export default function CalendarPage() {
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-gray-800">
+                  <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-gray-200">
                     <Clock className="h-5 w-5" />
                     <span>Today's Events</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {todayEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-yellow-200 bg-yellow-50">
-                      <div className="flex items-center space-x-3 text-gray-800">
+                    <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/30">
+                      <div className="flex items-center space-x-3 text-gray-800 dark:text-gray-200">
                         {getEventTypeIcon(event.type)}
                         <div>
                           <div className="font-medium">{event.title}</div>
-                          <div className="text-sm text-gray-600">{formatTime(event.date)}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{formatTime(event.date)}</div>
                         </div>
                       </div>
                       <Badge variant="warning">Today</Badge>
@@ -351,19 +351,19 @@ export default function CalendarPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-gray-200">
                   <Calendar className="h-5 w-5" />
                   <span>Upcoming Events</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {upcomingEvents.map((event) => (
-                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-indigo-100 bg-indigo-50 hover:bg-gray-50">
-                    <div className="flex items-center space-x-3 text-gray-800">
+                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-gray-50 dark:hover:bg-gray-900 dark:bg-gray-900">
+                    <div className="flex items-center space-x-3 text-gray-800 dark:text-gray-200">
                       {getEventTypeIcon(event.type)}
                       <div>
                         <div className="font-medium">{event.title}</div>
-                        <div className="text-sm text-gray-600">{formatDate(event.date)}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{formatDate(event.date)}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -386,19 +386,19 @@ export default function CalendarPage() {
           >
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-gray-800">
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-gray-200">
                   <CheckCircle className="h-5 w-5" />
                   <span>Recently Completed</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {completedEvents.map((event) => (
-                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-green-200 bg-green-50">
-                    <div className="flex items-center space-x-3 text-gray-800">
+                  <div key={event.id} className="flex items-center justify-between p-3 rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30">
+                    <div className="flex items-center space-x-3 text-gray-800 dark:text-gray-200">
                       {getEventTypeIcon(event.type)}
                       <div>
                         <div className="font-medium">{event.title}</div>
-                        <div className="text-sm text-gray-600">{formatDate(event.date)}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{formatDate(event.date)}</div>
                       </div>
                     </div>
                     <Badge variant="success">Completed</Badge>
@@ -412,3 +412,5 @@ export default function CalendarPage() {
     </MainLayout>
   );
 }
+
+

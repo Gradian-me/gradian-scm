@@ -38,90 +38,102 @@ export const CHART_ANIMATION_CONFIG = {
   delay: (idx: number) => idx * 100,
 };
 
-export const CHART_THEME = {
-  color: CHART_COLOR_PALETTE,
-  backgroundColor: 'transparent',
-  textStyle: {
-    fontFamily: 'Inter, system-ui, sans-serif',
-    fontSize: 12,
-    color: '#374151',
-  },
-  title: {
-    textStyle: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 16,
-      fontWeight: '600',
-      color: '#111827',
-    },
-  },
-  legend: {
+export const createChartTheme = (isDark = false) => {
+  const textPrimary = isDark ? '#E5E7EB' : '#374151';
+  const textSecondary = isDark ? '#CBD5F5' : '#6B7280';
+  const titleColor = isDark ? '#F9FAFB' : '#111827';
+  const axisColor = isDark ? '#475569' : '#E5E7EB';
+  const gridColor = isDark ? '#1E293B' : '#F3F4F6';
+  const tooltipBackground = isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)';
+  const tooltipBorder = isDark ? '#1E293B' : '#E5E7EB';
+
+  return {
+    color: CHART_COLOR_PALETTE,
+    backgroundColor: 'transparent',
     textStyle: {
       fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: 12,
-      color: '#6B7280',
+      color: textPrimary,
     },
-  },
-  tooltip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    textStyle: {
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 12,
-      color: '#374151',
-    },
-    extraCssText: 'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); border-radius: 8px;',
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '3%',
-    containLabel: true,
-  },
-  xAxis: {
-    axisLine: {
-      lineStyle: {
-        color: '#E5E7EB',
+    title: {
+      textStyle: {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: 16,
+        fontWeight: '600',
+        color: titleColor,
       },
     },
-    axisTick: {
-      lineStyle: {
-        color: '#E5E7EB',
+    legend: {
+      textStyle: {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: 12,
+        color: textSecondary,
       },
     },
-    axisLabel: {
-      color: '#6B7280',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 11,
+    tooltip: {
+      backgroundColor: tooltipBackground,
+      borderColor: tooltipBorder,
+      borderWidth: 1,
+      textStyle: {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: 12,
+        color: textPrimary,
+      },
+      extraCssText: 'box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.2); border-radius: 8px;',
     },
-    splitLine: {
-      lineStyle: {
-        color: '#F3F4F6',
-        type: 'dashed',
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true,
+    },
+    xAxis: {
+      axisLine: {
+        lineStyle: {
+          color: axisColor,
+        },
+      },
+      axisTick: {
+        lineStyle: {
+          color: axisColor,
+        },
+      },
+      axisLabel: {
+        color: textSecondary,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: 11,
+      },
+      splitLine: {
+        lineStyle: {
+          color: gridColor,
+          type: 'dashed',
+        },
       },
     },
-  },
-  yAxis: {
-    axisLine: {
-      lineStyle: {
-        color: '#E5E7EB',
+    yAxis: {
+      axisLine: {
+        lineStyle: {
+          color: axisColor,
+        },
+      },
+      axisTick: {
+        lineStyle: {
+          color: axisColor,
+        },
+      },
+      axisLabel: {
+        color: textSecondary,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: 11,
+      },
+      splitLine: {
+        lineStyle: {
+          color: gridColor,
+          type: 'dashed',
+        },
       },
     },
-    axisTick: {
-      lineStyle: {
-        color: '#E5E7EB',
-      },
-    },
-    axisLabel: {
-      color: '#6B7280',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: 11,
-    },
-    splitLine: {
-      lineStyle: {
-        color: '#F3F4F6',
-        type: 'dashed',
-      },
-    },
-  },
+  };
 };
+
+export const CHART_THEME = createChartTheme(false);

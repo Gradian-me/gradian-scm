@@ -71,21 +71,21 @@ export function DashboardPage() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-12"
         >
-          <div className="bg-white rounded-2xl p-8 shadow-modern border border-gray-200">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-modern border border-gray-200 dark:border-gray-800">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
               Welcome back, Mahyar! 👋
             </h2>
-            <p className="text-lg text-gray-600 mb-6">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
               Here's what's happening with your business today.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
                 🚀 3 New Vendors This Week
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
                 📈 15% Cost Savings
               </Badge>
-              <Badge variant="secondary" className="text-sm px-3 py-1">
+              <Badge variant="secondary" className="text-sm px-3 py-1 dark:bg-gray-800 dark:text-gray-200">
                 ⚡ 98% On-Time Delivery
               </Badge>
             </div>
@@ -99,9 +99,9 @@ export function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 text-red-800">
+                <div className="flex items-center gap-2 text-red-800 dark:text-red-300">
                   <Shield className="h-4 w-4" />
                   <span className="font-medium">Error:</span>
                   <span>{error}</span>
@@ -210,7 +210,7 @@ export function DashboardPage() {
                   <TrendingUp className="h-5 w-5" />
                   <span>Recent Activity</span>
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Latest updates from your business operations.
                 </p>
               </CardHeader>
@@ -222,11 +222,11 @@ export function DashboardPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 dark:bg-gray-900 transition-colors"
                     >
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm text-gray-900">{activity.title}</h4>
-                        <p className="text-xs text-gray-600">
+                        <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{activity.title}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           {activity.userName} • {new Date(activity.timestamp).toLocaleString()}
                         </p>
                       </div>
@@ -252,11 +252,11 @@ export function DashboardPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 dark:bg-gray-900 transition-colors"
                       >
                         <div className="flex-1">
-                          <h4 className="font-medium text-sm text-gray-900">{activity.title}</h4>
-                          <p className="text-xs text-gray-600">
+                          <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{activity.title}</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             {activity.userName} • {activity.timestamp.toLocaleString()}
                           </p>
                         </div>
@@ -271,7 +271,7 @@ export function DashboardPage() {
                             activity.type === 'tender_published' ? 'bg-green-100 text-green-800' :
                             activity.type === 'po_created' ? 'bg-violet-100 text-violet-800' :
                             activity.type === 'po_approved' ? 'bg-emerald-100 text-emerald-800' :
-                            'bg-gray-100 text-gray-800'
+                            'bg-gray-100 text-gray-800 dark:text-gray-200'
                           }`}
                         >
                           {activity.type.replace('_', ' ')}
@@ -296,7 +296,7 @@ export function DashboardPage() {
                   <CheckCircle className="h-5 w-5" />
                   <span>Upcoming Deadlines</span>
                 </CardTitle>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Important dates and deadlines to keep track of.
                 </p>
               </CardHeader>
@@ -308,14 +308,14 @@ export function DashboardPage() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 dark:bg-gray-900 transition-colors"
                     >
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm text-gray-900">{deadline.title}</h4>
-                        <p className="text-xs text-gray-600">
+                        <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{deadline.title}</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           {deadline.description}
                         </p>
-                        <p className="text-xs text-gray-700 mt-1">
+                        <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                           Due: {new Date(deadline.dueDate).toLocaleDateString()}
                         </p>
                       </div>
@@ -340,23 +340,23 @@ export function DashboardPage() {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
-                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 dark:bg-gray-900 transition-colors"
                       >
                         <div className="flex-1">
-                          <h4 className="font-medium text-sm text-gray-900">{deadline.title}</h4>
-                          <p className="text-xs text-gray-600">
+                          <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100">{deadline.title}</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
                             {deadline.description}
                           </p>
-                          <p className="text-xs text-gray-700 mt-1">
+                          <p className="text-xs text-gray-700 dark:text-gray-300 mt-1">
                             Due: {deadline.dueDate.toLocaleDateString()}
                           </p>
                         </div>
                         <Badge 
                           variant={deadline.priority === 'high' ? 'destructive' : deadline.priority === 'medium' ? 'default' : 'secondary'}
                           className={`text-xs ${
-                            deadline.priority === 'high' ? 'bg-red-100 text-red-800 border-red-200' :
-                            deadline.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                            'bg-gray-100 text-gray-800 border-gray-200'
+                            deadline.priority === 'high' ? 'bg-red-100 text-red-800 border-red-200 dark:border-red-800' :
+                            deadline.priority === 'medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:border-yellow-800' :
+                            'bg-gray-100 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-800'
                           }`}
                         >
                           {deadline.priority}
@@ -387,22 +387,22 @@ export function DashboardPage() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center">
-                    <h4 className="text-lg font-semibold text-gray-900">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {performanceMetrics.vendorPerformance?.averageRating?.toFixed(1) || 'N/A'}
                     </h4>
-                    <p className="text-sm text-gray-600">Average Vendor Rating</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Average Vendor Rating</p>
                   </div>
                   <div className="text-center">
-                    <h4 className="text-lg font-semibold text-gray-900">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {performanceMetrics.procurementEfficiency?.averageProcessingTime || 'N/A'} days
                     </h4>
-                    <p className="text-sm text-gray-600">Average Processing Time</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Average Processing Time</p>
                   </div>
                   <div className="text-center">
-                    <h4 className="text-lg font-semibold text-gray-900">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       ${performanceMetrics.procurementEfficiency?.costSavings?.toLocaleString() || 'N/A'}
                     </h4>
-                    <p className="text-sm text-gray-600">Cost Savings</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Cost Savings</p>
                   </div>
                 </div>
               </CardContent>
@@ -413,3 +413,5 @@ export function DashboardPage() {
     </MainLayout>
   );
 }
+
+

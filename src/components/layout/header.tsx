@@ -7,6 +7,7 @@ import { CompanySelector } from './CompanySelector';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { UserProfileSelector } from './UserProfileSelector';
 import { TestDropdown } from './TestDropdown';
+import { useTheme } from 'next-themes';
 
 interface HeaderProps {
   title: string;
@@ -21,6 +22,8 @@ export function Header({
   createButtonText = "Create",
   onCreateClick 
 }: HeaderProps) {
+  const { resolvedTheme } = useTheme();
+  const profileTheme = resolvedTheme === 'dark' ? 'dark' : 'light';
   const handleCreateClick = () => {
     if (onCreateClick) {
       onCreateClick();
@@ -47,7 +50,7 @@ export function Header({
           <NotificationsDropdown initialCount={3} />
 
           {/* User Profile Component */}
-          <UserProfileSelector />
+          <UserProfileSelector theme={profileTheme} />
 
           {/* Create Button */}
           {showCreateButton && (

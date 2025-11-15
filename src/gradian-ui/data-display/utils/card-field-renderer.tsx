@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { DynamicMetricRenderer } from '../components/DynamicMetricRenderer';
 import { formatNumber } from '../../shared/utils/number-formatter';
+import { cn } from '../../shared/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RenderFieldValueProps {
@@ -200,8 +201,8 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
   if (field.type === 'date' || field.type === 'datetime-local') {
     const dateValue = formatDateValue(value);
     return withTooltip(
-      <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-        {customIcon || <IconRenderer iconName="Calendar" className="h-4 w-4 shrink-0" />}
+      <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+        {customIcon || <IconRenderer iconName="Calendar" className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400" />}
         <span>{dateValue}</span>
       </div>,
       field
@@ -211,23 +212,23 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
   switch (field.type) {
     case 'email':
       return withTooltip(
-        <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {customIcon || <IconRenderer iconName="Mail" className="h-4 w-4 shrink-0" />}
+        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+          {customIcon || <IconRenderer iconName="Mail" className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400" />}
           <span className="truncate">{normalizedSingle ?? value}</span>
         </div>,
         field
       );
     case 'tel':
       return withTooltip(
-        <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {customIcon || <IconRenderer iconName="Phone" className="h-4 w-4 shrink-0" />}
+        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+          {customIcon || <IconRenderer iconName="Phone" className="h-4 w-4 shrink-0 text-gray-500 dark:text-gray-400" />}
           <span>{normalizedSingle ?? value}</span>
         </div>,
         field
       );
     case 'textarea':
       return withTooltip(
-        <div className="text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
+        <div className="text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
           <span className="line-clamp-2">{normalizedSingle ?? value}</span>
         </div>,
         field
@@ -279,8 +280,8 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       );
     case 'select':
       return withTooltip(
-        <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {customIcon || <IconRenderer iconName="Text" className="h-3 w-3 shrink-0" />}
+        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+          {customIcon || <IconRenderer iconName="Text" className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400" />}
           <span>{value}</span>
         </div>,
         field
@@ -295,8 +296,8 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       const displayValue = Number.isFinite(parsedValue) ? formatNumber(parsedValue) : value;
 
       return withTooltip(
-        <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-          {customIcon || <IconRenderer iconName="Hash" className="h-3 w-3 shrink-0" />}
+        <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+          {customIcon || <IconRenderer iconName="Hash" className="h-3 w-3 shrink-0 text-gray-500 dark:text-gray-400" />}
           <span className="whitespace-nowrap">{displayValue}</span>
         </div>,
         field
@@ -311,8 +312,10 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       // For default text fields, use custom icon if provided
       if (customIcon) {
         return withTooltip(
-          <div className="flex items-center space-x-2 text-gray-600 group-hover:text-gray-800 transition-colors duration-200">
-            {customIcon}
+          <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 group-hover:text-gray-800 dark:group-hover:text-gray-100 transition-colors duration-200">
+            {React.cloneElement(customIcon, {
+              className: cn(customIcon.props.className, 'text-gray-500 dark:text-gray-400')
+            })}
             <span>{displayValue}</span>
           </div>,
           field
@@ -321,7 +324,10 @@ export const renderFieldValue = ({ field, value, maxMetrics = 3 }: RenderFieldVa
       const stringValue = String(value);
       const isUrl = stringValue.startsWith('http://') || stringValue.startsWith('https://') || stringValue.startsWith('//');
       return (
-        <span className={isUrl || stringValue.length > 50 ? "overflow-wrap-anywhere" : undefined}>
+        <span className={cn(
+          isUrl || stringValue.length > 50 ? "overflow-wrap-anywhere" : undefined,
+          "text-gray-700 dark:text-gray-200"
+        )}>
           {normalizedSingle ?? stringValue}
         </span>
       );

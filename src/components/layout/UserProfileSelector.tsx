@@ -11,6 +11,7 @@ interface UserProfileSelectorProps {
   config?: Partial<ProfileSelectorConfig>;
   onProfileSelect?: (profile: UserProfile) => void;
   className?: string;
+  theme?: 'light' | 'dark';
 }
 
 /**
@@ -21,10 +22,12 @@ export function UserProfileSelector({
   config: customConfig,
   onProfileSelect,
   className,
+  theme,
 }: UserProfileSelectorProps) {
   const user = useUserStore((state) => state.user);
   const router = useRouter();
   const [hasAccessToken, setHasAccessToken] = useState<boolean>(true);
+  const derivedTheme = theme ?? customConfig?.styling?.theme ?? 'light';
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
@@ -47,7 +50,7 @@ export function UserProfileSelector({
   }, [user]);
 
   // Default config
-  const defaultConfig: ProfileSelectorConfig = {
+  const baseConfig: ProfileSelectorConfig = {
     id: 'user-profile-selector',
     name: 'user-profile-selector',
     title: 'Profile',
@@ -66,7 +69,7 @@ export function UserProfileSelector({
     },
     styling: {
       variant: 'default',
-      theme: 'light',
+      theme: derivedTheme,
       rounded: true,
     },
     behavior: {
@@ -75,7 +78,24 @@ export function UserProfileSelector({
       sortable: false,
       multiSelect: false,
     },
+  };
+
+  const mergedConfig: ProfileSelectorConfig = {
+    ...baseConfig,
     ...customConfig,
+    layout: {
+      ...baseConfig.layout,
+      ...(customConfig?.layout ?? {}),
+    },
+    styling: {
+      ...baseConfig.styling,
+      ...(customConfig?.styling ?? {}),
+      theme: customConfig?.styling?.theme ?? derivedTheme,
+    },
+    behavior: {
+      ...baseConfig.behavior,
+      ...(customConfig?.behavior ?? {}),
+    },
   };
 
   // Profiles array (just the logged-in user for now)
@@ -145,7 +165,7 @@ export function UserProfileSelector({
 
   return (
     <ProfileSelector
-      config={defaultConfig}
+      config={mergedConfig}
       profiles={profiles}
       currentProfile={userProfile}
       onProfileSelect={handleProfileSelect}

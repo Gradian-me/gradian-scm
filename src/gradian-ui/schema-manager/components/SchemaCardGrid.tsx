@@ -47,8 +47,8 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
     >
       <Card className={`hover:shadow-sm transition-all duration-200 h-full flex flex-col border ${
         isInactive 
-          ? 'border-gray-300 bg-gray-50 opacity-60' 
-          : 'border-gray-200'
+          ? 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 opacity-60' 
+          : 'border-gray-200 dark:border-gray-700 dark:bg-gray-900'
       }`}>
         <CardHeader className="pb-3 pt-4 px-4">
           <div className="flex items-start justify-between">
@@ -60,7 +60,9 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
                     className={`h-5 w-5 shrink-0 ${isInactive ? 'text-gray-400' : 'text-violet-600'}`} 
                   />
                 )}
-                <CardTitle className={`text-base font-semibold truncate ${isInactive ? 'text-gray-500' : ''}`}>
+                <CardTitle className={`text-base font-semibold truncate ${
+                  isInactive ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'
+                }`}>
                   {schema.plural_name}
                 </CardTitle>
                 {isInactive && (
@@ -70,7 +72,9 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
                 )}
               </div>
               {schema.description && (
-                <p className={`text-xs line-clamp-1 mt-1 ${isInactive ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-xs line-clamp-1 mt-1 ${
+                  isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'
+                }`}>
                   {schema.description}
                 </p>
               )}
@@ -107,7 +111,9 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
           </div>
         </CardHeader>
         <CardContent className="pt-2 px-4 pb-4">
-          <div className={`flex items-center gap-4 text-xs ${isInactive ? 'text-gray-400' : 'text-gray-500'}`}>
+          <div className={`flex items-center gap-4 text-xs ${
+            isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'
+          }`}>
             <div className="flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" />
               <span>{schema.sections?.length || 0} Sections</span>
@@ -158,7 +164,7 @@ export function SchemaCardSkeletonGrid({ count = 6 }: SchemaCardSkeletonGridProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: animationDelay, ease: 'easeOut' }}
           >
-            <Card className="h-full flex flex-col border border-gray-200">
+            <Card className="h-full flex flex-col border border-gray-200 dark:border-gray-700 dark:bg-gray-900">
               <CardHeader className="pb-3 pt-4 px-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">

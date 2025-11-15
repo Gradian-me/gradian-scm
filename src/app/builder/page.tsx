@@ -130,7 +130,7 @@ export default function BuilderPage() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-start justify-between gap-4 mb-4 w-full flex-wrap">
-            <p className="text-gray-600 text-md max-w-4xl">
+            <p className="text-gray-600 dark:text-gray-400 text-md max-w-4xl">
               Use the builders below to configure your application.
               Define schemas for your entities and establish relationships between them.
             </p>
@@ -191,22 +191,22 @@ export default function BuilderPage() {
                         <CardTitle className="text-lg font-semibold">{option.title}</CardTitle>
                       </div>
                       <ArrowRight 
-                        className="h-4 w-4 text-gray-400 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all shrink-0"
+                        className="h-4 w-4 text-gray-400 dark:text-gray-500 group-hover:text-violet-600 group-hover:translate-x-0.5 transition-all shrink-0"
                       />
                     </div>
-                    <CardDescription className="text-sm text-gray-600 leading-snug">
+                    <CardDescription className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
                       {option.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-0 px-4 pb-4">
                     {/* Features List */}
-                    <Label className="text-xs text-gray-600 font-medium">Features</Label>
+                    <Label className="text-xs text-gray-600 dark:text-gray-400 font-medium">Features</Label>
                     {option.features && option.features.length > 0 && (
                       <div className="space-y-1.5 mb-3">
                         {option.features.map((feature, idx) => (
                           <div 
                             key={idx}
-                            className="text-xs text-gray-600 flex items-center gap-1.5"
+                            className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5"
                           >
                             <div 
                               className="w-1 h-1 rounded-full shrink-0"
@@ -220,7 +220,7 @@ export default function BuilderPage() {
                     
                     {/* Stats */}
                     {option.stats && option.stats.length > 0 && (
-                      <div className="flex items-center gap-3 text-xs text-gray-500 pt-2 border-t border-gray-100 mb-3">
+                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700 mb-3">
                         {option.stats.map((stat, idx) => (
                           <div key={idx} className="flex items-center gap-1.5">
                             {stat.label === 'Sections' && <Layers className="h-3.5 w-3.5" />}
@@ -232,7 +232,7 @@ export default function BuilderPage() {
                     )}
 
                     {/* CTA Button */}
-                    <div className="pt-2 border-t border-gray-100">
+                    <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
                       <CTAButton
                         label={`Open ${option.title}`}
                         onClick={(e?: React.MouseEvent<HTMLButtonElement>) => {
@@ -256,17 +256,17 @@ export default function BuilderPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="bg-blue-50 border border-blue-200 rounded-lg p-6"
+          className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6"
         >
-          <h3 className="text-lg font-semibold text-blue-900 mb-2 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-2">
             <Palette className="h-5 w-5" />
             Getting Started
           </h3>
-          <p className="text-blue-800 mb-4">
+          <p className="text-blue-800 dark:text-blue-200 mb-4">
             Start by creating a schema for your entities, then define relationships between them. 
             Each builder provides a visual interface to configure your data models.
           </p>
-          <div className="flex flex-wrap gap-2 text-sm text-blue-700">
+          <div className="flex flex-wrap gap-2 text-sm text-blue-700 dark:text-blue-200">
             <span className="font-semibold">Tip:</span>
             <span>Schemas define the structure of your data, while relation types connect different entities together.</span>
           </div>
@@ -288,7 +288,7 @@ function BuilderSkeletonGrid() {
           transition={{ duration: 0.3, delay: index * 0.05 }}
           className="h-full"
         >
-          <div className="flex h-full flex-col justify-between rounded-xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm">
+          <div className="flex h-full flex-col justify-between rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 md:p-5 shadow-sm">
             <div className="space-y-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -312,7 +312,7 @@ function BuilderSkeletonGrid() {
             </div>
 
             <div className="space-y-4 pt-4">
-              <div className="flex flex-wrap gap-3 border-t border-dashed border-gray-200 pt-4">
+              <div className="flex flex-wrap gap-3 border-t border-dashed border-gray-200 dark:border-gray-800 pt-4">
                 {Array.from({ length: 3 }).map((_, statIdx) => (
                   <div key={`stat-skeleton-${statIdx}`} className="flex items-center gap-2">
                     <Skeleton className="h-4 w-4 rounded-md" />
@@ -321,7 +321,7 @@ function BuilderSkeletonGrid() {
                 ))}
               </div>
 
-              <div className="border-t border-gray-100 pt-4">
+              <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
                 <Skeleton className="h-10 w-full rounded-lg" />
               </div>
             </div>
@@ -331,4 +331,6 @@ function BuilderSkeletonGrid() {
     </div>
   );
 }
+
+
 

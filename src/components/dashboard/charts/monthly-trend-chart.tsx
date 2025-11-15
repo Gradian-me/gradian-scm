@@ -4,7 +4,8 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
+import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, createChartTheme } from '@/gradian-ui/shared/constants/chart-theme';
+import { useTheme } from 'next-themes';
 
 interface MonthlyTrendData {
   month: string;
@@ -17,34 +18,40 @@ interface MonthlyTrendChartProps {
 }
 
 export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const chartTheme = useMemo(() => createChartTheme(isDark), [isDark]);
+  const tooltipHeading = isDark ? '#F9FAFB' : '#111827';
+  const tooltipLabel = isDark ? '#94A3B8' : '#374151';
+
   const chartOption = useMemo(() => {
     const months = data.map(item => item.month);
     const spendData = data.map(item => item.spend);
     const ordersData = data.map(item => item.orders);
 
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       animation: true,
       animationDuration: CHART_ANIMATION_CONFIG.duration,
       animationEasing: CHART_ANIMATION_CONFIG.easing,
       grid: {
-        ...CHART_THEME.grid,
+        ...chartTheme.grid,
         top: '26%',
         bottom: '18%',
       },
       xAxis: {
-        ...CHART_THEME.xAxis,
+        ...chartTheme.xAxis,
         type: 'category',
         data: months,
         axisLabel: {
-          ...CHART_THEME.xAxis.axisLabel,
+          ...chartTheme.xAxis.axisLabel,
           interval: 0,
           rotate: 0,
         },
       },
       yAxis: [
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Spend ($)',
           nameLocation: 'middle',
@@ -54,16 +61,16 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             fontWeight: '600',
           },
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => `$${(value / 1000).toFixed(0)}k`,
           },
           splitLine: {
-            ...CHART_THEME.yAxis.splitLine,
+            ...chartTheme.yAxis.splitLine,
             show: true,
           },
         },
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Orders',
           nameLocation: 'middle',
@@ -73,7 +80,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
             fontWeight: '600',
           },
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: (value: number) => value.toString(),
           },
           splitLine: {
@@ -147,7 +154,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         },
       ],
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'axis',
         axisPointer: {
           type: 'cross',
@@ -161,19 +168,19 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
           
           return `
             <div style="padding: 12px;">
-              <div style="font-weight: 600; margin-bottom: 8px; color: #111827;">${params[0].axisValue}</div>
+              <div style="font-weight: 600; margin-bottom: 8px; color: ${tooltipHeading};">${params[0].axisValue}</div>
               ${spendParam ? `
                 <div style="display: flex; align-items: center; margin-bottom: 4px;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${spendParam.color}; border-radius: 2px; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Monthly Spend:</span>
-                  <span style="font-weight: 600; color: #111827;">$${spendParam.value.toLocaleString()}</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Monthly Spend:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">$${spendParam.value.toLocaleString()}</span>
                 </div>
               ` : ''}
               ${ordersParam ? `
                 <div style="display: flex; align-items: center;">
                   <span style="display: inline-block; width: 10px; height: 10px; background: ${ordersParam.color}; border-radius: 50%; margin-right: 8px;"></span>
-                  <span style="margin-right: 8px;">Orders:</span>
-                  <span style="font-weight: 600; color: #111827;">${ordersParam.value}</span>
+                  <span style="margin-right: 8px; color: ${tooltipLabel};">Orders:</span>
+                  <span style="font-weight: 600; color: ${tooltipHeading};">${ordersParam.value}</span>
                 </div>
               ` : ''}
             </div>
@@ -181,7 +188,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         },
       },
       legend: {
-        ...CHART_THEME.legend,
+        ...chartTheme.legend,
         top: '4%',
         left: '2%',
         orient: 'horizontal',
@@ -191,7 +198,7 @@ export function MonthlyTrendChart({ data }: MonthlyTrendChartProps) {
         itemHeight: 14,
       },
     };
-  }, [data]);
+  }, [chartTheme, data, tooltipHeading, tooltipLabel]);
 
   return (
     <motion.div

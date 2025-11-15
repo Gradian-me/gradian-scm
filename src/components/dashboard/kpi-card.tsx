@@ -33,9 +33,9 @@ export function KPICard({
       whileHover={{ y: -2, scale: 1.005 }}
       className="group"
     >
-      <Card className="relative overflow-hidden border-0 bg-white hover:shadow-lg transition-all duration-300">
+      <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-sm font-semibold text-gray-600 group-hover:text-violet-700 transition-colors">
+          <CardTitle className="text-sm font-semibold text-gray-600 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
             {title}
           </CardTitle>
           <div className="p-2 rounded-xl bg-violet-600 text-white shadow-sm group-hover:bg-violet-700 transition-all duration-300">
@@ -45,14 +45,14 @@ export function KPICard({
         
         <CardContent className="space-y-3">
           <div className="flex items-baseline space-x-3">
-            <div className="text-3xl font-bold text-gray-900 group-hover:text-violet-900 transition-colors">
+            <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-violet-900 dark:group-hover:text-violet-200 transition-colors">
               {value}
             </div>
             {trend && (
               <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${
                 trend.isPositive 
-                  ? 'bg-emerald-100 text-emerald-700' 
-                  : 'bg-red-100 text-red-700'
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' 
+                  : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
               }`}>
                 {trend.isPositive ? (
                   <TrendingUp className="h-3 w-3" />
@@ -66,7 +66,7 @@ export function KPICard({
             )}
           </div>
           {subtitle && (
-            <p className="text-sm text-gray-500 group-hover:text-violet-600 transition-colors">
+            <p className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors">
               {subtitle}
             </p>
           )}

@@ -28,7 +28,8 @@ import {
 import { motion } from 'framer-motion';
 import { DashboardMetrics, SpendAnalysis, MonthlyTrend } from '@/types';
 import ReactECharts from 'echarts-for-react';
-import { CHART_ANIMATION_CONFIG, CHART_COLOR_PALETTE, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
+import { CHART_ANIMATION_CONFIG, CHART_COLOR_PALETTE, createChartTheme } from '@/gradian-ui/shared/constants/chart-theme';
+import { useTheme } from 'next-themes';
 
 export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -37,6 +38,9 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('last12');
   const [activeTab, setActiveTab] = useState<'spend' | 'vendor' | 'funnel' | 'analysis' | 'risk'>('spend');
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const chartTheme = useMemo(() => createChartTheme(isDark), [isDark]);
 
   const tabs = [
     { id: 'spend' as const, label: 'Spend Analysis' },
@@ -60,14 +64,14 @@ export default function AnalyticsPage() {
   const vendorPerformanceOption = useMemo(() => {
     const categories = vendorPerformanceData.map(item => item.name);
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       grid: {
-        ...CHART_THEME.grid,
+        ...chartTheme.grid,
         top: '28%',
         bottom: '18%',
       },
       legend: {
-        ...CHART_THEME.legend,
+        ...chartTheme.legend,
         data: ['On-Time Delivery', 'Quality Score', 'Responsiveness'],
         top: '5%',
         left: '2%',
@@ -78,28 +82,28 @@ export default function AnalyticsPage() {
         itemHeight: 14,
       },
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'axis',
         axisPointer: {
           type: 'shadow',
         },
       },
       xAxis: {
-        ...CHART_THEME.xAxis,
+        ...chartTheme.xAxis,
         type: 'category',
         data: categories,
         axisLabel: {
-          ...CHART_THEME.xAxis.axisLabel,
+          ...chartTheme.xAxis.axisLabel,
           interval: 0,
           rotate: 0,
         },
       },
       yAxis: {
-        ...CHART_THEME.yAxis,
+        ...chartTheme.yAxis,
         type: 'value',
         max: 100,
         axisLabel: {
-          ...CHART_THEME.yAxis.axisLabel,
+          ...chartTheme.yAxis.axisLabel,
           formatter: (value: number) => `${value}%`,
         },
       },
@@ -138,7 +142,7 @@ export default function AnalyticsPage() {
       animationDuration: CHART_ANIMATION_CONFIG.duration,
       animationEasing: CHART_ANIMATION_CONFIG.easing,
     };
-  }, [vendorPerformanceData]);
+  }, [chartTheme, vendorPerformanceData]);
 
   const tenderFunnelData = useMemo(
     () => [
@@ -153,9 +157,9 @@ export default function AnalyticsPage() {
 
   const tenderFunnelOption = useMemo(
     () => ({
-      ...CHART_THEME,
+      ...chartTheme,
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'item',
         formatter: (params: any) => `
           <div style="padding: 8px;">
@@ -196,7 +200,7 @@ export default function AnalyticsPage() {
         },
       ],
     }),
-    [tenderFunnelData]
+    [chartTheme, tenderFunnelData]
   );
 
   const tenderCycleData = useMemo(
@@ -216,42 +220,45 @@ export default function AnalyticsPage() {
   const tenderAnalysisOption = useMemo(() => {
     const months = tenderCycleData.map(item => item.month);
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       grid: {
-        ...CHART_THEME.grid,
+        ...chartTheme.grid,
         top: '20%',
         bottom: '20%',
       },
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'axis',
       },
       legend: {
-        ...CHART_THEME.legend,
+        ...chartTheme.legend,
         data: ['Avg Cycle Time', 'Tenders Awarded'],
         top: '2%',
+        left: '2%',
+        orient: 'horizontal',
+        align: 'left',
       },
       xAxis: {
-        ...CHART_THEME.xAxis,
+        ...chartTheme.xAxis,
         type: 'category',
         data: months,
       },
       yAxis: [
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Cycle Time (days)',
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: '{value}d',
           },
         },
         {
-          ...CHART_THEME.yAxis,
+          ...chartTheme.yAxis,
           type: 'value',
           name: 'Awards',
           axisLabel: {
-            ...CHART_THEME.yAxis.axisLabel,
+            ...chartTheme.yAxis.axisLabel,
             formatter: '{value}',
           },
         },
@@ -282,7 +289,7 @@ export default function AnalyticsPage() {
         },
       ],
     };
-  }, [tenderCycleData]);
+  }, [chartTheme, tenderCycleData]);
 
   const riskDimensions = useMemo(
     () => [
@@ -298,7 +305,7 @@ export default function AnalyticsPage() {
 
   const riskRadarOption = useMemo(
     () => ({
-      ...CHART_THEME,
+      ...chartTheme,
       radar: {
         indicator: riskDimensions.map(dim => ({ name: dim.name, max: 100 })),
         splitArea: {
@@ -308,13 +315,16 @@ export default function AnalyticsPage() {
         radius: '52%',
       },
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'item',
       },
       legend: {
-        ...CHART_THEME.legend,
+        ...chartTheme.legend,
         show: true,
         top: '2%',
+        left: '2%',
+        orient: 'horizontal',
+        align: 'left',
       },
       series: [
         {
@@ -335,7 +345,7 @@ export default function AnalyticsPage() {
         },
       ],
     }),
-    [riskDimensions]
+    [chartTheme, riskDimensions]
   );
 
   useEffect(() => {
@@ -380,8 +390,8 @@ export default function AnalyticsPage() {
           className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between md:items-center"
         >
           <div className="text-center sm:text-left space-y-1">
-            <h2 className="text-2xl font-bold text-gray-900">Analytics & Reporting</h2>
-            <p className="text-gray-600">Comprehensive insights into your business performance</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics & Reporting</h2>
+            <p className="text-gray-600 dark:text-gray-400">Comprehensive insights into your business performance</p>
           </div>
         </motion.div>
 
@@ -475,7 +485,7 @@ export default function AnalyticsPage() {
             onValueChange={value => setActiveTab(value as typeof activeTab)}
             className="w-full"
           >
-            <FormTabsList className="min-w-full bg-gray-100">
+            <FormTabsList className="min-w-full bg-gray-100 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
               {tabs.map(tab => (
                 <FormTabsTrigger
                   key={tab.id}
@@ -511,15 +521,15 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Transfarma</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Transfarma</span>
                       <Badge variant="success">4.8</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Ottana Pharmed</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Ottana Pharmed</span>
                       <Badge variant="success">4.5</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Exapilog</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Exapilog</span>
                       <Badge variant="warning">4.2</Badge>
                     </div>
                   </CardContent>
@@ -540,15 +550,15 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Spend Growth</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Spend Growth</span>
                       <span className="text-sm font-medium text-green-600">+12.5%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Order Volume</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Order Volume</span>
                       <span className="text-sm font-medium text-blue-600">+8.3%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Cost Savings</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Cost Savings</span>
                       <span className="text-sm font-medium text-green-600">+5.8%</span>
                     </div>
                   </CardContent>
@@ -570,9 +580,9 @@ export default function AnalyticsPage() {
                   <CardContent>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-green-600 mb-2">94.2%</div>
-                      <p className="text-sm text-gray-600">Above industry average</p>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
-                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '94.2%' }}></div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Above industry average</p>
+                      <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 mt-3">
+                        <div className="bg-green-600 dark:bg-green-500 h-2 rounded-full" style={{ width: '94.2%' }}></div>
                       </div>
                     </div>
                   </CardContent>
@@ -616,15 +626,15 @@ export default function AnalyticsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {vendorPerformanceData.map(vendor => (
-                    <div key={vendor.name} className="border-b border-gray-100 pb-4 last:border-none last:pb-0">
+                    <div key={vendor.name} className="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-none last:pb-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-900">{vendor.name}</span>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vendor.name}</span>
                         <Badge variant="outline">{vendor.value.toFixed(1)}M</Badge>
                       </div>
-                      <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-500">
-                        <span>On-Time: <span className="text-gray-700 font-medium">{vendor.onTime}%</span></span>
-                        <span>Quality: <span className="text-gray-700 font-medium">{vendor.quality}%</span></span>
-                        <span>Responsiveness: <span className="text-gray-700 font-medium">{vendor.responsiveness}%</span></span>
+                      <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                        <span>On-Time: <span className="text-gray-700 dark:text-gray-300 font-medium">{vendor.onTime}%</span></span>
+                        <span>Quality: <span className="text-gray-700 dark:text-gray-300 font-medium">{vendor.quality}%</span></span>
+                        <span>Responsiveness: <span className="text-gray-700 dark:text-gray-300 font-medium">{vendor.responsiveness}%</span></span>
                       </div>
                     </div>
                   ))}
@@ -672,10 +682,10 @@ export default function AnalyticsPage() {
                     return (
                       <div key={stage.stage} className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-gray-900">{stage.stage}</span>
-                          <span className="text-gray-500">{stage.value} tenders</span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{stage.stage}</span>
+                          <span className="text-gray-500 dark:text-gray-400">{stage.value} tenders</span>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
                           <div
                             className="h-2 rounded-full"
                             style={{
@@ -684,9 +694,9 @@ export default function AnalyticsPage() {
                             }}
                           />
                         </div>
-                        <div className="text-xs text-gray-500 flex items-center justify-between">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
                           <span>Conversion</span>
-                          <span className="font-medium text-gray-700">{conversion}%</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">{conversion}%</span>
                         </div>
                       </div>
                     );
@@ -729,17 +739,17 @@ export default function AnalyticsPage() {
                 <CardHeader>
                   <CardTitle>Insights Summary</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm text-gray-600">
+                <CardContent className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
                   <div>
-                    <p className="font-semibold text-gray-900 mb-1">Cycle Time Improvement</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Cycle Time Improvement</p>
                     <p>Average tender cycle time improved by 11 days over the past six months.</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 mb-1">Award Conversion</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Award Conversion</p>
                     <p>62% of published tenders progressed to award stage, driven by improved supplier engagement.</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 mb-1">High-Value Awards</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">High-Value Awards</p>
                     <p>Top three awards accounted for 45% of total tender value in the last quarter.</p>
                   </div>
                 </CardContent>
@@ -782,20 +792,20 @@ export default function AnalyticsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Overall Risk Score</span>
+                    <span className="text-gray-600 dark:text-gray-400">Overall Risk Score</span>
                     <Badge variant="success">Low (18%)</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">High-Risk Vendors</span>
-                    <span className="font-semibold text-gray-900">3</span>
+                    <span className="text-gray-600 dark:text-gray-400">High-Risk Vendors</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">3</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Compliance Alerts</span>
+                    <span className="text-gray-600 dark:text-gray-400">Compliance Alerts</span>
                     <span className="font-semibold text-yellow-600">5 open</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 mb-2">Top Risk Drivers</p>
-                    <ul className="space-y-2 text-gray-600">
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Top Risk Drivers</p>
+                    <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                       <li>• Supply chain disruptions in APAC region</li>
                       <li>• Pending compliance certifications for two vendors</li>
                       <li>• Increased cybersecurity monitoring following new integrations</li>
@@ -810,3 +820,5 @@ export default function AnalyticsPage() {
     </MainLayout>
   );
 }
+
+

@@ -91,21 +91,21 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
         <div className="flex flex-col">
           <div className="flex items-center">
             {metric.icon && (
-              <span className="mr-1 text-gray-500">
+              <span className="mr-1 text-gray-500 dark:text-gray-400">
                 <IconRenderer iconName={metric.icon} className="h-3 w-3" />
               </span>
             )}
-            <span className="text-xs text-gray-500">{pascalCaseLabel}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{pascalCaseLabel}</span>
             {metric.subLabel && (
-              <span className="text-[0.6rem] text-gray-400 ml-1">
+              <span className="text-[0.6rem] text-gray-400 dark:text-gray-500 ml-1">
                 ({metric.subLabel})
               </span>
             )}
-            <span className="text-xs text-gray-500 ml-0.5">:</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400 ml-0.5">:</span>
           </div>
         </div>
         <div className="flex items-center">
-          <span className="text-xs font-medium text-gray-700">
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
             {formatNumber(metric.value)}
             {metric.unit && <span className="text-xs ml-0.5">{metric.unit}</span>}
           </span>
@@ -127,8 +127,11 @@ export const DynamicMetricRenderer: React.FC<DynamicMetricRendererProps> = ({
         initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.15, delay: idx * 0.01 }}
-        whileHover={{ scale: 1.01, backgroundColor: 'rgba(0, 0, 0, 0.05)' }}
-        className="px-1 py-0.5 rounded-lg"
+        whileHover={{
+          scale: 1.01,
+          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+        }}
+        className="px-1 py-0.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60"
       >
         {metricContent}
       </motion.div>

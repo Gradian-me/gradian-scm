@@ -4,7 +4,8 @@ import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, CHART_THEME } from '@/gradian-ui/shared/constants/chart-theme';
+import { CHART_COLOR_PALETTE, CHART_ANIMATION_CONFIG, createChartTheme } from '@/gradian-ui/shared/constants/chart-theme';
+import { useTheme } from 'next-themes';
 
 interface SpendAnalysisData {
   category: string;
@@ -18,6 +19,12 @@ interface SpendAnalysisChartProps {
 }
 
 export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const chartTheme = useMemo(() => createChartTheme(isDark), [isDark]);
+  const labelColor = isDark ? '#E5E7EB' : '#374151';
+  const tooltipSubtle = isDark ? '#94A3B8' : '#6B7280';
+
   const chartOption = useMemo(() => {
     const chartData = data.map((item, index) => ({
       name: item.category,
@@ -37,7 +44,7 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
     }));
 
     return {
-      ...CHART_THEME,
+      ...chartTheme,
       animation: true,
       animationDuration: CHART_ANIMATION_CONFIG.duration,
       animationEasing: CHART_ANIMATION_CONFIG.easing,
@@ -59,7 +66,7 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
             formatter: '{b}\n{d}%',
             fontSize: 11,
             fontWeight: '500',
-            color: '#374151',
+            color: labelColor,
           },
           labelLine: {
             show: true,
@@ -84,7 +91,7 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
         },
       ],
       tooltip: {
-        ...CHART_THEME.tooltip,
+        ...chartTheme.tooltip,
         trigger: 'item',
         formatter: (params: any) => {
           return `
@@ -94,28 +101,28 @@ export function SpendAnalysisChart({ data }: SpendAnalysisChartProps) {
                 <span style="display: inline-block; width: 10px; height: 10px; background: ${params.color}; border-radius: 50%; margin-right: 8px;"></span>
                 <span>Amount: $${params.value.toLocaleString()}</span>
               </div>
-              <div style="color: #6B7280; font-size: 11px;">${params.percent}% of total spend</div>
+              <div style="color: ${tooltipSubtle}; font-size: 11px;">${params.percent}% of total spend</div>
             </div>
           `;
         },
       },
       legend: {
-        ...CHART_THEME.legend,
-        top: '4%',
+        ...chartTheme.legend,
+        top: '2%',
         left: '2%',
-        orient: 'vertical',
+        orient: 'horizontal',
         align: 'left',
-        itemGap: 12,
+        itemGap: 16,
         icon: 'circle',
         itemWidth: 12,
         itemHeight: 12,
         textStyle: {
-          ...CHART_THEME.legend.textStyle,
+          ...(chartTheme.legend?.textStyle ?? {}),
           fontSize: 11,
         },
       },
     };
-  }, [data]);
+  }, [chartTheme, data, labelColor, tooltipSubtle]);
 
   return (
     <motion.div
