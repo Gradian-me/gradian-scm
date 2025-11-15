@@ -1179,8 +1179,8 @@
           "fieldIds": [
             "address",
             "city",
-            "state",
-            "zip-code"
+            "zip-code",
+            "state"
           ]
         }
       ]
@@ -1623,7 +1623,9 @@
         "colSpan": 1,
         "fieldIds": [
           "net-price",
-          "currency"
+          "transport-type",
+          "currency",
+          "vendor"
         ]
       }
     ],

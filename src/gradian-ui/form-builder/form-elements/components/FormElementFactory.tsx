@@ -368,6 +368,7 @@ export const FormElementFactory: React.FC<FormElementFactoryProps> = (props) => 
           showIcon={(config as any).showIcon !== false}
           size={(config as any).size || 'md'}
           className={restProps.className}
+          fieldLabel={(config as any).label || (config as any).name || ''}
         />
       );
     

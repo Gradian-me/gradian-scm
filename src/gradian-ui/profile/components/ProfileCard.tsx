@@ -7,11 +7,14 @@ import { formatProfileFieldValue } from '../utils';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { cn } from '../../shared/utils';
+import { motion } from 'framer-motion';
 
 export interface ProfileCardProps {
   section: ProfileSection;
   className?: string;
 }
+
+const MotionCard = motion(Card);
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({ section, className }) => {
   const { title, description, icon, fields, layout } = section;
@@ -28,17 +31,28 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ section, className }) 
   );
 
   return (
-    <Card className={cn("h-auto bg-white border border-gray-200 shadow-sm", className)}>
-      <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl">
+    <MotionCard
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.4, 0.0, 0.2, 1] }}
+      whileHover={{ translateY: -4, scale: 1.005 }}
+      whileTap={{ scale: 0.997 }}
+      className={cn(
+        "h-full bg-white border border-gray-200 shadow-sm",
+        "dark:bg-gray-900/60 dark:border-gray-700",
+        className
+      )}
+    >
+      <CardHeader className="bg-gray-50/50 border-b border-gray-200 pb-4 rounded-t-2xl dark:bg-gray-800/60 dark:border-gray-700">
         <div className="flex items-center gap-2">
-          {icon && <IconRenderer iconName={icon} className="h-5 w-5 text-gray-600" />}
-          <CardTitle className="text-base font-semibold text-gray-900">{title}</CardTitle>
+          {icon && <IconRenderer iconName={icon} className="h-5 w-5 text-gray-600 dark:text-gray-300" />}
+          <CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-50">{title}</CardTitle>
         </div>
         {description && (
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{description}</p>
         )}
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="pt-6 dark:bg-transparent">
         <div className={gridClasses}>
           {fields.map((field) => (
             <div key={field.id} className="space-y-1">
@@ -55,7 +69,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ section, className }) 
           ))}
         </div>
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 };
 

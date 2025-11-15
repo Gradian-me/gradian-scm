@@ -35,7 +35,8 @@ export function TableBody<T = any>({
     cn(
       'transition-colors',
       striped && index % 2 === 1 && 'bg-gray-50 dark:bg-gray-700',
-      hoverable && 'hover:bg-gray-100 cursor-pointer',
+      hoverable && 'hover:bg-gray-100',
+      hoverable && onRowClick && 'cursor-pointer',
       isSelected && 'bg-blue-50',
       bordered && 'border-b border-gray-200 dark:border-gray-500'
     );

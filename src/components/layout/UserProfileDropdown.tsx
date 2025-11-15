@@ -17,6 +17,8 @@ interface UserProfileDropdownProps {
   variant?: 'light' | 'dark';
 }
 
+const DROPDOWN_Z_INDEX = 2147483000;
+
 export function UserProfileDropdown({ 
   userName = "Mahyar Abidi", 
   userAvatar = "/avatars/mahyar.jpg", 
@@ -115,7 +117,7 @@ export function UserProfileDropdown({
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           className={cn(
-            "z-50 min-w-32 overflow-hidden rounded-xl border p-1 shadow-lg backdrop-blur-sm",
+            "min-w-32 overflow-hidden rounded-xl border p-1 shadow-lg backdrop-blur-sm",
             isDarkVariant
               ? "border-gray-700 bg-gray-900/95 text-gray-100"
               : "border-gray-200 bg-white/95 text-gray-900",
@@ -128,6 +130,7 @@ export function UserProfileDropdown({
           )}
           align="end"
           sideOffset={4}
+          style={{ zIndex: DROPDOWN_Z_INDEX }}
         >
           <DropdownMenuPrimitive.Label className="px-2 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
             My Account

@@ -5,6 +5,8 @@ import { ProfileDropdownProps } from '../types';
 import { cn } from '../../../shared/utils';
 import { Settings, User, LogOut, ChevronDown, Key } from 'lucide-react';
 
+const DROPDOWN_Z_INDEX = 2147483000;
+
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   profiles,
   currentProfile,
@@ -58,7 +60,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
       : 'border border-gray-200 bg-white text-gray-900 hover:bg-gray-100 focus:ring-gray-200'
   );
 
-  const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-50';
+  const panelBaseClasses = 'absolute rounded-xl shadow-lg border transition-all duration-200 z-[9999]';
   const panelThemeClasses = isDarkTheme
     ? 'bg-gray-900 border-gray-700 text-gray-100'
     : 'bg-white border-gray-100 text-gray-900';
@@ -180,6 +182,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             bottom: panelPlacement === 'top' ? '100%' : 'auto',
             marginTop: panelPlacement === 'bottom' ? '0.5rem' : undefined,
             marginBottom: panelPlacement === 'top' ? '0.5rem' : undefined,
+            zIndex: DROPDOWN_Z_INDEX,
           }}
           ref={panelRef}
         >

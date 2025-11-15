@@ -259,7 +259,7 @@ export interface AvatarProps extends BaseComponentProps {
   src?: string;
   alt?: string;
   fallback: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
   variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
 }
 

@@ -7,6 +7,7 @@ import path from 'path';
 
 import { isDemoModeEnabled, proxySchemaRequest } from '../utils';
 import { getCacheConfigByPath } from '@/gradian-ui/shared/configs/cache-config';
+import { clearCache as clearSharedSchemaCache } from '@/gradian-ui/shared/utils/data-loader';
 
 // Cache for loaded schemas
 let cachedSchemas: any[] | null = null;
@@ -175,9 +176,10 @@ export async function PUT(
     const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
     fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
     
-    // Clear cache to force reload on next request
+    // Clear caches to force reload on next request
     cachedSchemas = null;
     cacheTimestamp = null;
+    clearSharedSchemaCache('schemas');
 
     return NextResponse.json({
       success: true,
@@ -246,9 +248,10 @@ export async function DELETE(
     const dataPath = path.join(process.cwd(), 'data', 'all-schemas.json');
     fs.writeFileSync(dataPath, JSON.stringify(schemas, null, 2), 'utf8');
     
-    // Clear cache to force reload on next request
+    // Clear caches to force reload on next request
     cachedSchemas = null;
     cacheTimestamp = null;
+    clearSharedSchemaCache('schemas');
 
     return NextResponse.json({
       success: true,

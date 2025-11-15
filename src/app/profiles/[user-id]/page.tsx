@@ -60,8 +60,12 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white rounded-xl border border-gray-200 shadow-sm p-8"
+          className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-lg p-8 dark:border-gray-800 bg-white dark:bg-gray-900 isolate"
         >
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-sky-500/10 to-transparent dark:from-violet-500/20 dark:via-sky-500/15" />
+          <div className="absolute -top-16 -right-14 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl" />
+          <div className="absolute -bottom-24 -left-10 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl" />
+          <div className="relative z-10">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Avatar */}
             <div className="shrink-0">
@@ -69,52 +73,61 @@ export default function ProfilePage() {
                 src={profile.avatar}
                 alt={profile.fullName}
                 fallback={getUserInitials(profile)}
-                size="xl"
+                size="3xl"
                 variant="primary"
-                className="border-4 border-white shadow-lg"
+                className="border-4 border-white shadow-lg dark:border-gray-900"
               />
             </div>
             
             {/* User Info */}
             <div className="flex-1 space-y-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{profile.fullName}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{profile.fullName}</h1>
                 {profile.jobTitle && (
-                  <p className="text-lg text-gray-600 mt-1">{profile.jobTitle}</p>
-                )}
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="default" className="text-sm">
-                  {profile.role}
-                </Badge>
-                {profile.department && (
-                  <Badge variant="outline" className="text-sm">
-                    {profile.department}
-                  </Badge>
+                  <p className="text-lg text-gray-600 dark:text-gray-300 mt-1">{profile.jobTitle}</p>
                 )}
               </div>
               
               {profile.bio && (
-                <p className="text-gray-700 max-w-2xl">{profile.bio}</p>
+                <p className="text-gray-700 dark:text-gray-300 max-w-2xl">{profile.bio}</p>
               )}
               
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2 pt-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="dark:border-gray-700 dark:text-gray-200">
                   <Mail className="h-4 w-4 mr-2" />
                   Message
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="dark:border-gray-700 dark:text-gray-200">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="dark:border-gray-700 dark:text-gray-200">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Profile
                 </Button>
               </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <div className="rounded-xl border border-gray-200 bg-white/70 p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+                  <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Projects</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.metrics?.projects ?? 12}</p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white/70 p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+                  <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Experience</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{profile.metrics?.experience ?? 8}<span className="text-sm font-medium text-gray-500 dark:text-gray-300 ml-1">yrs</span></p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white/70 p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+                  <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Rating</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center justify-center gap-1">{profile.metrics?.rating ?? 4.8}<span className="text-xs text-amber-500">★</span></p>
+                </div>
+                <div className="rounded-xl border border-gray-200 bg-white/70 p-4 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900/70">
+                  <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Availability</p>
+                  <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{profile.availability ?? 'Available for new opportunities'}</p>
+                </div>
+              </div>
             </div>
+          </div>
           </div>
         </motion.div>
         

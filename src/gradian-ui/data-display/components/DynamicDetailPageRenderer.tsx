@@ -524,6 +524,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
   
   // Check if avatar field exists in schema
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
+  const duedateFieldLabel = schema?.fields?.find(field => field.role === 'duedate')?.label || 'Due Date';
   const hasRating = headerInfo.rating > 0;
   const hasStatusBadge =
     Boolean(headerInfo.status && headerInfo.status.trim() !== '') ||
@@ -1021,6 +1022,7 @@ export const DynamicDetailPageRenderer: React.FC<DynamicDetailPageRendererProps>
                       includeTime={true}
                       size="sm"
                       showIcon={true}
+                      fieldLabel={duedateFieldLabel}
                     />
                   </div>
                 )}

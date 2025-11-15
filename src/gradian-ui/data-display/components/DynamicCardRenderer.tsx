@@ -86,6 +86,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
   const hasRatingField = schema?.fields?.some(field => field.role === 'rating') || false;
   const hasStatusField = schema?.fields?.some(field => field.role === 'status') || false;
   const hasDuedateField = schema?.fields?.some(field => field.role === 'duedate') || false;
+  const duedateFieldLabel = schema?.fields?.find(field => field.role === 'duedate')?.label || 'Due Date';
   const hasCodeField = schema?.fields?.some(field => field.role === 'code') || false;
   const hasAvatarField = schema?.fields?.some(field => field.role === 'avatar') || false;
 
@@ -580,6 +581,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                     includeTime={true}
                     size="sm"
                     showIcon={true}
+                  fieldLabel={duedateFieldLabel}
                   />
                 </motion.div>
               )}
@@ -735,6 +737,7 @@ export const DynamicCardRenderer: React.FC<DynamicCardRendererProps> = ({
                           includeTime={true}
                           size="sm"
                           showIcon={true}
+                          fieldLabel={duedateFieldLabel}
                         />
                       </motion.div>
                     )}
