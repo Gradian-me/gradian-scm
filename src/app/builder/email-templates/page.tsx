@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Badge } from '@/components/ui/badge';
@@ -91,6 +92,11 @@ export default function EmailTemplateBuilderPage() {
     if (!workingTemplate) return '';
     return renderWithValues(workingTemplate.html, placeholderValues);
   }, [workingTemplate?.html, placeholderValues]);
+
+  const templateApiUrl = useMemo(() => {
+    if (!workingTemplate?.id) return '';
+    return `/api/email-templates/${workingTemplate.id}`;
+  }, [workingTemplate?.id]);
 
   const handleTemplateFieldChange = <K extends keyof EmailTemplate>(field: K, value: EmailTemplate[K]) => {
     if (!workingTemplate) return;
@@ -199,6 +205,14 @@ export default function EmailTemplateBuilderPage() {
       icon="Mail"
     >
       <div className="py-4 md:py-6 space-y-6">
+        <div>
+          <Button asChild variant="ghost" size="sm" className="gap-2 px-3">
+            <Link href="/builder">
+              <ArrowLeft className="h-4 w-4" />
+              Back to builder
+            </Link>
+          </Button>
+        </div>
         <div className="flex flex-col gap-1">
           <p className="text-sm uppercase tracking-widest text-muted-foreground">
             Gradian.me communications
@@ -295,6 +309,15 @@ export default function EmailTemplateBuilderPage() {
                       onChange={(event) => handleTemplateFieldChange('html', event.target.value)}
                     />
                   </div>
+                  {templateApiUrl && (
+                    <div className="space-y-2">
+                      <Label>Template API URL</Label>
+                      <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/40 px-4 py-2 text-sm">
+                        <span className="truncate font-mono text-xs md:text-sm">{templateApiUrl}</span>
+                        <CopyContent content={templateApiUrl} />
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-sm text-muted-foreground">

@@ -80,6 +80,8 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     () => (navigationSchemas ?? []).map((navSchema) => reconstructRegExp(navSchema) as FormSchema),
     [navigationSchemas]
   );
+
+  const pluralName = schema.plural_name || schema.title || schema.name || `${entityName}s`;
   useEffect(() => {
     if (typeof document === 'undefined') {
       return;
@@ -480,7 +482,6 @@ export function DynamicPageRenderer({ schema: rawSchema, entityName, navigationS
     ));
   }, []);
 
-  const pluralName = schema.plural_name || 'Entities';
   const singularName = schema.singular_name || 'Entity';
 
   // Check if user is admin (mock implementation - replace with actual auth context)

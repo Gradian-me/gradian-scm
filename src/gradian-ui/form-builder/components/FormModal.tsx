@@ -5,6 +5,7 @@ import { Modal } from '@/gradian-ui/data-display/components/Modal';
 import { SchemaFormWrapper } from './FormLifecycleManager';
 import { useFormModal, UseFormModalOptions, FormModalMode } from '../hooks/use-form-modal';
 import { Spinner } from '@/components/ui/spinner';
+import { FormAlert } from '@/components/ui/form-alert';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { getValueByRole } from '@/gradian-ui/data-display/utils';
 import { getPrimaryDisplayString, hasDisplayValue } from '@/gradian-ui/data-display/utils/value-display';
@@ -264,28 +265,13 @@ export const FormModal: React.FC<FormModalProps> = ({
 
       {/* Load error */}
       {loadError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-          {loadError}
-          <button
-            onClick={clearLoadError}
-            className="ml-2 text-red-800 underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Form error (shown on top when both error and message exist) */}
-      {formError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-          {formError}
-          <button
-            onClick={clearFormError}
-            className="ml-2 text-red-800 underline"
-          >
-            Dismiss
-          </button>
-        </div>
+        <FormAlert
+          type="error"
+          message={loadError}
+          className="mb-4"
+          dismissible
+          onDismiss={clearLoadError}
+        />
       )}
 
       {/* Form */}
@@ -297,7 +283,7 @@ export const FormModal: React.FC<FormModalProps> = ({
           onReset={() => {}}
           onCancel={closeFormModal}
           initialValues={isEdit && entityData ? entityData : {}}
-          error={formError ? null : null}
+          error={formError || undefined}
           message={formMessage}
           errorStatusCode={formErrorStatusCode}
           onErrorDismiss={clearFormError}

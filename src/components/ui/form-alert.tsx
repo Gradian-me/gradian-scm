@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 interface FormAlertProps {
   type: 'success' | 'error' | 'warning' | 'info';
   message: string;
+  subtitle?: string;
   className?: string;
   onDismiss?: () => void;
   dismissible?: boolean;
@@ -12,14 +13,15 @@ interface FormAlertProps {
   action?: React.ReactNode;
 }
 
-export const FormAlert: React.FC<FormAlertProps> = ({ 
-  type, 
-  message, 
+export const FormAlert: React.FC<FormAlertProps> = ({
+  type,
+  message,
+  subtitle,
   className,
   onDismiss,
   dismissible = false,
   statusCode,
-  action
+  action,
 }) => {
   const icons = {
     success: CheckCircle,
@@ -68,6 +70,11 @@ export const FormAlert: React.FC<FormAlertProps> = ({
           )}
           <p className="text-sm font-medium">{message}</p>
         </div>
+        {subtitle && (
+          <p className="mt-1 text-sm text-current text-opacity-80">
+            {subtitle}
+          </p>
+        )}
         {action && (
           <div className="mt-3 pt-3 border-t border-current border-opacity-20">
             {action}
