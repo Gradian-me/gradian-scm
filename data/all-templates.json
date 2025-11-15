@@ -1,0 +1,12 @@
+[
+  {
+    "id": "password-reset",
+    "name": "Password reset",
+    "description": "Secure link email sent when a user requests a reset.",
+    "subject": "Reset your Gradian.me password",
+    "filePath": "src/app/builder/email-templates/templates/reset-password.html",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]
+

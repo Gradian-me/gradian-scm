@@ -43,6 +43,21 @@
       "Company logo management"
     ],
     "stats": []
+  },
+  {
+    "id": "email-templates",
+    "title": "Email Templates",
+    "description": "Design branded transactional messages, set placeholders, and preview personalized content",
+    "icon": "Mail",
+    "href": "/builder/email-templates",
+    "color": "#EC4899",
+    "features": [
+      "Visual preview renderer",
+      "Dynamic placeholder inputs",
+      "Subject and HTML editors",
+      "Template cloning and reuse"
+    ],
+    "stats": []
   }
 ]
 
