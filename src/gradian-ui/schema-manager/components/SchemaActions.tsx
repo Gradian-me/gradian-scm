@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Save, ArrowLeft, RotateCcw, Loader2, LayoutList } from 'lucide-react';
+import { Save, ArrowLeft, RotateCcw, Loader2, LayoutList, RefreshCw } from 'lucide-react';
 
 interface SchemaActionsProps {
   onBack?: () => void;
@@ -15,6 +15,9 @@ interface SchemaActionsProps {
   saveLabel?: string;
   resetLabel?: string;
   viewSchemaListLabel?: string;
+  onRefresh?: () => void | Promise<void>;
+  refreshing?: boolean;
+  refreshLabel?: string;
 }
 
 export function SchemaActions({ 
@@ -27,7 +30,10 @@ export function SchemaActions({
   backLabel = 'Back to Schemas',
   saveLabel = 'Save Schema',
   resetLabel = 'Reset',
-  viewSchemaListLabel = 'View List'
+  viewSchemaListLabel = 'View List',
+  onRefresh,
+  refreshing = false,
+  refreshLabel = 'Refresh'
 }: SchemaActionsProps) {
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -53,6 +59,17 @@ export function SchemaActions({
             <span className="hidden md:inline">{viewSchemaListLabel}</span>
           </Button>
         ) : null}
+        {onRefresh && (
+          <Button
+            variant="outline"
+            onClick={onRefresh}
+            disabled={refreshing}
+            title={refreshLabel}
+          >
+            <RefreshCw className={`h-4 w-4 md:mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            <span className="hidden md:inline">{refreshLabel}</span>
+          </Button>
+        )}
         {onReset && (
           <Button variant="outline" onClick={onReset}>
             <RotateCcw className="h-4 w-4 md:mr-2" />

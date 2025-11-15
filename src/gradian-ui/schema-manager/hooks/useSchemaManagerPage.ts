@@ -10,6 +10,9 @@ import { MessagesResponse, Message } from '@/gradian-ui/layout/message-box';
 import { config } from '@/lib/config';
 import { useSchemas, SCHEMAS_QUERY_KEY, SCHEMAS_SUMMARY_QUERY_KEY } from './use-schemas';
 import { useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/gradian-ui/shared/utils/api';
+import { clearSchemaCache } from '@/gradian-ui/indexdb-manager/schema-cache';
+import { SCHEMA_SUMMARY_CACHE_KEY } from '@/gradian-ui/indexdb-manager/types';
 
 /**
  * Transform API response messages to MessageBox format
@@ -123,9 +126,22 @@ export const useSchemaManagerPage = () => {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      // Invalidate and refetch schemas from React Query cache
       await invalidateSchemaQueryCaches();
       await refetchSchemas();
+
+      // Force-refresh summary cache so IndexedDB stores the latest snapshot
+      try {
+        await clearSchemaCache(undefined, SCHEMA_SUMMARY_CACHE_KEY);
+        await apiRequest<FormSchema[]>('/api/schemas', {
+          params: {
+            summary: 'true',
+            cacheBust: Date.now().toString(),
+          },
+          callerName: 'SchemaManagerRefresh',
+        });
+      } catch (cacheError) {
+        console.warn('[schema-manager] Failed to refresh summary cache', cacheError);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error refreshing schemas';
       setMessages({

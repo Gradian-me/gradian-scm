@@ -6,9 +6,6 @@ import { SchemaBuilderEditor } from '@/gradian-ui/schema-manager';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 import { Message } from '@/gradian-ui/layout/message-box';
 import { config } from '@/lib/config';
-import { apiRequest } from '@/gradian-ui/shared/utils/api';
-import { useQueryClient } from '@tanstack/react-query';
-import { cacheSchemaClientSide } from '@/gradian-ui/schema-manager/utils/schema-client-cache';
 
 /**
  * Transform API response messages to MessageBox format
@@ -48,7 +45,7 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   const [schemaId, setSchemaId] = useState<string>('');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [apiResponse, setApiResponse] = useState<any>(null);
-  const queryClient = useQueryClient();
+  const [isReloading, setIsReloading] = useState(false);
 
   useEffect(() => {
     params.then((resolvedParams) => {
@@ -57,27 +54,36 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
   }, [params]);
 
   const fetchSchema = async (id: string): Promise<FormSchema> => {
-    const response = await apiRequest<FormSchema>(`/api/schemas/${id}`);
+    const cacheBust = Date.now().toString();
+    const url = `${config.schemaApi.basePath}/${id}?cacheBust=${cacheBust}`;
 
-    if (response.success && response.data) {
-      await cacheSchemaClientSide(response.data, { queryClient });
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success && result.data) {
       setLoadError(null);
       setApiResponse(null); // Clear any previous errors
-      return response.data;
+      return result.data as FormSchema;
     }
 
-    const errorMessage = response.error || 'Failed to load schema';
+    const errorMessage = result.error || 'Failed to load schema';
     console.error('Failed to fetch schema:', errorMessage);
     setLoadError(errorMessage);
 
-    if (response as any && (response as any).messages) {
-      const transformedMessages = transformMessages((response as any).messages);
+    if (result.messages) {
+      const transformedMessages = transformMessages(result.messages);
       setApiResponse({
-        ...(response as any),
+        ...result,
         messages: transformedMessages,
       });
     } else {
-      setApiResponse(response);
+      setApiResponse(result);
     }
 
     router.replace(`/builder/schemas/${id}/not-found`);
@@ -115,6 +121,20 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
     }
   };
 
+  const handleReloadSchema = async () => {
+    if (!schemaId) {
+      return;
+    }
+    setIsReloading(true);
+    try {
+      await fetchSchema(schemaId);
+    } catch (error) {
+      console.error('Manual schema refresh failed:', error);
+    } finally {
+      setIsReloading(false);
+    }
+  };
+
   return (
     <SchemaBuilderEditor
       schemaId={schemaId}
@@ -123,6 +143,8 @@ export default function SchemaEditorPage({ params }: { params: Promise<{ 'schema
       onBack={() => router.push('/builder/schemas')}
       apiResponse={apiResponse}
       onClearResponse={() => setApiResponse(null)}
+      onRefreshSchema={handleReloadSchema}
+      refreshing={isReloading}
     />
   );
 }

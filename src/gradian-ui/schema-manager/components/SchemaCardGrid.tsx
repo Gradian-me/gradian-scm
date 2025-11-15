@@ -40,6 +40,9 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
   const isInactive = schema.inactive;
   const sectionCount = schema.sectionsCount ?? schema.sections?.length ?? 0;
   const fieldCount = schema.fieldsCount ?? schema.fields?.length ?? 0;
+  const showSections = sectionCount > 0;
+  const showFields = fieldCount > 0;
+  const showStats = showSections || showFields;
 
   return (
     <motion.div
@@ -112,20 +115,28 @@ const SchemaCardComponent = memo(({ schema, index, onEdit, onView, onDelete }: S
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-2 px-4 pb-4">
-          <div className={`flex items-center gap-4 text-xs ${
-            isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'
-          }`}>
-            <div className="flex items-center gap-1.5">
-              <Layers className="h-3.5 w-3.5" />
-              <span>{sectionCount} Sections</span>
+        {showStats && (
+          <CardContent className="pt-2 px-4 pb-4">
+            <div
+              className={`flex items-center gap-4 text-xs ${
+                isInactive ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'
+              }`}
+            >
+              {showSections && (
+                <div className="flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5" />
+                  <span>{sectionCount} Sections</span>
+                </div>
+              )}
+              {showFields && (
+                <div className="flex items-center gap-1.5">
+                  <Type className="h-3.5 w-3.5" />
+                  <span>{fieldCount} Fields</span>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1.5">
-              <Type className="h-3.5 w-3.5" />
-              <span>{fieldCount} Fields</span>
-            </div>
-          </div>
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
     </motion.div>
   );

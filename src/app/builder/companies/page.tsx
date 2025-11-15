@@ -5,7 +5,7 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { DynamicPageRenderer } from '@/gradian-ui/data-display/components/DynamicPageRenderer';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormSchema } from '@/gradian-ui/schema-manager/types/form-schema';
 
 /**
@@ -38,18 +38,25 @@ export default function CompaniesBuilderPage() {
   const router = useRouter();
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    async function loadSchema() {
+    if (hasFetchedRef.current) {
+      return;
+    }
+
+    hasFetchedRef.current = true;
+
+    const loadSchema = async () => {
       try {
         const response = await fetch('/api/schemas/companies');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch schema');
         }
-        
+
         const result = await response.json();
-        
+
         if (result.success && result.data) {
           // Process the schema to convert string patterns to RegExp
           const processedSchema = processSchema(result.data);
@@ -60,7 +67,8 @@ export default function CompaniesBuilderPage() {
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     loadSchema();
   }, []);
 

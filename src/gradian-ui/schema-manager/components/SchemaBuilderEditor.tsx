@@ -28,6 +28,8 @@ interface SchemaBuilderEditorProps {
   subtitle?: string;
   apiResponse?: any;
   onClearResponse?: () => void;
+  onRefreshSchema?: () => void | Promise<void>;
+  refreshing?: boolean;
 }
 
 export function SchemaBuilderEditor({
@@ -39,6 +41,8 @@ export function SchemaBuilderEditor({
   subtitle = 'Schema Builder',
   apiResponse,
   onClearResponse,
+  onRefreshSchema,
+  refreshing,
 }: SchemaBuilderEditorProps) {
   const [schema, setSchema] = useState<FormSchema | null>(null);
   const [originalSchema, setOriginalSchema] = useState<FormSchema | null>(null);
@@ -309,6 +313,8 @@ export function SchemaBuilderEditor({
           onGoBack={onBack}
           showGoBackButton={!!onBack}
           showHomeButton={false}
+          onRefresh={onRefreshSchema}
+          refreshing={refreshing}
         />
       </MainLayout>
     );
@@ -344,6 +350,9 @@ export function SchemaBuilderEditor({
           onReset={() => setShowResetDialog(true)}
           viewSchemaListUrl={schemaId ? `/page/${schemaId}` : undefined}
           saving={saving}
+          onRefresh={onRefreshSchema}
+          refreshing={refreshing}
+          refreshLabel="Refresh Schema"
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
