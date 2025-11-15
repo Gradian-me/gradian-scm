@@ -7,7 +7,8 @@ import {
   writeTemplateHtml,
   templateDirRelativePath,
   StoredEmailTemplate,
-} from '@/lib/email-templates';
+  ensureTemplatesSeeded,
+} from '@/domains/email-templates/server';
 
 const errorResponse = (message: string, status = 500) =>
   NextResponse.json({ success: false, error: message }, { status });
@@ -31,10 +32,15 @@ const generateTemplateId = (name: string, templates: StoredEmailTemplate[]) => {
 
 export async function GET() {
   try {
-    const templates = await readTemplatesFile();
+    const templates = await ensureTemplatesSeeded();
     const data = await Promise.all(
       templates.map(async (template) => ({
-        ...template,
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        subject: template.subject,
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt,
         html: await readTemplateHtml(template.filePath),
       })),
     );
@@ -55,7 +61,7 @@ export async function POST(request: NextRequest) {
       return errorResponse('Missing required fields: name, subject, html.', 400);
     }
 
-    const templates = await readTemplatesFile();
+    const templates = await ensureTemplatesSeeded();
     const newId = requestedId ? normalizeId(requestedId) : generateTemplateId(name, templates);
 
     if (!newId) {
@@ -86,7 +92,12 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: {
-          ...newTemplate,
+        id: newTemplate.id,
+        name: newTemplate.name,
+        description: newTemplate.description,
+        subject: newTemplate.subject,
+        createdAt: newTemplate.createdAt,
+        updatedAt: newTemplate.updatedAt,
           html,
         },
       },

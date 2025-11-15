@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   deleteTemplateHtml,
+  ensureTemplatesSeeded,
   readTemplateHtml,
-  readTemplatesFile,
+  templateDirRelativePath,
   writeTemplateHtml,
   writeTemplatesFile,
-} from '@/lib/email-templates';
+} from '@/domains/email-templates/server';
 
 const errorResponse = (message: string, status = 500) =>
   NextResponse.json({ success: false, error: message }, { status });
@@ -16,8 +17,15 @@ type Params = {
   };
 };
 
-export async function PUT(request: NextRequest, { params }: Params) {
+const normalizeId = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+export async function PUT(request: NextRequest, context: Params) {
   try {
+    const params = await Promise.resolve(context.params);
     const body = await request.json();
     const { name, description = '', subject, html } = body;
 
@@ -25,11 +33,43 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return errorResponse('Missing required fields: name, subject, html.', 400);
     }
 
-    const templates = await readTemplatesFile();
+    const templates = await ensureTemplatesSeeded();
     const templateIndex = templates.findIndex((template) => template.id === params.id);
+    const timestamp = new Date().toISOString();
 
     if (templateIndex === -1) {
-      return errorResponse('Template not found.', 404);
+      const sanitizedId = normalizeId(params.id);
+      if (!sanitizedId) {
+        return errorResponse('Template not found.', 404);
+      }
+      const filePath = templateDirRelativePath(`${sanitizedId}.html`);
+      await writeTemplateHtml(filePath, html);
+
+      const createdTemplate = {
+        id: sanitizedId,
+        name,
+        description,
+        subject,
+        filePath,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+
+      const updatedTemplates = [...templates, createdTemplate];
+      await writeTemplatesFile(updatedTemplates);
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: createdTemplate.id,
+          name: createdTemplate.name,
+          description: createdTemplate.description,
+          subject: createdTemplate.subject,
+          createdAt: createdTemplate.createdAt,
+          updatedAt: createdTemplate.updatedAt,
+          html,
+        },
+      });
     }
 
     const template = templates[templateIndex];
@@ -40,16 +80,22 @@ export async function PUT(request: NextRequest, { params }: Params) {
       name,
       description,
       subject,
-      updatedAt: new Date().toISOString(),
+      updatedAt: timestamp,
     };
 
-    templates[templateIndex] = updatedTemplate;
-    await writeTemplatesFile(templates);
+    const updatedTemplates = [...templates];
+    updatedTemplates[templateIndex] = updatedTemplate;
+    await writeTemplatesFile(updatedTemplates);
 
     return NextResponse.json({
       success: true,
       data: {
-        ...updatedTemplate,
+        id: updatedTemplate.id,
+        name: updatedTemplate.name,
+        description: updatedTemplate.description,
+        subject: updatedTemplate.subject,
+        createdAt: updatedTemplate.createdAt,
+        updatedAt: updatedTemplate.updatedAt,
         html,
       },
     });
@@ -59,9 +105,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: Params) {
+export async function DELETE(_request: NextRequest, context: Params) {
   try {
-    const templates = await readTemplatesFile();
+    const params = await Promise.resolve(context.params);
+    const templates = await ensureTemplatesSeeded();
     const templateIndex = templates.findIndex((template) => template.id === params.id);
 
     if (templateIndex === -1) {
@@ -80,9 +127,10 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   }
 }
 
-export async function GET(_request: NextRequest, { params }: Params) {
+export async function GET(_request: NextRequest, context: Params) {
   try {
-    const templates = await readTemplatesFile();
+    const params = await Promise.resolve(context.params);
+    const templates = await ensureTemplatesSeeded();
     const template = templates.find((item) => item.id === params.id);
 
     if (!template) {
@@ -94,7 +142,12 @@ export async function GET(_request: NextRequest, { params }: Params) {
     return NextResponse.json({
       success: true,
       data: {
-        ...template,
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        subject: template.subject,
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt,
         html,
       },
     });

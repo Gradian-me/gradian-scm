@@ -19,88 +19,36 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-
-type EmailTemplate = {
-  id: string;
-  name: string;
-  description: string;
-  subject: string;
-  html: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
-
-const placeholderPattern = /{{\s*([\w.-]+)\s*}}/g;
-
-const renderWithValues = (content: string | undefined, values: Record<string, string>) =>
-  (content ?? '').replace(placeholderPattern, (_, key: string) =>
-    values[key] !== undefined && values[key] !== '' ? values[key] : `{{${key}}}`,
-  );
-
-const extractPlaceholders = (content: string | undefined) => {
-  if (!content) return [];
-  const matches = new Set<string>();
-  let match: RegExpExecArray | null;
-  while ((match = placeholderPattern.exec(content)) !== null) {
-    matches.add(match[1]);
-  }
-  return Array.from(matches);
-};
-
-const blankTemplateHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>{{subject}}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body style="font-family: Arial, sans-serif; padding: 24px;">
-  <h1>Hello {{audience}}</h1>
-  <p>Start crafting the HTML for your email here.</p>
-</body>
-</html>`;
+import { CopyContent } from '@/gradian-ui/form-builder/form-elements/components/CopyContent';
+import { useEmailTemplates } from './hooks/useEmailTemplates';
+import { DEFAULT_TEMPLATE_HTML, extractPlaceholders, renderWithValues } from './utils';
+import type { EmailTemplate, PlaceholderValues } from './types';
 
 export default function EmailTemplateBuilderPage() {
-  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const {
+    templates,
+    isLoading,
+    error: templatesError,
+    mutationState,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate,
+    setError: setTemplatesError,
+  } = useEmailTemplates();
+
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [workingTemplate, setWorkingTemplate] = useState<EmailTemplate | null>(null);
-  const [placeholderValues, setPlaceholderValues] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [placeholderValues, setPlaceholderValues] = useState<PlaceholderValues>({});
+  const [localError, setLocalError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchTemplates = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/email-templates');
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to load templates.');
-        }
-
-        setTemplates(data.data);
-        setSelectedTemplateId((current) => {
-          if (current && data.data.some((template: EmailTemplate) => template.id === current)) {
-            return current;
-          }
-          return data.data[0]?.id ?? '';
-        });
-        setError(null);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load templates.';
-        setError(message);
-        toast.error(message);
-      } finally {
-        setIsLoading(false);
+    setSelectedTemplateId((current) => {
+      if (current && templates.some((template) => template.id === current)) {
+        return current;
       }
-    };
-
-    fetchTemplates();
-  }, []);
+      return templates[0]?.id ?? '';
+    });
+  }, [templates]);
 
   useEffect(() => {
     const activeTemplate =
@@ -150,69 +98,40 @@ export default function EmailTemplateBuilderPage() {
   };
 
   const handleCreateTemplate = async () => {
-    setIsCreating(true);
     try {
-      const payload = {
+      const template = await createTemplate({
         name: 'New template',
         description: 'Describe when this template is used.',
         subject: 'New email subject for {{audience}}',
-        html: blankTemplateHtml,
-      };
-      const response = await fetch('/api/email-templates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        html: DEFAULT_TEMPLATE_HTML,
       });
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to create template.');
-      }
-
-      setTemplates((current) => [...current, data.data]);
-      setSelectedTemplateId(data.data.id);
+      setSelectedTemplateId(template.id);
       toast.success('Template created.');
+      setLocalError(null);
+      setTemplatesError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create template.';
       toast.error(message);
-    } finally {
-      setIsCreating(false);
+      setLocalError(message);
     }
   };
 
   const handleSaveTemplate = async () => {
     if (!workingTemplate) return;
-    setIsSaving(true);
     try {
-      const response = await fetch(`/api/email-templates/${workingTemplate.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: workingTemplate.name,
-          description: workingTemplate.description,
-          subject: workingTemplate.subject,
-          html: workingTemplate.html,
-        }),
+      await updateTemplate(workingTemplate.id, {
+        name: workingTemplate.name,
+        description: workingTemplate.description,
+        subject: workingTemplate.subject,
+        html: workingTemplate.html,
       });
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to save template.');
-      }
-
-      setTemplates((current) =>
-        current.map((template) => (template.id === data.data.id ? data.data : template)),
-      );
       toast.success('Template saved.');
+      setLocalError(null);
+      setTemplatesError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save template.';
       toast.error(message);
-    } finally {
-      setIsSaving(false);
+      setLocalError(message);
     }
   };
 
@@ -223,28 +142,15 @@ export default function EmailTemplateBuilderPage() {
     );
     if (!confirmed) return;
 
-    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/email-templates/${workingTemplate.id}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to delete template.');
-      }
-
-      const remainingTemplates = templates.filter((template) => template.id !== workingTemplate.id);
-      setTemplates(remainingTemplates);
-      setSelectedTemplateId((currentId) =>
-        currentId === workingTemplate.id ? remainingTemplates[0]?.id ?? '' : currentId,
-      );
+      await deleteTemplate(workingTemplate.id);
       toast.success('Template deleted.');
+      setLocalError(null);
+      setTemplatesError(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete template.';
       toast.error(message);
-    } finally {
-      setIsDeleting(false);
+      setLocalError(message);
     }
   };
 
@@ -259,8 +165,8 @@ export default function EmailTemplateBuilderPage() {
         <CardDescription>Start by creating your first email template.</CardDescription>
       </CardHeader>
       <CardFooter>
-        <Button onClick={handleCreateTemplate} disabled={isCreating}>
-          {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button onClick={handleCreateTemplate} disabled={mutationState.create}>
+          {mutationState.create && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create template
         </Button>
       </CardFooter>
@@ -301,7 +207,9 @@ export default function EmailTemplateBuilderPage() {
           <p className="text-muted-foreground">
             Create domain-specific HTML emails, define placeholders, and preview personalized values instantly.
           </p>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {(templatesError ?? localError) && (
+            <p className="text-sm text-destructive">{templatesError ?? localError}</p>
+          )}
         </div>
 
         {templates.length === 0 || !workingTemplate ? (
@@ -315,8 +223,8 @@ export default function EmailTemplateBuilderPage() {
                     <CardTitle>Templates</CardTitle>
                     <CardDescription>Switch between reusable layouts.</CardDescription>
                   </div>
-                  <Button size="sm" onClick={handleCreateTemplate} disabled={isCreating}>
-                    {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Button size="sm" onClick={handleCreateTemplate} disabled={mutationState.create}>
+                    {mutationState.create && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     New
                   </Button>
                 </div>
@@ -396,17 +304,17 @@ export default function EmailTemplateBuilderPage() {
                     <Button
                       variant="outline"
                       onClick={handleDeleteTemplate}
-                      disabled={isDeleting}
+                      disabled={mutationState.delete}
                     >
-                      {isDeleting ? (
+                      {mutationState.delete ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : (
                         <Trash2 className="mr-2 h-4 w-4" />
                       )}
                       Delete
                     </Button>
-                    <Button onClick={handleSaveTemplate} disabled={isSaving}>
-                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button onClick={handleSaveTemplate} disabled={mutationState.update}>
+                      {mutationState.update && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Save template
                     </Button>
                   </div>
@@ -457,15 +365,21 @@ export default function EmailTemplateBuilderPage() {
                         />
                       </div>
                     </TabsContent>
-                    <TabsContent value="subject">
-                      <pre className="rounded-2xl border bg-muted/60 p-4 text-sm whitespace-pre-wrap">
-                        {resolvedSubject}
-                      </pre>
+                  <TabsContent value="subject">
+                    <pre className="rounded-2xl border bg-muted/60 p-4 text-sm font-mono whitespace-pre-wrap">
+                      {resolvedSubject}
+                    </pre>
                     </TabsContent>
                     <TabsContent value="html">
-                      <pre className="rounded-2xl border bg-muted/60 p-4 text-xs overflow-x-auto whitespace-pre-wrap">
+                    <div className="rounded-2xl border bg-muted/60 p-4">
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <p className="text-sm font-medium text-muted-foreground">Resolved HTML</p>
+                        <CopyContent content={resolvedHtml} />
+                      </div>
+                      <pre className="text-xs font-mono overflow-x-auto whitespace-pre-wrap">
                         {resolvedHtml}
                       </pre>
+                    </div>
                     </TabsContent>
                   </Tabs>
                 </CardContent>
