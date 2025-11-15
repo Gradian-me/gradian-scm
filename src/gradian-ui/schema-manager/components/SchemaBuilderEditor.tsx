@@ -356,22 +356,34 @@ export function SchemaBuilderEditor({
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
-            <TabsTrigger value="general" className="text-xs sm:text-sm">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-2 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-slate-800 dark:bg-slate-900/40">
+            <TabsTrigger
+              value="general"
+              className="text-xs sm:text-sm rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"
+            >
               <Settings className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate">General</span>
             </TabsTrigger>
-            <TabsTrigger value="sections" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="sections"
+              className="text-xs sm:text-sm rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"
+            >
               <Layers className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate hidden sm:inline">Sections & Fields</span>
               <span className="truncate sm:hidden">Fields</span>
             </TabsTrigger>
-            <TabsTrigger value="card" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="card"
+              className="text-xs sm:text-sm rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"
+            >
               <Layout className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate hidden sm:inline">Card Metadata</span>
               <span className="truncate sm:hidden">Card</span>
             </TabsTrigger>
-            <TabsTrigger value="detail" className="text-xs sm:text-sm">
+            <TabsTrigger
+              value="detail"
+              className="text-xs sm:text-sm rounded-lg py-2 px-3 text-gray-600 transition-colors data-[state=active]:bg-white data-[state=active]:text-violet-600 data-[state=active]:shadow-sm dark:text-slate-300 dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-white"
+            >
               <FileText className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="truncate hidden sm:inline">Detail Page</span>
               <span className="truncate sm:hidden">Detail</span>

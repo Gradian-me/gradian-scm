@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { TextInput, Slider, NameInput, SortableSelector } from '@/gradian-ui/form-builder/form-elements';
 import type { SortableSelectorItem } from '@/gradian-ui/form-builder/form-elements';
 import { FormSchema, CardSection, FormField } from '../types/form-schema';
-import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IconRenderer } from '@/gradian-ui/shared/utils/icon-renderer';
+import { CardSectionEditor } from './CardSectionEditor';
 
 interface CardMetadataTabProps {
   schema: FormSchema;
@@ -35,16 +34,12 @@ const titleToId = (title: string): string => {
 };
 
 export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [customSectionIds, setCustomSectionIds] = useState<Record<string, boolean>>({});
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const cardMetadata = schema.cardMetadata || [];
 
   const allFields = schema.fields || [];
   const availableFields = allFields.filter(f => !f.inactive);
-
-  const toggleSection = (sectionId: string) => {
-    setExpandedSection(prev => prev === sectionId ? null : sectionId);
-  };
 
   const addCardSection = () => {
     const defaultTitle = 'New Card Section';
@@ -56,7 +51,7 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
       fieldIds: [],
     };
     onUpdate({ cardMetadata: [...cardMetadata, newSection] });
-    setExpandedSection(newSection.id);
+    setEditingSectionId(newSection.id);
   };
 
   const updateCardSection = (sectionId: string, updates: Partial<CardSection>) => {
@@ -64,6 +59,17 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
       section.id === sectionId ? { ...section, ...updates } : section
     );
     onUpdate({ cardMetadata: updated });
+
+    if (updates.id && updates.id !== sectionId) {
+      setEditingSectionId(prev => (prev === sectionId ? updates.id || prev : prev));
+      setCustomSectionIds(prev => {
+        if (!(sectionId in prev)) {
+          return prev;
+        }
+        const { [sectionId]: value, ...rest } = prev;
+        return { ...rest, [updates.id!]: value };
+      });
+    }
   };
 
   const handleTitleChange = (sectionId: string, newTitle: string) => {
@@ -105,6 +111,7 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
   const deleteCardSection = (sectionId: string) => {
     const updated = cardMetadata.filter(section => section.id !== sectionId);
     onUpdate({ cardMetadata: updated });
+    setEditingSectionId(prev => (prev === sectionId ? null : prev));
   };
 
 
@@ -173,125 +180,47 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10, height: 0 }}
-                  transition={{ 
-                    duration: 0.3, 
+                  transition={{
+                    duration: 0.3,
                     delay: index * 0.05,
-                    ease: [0.4, 0, 0.2, 1]
+                    ease: [0.4, 0, 0.2, 1],
                   }}
                   layout
                 >
                   <Card className="border-gray-200">
-                    <CardHeader className="pb-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 flex-1">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                          <CardTitle className="text-base">
+                            {section.title || 'Untitled Section'}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                              {section.fieldIds?.length || 0}{' '}
+                              {section.fieldIds?.length === 1 ? 'field' : 'fields'}
+                            </Badge>
+                            <span>• Column span: {section.colSpan || 1}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingSectionId(section.id)}
+                          >
+                            Edit Section
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleSection(section.id)}
-                            className="h-8 w-8 p-0"
+                            onClick={() => deleteCardSection(section.id)}
+                            className="text-red-600 hover:text-red-700"
                           >
-                            <motion.div
-                              animate={{ rotate: expandedSection === section.id ? 180 : 0 }}
-                              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                            >
-                              <ChevronDown className="h-4 w-4" />
-                            </motion.div>
+                            <Trash2 className="h-4 w-4" />
                           </Button>
-                          <CardTitle 
-                            className="text-base cursor-pointer hover:text-violet-600 transition-colors flex-1"
-                            onClick={() => toggleSection(section.id)}
-                          >
-                            {section.title || 'Untitled Section'}
-                          </CardTitle>
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.2, delay: 0.1 }}
-                          >
-                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                              {section.fieldIds?.length || 0} {section.fieldIds?.length === 1 ? 'field' : 'fields'}
-                            </Badge>
-                          </motion.div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteCardSection(section.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </CardHeader>
-                    <AnimatePresence>
-                      {expandedSection === section.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ 
-                            duration: 0.3, 
-                            ease: [0.4, 0, 0.2, 1],
-                            opacity: { duration: 0.2 }
-                          }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <CardContent className="space-y-4 pt-2">
-                    <div>
-                      <TextInput
-                        config={{ name: 'section-title', label: 'Card Section Title' }}
-                        value={section.title || ''}
-                        onChange={(value) => handleTitleChange(section.id, value)}
-                      />
-                    </div>
-                    <div>
-                      <NameInput
-                        config={{ 
-                          name: 'section-id', 
-                          label: 'Card Section ID',
-                          placeholder: 'Auto-generated from title'
-                        }}
-                        value={section.id}
-                        onChange={(value) => handleIdChange(section.id, value)}
-                        isCustomizable
-                        customMode={customSectionIds[section.id] || false}
-                        onCustomModeChange={(isCustom) => handleIdCustomModeChange(section.id, isCustom)}
-                        customizeDisabled={false}
-                        helperText={!customSectionIds[section.id] ? 'Card Section ID auto-generates from the title. Click "Customize" to override.' : undefined}
-                      />
-                    </div>
-                    <div>
-                      <Slider
-                        config={{ name: 'col-span', label: 'Column Span' }}
-                        value={section.colSpan || 1}
-                        onChange={(value: number) => updateCardSection(section.id, { colSpan: value })}
-                        min={1}
-                        max={2}
-                        step={1}
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Number of columns this section spans (1 or 2)</p>
-                    </div>
-                    <div>
-                      {availableFields.length === 0 ? (
-                        <p className="text-sm text-gray-500">No fields available. Add fields in the Sections & Fields tab first.</p>
-                      ) : (
-                        <SortableSelector
-                          availableItems={getAvailableFields(section)}
-                          selectedItems={getSelectedFields(section)}
-                          onChange={(selectedItems) => handleFieldSelectionChange(section.id, selectedItems)}
-                          isSortable={true}
-                          selectedLabel="Selected Fields"
-                          availableLabel="Available Fields"
-                          maxHeight="max-h-60"
-                          emptySelectedMessage="No fields selected. Select fields below to add them."
-                          emptyAvailableMessage="No fields available. Add fields in the Sections & Fields tab first."
-                        />
-                      )}
-                    </div>
-                          </CardContent>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </Card>
                 </motion.div>
               ))}
@@ -299,6 +228,30 @@ export function CardMetadataTab({ schema, onUpdate }: CardMetadataTabProps) {
           )}
         </CardContent>
       </Card>
+      {editingSectionId && (() => {
+        const editingSection = cardMetadata.find((s) => s.id === editingSectionId);
+        if (!editingSection) {
+          return null;
+        }
+        return (
+          <CardSectionEditor
+            section={editingSection}
+            availableFields={getAvailableFields(editingSection)}
+            selectedFields={getSelectedFields(editingSection)}
+            onTitleChange={(value) => handleTitleChange(editingSection.id, value)}
+            onIdChange={(value) => handleIdChange(editingSection.id, value)}
+            isCustomId={customSectionIds[editingSection.id] || false}
+            onCustomModeChange={(isCustom) => handleIdCustomModeChange(editingSection.id, isCustom)}
+            onUpdate={(updates) => updateCardSection(editingSection.id, updates)}
+            onFieldSelectionChange={(items) => handleFieldSelectionChange(editingSection.id, items)}
+            onDelete={() => {
+              deleteCardSection(editingSection.id);
+              setEditingSectionId(null);
+            }}
+            onClose={() => setEditingSectionId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }

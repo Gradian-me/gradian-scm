@@ -1,0 +1,118 @@
+'use client';
+
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { TextInput, NameInput, Slider, SortableSelector } from '@/gradian-ui/form-builder/form-elements';
+import type { SortableSelectorItem } from '@/gradian-ui/form-builder/form-elements';
+import { CardSection } from '../types/form-schema';
+
+interface CardSectionEditorProps {
+  section: CardSection;
+  availableFields: SortableSelectorItem[];
+  selectedFields: SortableSelectorItem[];
+  onTitleChange: (value: string) => void;
+  onIdChange: (value: string) => void;
+  isCustomId: boolean;
+  onCustomModeChange: (isCustom: boolean) => void;
+  onUpdate: (updates: Partial<CardSection>) => void;
+  onFieldSelectionChange: (items: SortableSelectorItem[]) => void;
+  onDelete: () => void;
+  onClose: () => void;
+}
+
+export function CardSectionEditor({
+  section,
+  availableFields,
+  selectedFields,
+  onTitleChange,
+  onIdChange,
+  isCustomId,
+  onCustomModeChange,
+  onUpdate,
+  onFieldSelectionChange,
+  onDelete,
+  onClose,
+}: CardSectionEditorProps) {
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-3xl w-[95vw]">
+        <DialogHeader>
+          <DialogTitle>Edit Card Section</DialogTitle>
+          <DialogDescription>
+            Configure the title, layout, and fields displayed in this card section.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-2">
+          <div className="grid gap-4">
+            <TextInput
+              config={{ name: 'section-title', label: 'Card Section Title' }}
+              value={section.title || ''}
+              onChange={onTitleChange}
+            />
+            <NameInput
+              config={{
+                name: 'section-id',
+                label: 'Card Section ID',
+                placeholder: 'Auto-generated from title',
+              }}
+              value={section.id}
+              onChange={onIdChange}
+              isCustomizable
+              customMode={isCustomId}
+              onCustomModeChange={onCustomModeChange}
+              helperText={
+                !isCustomId
+                  ? 'Card Section ID auto-generates from the title. Click "Customize" to override.'
+                  : undefined
+              }
+            />
+          </div>
+
+          <div className="grid gap-4">
+            <Slider
+              config={{ name: 'col-span', label: 'Column Span' }}
+              value={section.colSpan || 1}
+              onChange={(value: number) => onUpdate({ colSpan: value })}
+              min={1}
+              max={2}
+              step={1}
+            />
+            <p className="text-xs text-muted-foreground">
+              Number of columns this section spans (1 or 2)
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {availableFields.length === 0 && selectedFields.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No fields available. Add fields in the Sections & Fields tab first.
+              </p>
+            ) : (
+              <SortableSelector
+                availableItems={availableFields}
+                selectedItems={selectedFields}
+                onChange={onFieldSelectionChange}
+                isSortable
+                selectedLabel="Selected Fields"
+                availableLabel="Available Fields"
+                maxHeight="max-h-60"
+                emptySelectedMessage="No fields selected. Select fields below to add them."
+                emptyAvailableMessage="No fields available. Add fields in the Sections & Fields tab first."
+              />
+            )}
+          </div>
+        </div>
+
+        <DialogFooter className="flex justify-between w-full">
+          <Button variant="destructive" onClick={onDelete}>
+            Delete Section
+          </Button>
+          <Button onClick={onClose}>Done</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
